@@ -36,6 +36,7 @@ El panel lateral y la paleta de comandos permiten organizar tu infraestructura c
 - **Identidades Reutilizables**: Define credenciales globales (ej. tu usuario corporativo o tu llave personal) y asígnalas a múltiples servidores con 1 clic.
 - **Generador de Llaves SSH (Ed25519 & RSA)**: Genera pares de llaves seguras en la propia aplicación con un solo clic, permitiendo copiar la llave pública OpenSSH al portapapeles para añadirla fácilmente a `~/.ssh/authorized_keys`.
 - **Detección Automática de Host Keys (TOFU & Known Hosts)**: Verificación criptográfica de huellas digitales SHA-256 para prevenir ataques de *Man-in-the-Middle*.
+- **Barra Lateral Colapsable (`Ctrl + B` / `Cmd + B`)**: Maximiza el espacio de trabajo de la terminal ocultando o mostrando el panel izquierdo con un solo clic (desde el icono en la barra de pestañas o desde la cabecera del explorador de servidores) o mediante el atajo de teclado global.
 
 ---
 
@@ -45,6 +46,10 @@ Motor de terminal de ultra-baja latencia optimizado tanto para entornos locales 
 
 - **Aceleración por Hardware (WebGL)**: Renderizado fluido a 60+ FPS mediante el addon WebGL con fallback automático a Canvas 2D.
 - **Paneles Divididos Recursivos (*Split Panes*) & Acoplamiento de Pestañas (*Tab Docking*)**: Divide cualquier pestaña horizontal o verticalmente de forma ilimitada. Al hacer clic en el botón de división, puedes elegir abrir una **Nueva Terminal Local**, **Mismo Servidor**, **Elegir Servidor del Inventario** o **Mover una Pestaña Abierta directamente al panel dividido** sin reiniciar ni desconectar sesiones.
+- **Atajos Rápidos de División y Cierre de Paneles**: Realiza divisiones instantáneas de la sesión actual sin tocar el ratón:
+  - `Ctrl + Shift + O` o `Ctrl + Shift + D`: División Horizontal duplicando la sesión o host del panel activo.
+  - `Ctrl + Shift + E`: División Vertical duplicando la sesión o host del panel activo.
+  - `Ctrl + Shift + W`: Cerrar el panel activo enfocado.
 - **Soporte Completo de Nerd Fonts & Oh My Zsh**: Compatibilidad total con fuentes tipográficas populares (`MesloLGS NF`, `Hack Nerd Font`, `JetBrains Mono NF`, `Fira Code`) e iconos Powerline/Unicode.
 - **Streaming Binario Directo**: Comunicación mediante canales de streaming binario `Vec<u8>` en Tauri v2, evitando la sobrecarga de serialización JSON.
 
@@ -66,6 +71,7 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 
 ### 4.3. Modo Broadcast / Entrada Múltiple (*Multi-Exec*)
 - Permite escribir en una terminal y replicar las pulsaciones en tiempo real en todos los paneles divididos activos de la pestaña. Ideal para ejecutar actualizaciones simultáneas en grupos de servidores.
+- Se activa o desactiva con el botón superior en la barra de pestañas o mediante el atajo `Ctrl + Shift + B`.
 
 ### 4.4. Búsqueda Integrada en el Buffer (`Ctrl+F`)
 - Barra de búsqueda interactiva con búsqueda por expresiones regulares (`RegEx`), coincidencia de palabras completas y navegación bidireccional de resultados con resaltado.

@@ -341,6 +341,10 @@ onMounted(async () => {
           handleClose();
           return false;
         }
+        if (k === 'b') {
+          sessionsStore.toggleBroadcastMode();
+          return false;
+        }
       }
     }
     return true;

@@ -45,7 +45,9 @@ function handleGlobalKeyDown(e: KeyboardEvent) {
     isSettingsOpen.value = !isSettingsOpen.value;
   } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
     e.preventDefault();
-    if (vaultStore.isUnlocked) {
+    if (e.shiftKey) {
+      sessionsStore.toggleBroadcastMode();
+    } else if (vaultStore.isUnlocked) {
       isSidebarVisible.value = !isSidebarVisible.value;
     }
   }
