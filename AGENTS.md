@@ -82,6 +82,7 @@ El objetivo es ofrecer una experiencia moderna estilo *Termius* / *Tabby* / *Mob
 ```text
 terminal/
 ├── AGENTS.md                  # Instrucciones maestras para agentes de IA (este archivo)
+├── ARCHITECTURE.md            # Guía de arquitectura oficial y referencia técnica por capas
 ├── openspec/                  # Especificaciones vivas y propuestas de cambio (SDD)
 │   ├── config.yaml            # Configuración y reglas de OpenSpec
 │   ├── specs/                 # Especificaciones vigentes por módulo (Fuente de la verdad)

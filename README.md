@@ -162,6 +162,14 @@ pnpm tauri build
 
 ---
 
+## Documentation & Architecture
+
+- **[Architecture & Technical Blueprint (ARCHITECTURE.md)](ARCHITECTURE.md)**: Deep dive into the layered domain architecture, Tauri IPC binary streaming, zero-knowledge encryption, and extension guidelines.
+- **[Features & Shortcuts Manual (docs/FEATURES_MANUAL.md)](docs/FEATURES_MANUAL.md)**: User manual covering split panes, keybindings, semantic prompts, and themes.
+- **[AI Agent & SDD Workflow (AGENTS.md)](AGENTS.md)**: Specification-Driven Development (OpenSpec) rules, license compliance, and testing policy.
+
+---
+
 ## Security & Privacy Policy
 
 - **Zero Telemetry / Zero Phone Home**: NexusTerm never collects analytics or sends telemetry data to remote servers.

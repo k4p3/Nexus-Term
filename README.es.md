@@ -162,6 +162,14 @@ pnpm tauri build
 
 ---
 
+## Documentación y Arquitectura
+
+- **[Guía de Arquitectura y Referencia Técnica (ARCHITECTURE.md)](ARCHITECTURE.md)**: Explicación a fondo de la arquitectura por capas y dominios, streaming binario por Tauri IPC, criptografía zero-knowledge y guía para extender el sistema.
+- **[Manual de Funcionalidades y Atajos (docs/FEATURES_MANUAL.md)](docs/FEATURES_MANUAL.md)**: Manual de usuario detallando el uso de split panes, atajos de teclado, prompts semánticos y temas.
+- **[Flujo de Desarrollo SDD para Agentes (AGENTS.md)](AGENTS.md)**: Metodología con OpenSpec, cumplimiento estricto de licencias FOSS y política de testing obligatorio.
+
+---
+
 ## Seguridad y Privacidad
 
 - **Cero Telemetría**: NexusTerm no recopila métricas ni envía datos de uso a servidores externos.
