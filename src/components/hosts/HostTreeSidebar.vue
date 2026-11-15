@@ -320,31 +320,31 @@ async function handleDeleteIdentity(id: string) {
                 </div>
               </div>
 
-              <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div class="flex items-center space-x-1 opacity-60 group-hover:opacity-100 transition-opacity">
                 <button
                   @click.stop="emit('connect-host', host)"
-                  class="p-1 text-cyan-400 hover:bg-cyan-500/20 rounded"
-                  title="Conectar"
+                  class="p-1 text-cyan-400 hover:bg-cyan-500/20 rounded cursor-pointer"
+                  title="Conectar Terminal SSH"
                 >
                   <Terminal class="w-3.5 h-3.5" />
                 </button>
                 <button
                   @click.stop="sftpStore.openSftp(host.id)"
                   class="p-1 text-amber-400 hover:bg-amber-500/20 rounded cursor-pointer"
-                  title="Explorador SFTP"
+                  title="Explorador SFTP (Archivos)"
                 >
                   <FolderSync class="w-3.5 h-3.5" />
                 </button>
                 <button
                   @click.stop="openEditHost(host)"
-                  class="p-1 text-slate-400 hover:text-white rounded"
+                  class="p-1 text-slate-400 hover:text-white rounded cursor-pointer"
                   title="Editar"
                 >
                   <Edit2 class="w-3 h-3" />
                 </button>
                 <button
                   @click.stop="handleDeleteHost(host.id)"
-                  class="p-1 text-slate-400 hover:text-red-400 rounded"
+                  class="p-1 text-slate-400 hover:text-red-400 rounded cursor-pointer"
                   title="Eliminar"
                 >
                   <Trash2 class="w-3 h-3" />
@@ -375,31 +375,31 @@ async function handleDeleteIdentity(id: string) {
               </div>
             </div>
 
-            <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div class="flex items-center space-x-1 opacity-60 group-hover:opacity-100 transition-opacity">
               <button
                 @click.stop="emit('connect-host', host)"
-                class="p-1 text-cyan-400 hover:bg-cyan-500/20 rounded"
-                title="Conectar"
+                class="p-1 text-cyan-400 hover:bg-cyan-500/20 rounded cursor-pointer"
+                title="Conectar Terminal SSH"
               >
                 <Terminal class="w-3.5 h-3.5" />
               </button>
               <button
                 @click.stop="sftpStore.openSftp(host.id)"
                 class="p-1 text-amber-400 hover:bg-amber-500/20 rounded cursor-pointer"
-                title="Explorador SFTP"
+                title="Explorador SFTP (Archivos)"
               >
                 <FolderSync class="w-3.5 h-3.5" />
               </button>
               <button
                 @click.stop="openEditHost(host)"
-                class="p-1 text-slate-400 hover:text-white rounded"
+                class="p-1 text-slate-400 hover:text-white rounded cursor-pointer"
                 title="Editar"
               >
                 <Edit2 class="w-3 h-3" />
               </button>
               <button
                 @click.stop="handleDeleteHost(host.id)"
-                class="p-1 text-slate-400 hover:text-red-400 rounded"
+                class="p-1 text-slate-400 hover:text-red-400 rounded cursor-pointer"
                 title="Eliminar"
               >
                 <Trash2 class="w-3 h-3" />

@@ -2,11 +2,13 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useSessionsStore } from "../../stores/sessions.store";
+import { useSftpStore } from "../../stores/sftp.store";
 import SplitPaneNode from "./SplitPaneNode.vue";
-import { Plus, X, Terminal, Server, Sparkles, Radio, AlertTriangle, PanelLeft } from "lucide-vue-next";
+import { Plus, X, Terminal, Server, Sparkles, Radio, AlertTriangle, PanelLeft, FolderSync } from "lucide-vue-next";
 
 const { t } = useI18n();
 const sessionsStore = useSessionsStore();
+const sftpStore = useSftpStore();
 
 const props = withDefaults(
   defineProps<{
@@ -23,6 +25,13 @@ const emit = defineEmits<{
 
 const activeTab = computed(() => {
   return sessionsStore.tabs.find((t) => t.id === sessionsStore.activeTabId) || null;
+});
+
+const activeHost = computed(() => {
+  if (!sessionsStore.activeTabId) return null;
+  const leaves = sessionsStore.getLeafPanesInTab(sessionsStore.activeTabId);
+  const activePane = leaves.find((l) => l.id === activeTab.value?.activePaneId) || leaves[0];
+  return activePane?.host || null;
 });
 
 function handleNewTab() {
@@ -76,8 +85,18 @@ function handleNewTab() {
         </button>
       </div>
 
-      <!-- Right Tab Toolbar: Broadcast Toggle -->
+      <!-- Right Tab Toolbar: SFTP & Broadcast Toggle -->
       <div v-if="sessionsStore.tabs.length > 0" class="flex items-center space-x-2 pl-2">
+        <button
+          v-if="activeHost"
+          @click="sftpStore.openSftp(activeHost.id)"
+          class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border border-amber-500/40 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20 transition cursor-pointer"
+          :title="`Abrir Explorador SFTP para ${activeHost.label}`"
+        >
+          <FolderSync class="w-3.5 h-3.5 text-amber-400" />
+          <span>SFTP</span>
+        </button>
+
         <button
           @click="sessionsStore.toggleBroadcastMode()"
           :class="[

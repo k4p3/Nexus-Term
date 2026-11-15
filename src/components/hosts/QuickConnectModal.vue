@@ -5,7 +5,7 @@ import { useVaultStore } from "../../stores/vault.store";
 import { useSnippetsStore } from "../../stores/snippets.store";
 import type { HostSummary } from "../../types/inventory";
 import type { CommandSnippet } from "../../types/snippets";
-import { Search, Server, Terminal, Settings, Code, Folder, Tag, CornerDownLeft, ArrowRightLeft } from "lucide-vue-next";
+import { Search, Server, Terminal, Settings, Code, Folder, Tag, CornerDownLeft, ArrowRightLeft, FolderSync } from "lucide-vue-next";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -14,6 +14,8 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: "close"): void;
   (e: "connect-host", host: HostSummary): void;
+  (e: "connect-sftp", host: HostSummary): void;
+  (e: "open-sftp"): void;
   (e: "open-local-pty"): void;
   (e: "open-settings"): void;
   (e: "open-snippets"): void;
@@ -29,7 +31,7 @@ const selectedIndex = ref(0);
 const searchInput = ref<HTMLInputElement | null>(null);
 
 interface SearchItem {
-  type: "local" | "host" | "settings" | "snippet" | "tunnels";
+  type: "local" | "host" | "settings" | "snippet" | "tunnels" | "sftp";
   id: string;
   label: string;
   subtitle: string;
@@ -50,6 +52,16 @@ const items = computed<SearchItem[]>(() => {
       id: "action-settings",
       label: t('settings.title'),
       subtitle: `${t('settings.tabs.general')} • ${t('settings.tabs.terminal')} • ${t('settings.tabs.security')}`,
+    });
+  }
+
+  // SFTP shortcut
+  if (!q || "sftp archivos files explorador explorer transferencias transfers".includes(q)) {
+    result.push({
+      type: "sftp",
+      id: "action-sftp",
+      label: "Explorador SFTP (Archivos Remotos)",
+      subtitle: "Abrir gestor de archivos remotos y transferencias",
     });
   }
 
@@ -166,6 +178,8 @@ function handleKeyDown(e: KeyboardEvent) {
 function executeItem(item: SearchItem) {
   if (item.type === "settings") {
     emit("open-settings");
+  } else if (item.type === "sftp") {
+    emit("open-sftp");
   } else if (item.type === "tunnels") {
     emit("open-tunnels");
   } else if (item.type === "local") {
@@ -230,6 +244,8 @@ onUnmounted(() => {
               :class="
                 item.type === 'settings'
                   ? 'bg-blue-500/20 text-blue-400'
+                  : item.type === 'sftp'
+                  ? 'bg-amber-500/20 text-amber-400'
                   : item.type === 'snippet'
                   ? 'bg-amber-500/20 text-amber-400'
                   : item.type === 'tunnels'
@@ -240,6 +256,7 @@ onUnmounted(() => {
               "
             >
               <Settings v-if="item.type === 'settings'" class="w-4 h-4" />
+              <FolderSync v-else-if="item.type === 'sftp'" class="w-4 h-4" />
               <Code v-else-if="item.type === 'snippet'" class="w-4 h-4" />
               <ArrowRightLeft v-else-if="item.type === 'tunnels'" class="w-4 h-4" />
               <Terminal v-else-if="item.type === 'local'" class="w-4 h-4" />
@@ -261,6 +278,15 @@ onUnmounted(() => {
           </div>
 
           <div class="flex items-center space-x-2 shrink-0">
+            <button
+              v-if="item.type === 'host' && item.host"
+              @click.stop="emit('connect-sftp', item.host); emit('close');"
+              class="p-1 px-1.5 rounded-md text-[10px] text-amber-400 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 flex items-center space-x-1 cursor-pointer transition"
+              title="Abrir SFTP directamente para este servidor"
+            >
+              <FolderSync class="w-3 h-3" />
+              <span>SFTP</span>
+            </button>
             <div v-if="item.tags && item.tags.length > 0" class="flex items-center space-x-1">
               <span
                 v-for="tag in item.tags.slice(0, 2)"

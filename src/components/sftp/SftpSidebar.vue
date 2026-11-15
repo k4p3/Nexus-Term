@@ -258,6 +258,45 @@ async function handleDelete(entry: SftpEntry) {
         <p>Cargando archivos remotos...</p>
       </div>
 
+      <!-- No active SFTP session picker -->
+      <div
+        v-else-if="!sftpStore.currentSessionId"
+        class="py-8 px-4 text-center text-xs space-y-4"
+      >
+        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center mx-auto shadow-inner">
+          <FolderSync class="w-6 h-6" />
+        </div>
+        <div>
+          <p class="font-semibold text-theme-main text-sm">Explorador SFTP</p>
+          <p class="text-[11px] text-theme-muted mt-1 leading-relaxed">
+            Selecciona un servidor guardado para explorar sus archivos remotos y transferir archivos:
+          </p>
+        </div>
+        <div class="space-y-1.5 max-h-72 overflow-y-auto text-left pt-1">
+          <div
+            v-for="host in vaultStore.hosts"
+            :key="host.id"
+            @click="sftpStore.openSftp(host.id)"
+            class="flex items-center justify-between p-2.5 rounded-xl bg-theme-app hover:bg-theme-active border border-theme cursor-pointer transition group"
+          >
+            <div class="truncate">
+              <div class="font-medium text-theme-main group-hover:text-amber-300 truncate transition">
+                {{ host.label }}
+              </div>
+              <div class="text-[10px] text-theme-muted font-mono truncate">
+                {{ host.hostname }}:{{ host.port }}
+              </div>
+            </div>
+            <div class="p-1 rounded bg-amber-500/10 text-amber-400 opacity-80 group-hover:opacity-100 transition shrink-0 ml-2">
+              <FolderSync class="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div v-if="vaultStore.hosts.length === 0" class="text-center text-theme-muted text-[11px] py-4">
+            No tienes servidores guardados en la bóveda. Agrega uno en la barra lateral izquierda.
+          </div>
+        </div>
+      </div>
+
       <div
         v-else-if="filteredEntries.length === 0"
         class="py-12 text-center text-xs text-theme-muted"

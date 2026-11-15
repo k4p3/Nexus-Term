@@ -69,6 +69,28 @@ function handleOpenLocalPty() {
   sessionsStore.createTab(t('terminal.newLocal'));
 }
 
+function handleToggleSftp() {
+  if (sftpStore.isOpen) {
+    sftpStore.isOpen = false;
+  } else {
+    // Si no hay sesión SFTP activa pero hay un tab/panel con host remoto, abrimos sftp con ese host automáticamente
+    if (!sftpStore.currentSessionId && sessionsStore.activeTabId) {
+      const leaves = sessionsStore.getLeafPanesInTab(sessionsStore.activeTabId);
+      const activeTab = sessionsStore.tabs.find((t) => t.id === sessionsStore.activeTabId);
+      const activePane = leaves.find((l) => l.id === activeTab?.activePaneId) || leaves[0];
+      if (activePane?.host) {
+        sftpStore.openSftp(activePane.host.id);
+        return;
+      }
+    }
+    sftpStore.isOpen = true;
+  }
+}
+
+function handleConnectSftp(host: HostSummary) {
+  sftpStore.openSftp(host.id);
+}
+
 function handleInsertCommand(command: string) {
   if (!sessionsStore.activeTabId) return;
   const tab = sessionsStore.tabs.find((t) => t.id === sessionsStore.activeTabId);
@@ -133,13 +155,22 @@ function handleInsertCommand(command: string) {
         </button>
 
         <button
-          v-if="vaultStore.isUnlocked && (sftpStore.isOpen || sftpStore.currentSessionId)"
-          @click="sftpStore.isOpen = !sftpStore.isOpen"
-          title="Explorador SFTP"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-lg transition-colors cursor-pointer"
+          v-if="vaultStore.isUnlocked"
+          @click="handleToggleSftp"
+          title="Explorador SFTP (Archivos Remotos)"
+          :class="[
+            'flex items-center space-x-1.5 px-2.5 py-1 text-xs rounded-lg border transition-colors cursor-pointer',
+            sftpStore.isOpen
+              ? 'bg-amber-500/20 text-amber-300 border-amber-500/60 shadow-xs'
+              : 'text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border-theme'
+          ]"
         >
           <FolderSync class="w-3.5 h-3.5 text-amber-400" />
           <span>SFTP</span>
+          <span
+            v-if="sftpStore.currentSessionId"
+            class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse ml-0.5"
+          ></span>
         </button>
 
         <button
@@ -193,6 +224,8 @@ function handleInsertCommand(command: string) {
           :is-open="isQuickConnectOpen"
           @close="isQuickConnectOpen = false"
           @connect-host="handleConnectHost"
+          @connect-sftp="handleConnectSftp"
+          @open-sftp="handleToggleSftp"
           @open-local-pty="handleOpenLocalPty"
           @open-settings="isSettingsOpen = true"
           @open-snippets="isSnippetsOpen = true"
