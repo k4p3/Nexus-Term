@@ -1,0 +1,151 @@
+import { defineStore } from "pinia";
+import { ref } from "vue";
+import type { HostSummary } from "../types/inventory";
+import type { SessionTab, PaneNode, LeafPane, SplitDirection } from "../types/session";
+
+function generateId(): string {
+  return "pane-" + Math.random().toString(36).substring(2, 9);
+}
+
+export const useSessionsStore = defineStore("sessions", () => {
+  const tabs = ref<SessionTab[]>([]);
+  const activeTabId = ref<string | null>(null);
+
+  function createTab(title?: string, host?: HostSummary): string {
+    const tabId = "tab-" + Math.random().toString(36).substring(2, 9);
+    const paneId = generateId();
+    const tabTitle = title || (host ? host.label : "Local Shell");
+
+    const leaf: LeafPane = {
+      type: "leaf",
+      id: paneId,
+      title: tabTitle,
+      hostId: host?.id,
+      host,
+    };
+
+    const newTab: SessionTab = {
+      id: tabId,
+      title: tabTitle,
+      rootPane: leaf,
+      activePaneId: paneId,
+    };
+
+    tabs.value.push(newTab);
+    activeTabId.value = tabId;
+    return tabId;
+  }
+
+  function closeTab(tabId: string) {
+    const idx = tabs.value.findIndex((t) => t.id === tabId);
+    if (idx !== -1) {
+      tabs.value.splice(idx, 1);
+      if (activeTabId.value === tabId) {
+        if (tabs.value.length > 0) {
+          activeTabId.value = tabs.value[Math.max(0, idx - 1)].id;
+        } else {
+          activeTabId.value = null;
+        }
+      }
+    }
+  }
+
+  function splitPane(
+    tabId: string,
+    targetPaneId: string,
+    direction: SplitDirection,
+    host?: HostSummary
+  ) {
+    const tab = tabs.value.find((t) => t.id === tabId);
+    if (!tab) return;
+
+    function replaceNode(node: PaneNode): PaneNode {
+      if (node.type === "leaf") {
+        if (node.id === targetPaneId) {
+          const newLeafId = generateId();
+          const newLeafTitle = host ? host.label : "Local Shell";
+
+          const newLeaf: LeafPane = {
+            type: "leaf",
+            id: newLeafId,
+            title: newLeafTitle,
+            hostId: host?.id,
+            host,
+          };
+
+          tab!.activePaneId = newLeafId;
+
+          return {
+            type: "split",
+            id: generateId(),
+            direction,
+            first: node,
+            second: newLeaf,
+            ratio: 0.5,
+          };
+        }
+        return node;
+      } else {
+        return {
+          ...node,
+          first: replaceNode(node.first),
+          second: replaceNode(node.second),
+        };
+      }
+    }
+
+    tab.rootPane = replaceNode(tab.rootPane);
+  }
+
+  function closePane(tabId: string, targetPaneId: string) {
+    const tab = tabs.value.find((t) => t.id === tabId);
+    if (!tab) return;
+
+    if (tab.rootPane.type === "leaf" && tab.rootPane.id === targetPaneId) {
+      closeTab(tabId);
+      return;
+    }
+
+    function removeNode(node: PaneNode): PaneNode | null {
+      if (node.type === "leaf") {
+        return node.id === targetPaneId ? null : node;
+      }
+
+      const firstRes = removeNode(node.first);
+      const secondRes = removeNode(node.second);
+
+      if (firstRes === null) return secondRes;
+      if (secondRes === null) return firstRes;
+
+      return {
+        ...node,
+        first: firstRes,
+        second: secondRes,
+      };
+    }
+
+    const newRoot = removeNode(tab.rootPane);
+    if (newRoot) {
+      tab.rootPane = newRoot;
+    } else {
+      closeTab(tabId);
+    }
+  }
+
+  function setActivePane(tabId: string, paneId: string) {
+    const tab = tabs.value.find((t) => t.id === tabId);
+    if (tab) {
+      tab.activePaneId = paneId;
+    }
+  }
+
+  return {
+    tabs,
+    activeTabId,
+    createTab,
+    closeTab,
+    splitPane,
+    closePane,
+    setActivePane,
+  };
+});

@@ -1,0 +1,35 @@
+[package]
+name = "nexus-term"
+version = "0.1.0"
+description = "NexusTerm - Gestor SSH, SFTP y Terminal Multiplataforma"
+authors = ["NexusTerm Contributors"]
+edition = "2024"
+rust-version = "1.90"
+
+[lib]
+name = "nexus_term_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.7.4", features = [] }
+
+[dependencies]
+tauri = { version = "2.12.5", features = [] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1", features = ["full"] }
+rusqlite = { version = "0.33", features = ["bundled"] }
+argon2 = "0.5"
+aes-gcm = "0.10"
+zeroize = { version = "1.8", features = ["derive"] }
+russh = "0.50.0-beta.7"
+russh-keys = "0.50.0-beta.7"
+portable-pty = "0.8"
+uuid = { version = "1.13", features = ["v4", "v7", "serde"] }
+thiserror = "2.0"
+chrono = { version = "0.4", features = ["serde"] }
+rand = "0.8"
+sha2 = "0.10"
+base64 = "0.22"
+tracing = "0.1"
+tracing-subscriber = "0.3"
