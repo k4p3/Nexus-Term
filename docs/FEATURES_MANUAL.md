@@ -44,7 +44,7 @@ El panel lateral y la paleta de comandos permiten organizar tu infraestructura c
 Motor de terminal de ultra-baja latencia optimizado tanto para entornos locales como para conexiones remotas:
 
 - **Aceleración por Hardware (WebGL)**: Renderizado fluido a 60+ FPS mediante el addon WebGL con fallback automático a Canvas 2D.
-- **Paneles Divididos Recursivos (*Split Panes*)**: Divide cualquier pestaña horizontal o verticalmente de forma ilimitada para comparar logs o trabajar en múltiples máquinas en una sola ventana.
+- **Paneles Divididos Recursivos (*Split Panes*) & Acoplamiento de Pestañas (*Tab Docking*)**: Divide cualquier pestaña horizontal o verticalmente de forma ilimitada. Al hacer clic en el botón de división, puedes elegir abrir una **Nueva Terminal Local**, **Mismo Servidor**, **Elegir Servidor del Inventario** o **Mover una Pestaña Abierta directamente al panel dividido** sin reiniciar ni desconectar sesiones.
 - **Soporte Completo de Nerd Fonts & Oh My Zsh**: Compatibilidad total con fuentes tipográficas populares (`MesloLGS NF`, `Hack Nerd Font`, `JetBrains Mono NF`, `Fira Code`) e iconos Powerline/Unicode.
 - **Streaming Binario Directo**: Comunicación mediante canales de streaming binario `Vec<u8>` en Tauri v2, evitando la sobrecarga de serialización JSON.
 
