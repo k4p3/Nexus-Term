@@ -5,6 +5,7 @@ pub mod sftp;
 pub mod snippets;
 pub mod ssh;
 pub mod ssh_config;
+pub mod telemetry;
 pub mod tunnels;
 pub mod vault;
 
@@ -23,6 +24,8 @@ use crate::sftp::SftpSessionManager;
 use crate::snippets::{delete_snippet, get_snippets, save_snippet};
 use crate::ssh::{connect_ssh, SshSessionManager};
 use crate::ssh_config::{detect_ssh_config, import_ssh_config};
+use crate::telemetry::commands::{fetch_telemetry_snapshot, start_telemetry_stream, stop_telemetry_stream};
+use crate::telemetry::TelemetryManager;
 use crate::tunnels::commands::{
     delete_tunnel, get_tunnel_statuses, list_tunnels, save_tunnel, start_tunnel, stop_tunnel,
 };
@@ -60,6 +63,7 @@ pub fn run() {
             app.manage(SshSessionManager::new());
             app.manage(Arc::new(SshTunnelManager::new()));
             app.manage(Arc::new(SftpSessionManager::new()));
+            app.manage(Arc::new(TelemetryManager::new()));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -105,6 +109,9 @@ pub fn run() {
             sftp_download,
             sftp_upload,
             sftp_disconnect,
+            fetch_telemetry_snapshot,
+            start_telemetry_stream,
+            stop_telemetry_stream,
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application");

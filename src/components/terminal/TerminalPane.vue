@@ -10,7 +10,9 @@ import { sessionService } from "../../services/session.service";
 import { useSessionsStore } from "../../stores/sessions.store";
 import { useSettingsStore } from "../../stores/settings.store";
 import { useVaultStore } from "../../stores/vault.store";
+import { useTelemetryStore } from "../../stores/telemetry.store";
 import TerminalSearchBar, { type SearchOptions } from "./TerminalSearchBar.vue";
+import TelemetryBar from "./TelemetryBar.vue";
 import type { LeafPane } from "../../types/session";
 import type { HostSummary } from "../../types/inventory";
 import {
@@ -30,6 +32,7 @@ import {
   Radio,
   FolderInput,
   ChevronRight,
+  Activity,
 } from "lucide-vue-next";
 
 const props = defineProps<{
@@ -42,6 +45,7 @@ const { t } = useI18n();
 const sessionsStore = useSessionsStore();
 const settingsStore = useSettingsStore();
 const vaultStore = useVaultStore();
+const telemetryStore = useTelemetryStore();
 
 const terminalContainer = ref<HTMLDivElement | null>(null);
 const isConnecting = ref(true);
@@ -432,6 +436,9 @@ onBeforeUnmount(async () => {
     await sessionService.closeSession(sessionId);
     sessionId = null;
   }
+  if (props.pane.hostId) {
+    telemetryStore.stopMonitoring(props.pane.hostId);
+  }
   if (term) {
     term.dispose();
     term = null;
@@ -542,6 +549,17 @@ function handleClose() {
           <ChevronDown class="w-3 h-3" />
         </button>
 
+        <!-- Telemetry toggle button (SSH hosts only) -->
+        <button
+          v-if="pane.hostId"
+          @click.stop="telemetryStore.togglePaneTelemetry(pane.id, pane.hostId)"
+          :title="telemetryStore.isTelemetryVisible[pane.id] ? 'Ocultar monitor de telemetría' : 'Mostrar monitor de telemetría (CPU, RAM, Red)'"
+          class="p-1 rounded-sm transition-colors cursor-pointer"
+          :class="telemetryStore.isTelemetryVisible[pane.id] ? 'bg-amber-500/20 text-amber-300' : 'text-slate-400 hover:text-amber-400 hover:bg-slate-800'"
+        >
+          <Activity class="w-3 h-3" />
+        </button>
+
         <button
           @click.stop="openSplitMenu('horizontal')"
           :title="`${t('terminal.splitRight')} (Ctrl+Shift+O / Ctrl+Shift+D)`"
@@ -567,6 +585,14 @@ function handleClose() {
         </button>
       </div>
     </div>
+
+    <!-- Live Telemetry Bar -->
+    <TelemetryBar
+      v-if="pane.hostId && telemetryStore.isTelemetryVisible[pane.id]"
+      :host-id="pane.hostId"
+      :pane-id="pane.id"
+      @close="telemetryStore.togglePaneTelemetry(pane.id)"
+    />
 
     <!-- Split Contextual Menu Popover -->
     <div
