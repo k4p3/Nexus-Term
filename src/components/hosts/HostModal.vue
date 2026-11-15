@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useVaultStore } from "../../stores/vault.store";
 import type { HostSummary, SaveHostPayload } from "../../types/inventory";
 import FolderModal from "./FolderModal.vue";
 import IdentityModal from "./IdentityModal.vue";
-import { X, Server, Globe, Tag, Plus } from "lucide-vue-next";
+import { X, Server, Globe, Tag, Plus, KeyRound } from "lucide-vue-next";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -22,6 +22,7 @@ const hostname = ref("");
 const port = ref(22);
 const folderId = ref<string | null>(null);
 const identityId = ref<string | null>(null);
+const selectedIdentity = computed(() => vaultStore.identities.find((i) => i.id === identityId.value));
 const usernameOverride = ref("");
 const tagsInput = ref("");
 const notes = ref("");
@@ -125,40 +126,40 @@ async function handleSave() {
       <!-- Form -->
       <form @submit.prevent="handleSave" class="p-5 space-y-4 overflow-y-auto flex-1">
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Nombre / Alias del Servidor</label>
+          <label class="block text-xs font-medium text-theme-muted mb-1">Nombre / Alias del Servidor</label>
           <input
             v-model="label"
             type="text"
             required
             placeholder="ej. Web Server Producción / VPS Hetzner"
-            class="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+            class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
           />
         </div>
 
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">
-            <label class="block text-xs font-medium text-slate-300 mb-1">Dirección IP o Hostname</label>
+            <label class="block text-xs font-medium text-theme-muted mb-1">Dirección IP o Hostname</label>
             <div class="relative">
-              <Globe class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <Globe class="w-4 h-4 text-theme-muted absolute left-3 top-2.5" />
               <input
                 v-model="hostname"
                 type="text"
                 required
                 placeholder="192.168.1.100 o app.ejemplo.com"
-                class="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+                class="w-full pl-9 pr-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-slate-300 mb-1">Puerto SSH</label>
+            <label class="block text-xs font-medium text-theme-muted mb-1">Puerto SSH</label>
             <input
               v-model="port"
               type="number"
               min="1"
               max="65535"
               required
-              class="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
             />
           </div>
         </div>
@@ -166,11 +167,11 @@ async function handleSave() {
         <div class="grid grid-cols-2 gap-3">
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-xs font-medium text-slate-300">Carpeta</label>
+              <label class="block text-xs font-medium text-theme-muted">Carpeta</label>
               <button
                 type="button"
                 @click="isNewFolderModalOpen = true"
-                class="text-[11px] text-cyan-400 hover:text-cyan-300 flex items-center space-x-0.5 cursor-pointer"
+                class="text-[11px] text-theme-accent hover:underline flex items-center space-x-0.5 cursor-pointer"
               >
                 <Plus class="w-3 h-3" />
                 <span>Nueva</span>
@@ -178,7 +179,7 @@ async function handleSave() {
             </div>
             <select
               v-model="folderId"
-              class="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
             >
               <option :value="null">Sin carpeta (Raíz)</option>
               <option v-for="folder in vaultStore.folders" :key="folder.id" :value="folder.id">
@@ -189,11 +190,11 @@ async function handleSave() {
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-xs font-medium text-slate-300">Credencial / Identidad</label>
+              <label class="block text-xs font-medium text-theme-muted">Credencial / Identidad</label>
               <button
                 type="button"
                 @click="isNewIdentityModalOpen = true"
-                class="text-[11px] text-cyan-400 hover:text-cyan-300 flex items-center space-x-0.5 cursor-pointer"
+                class="text-[11px] text-theme-accent hover:underline flex items-center space-x-0.5 cursor-pointer"
               >
                 <Plus class="w-3 h-3" />
                 <span>Nueva</span>
@@ -201,49 +202,52 @@ async function handleSave() {
             </div>
             <select
               v-model="identityId"
-              class="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
             >
               <option :value="null">Sin credencial vinculada</option>
               <option v-for="id in vaultStore.identities" :key="id.id" :value="id.id">
-                🔑 {{ id.name }} ({{ id.username }})
+                {{ id.auth_type === 'agent' ? '🛡️' : id.auth_type === 'password' ? '🔒' : '🔑' }} {{ id.name }} ({{ id.username }} • {{ id.auth_type === 'password' ? 'Password' : id.auth_type === 'agent' ? 'SSH-Agent' : (id.public_key?.startsWith('ssh-ed25519') ? 'Ed25519' : id.public_key?.startsWith('ssh-rsa') ? 'RSA' : 'Key') }})
               </option>
             </select>
+            <div v-if="selectedIdentity?.public_key" class="mt-1 text-[10px] font-mono text-theme-muted truncate" :title="selectedIdentity.public_key">
+              🔑 {{ selectedIdentity.public_key.slice(0, 36) }}...
+            </div>
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">
+          <label class="block text-xs font-medium text-theme-muted mb-1">
             Sobrescribir Usuario (Opcional)
           </label>
           <input
             v-model="usernameOverride"
             type="text"
             placeholder="Si difiere del usuario de la credencial"
-            class="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+            class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Etiquetas (separadas por coma)</label>
+          <label class="block text-xs font-medium text-theme-muted mb-1">Etiquetas (separadas por coma)</label>
           <div class="relative">
-            <Tag class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+            <Tag class="w-4 h-4 text-theme-muted absolute left-3 top-2.5" />
             <input
               v-model="tagsInput"
               type="text"
               placeholder="produccion, linux, nginx, aws"
-              class="w-full pl-9 pr-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+              class="w-full pl-9 pr-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
             />
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Notas Cifradas (Opcional)</label>
+          <label class="block text-xs font-medium text-theme-muted mb-1">Notas Cifradas (Opcional)</label>
           <div class="relative">
             <textarea
               v-model="notes"
               rows="2"
               placeholder="Notas protegidas por la bóveda..."
-              class="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-xs text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
             ></textarea>
           </div>
         </div>
