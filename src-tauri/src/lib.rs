@@ -3,6 +3,7 @@ pub mod session;
 pub mod settings;
 pub mod snippets;
 pub mod ssh;
+pub mod ssh_config;
 pub mod vault;
 
 use std::fs;
@@ -14,6 +15,7 @@ use crate::session::{close_session, extract_public_key, generate_ssh_key, resize
 use crate::settings::{get_app_settings, reset_app_settings, save_app_settings};
 use crate::snippets::{delete_snippet, get_snippets, save_snippet};
 use crate::ssh::{connect_ssh, SshSessionManager};
+use crate::ssh_config::{detect_ssh_config, import_ssh_config};
 use crate::vault::db::{
     VaultManager, vault_change_password, vault_init, vault_lock, vault_status, vault_unlock,
 };
@@ -73,6 +75,8 @@ pub fn run() {
             get_snippets,
             save_snippet,
             delete_snippet,
+            detect_ssh_config,
+            import_ssh_config,
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application");

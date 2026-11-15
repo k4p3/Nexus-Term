@@ -6,6 +6,7 @@ import type { HostSummary, Folder, IdentitySummary } from "../../types/inventory
 import HostModal from "./HostModal.vue";
 import FolderModal from "./FolderModal.vue";
 import IdentityModal from "./IdentityModal.vue";
+import SshConfigImportModal from "./SshConfigImportModal.vue";
 import {
   Server,
   Folder as FolderIcon,
@@ -21,6 +22,7 @@ import {
   PanelLeftClose,
   Copy,
   Check,
+  FileCode,
 } from "lucide-vue-next";
 
 const { t } = useI18n();
@@ -45,6 +47,8 @@ const folderToEdit = ref<Folder | null>(null);
 
 const isIdentityModalOpen = ref(false);
 const identityToEdit = ref<IdentitySummary | null>(null);
+
+const isSshConfigModalOpen = ref(false);
 
 function toggleFolder(folderId: string) {
   collapsedFolders.value[folderId] = !collapsedFolders.value[folderId];
@@ -230,10 +234,18 @@ async function handleDeleteIdentity(id: string) {
         </button>
         <button
           @click="openAddFolder()"
-          class="py-1 px-2.5 bg-theme-app hover:bg-theme-active border border-theme text-theme-muted hover:text-theme-main rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition cursor-pointer"
+          class="py-1 px-2 bg-theme-app hover:bg-theme-active border border-theme text-theme-muted hover:text-theme-main rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition cursor-pointer"
+          :title="t('hosts.newFolder')"
         >
           <Plus class="w-3.5 h-3.5" />
           <span>{{ t('hosts.newFolder') }}</span>
+        </button>
+        <button
+          @click="isSshConfigModalOpen = true"
+          class="p-1 px-1.5 bg-theme-app hover:bg-theme-active border border-theme text-theme-muted hover:text-cyan-400 rounded-lg text-[11px] font-medium flex items-center justify-center transition cursor-pointer"
+          title="Importar desde ~/.ssh/config"
+        >
+          <FileCode class="w-3.5 h-3.5" />
         </button>
       </div>
 
@@ -379,8 +391,15 @@ async function handleDeleteIdentity(id: string) {
           </div>
         </div>
 
-        <div v-if="vaultStore.hosts.length === 0" class="p-4 text-center text-xs text-slate-500">
-          No hay servidores guardados. Haz clic en <strong>+ Servidor</strong> para agregar el primero.
+        <div v-if="vaultStore.hosts.length === 0" class="p-4 text-center text-xs text-slate-500 space-y-3">
+          <p>No hay servidores guardados. Haz clic en <strong>+ Servidor</strong> para agregar el primero.</p>
+          <button
+            @click="isSshConfigModalOpen = true"
+            class="px-3 py-1.5 bg-theme-surface hover:bg-theme-active border border-theme rounded-lg text-theme-accent text-xs font-medium inline-flex items-center space-x-1.5 transition cursor-pointer"
+          >
+            <FileCode class="w-3.5 h-3.5" />
+            <span>Importar ~/.ssh/config</span>
+          </button>
         </div>
       </div>
 
@@ -458,6 +477,11 @@ async function handleDeleteIdentity(id: string) {
       :is-open="isIdentityModalOpen"
       :identity-to-edit="identityToEdit"
       @close="isIdentityModalOpen = false"
+    />
+
+    <SshConfigImportModal
+      :is-open="isSshConfigModalOpen"
+      @close="isSshConfigModalOpen = false"
     />
   </aside>
 </template>
