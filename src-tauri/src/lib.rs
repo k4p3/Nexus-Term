@@ -26,6 +26,12 @@ use crate::vault::inventory::{
 pub fn run() {
     tauri::Builder::default()
         .setup(|app| {
+            if let Some(icon) = app.default_window_icon() {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.set_icon(icon.clone());
+                }
+            }
+
             let app_data_dir = app
                 .path()
                 .app_data_dir()
