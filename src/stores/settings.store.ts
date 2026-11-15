@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   cursor_blink: true,
   theme_id: 'tokyo-night',
   default_shell: null,
+  close_to_tray: true,
   auto_lock_minutes: 0,
 };
 

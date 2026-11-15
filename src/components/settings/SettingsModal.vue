@@ -304,6 +304,28 @@ async function handleResetDefaults() {
                 <span>{{ importLocaleError }}</span>
               </div>
             </div>
+
+            <!-- Window & System Tray Behavior -->
+            <div class="pt-4 border-t border-theme">
+              <h4 class="text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-1">
+                Bandeja del Sistema (System Tray)
+              </h4>
+              <p class="text-xs text-neutral-400 mb-3">
+                Permite que NexusTerm continúe ejecutándose en segundo plano para no interrumpir túneles SSH ni transferencias activas.
+              </p>
+
+              <label class="flex items-center space-x-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  :checked="settingsStore.settings.close_to_tray"
+                  @change="settingsStore.updateSettings({ close_to_tray: ($event.target as HTMLInputElement).checked })"
+                  class="w-4 h-4 rounded border-theme text-theme-accent focus:ring-0 focus:ring-offset-0 bg-theme-app"
+                />
+                <span class="text-xs text-theme-main font-medium">
+                  Minimizar a la bandeja del sistema al presionar el botón de cerrar (X)
+                </span>
+              </label>
+            </div>
           </div>
 
           <!-- 2. TERMINAL APPEARANCE TAB -->

@@ -64,6 +64,10 @@ Initial public Beta release of **NexusTerm**, a modern, lightweight, and open-so
 - Tag filtering and quick insert shortcuts.
 
 #### Theming, Desktop Integration & UX
+- Native **System Tray (Bandeja del Sistema)** integration supporting KDE Plasma (StatusNotifierItem), GNOME, Windows, and macOS.
+- Close-to-tray window interception (`WindowEvent::CloseRequested`) allowing background SSH tunnels and SFTP transfers to continue running when closing the main window.
+- System tray context menu with "Mostrar NexusTerm" and "Salir" actions, plus single left-click toggle to restore or hide.
+- Configurable "Minimizar a la bandeja al cerrar" preference in General Settings.
 - 6 built-in themes: Midnight Dark, Cyberpunk Neon, Nord Frost, Solarized Dark, Monokai Pro, and Light Clean.
 - Quick Connect palette (`Ctrl+K`) for lightning-fast server, snippet, and tool discovery.
 - Collapsible sidebar (`Ctrl+B`) with integrated tab-bar toggle.

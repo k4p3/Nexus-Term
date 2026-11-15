@@ -29,10 +29,16 @@ pub struct AppSettings {
     // Shell & Behavior
     #[serde(default)]
     pub default_shell: Option<String>,
+    #[serde(default = "default_close_to_tray")]
+    pub close_to_tray: bool,
 
     // Security
     #[serde(default = "default_auto_lock")]
     pub auto_lock_minutes: u32,
+}
+
+fn default_close_to_tray() -> bool {
+    true
 }
 
 fn default_locale() -> String {
@@ -78,6 +84,7 @@ impl Default for AppSettings {
             cursor_blink: default_cursor_blink(),
             theme_id: default_theme_id(),
             default_shell: None,
+            close_to_tray: default_close_to_tray(),
             auto_lock_minutes: default_auto_lock(),
         }
     }
@@ -160,6 +167,7 @@ mod tests {
         assert_eq!(initial.theme_id, "tokyo-night");
         assert_eq!(initial.font_size, 13);
         assert_eq!(initial.cursor_style, "block");
+        assert_eq!(initial.close_to_tray, true);
 
         // Save customized settings
         let mut customized = initial.clone();

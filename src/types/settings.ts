@@ -7,5 +7,6 @@ export interface AppSettings {
   cursor_blink: boolean;
   theme_id: string;
   default_shell: string | null;
+  close_to_tray: boolean;
   auto_lock_minutes: number;
 }
