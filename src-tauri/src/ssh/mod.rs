@@ -174,6 +174,34 @@ impl SshSessionManager {
                         .map_err(|e| format!("SSH public key auth error: {}", e))?;
                     authenticated = matches!(res, client::AuthResult::Success);
                 }
+            } else if ident.auth_type == "agent" {
+                #[cfg(unix)]
+                let mut agent_client = russh::keys::agent::client::AgentClient::connect_env()
+                    .await
+                    .map_err(|e| format!("SSH agent connection failed: {}. Ensure SSH_AUTH_SOCK is active and valid.", e))?;
+
+                #[cfg(windows)]
+                let mut agent_client = russh::keys::agent::client::AgentClient::connect_pageant().await;
+
+                let identities = agent_client
+                    .request_identities()
+                    .await
+                    .map_err(|e| format!("Failed to query identities from SSH agent: {}", e))?;
+
+                if identities.is_empty() {
+                    return Err("SSH agent has no keys loaded. Add keys using ssh-add first.".to_string());
+                }
+
+                for pubkey in identities {
+                    let res = session
+                        .authenticate_publickey_with(username, pubkey, None, &mut agent_client)
+                        .await;
+
+                    if let Ok(client::AuthResult::Success) = res {
+                        authenticated = true;
+                        break;
+                    }
+                }
             }
         }
 

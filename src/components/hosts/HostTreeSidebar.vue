@@ -19,6 +19,8 @@ import {
   Terminal,
   Shield,
   PanelLeftClose,
+  Copy,
+  Check,
 } from "lucide-vue-next";
 
 const { t } = useI18n();
@@ -108,6 +110,55 @@ function openAddIdentity() {
 function openEditIdentity(identity: IdentitySummary) {
   identityToEdit.value = identity;
   isIdentityModalOpen.value = true;
+}
+
+const copiedIdentityId = ref<string | null>(null);
+
+async function copyIdentityPublicKey(identity: IdentitySummary) {
+  if (identity.public_key) {
+    await navigator.clipboard.writeText(identity.public_key);
+    copiedIdentityId.value = identity.id;
+    setTimeout(() => {
+      copiedIdentityId.value = null;
+    }, 2000);
+  }
+}
+
+function getIdentityBadge(identity: IdentitySummary): { label: string; class: string; icon: string } {
+  if (identity.auth_type === 'password') {
+    return {
+      label: 'Password',
+      class: 'bg-amber-500/10 text-amber-300 border-amber-500/20',
+      icon: '🔒',
+    };
+  }
+  if (identity.auth_type === 'agent') {
+    return {
+      label: 'Agent',
+      class: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20',
+      icon: '🛡️',
+    };
+  }
+  const pub = identity.public_key?.toLowerCase() || '';
+  if (pub.startsWith('ssh-ed25519')) {
+    return {
+      label: 'Ed25519',
+      class: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20',
+      icon: '🔑',
+    };
+  }
+  if (pub.startsWith('ssh-rsa')) {
+    return {
+      label: 'RSA 4096',
+      class: 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20',
+      icon: '🔑',
+    };
+  }
+  return {
+    label: 'Key',
+    class: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20',
+    icon: '🔑',
+  };
 }
 
 async function handleDeleteIdentity(id: string) {
@@ -338,29 +389,45 @@ async function handleDeleteIdentity(id: string) {
         <div
           v-for="identity in vaultStore.identities"
           :key="identity.id"
-          class="flex items-center justify-between px-2.5 py-2 rounded-lg bg-slate-950/40 hover:bg-slate-800/60 border border-slate-800/60 group text-xs transition"
+          class="flex items-center justify-between px-2.5 py-2 rounded-lg bg-theme-surface hover:bg-theme-active border border-theme group text-xs transition"
         >
-          <div class="flex items-center space-x-2 truncate">
-            <KeyRound class="w-4 h-4 text-cyan-400 shrink-0" />
+          <div class="flex items-center space-x-2 truncate min-w-0">
+            <KeyRound class="w-4 h-4 text-theme-accent shrink-0" />
             <div class="truncate">
-              <div class="font-medium text-slate-200 truncate">{{ identity.name }}</div>
-              <div class="text-[10px] text-slate-500 font-mono truncate">
-                {{ identity.username }} • {{ identity.auth_type === 'password' ? 'Contraseña' : identity.auth_type === 'private_key' ? 'Llave SSH' : 'Agente' }}
+              <div class="flex items-center space-x-1.5 truncate">
+                <span class="font-medium text-theme-main truncate">{{ identity.name }}</span>
+                <span
+                  :class="['text-[9px] px-1.5 py-0.2 rounded border font-mono shrink-0', getIdentityBadge(identity).class]"
+                >
+                  {{ getIdentityBadge(identity).icon }} {{ getIdentityBadge(identity).label }}
+                </span>
+              </div>
+              <div class="text-[10px] text-theme-muted font-mono truncate">
+                {{ identity.username }}
               </div>
             </div>
           </div>
 
-          <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+            <button
+              v-if="identity.public_key"
+              @click.stop="copyIdentityPublicKey(identity)"
+              class="p-1 text-theme-muted hover:text-theme-accent rounded transition cursor-pointer"
+              :title="copiedIdentityId === identity.id ? '¡Clave copiada!' : 'Copiar clave pública'"
+            >
+              <Check v-if="copiedIdentityId === identity.id" class="w-3 h-3 text-emerald-400" />
+              <Copy v-else class="w-3 h-3" />
+            </button>
             <button
               @click="openEditIdentity(identity)"
-              class="p-1 text-slate-400 hover:text-white rounded"
+              class="p-1 text-theme-muted hover:text-theme-main rounded transition cursor-pointer"
               title="Editar Credencial"
             >
               <Edit2 class="w-3 h-3" />
             </button>
             <button
               @click="handleDeleteIdentity(identity.id)"
-              class="p-1 text-slate-400 hover:text-red-400 rounded"
+              class="p-1 text-theme-muted hover:text-red-400 rounded transition cursor-pointer"
               title="Eliminar Credencial"
             >
               <Trash2 class="w-3 h-3" />

@@ -15,6 +15,7 @@ export interface IdentitySummary {
   name: string;
   username: string;
   auth_type: AuthType;
+  public_key?: string | null;
   has_secret: boolean;
   has_passphrase: boolean;
   updated_at: string;
@@ -25,6 +26,7 @@ export interface SaveIdentityPayload {
   name: string;
   username: string;
   auth_type: AuthType;
+  public_key?: string | null;
   secret?: string | null;
   passphrase?: string | null;
 }

@@ -6,9 +6,22 @@ export interface GeneratedSshKey {
   fingerprint: string;
 }
 
+export interface ExtractedKeyInfo {
+  public_key: string;
+  fingerprint: string;
+  key_type: string;
+}
+
 export const sessionService = {
-  async generateSshKey(algorithm?: string): Promise<GeneratedSshKey> {
+  async generateSshKey(algorithm?: "ed25519" | "rsa" | string): Promise<GeneratedSshKey> {
     return await invoke<GeneratedSshKey>("generate_ssh_key", { algorithm });
+  },
+
+  async extractPublicKey(keyContent: string, passphrase?: string | null): Promise<ExtractedKeyInfo> {
+    return await invoke<ExtractedKeyInfo>("extract_public_key", {
+      keyContent,
+      passphrase: passphrase || null,
+    });
   },
   async openLocalPty(
     cols: number,

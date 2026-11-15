@@ -23,6 +23,7 @@ pub struct IdentitySummary {
     pub name: String,
     pub username: String,
     pub auth_type: String, // "password" | "private_key" | "agent"
+    pub public_key: Option<String>,
     pub has_secret: bool,
     pub has_passphrase: bool,
     pub updated_at: String,
@@ -34,6 +35,7 @@ pub struct DecryptedIdentity {
     pub name: String,
     pub username: String,
     pub auth_type: String,
+    pub public_key: Option<String>,
     pub secret: Option<String>,
     pub passphrase: Option<String>,
 }
@@ -44,6 +46,7 @@ pub struct SaveIdentityPayload {
     pub name: String,
     pub username: String,
     pub auth_type: String,
+    pub public_key: Option<String>,
     pub secret: Option<String>,
     pub passphrase: Option<String>,
 }
@@ -104,7 +107,7 @@ impl VaultManager {
             .collect::<Result<Vec<_>, _>>()?;
 
         // 2. Identities
-        let mut stmt = conn.prepare("SELECT id, name, username, auth_type, encrypted_secret, encrypted_passphrase, updated_at FROM identities ORDER BY name ASC")?;
+        let mut stmt = conn.prepare("SELECT id, name, username, auth_type, encrypted_secret, encrypted_passphrase, public_key, updated_at FROM identities ORDER BY name ASC")?;
         let identities = stmt
             .query_map([], |row| {
                 let enc_sec: Option<Vec<u8>> = row.get(4)?;
@@ -114,9 +117,10 @@ impl VaultManager {
                     name: row.get(1)?,
                     username: row.get(2)?,
                     auth_type: row.get(3)?,
+                    public_key: row.get(6)?,
                     has_secret: enc_sec.is_some(),
                     has_passphrase: enc_pass.is_some(),
-                    updated_at: row.get(6)?,
+                    updated_at: row.get(7)?,
                 })
             })?
             .collect::<Result<Vec<_>, _>>()?;
@@ -208,7 +212,7 @@ impl VaultManager {
             .unwrap_or_else(|| Uuid::now_v7().to_string());
         let now = Utc::now().to_rfc3339();
 
-        let enc_secret = if let Some(secret) = payload.secret {
+        let enc_secret = if let Some(secret) = &payload.secret {
             Some(encrypt_record(&vault_key, secret.as_bytes())?)
         } else {
             // Keep existing secret if not provided in update
@@ -220,7 +224,7 @@ impl VaultManager {
             .unwrap_or(None)
         };
 
-        let enc_passphrase = if let Some(passphrase) = payload.passphrase {
+        let enc_passphrase = if let Some(passphrase) = &payload.passphrase {
             Some(encrypt_record(&vault_key, passphrase.as_bytes())?)
         } else {
             conn.query_row(
@@ -231,15 +235,40 @@ impl VaultManager {
             .unwrap_or(None)
         };
 
+        let public_key = if let Some(pk) = payload.public_key.filter(|s| !s.trim().is_empty()) {
+            Some(pk.trim().to_string())
+        } else if payload.auth_type == "private_key" {
+            if let Some(secret) = &payload.secret {
+                russh::keys::decode_secret_key(secret, payload.passphrase.as_deref())
+                    .ok()
+                    .and_then(|k| k.public_key().to_openssh().ok())
+            } else {
+                conn.query_row(
+                    "SELECT public_key FROM identities WHERE id = ?1",
+                    params![id],
+                    |row| row.get::<_, Option<String>>(0),
+                )
+                .unwrap_or(None)
+            }
+        } else {
+            conn.query_row(
+                "SELECT public_key FROM identities WHERE id = ?1",
+                params![id],
+                |row| row.get::<_, Option<String>>(0),
+            )
+            .unwrap_or(None)
+        };
+
         conn.execute(
-            "INSERT INTO identities (id, name, username, auth_type, encrypted_secret, encrypted_passphrase, updated_at)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
+            "INSERT INTO identities (id, name, username, auth_type, encrypted_secret, encrypted_passphrase, public_key, updated_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)
              ON CONFLICT(id) DO UPDATE SET
                 name = excluded.name,
                 username = excluded.username,
                 auth_type = excluded.auth_type,
                 encrypted_secret = excluded.encrypted_secret,
                 encrypted_passphrase = excluded.encrypted_passphrase,
+                public_key = excluded.public_key,
                 updated_at = excluded.updated_at",
             params![
                 id,
@@ -248,6 +277,7 @@ impl VaultManager {
                 payload.auth_type,
                 enc_secret,
                 enc_passphrase,
+                public_key,
                 now
             ],
         )?;
@@ -266,8 +296,8 @@ impl VaultManager {
         let vault_key = self.get_active_vault_key()?;
         let conn = self.db.lock().unwrap();
 
-        let (name, username, auth_type, enc_sec, enc_pass) = conn.query_row(
-            "SELECT name, username, auth_type, encrypted_secret, encrypted_passphrase FROM identities WHERE id = ?1",
+        let (name, username, auth_type, enc_sec, enc_pass, public_key) = conn.query_row(
+            "SELECT name, username, auth_type, encrypted_secret, encrypted_passphrase, public_key FROM identities WHERE id = ?1",
             params![id],
             |row| {
                 Ok((
@@ -276,6 +306,7 @@ impl VaultManager {
                     row.get::<_, String>(2)?,
                     row.get::<_, Option<Vec<u8>>>(3)?,
                     row.get::<_, Option<Vec<u8>>>(4)?,
+                    row.get::<_, Option<String>>(5)?,
                 ))
             },
         )?;
@@ -297,6 +328,7 @@ impl VaultManager {
             name,
             username,
             auth_type,
+            public_key,
             secret,
             passphrase,
         })
@@ -424,12 +456,14 @@ mod tests {
         // 2. Create an identity with a highly sensitive password and passphrase
         let super_secret_password = "SUPER_SECRET_SSH_PASSWORD_98765";
         let super_secret_passphrase = "PASSPHRASE_ED25519_KEY_12345";
+        let dummy_pub_key = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIG... root@prod";
         let identity_id = manager
             .save_identity(SaveIdentityPayload {
                 id: None,
                 name: "Root Prod".to_string(),
                 username: "root".to_string(),
                 auth_type: "password".to_string(),
+                public_key: Some(dummy_pub_key.to_string()),
                 secret: Some(super_secret_password.to_string()),
                 passphrase: Some(super_secret_passphrase.to_string()),
             })
@@ -455,12 +489,14 @@ mod tests {
         let dec_identity = manager.get_decrypted_identity(&identity_id).unwrap();
         assert_eq!(dec_identity.secret.as_deref(), Some(super_secret_password));
         assert_eq!(dec_identity.passphrase.as_deref(), Some(super_secret_passphrase));
+        assert_eq!(dec_identity.public_key.as_deref(), Some(dummy_pub_key));
 
         // 5. Verify inventory retrieval
         let inv = manager.get_inventory().unwrap();
         assert_eq!(inv.folders.len(), 1);
         assert_eq!(inv.identities.len(), 1);
         assert!(inv.identities[0].has_secret);
+        assert_eq!(inv.identities[0].public_key.as_deref(), Some(dummy_pub_key));
         assert_eq!(inv.hosts.len(), 1);
         assert_eq!(inv.hosts[0].notes.as_deref(), Some(sensitive_note));
 

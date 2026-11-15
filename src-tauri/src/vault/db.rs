@@ -87,6 +87,7 @@ impl VaultManager {
                 auth_type TEXT NOT NULL CHECK (auth_type IN ('password', 'private_key', 'agent')),
                 encrypted_secret BLOB,
                 encrypted_passphrase BLOB,
+                public_key TEXT,
                 updated_at TEXT NOT NULL
             );
 
@@ -131,6 +132,7 @@ impl VaultManager {
             );
             ",
         )?;
+        let _ = conn.execute("ALTER TABLE identities ADD COLUMN public_key TEXT", []);
         Ok(())
     }
 
