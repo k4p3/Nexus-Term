@@ -3,10 +3,23 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useSessionsStore } from "../../stores/sessions.store";
 import SplitPaneNode from "./SplitPaneNode.vue";
-import { Plus, X, Terminal, Server, Sparkles, Radio, AlertTriangle } from "lucide-vue-next";
+import { Plus, X, Terminal, Server, Sparkles, Radio, AlertTriangle, PanelLeft } from "lucide-vue-next";
 
 const { t } = useI18n();
 const sessionsStore = useSessionsStore();
+
+const props = withDefaults(
+  defineProps<{
+    isSidebarVisible?: boolean;
+  }>(),
+  {
+    isSidebarVisible: true,
+  }
+);
+
+const emit = defineEmits<{
+  (e: "toggle-sidebar"): void;
+}>();
 
 const activeTab = computed(() => {
   return sessionsStore.tabs.find((t) => t.id === sessionsStore.activeTabId) || null;
@@ -22,6 +35,16 @@ function handleNewTab() {
     <!-- Tab Bar -->
     <div class="h-9 bg-slate-900/80 border-b border-slate-800 flex items-center justify-between px-2 overflow-x-auto shrink-0 select-none">
       <div class="flex items-center space-x-1">
+        <!-- Sidebar Toggle Button (Integrated in Tab Bar) -->
+        <button
+          @click="emit('toggle-sidebar')"
+          :title="props.isSidebarVisible ? 'Ocultar Barra Lateral (Ctrl+B)' : 'Mostrar Barra Lateral (Ctrl+B)'"
+          class="p-1.5 rounded-md transition-colors cursor-pointer mr-0.5 flex items-center justify-center shrink-0"
+          :class="!props.isSidebarVisible ? 'text-cyan-400 bg-cyan-500/15 border border-cyan-500/30 hover:bg-cyan-500/25' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'"
+        >
+          <PanelLeft class="w-3.5 h-3.5" />
+        </button>
+
         <div
           v-for="tab in sessionsStore.tabs"
           :key="tab.id"

@@ -18,12 +18,14 @@ import {
   Trash2,
   Terminal,
   Shield,
+  PanelLeftClose,
 } from "lucide-vue-next";
 
 const { t } = useI18n();
 const emit = defineEmits<{
   (e: "connect-host", host: HostSummary): void;
   (e: "open-local-pty"): void;
+  (e: "toggle-sidebar"): void;
 }>();
 
 const vaultStore = useVaultStore();
@@ -137,13 +139,22 @@ async function handleDeleteIdentity(id: string) {
           </button>
         </div>
 
-        <button
-          @click="emit('open-local-pty')"
-          :title="t('terminal.newLocal')"
-          class="p-1.5 text-slate-300 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition"
-        >
-          <Terminal class="w-4 h-4" />
-        </button>
+        <div class="flex items-center space-x-1">
+          <button
+            @click="emit('open-local-pty')"
+            :title="t('terminal.newLocal')"
+            class="p-1.5 text-slate-300 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+          >
+            <Terminal class="w-4 h-4" />
+          </button>
+          <button
+            @click="emit('toggle-sidebar')"
+            title="Ocultar Barra Lateral (Ctrl+B)"
+            class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition cursor-pointer"
+          >
+            <PanelLeftClose class="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       <!-- Quick search input -->

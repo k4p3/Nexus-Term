@@ -12,7 +12,7 @@ import SnippetDrawer from "./components/snippets/SnippetDrawer.vue";
 import TerminalWorkspace from "./components/terminal/TerminalWorkspace.vue";
 import type { HostSummary } from "./types/inventory";
 import { sessionService } from "./services/session.service";
-import { Lock, Terminal, RefreshCw, Search, Settings, Code, PanelLeft } from "lucide-vue-next";
+import { Lock, Terminal, RefreshCw, Search, Settings, Code } from "lucide-vue-next";
 
 const { t } = useI18n();
 const vaultStore = useVaultStore();
@@ -75,16 +75,6 @@ function handleInsertCommand(command: string) {
     <!-- Top Application Bar -->
     <header class="h-10 bg-slate-900 border-b border-slate-800/80 flex items-center px-3.5 justify-between select-none shrink-0 z-20">
       <div class="flex items-center space-x-2.5">
-        <button
-          v-if="vaultStore.isUnlocked"
-          @click="isSidebarVisible = !isSidebarVisible"
-          :title="isSidebarVisible ? 'Ocultar Barra Lateral (Ctrl+B)' : 'Mostrar Barra Lateral (Ctrl+B)'"
-          class="p-1 rounded-lg transition-colors cursor-pointer mr-0.5"
-          :class="isSidebarVisible ? 'text-slate-400 hover:text-white hover:bg-slate-800' : 'text-cyan-400 bg-cyan-500/15 border border-cyan-500/30'"
-        >
-          <PanelLeft class="w-4 h-4" />
-        </button>
-
         <div class="w-6 h-6 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-xs">
           <Terminal class="w-3.5 h-3.5 text-slate-950 font-bold" />
         </div>
@@ -152,10 +142,14 @@ function handleInsertCommand(command: string) {
           v-show="isSidebarVisible"
           @connect-host="handleConnectHost"
           @open-local-pty="handleOpenLocalPty"
+          @toggle-sidebar="isSidebarVisible = false"
         />
 
         <!-- Terminal Workspace (Tabs + Split Panes) -->
-        <TerminalWorkspace />
+        <TerminalWorkspace
+          :is-sidebar-visible="isSidebarVisible"
+          @toggle-sidebar="isSidebarVisible = !isSidebarVisible"
+        />
 
         <!-- Quick Connect Palette Modal -->
         <QuickConnectModal
