@@ -123,6 +123,11 @@ terminal/
    - En Rust, prohibido usar `.unwrap()` o `.expect()` en rutas de red, archivos o criptografía; usar tipos de error estructurados con `thiserror` serializables hacia el frontend.
 4. **Diseño UI para Linux / KDE Plasma**:
    - Priorizar navegación completa por teclado (atajos configurables, `Ctrl+K` para paleta de comandos), tema oscuro de alto contraste, baja latencia de entrada y redimensionado fluido de paneles.
+5. **Pruebas Automatizadas Obligatorias (Testing Policy)**:
+   - Todo cambio, nueva funcionalidad o corrección DEBE incluir obligatoriamente sus pruebas unitarias correspondientes antes de darse por completado.
+   - **Backend (Rust)**: Cada módulo de bóveda, criptografía, inventario, túneles, settings, snippets o comandos debe contar con pruebas unitarias (`#[cfg(test)]`) verificables con `cd src-tauri && cargo test`.
+   - **Frontend (Vue 3 / TypeScript)**: Toda tienda de Pinia (`src/stores/`), algoritmo de utilidad o lógica de negocio en el frontend debe contar con pruebas unitarias (`.test.ts`) ejecutadas y aprobadas con `pnpm test` (Vitest). Asimismo, la comprobación estricta de tipos (`vue-tsc --noEmit`) y la compilación (`vite build`) deben pasar con cero errores.
+   - **Criterio de Aceptación Inmutable**: Queda terminantemente prohibido archivar un cambio (`/opsx-archive`) o dar por terminada una tarea si falla alguna prueba unitaria en backend o frontend.
 
 ---
 
