@@ -1,0 +1,37 @@
+schema: spec-driven
+
+context: |
+  Language: Spanish
+  All artifacts must be written in Spanish.
+  Keep OpenSpec structural headings and SHALL/MUST keywords in English (e.g., `## ADDED Requirements`, `### Requirement:`, `#### Scenario:`, **WHEN**, **THEN**, **SHALL**, **MUST**).
+
+  Project: NexusTerm (nexus-term) — Gestor moderno multiplataforma de conexiones SSH, SFTP y Túneles (Alternativa libre a Termius / Tabby / MobaXterm), optimizado para Linux (Manjaro KDE Plasma), Windows y macOS.
+  Tech Stack:
+    - Desktop Framework: Tauri v2 (Rust backend + WebView frontend, comunicación binaria por Tauri IPC Channels)
+    - Frontend: Vue 3 (Composition API, <script setup lang="ts">), TypeScript, Pinia, Tailwind CSS v4, Radix Vue / shadcn-vue
+    - Terminal Renderer: @xterm/xterm + @xterm/addon-webgl + @xterm/addon-fit + @xterm/addon-search + @xterm/addon-web-links
+    - Backend SSH/SFTP/Tunnels: Rust async (tokio) + russh + russh-sftp + russh-keys (multiplexación de canales sobre una sola conexión SSH)
+    - Backend Local PTY & Config: portable-pty (shell local y fallback OpenSSH) + ssh2-config (importación de ~/.ssh/config y known_hosts)
+    - Vault & Cryptography: SQLite (rusqlite/sqlx) con cifrado por registro usando Argon2id (derivación de clave maestra) + AES-256-GCM / ChaCha20-Poly1305 + zeroize en memoria
+    - Sync (BYOC): Sincronización sin servidor propio mediante snapshots cifrados (Git, WebDAV/Nextcloud, carpeta local Syncthing)
+
+rules:
+  proposal:
+    - Definir claramente el alcance (In Scope) y lo que queda fuera de alcance (Out of Scope) para mantener cambios incrementales.
+    - Identificar las capacidades (capabilities) afectadas en `openspec/specs/`.
+  specs:
+    - Mantener los encabezados estructurales de OpenSpec (`## ADDED Requirements`, `### Requirement:`, `#### Scenario:`) y palabras clave normativas (`SHALL`, `MUST`, `WHEN`, `THEN`) en inglés para pasar `openspec validate`, redactando el resto de la descripción en español.
+    - Incluir escenarios de éxito y de manejo de errores (ej. fallo de autenticación SSH, contraseña maestra incorrecta, desconexión de red).
+  design:
+    - Documentar los contratos IPC entre Tauri (Rust) y Vue (TypeScript), esquemas de tablas SQLite y decisiones de seguridad/criptografía.
+  tasks:
+    - Dividir las tareas en bloques pequeños, verificables y ordenados secuencialmente (Backend Rust -> IPC -> Store Pinia -> Componentes Vue -> Verificación).
+
+operations:
+  apply:
+    guidance:
+      - Verificar que el código Rust compile sin warnings (`cargo check` / `cargo clippy`) y el frontend pase la verificación de tipos (`vue-tsc`).
+      - Nunca exponer secretos en texto plano en logs ni persistir claves maestras fuera de memoria protegida con `zeroize`.
+  archive:
+    guidance:
+      - Ejecutar `openspec validate` antes de archivar para asegurar que las especificaciones cumplan el esquema.
