@@ -128,6 +128,10 @@ terminal/
    - **Backend (Rust)**: Cada módulo de bóveda, criptografía, inventario, túneles, settings, snippets o comandos debe contar con pruebas unitarias (`#[cfg(test)]`) verificables con `cd src-tauri && cargo test`.
    - **Frontend (Vue 3 / TypeScript)**: Toda tienda de Pinia (`src/stores/`), algoritmo de utilidad o lógica de negocio en el frontend debe contar con pruebas unitarias (`.test.ts`) ejecutadas y aprobadas con `pnpm test` (Vitest). Asimismo, la comprobación estricta de tipos (`vue-tsc --noEmit`) y la compilación (`vite build`) deben pasar con cero errores.
    - **Criterio de Aceptación Inmutable**: Queda terminantemente prohibido archivar un cambio (`/opsx-archive`) o dar por terminada una tarea si falla alguna prueba unitaria en backend o frontend.
+6. **Cumplimiento Estricto de Licencias Libres (FOSS & GPLv3 Compliance)**:
+   - Todo nuevo crate de Rust, paquete de npm, icono o recurso externo que se incorpore al proyecto DEBE poseer obligatoriamente una licencia de código abierto compatible con **GNU GPLv3** (tales como MIT, Apache-2.0, BSD-2/3-Clause, ISC, BlueOak-1.0.0, MPL-2.0, Unlicense o Dominio Público).
+   - Queda terminantemente prohibido incorporar dependencias privativas, de código cerrado, bajo licencias con restricciones de uso comercial (ej. CC-BY-NC, SSPL, Commons Clause, BSL) o incompatibles con GPLv3.
+   - En cada propuesta de cambio (`proposal.md` / `design.md`) que introduzca nuevas dependencias, se debe documentar y verificar explícitamente la licencia de cada paquete agregado.
 
 ---
 

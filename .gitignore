@@ -18,6 +18,10 @@ src-tauri/gen/
 *.sqlite
 vault.db
 
+# Local notes, audits and private documents
+.local/
+*.local.md
+
 # Logs
 npm-debug.log*
 yarn-debug.log*
