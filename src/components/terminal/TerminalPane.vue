@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
@@ -9,8 +9,10 @@ import { WebLinksAddon } from "@xterm/addon-web-links";
 import { sessionService } from "../../services/session.service";
 import { useSessionsStore } from "../../stores/sessions.store";
 import { useSettingsStore } from "../../stores/settings.store";
+import { useVaultStore } from "../../stores/vault.store";
 import TerminalSearchBar, { type SearchOptions } from "./TerminalSearchBar.vue";
 import type { LeafPane } from "../../types/session";
+import type { HostSummary } from "../../types/inventory";
 import {
   Columns,
   Rows,
@@ -26,6 +28,8 @@ import {
   ChevronUp,
   ChevronDown,
   Radio,
+  FolderInput,
+  ChevronRight,
 } from "lucide-vue-next";
 
 const props = defineProps<{
@@ -37,11 +41,50 @@ const props = defineProps<{
 const { t } = useI18n();
 const sessionsStore = useSessionsStore();
 const settingsStore = useSettingsStore();
+const vaultStore = useVaultStore();
 
 const terminalContainer = ref<HTMLDivElement | null>(null);
 const isConnecting = ref(true);
 const errorMessage = ref<string | null>(null);
 const isSearchOpen = ref(false);
+
+// Split Menu state
+const isSplitMenuOpen = ref(false);
+const splitDirection = ref<'horizontal' | 'vertical'>('horizontal');
+const showServerPicker = ref(false);
+
+const otherTabs = computed(() => sessionsStore.tabs.filter((t) => t.id !== props.tabId));
+
+function openSplitMenu(direction: 'horizontal' | 'vertical') {
+  if (isSplitMenuOpen.value && splitDirection.value === direction) {
+    isSplitMenuOpen.value = false;
+  } else {
+    splitDirection.value = direction;
+    isSplitMenuOpen.value = true;
+    showServerPicker.value = false;
+  }
+}
+
+function splitWithLocal() {
+  sessionsStore.splitPane(props.tabId, props.pane.id, splitDirection.value, undefined);
+  isSplitMenuOpen.value = false;
+}
+
+function splitWithDuplicate() {
+  sessionsStore.splitPane(props.tabId, props.pane.id, splitDirection.value, props.pane.host);
+  isSplitMenuOpen.value = false;
+}
+
+function splitWithHost(host: HostSummary) {
+  sessionsStore.splitPane(props.tabId, props.pane.id, splitDirection.value, host);
+  isSplitMenuOpen.value = false;
+  showServerPicker.value = false;
+}
+
+function dockExistingTab(sourceTabId: string) {
+  sessionsStore.dockTabIntoPane(sourceTabId, props.tabId, props.pane.id, splitDirection.value);
+  isSplitMenuOpen.value = false;
+}
 
 // Shell integration (OSC 133) state
 interface CommandBlock {
@@ -447,16 +490,18 @@ function handleClose() {
         </button>
 
         <button
-          @click.stop="handleSplitHorizontal"
+          @click.stop="openSplitMenu('horizontal')"
           :title="t('terminal.splitRight')"
           class="p-1 text-slate-400 hover:text-white rounded-sm hover:bg-slate-800 transition-colors"
+          :class="isSplitMenuOpen && splitDirection === 'horizontal' ? 'bg-cyan-500/20 text-cyan-300' : ''"
         >
           <Columns class="w-3 h-3" />
         </button>
         <button
-          @click.stop="handleSplitVertical"
+          @click.stop="openSplitMenu('vertical')"
           :title="t('terminal.splitDown')"
           class="p-1 text-slate-400 hover:text-white rounded-sm hover:bg-slate-800 transition-colors"
+          :class="isSplitMenuOpen && splitDirection === 'vertical' ? 'bg-cyan-500/20 text-cyan-300' : ''"
         >
           <Rows class="w-3 h-3" />
         </button>
@@ -467,6 +512,104 @@ function handleClose() {
         >
           <X class="w-3 h-3" />
         </button>
+      </div>
+    </div>
+
+    <!-- Split Contextual Menu Popover -->
+    <div
+      v-if="isSplitMenuOpen"
+      @click.stop
+      class="absolute right-2 top-8 z-40 w-64 bg-neutral-900 border border-neutral-700/90 rounded-xl shadow-2xl p-2.5 space-y-2 text-xs select-none backdrop-blur-md"
+    >
+      <div class="flex items-center justify-between pb-1.5 border-b border-neutral-800">
+        <span class="font-semibold text-white">Dividir Panel</span>
+        <div class="flex items-center gap-1 bg-neutral-950 p-0.5 rounded-lg border border-neutral-800">
+          <button
+            type="button"
+            @click.stop="splitDirection = 'horizontal'"
+            :class="['p-1 rounded transition-colors', splitDirection === 'horizontal' ? 'bg-cyan-500/20 text-cyan-300 font-bold' : 'text-neutral-400']"
+            title="Horizontal"
+          >
+            <Columns class="w-3 h-3" />
+          </button>
+          <button
+            type="button"
+            @click.stop="splitDirection = 'vertical'"
+            :class="['p-1 rounded transition-colors', splitDirection === 'vertical' ? 'bg-cyan-500/20 text-cyan-300 font-bold' : 'text-neutral-400']"
+            title="Vertical"
+          >
+            <Rows class="w-3 h-3" />
+          </button>
+        </div>
+      </div>
+
+      <!-- Quick targets -->
+      <div class="space-y-1">
+        <button
+          type="button"
+          @click.stop="splitWithLocal"
+          class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800 text-left transition-colors cursor-pointer"
+        >
+          <TerminalIcon class="w-3.5 h-3.5 text-purple-400 shrink-0" />
+          <span>Nueva Terminal Local</span>
+        </button>
+
+        <button
+          v-if="pane.host"
+          type="button"
+          @click.stop="splitWithDuplicate"
+          class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800 text-left transition-colors cursor-pointer"
+        >
+          <Server class="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+          <span class="truncate">Mismo Servidor ({{ pane.host.label }})</span>
+        </button>
+
+        <button
+          type="button"
+          @click.stop="showServerPicker = !showServerPicker"
+          class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-neutral-300 hover:text-white hover:bg-neutral-800 text-left transition-colors cursor-pointer"
+        >
+          <div class="flex items-center gap-2 truncate">
+            <Server class="w-3.5 h-3.5 text-blue-400 shrink-0" />
+            <span>Elegir Servidor...</span>
+          </div>
+          <ChevronRight class="w-3 h-3 text-neutral-500" :class="showServerPicker ? 'rotate-90' : ''" />
+        </button>
+
+        <!-- Sublist of saved hosts -->
+        <div v-if="showServerPicker" class="pl-4 max-h-28 overflow-y-auto space-y-0.5 border-l border-neutral-800 ml-2">
+          <button
+            v-for="h in vaultStore.hosts"
+            :key="h.id"
+            type="button"
+            @click.stop="splitWithHost(h)"
+            class="w-full flex items-center gap-1.5 px-2 py-1 rounded text-neutral-300 hover:text-white hover:bg-neutral-800 text-left truncate text-[11px] transition-colors"
+          >
+            <span class="truncate">{{ h.label }}</span>
+          </button>
+          <div v-if="vaultStore.hosts.length === 0" class="text-[10px] text-neutral-500 py-1">
+            Sin servidores guardados
+          </div>
+        </div>
+      </div>
+
+      <!-- Dock existing open tab into this split -->
+      <div v-if="otherTabs.length > 0" class="pt-1.5 border-t border-neutral-800">
+        <div class="text-[10px] uppercase font-semibold text-neutral-400 px-1 mb-1">
+          Mover pestaña aquí:
+        </div>
+        <div class="max-h-28 overflow-y-auto space-y-0.5">
+          <button
+            v-for="ot in otherTabs"
+            :key="ot.id"
+            type="button"
+            @click.stop="dockExistingTab(ot.id)"
+            class="w-full flex items-center gap-2 px-2.5 py-1 rounded-md text-neutral-300 hover:text-white hover:bg-neutral-800 text-left truncate transition-colors text-[11px] cursor-pointer"
+          >
+            <FolderInput class="w-3 h-3 text-amber-400 shrink-0" />
+            <span class="truncate">{{ ot.title }}</span>
+          </button>
+        </div>
       </div>
     </div>
 

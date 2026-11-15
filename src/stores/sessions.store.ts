@@ -144,6 +144,49 @@ export const useSessionsStore = defineStore("sessions", () => {
     tab.rootPane = replaceNode(tab.rootPane);
   }
 
+  function dockTabIntoPane(
+    sourceTabId: string,
+    targetTabId: string,
+    targetPaneId: string,
+    direction: SplitDirection
+  ) {
+    const targetTab = tabs.value.find((t) => t.id === targetTabId);
+    const sourceTab = tabs.value.find((t) => t.id === sourceTabId);
+    if (!targetTab || !sourceTab) return;
+
+    function replaceNode(node: PaneNode): PaneNode {
+      if (node.type === "leaf") {
+        if (node.id === targetPaneId) {
+          return {
+            type: "split",
+            id: generateId(),
+            direction,
+            first: node,
+            second: sourceTab!.rootPane,
+            ratio: 0.5,
+          };
+        }
+        return node;
+      } else {
+        return {
+          ...node,
+          first: replaceNode(node.first),
+          second: replaceNode(node.second),
+        };
+      }
+    }
+
+    targetTab.rootPane = replaceNode(targetTab.rootPane);
+    targetTab.activePaneId = sourceTab.activePaneId;
+
+    // Remove source tab from tabs list
+    const sourceIdx = tabs.value.findIndex((t) => t.id === sourceTabId);
+    if (sourceIdx !== -1) {
+      tabs.value.splice(sourceIdx, 1);
+    }
+    activeTabId.value = targetTabId;
+  }
+
   function closePane(tabId: string, targetPaneId: string) {
     const tab = tabs.value.find((t) => t.id === tabId);
     if (!tab) return;
@@ -199,6 +242,7 @@ export const useSessionsStore = defineStore("sessions", () => {
     createTab,
     closeTab,
     splitPane,
+    dockTabIntoPane,
     closePane,
     setActivePane,
   };

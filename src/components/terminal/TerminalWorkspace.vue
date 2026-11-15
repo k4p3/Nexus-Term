@@ -88,13 +88,13 @@ function handleNewTab() {
       </button>
     </div>
 
-    <!-- Tab Workspaces (Persistent across tab switching) -->
+    <!-- Tab Workspaces (Persistent across tab switching without layout thrashing) -->
     <div class="flex-1 overflow-hidden relative">
       <div
         v-for="tab in sessionsStore.tabs"
         :key="tab.id"
-        v-show="tab.id === sessionsStore.activeTabId"
-        class="h-full w-full"
+        class="absolute inset-0 w-full h-full"
+        :class="tab.id === sessionsStore.activeTabId ? 'z-10 visible' : 'z-0 invisible pointer-events-none'"
       >
         <SplitPaneNode
           :node="tab.rootPane"
