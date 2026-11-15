@@ -223,12 +223,24 @@ function handleKeyDown(e: KeyboardEvent) {
   if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
     e.preventDefault();
     isSearchOpen.value = !isSearchOpen.value;
-  } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'ArrowUp') {
-    e.preventDefault();
-    jumpToPreviousPrompt();
-  } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === 'ArrowDown') {
-    e.preventDefault();
-    jumpToNextPrompt();
+  } else if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+    const k = e.key.toLowerCase();
+    if (k === 'arrowup') {
+      e.preventDefault();
+      jumpToPreviousPrompt();
+    } else if (k === 'arrowdown') {
+      e.preventDefault();
+      jumpToNextPrompt();
+    } else if (k === 'o' || k === 'd') {
+      e.preventDefault();
+      sessionsStore.splitPane(props.tabId, props.pane.id, 'horizontal', props.pane.host);
+    } else if (k === 'e') {
+      e.preventDefault();
+      sessionsStore.splitPane(props.tabId, props.pane.id, 'vertical', props.pane.host);
+    } else if (k === 'w') {
+      e.preventDefault();
+      handleClose();
+    }
   }
 }
 
@@ -296,6 +308,40 @@ onMounted(async () => {
   });
 
   term.open(terminalContainer.value);
+
+  // Keyboard shortcuts intercepted before sending to shell
+  term.attachCustomKeyEventHandler((e: KeyboardEvent) => {
+    if (e.type === 'keydown') {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
+        isSearchOpen.value = !isSearchOpen.value;
+        return false;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+        const k = e.key.toLowerCase();
+        if (k === 'arrowup') {
+          jumpToPreviousPrompt();
+          return false;
+        }
+        if (k === 'arrowdown') {
+          jumpToNextPrompt();
+          return false;
+        }
+        if (k === 'o' || k === 'd') {
+          sessionsStore.splitPane(props.tabId, props.pane.id, 'horizontal', props.pane.host);
+          return false;
+        }
+        if (k === 'e') {
+          sessionsStore.splitPane(props.tabId, props.pane.id, 'vertical', props.pane.host);
+          return false;
+        }
+        if (k === 'w') {
+          handleClose();
+          return false;
+        }
+      }
+    }
+    return true;
+  });
 
   // Try loading WebGL addon with canvas fallback
   try {
@@ -491,7 +537,7 @@ function handleClose() {
 
         <button
           @click.stop="openSplitMenu('horizontal')"
-          :title="t('terminal.splitRight')"
+          :title="`${t('terminal.splitRight')} (Ctrl+Shift+O / Ctrl+Shift+D)`"
           class="p-1 text-slate-400 hover:text-white rounded-sm hover:bg-slate-800 transition-colors"
           :class="isSplitMenuOpen && splitDirection === 'horizontal' ? 'bg-cyan-500/20 text-cyan-300' : ''"
         >
@@ -499,7 +545,7 @@ function handleClose() {
         </button>
         <button
           @click.stop="openSplitMenu('vertical')"
-          :title="t('terminal.splitDown')"
+          :title="`${t('terminal.splitDown')} (Ctrl+Shift+E)`"
           class="p-1 text-slate-400 hover:text-white rounded-sm hover:bg-slate-800 transition-colors"
           :class="isSplitMenuOpen && splitDirection === 'vertical' ? 'bg-cyan-500/20 text-cyan-300' : ''"
         >
@@ -507,7 +553,7 @@ function handleClose() {
         </button>
         <button
           @click.stop="handleClose"
-          :title="t('terminal.closePane')"
+          :title="`${t('terminal.closePane')} (Ctrl+Shift+W)`"
           class="p-1 text-slate-400 hover:text-red-400 rounded-sm hover:bg-slate-800 transition-colors"
         >
           <X class="w-3 h-3" />

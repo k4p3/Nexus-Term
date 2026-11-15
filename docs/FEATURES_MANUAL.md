@@ -90,8 +90,8 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 | `Ctrl + K` / `Cmd + K` | Abrir Paleta de Conexión Rápida | Global |
 | `Ctrl + ,` / `Cmd + ,` | Abrir Panel de Configuración | Global |
 | `Ctrl + F` / `Cmd + F` | Buscar en el Buffer de la Terminal | Terminal Activa |
-| `Ctrl + Shift + O` | Dividir Panel Horizontalmente | Terminal Activa |
-| `Ctrl + Shift + E` | Dividir Panel Verticalmente | Terminal Activa |
+| `Ctrl + Shift + O` / `Ctrl + Shift + D` | Dividir Horizontalmente (Duplica sesión actual) | Terminal Activa |
+| `Ctrl + Shift + E` | Dividir Verticalmente (Duplica sesión actual) | Terminal Activa |
 | `Ctrl + Shift + W` | Cerrar Panel Activo | Terminal Activa |
 | `Ctrl + Shift + ↑` | Saltar al Prompt del Comando Anterior | Shell Integration |
 | `Ctrl + Shift + ↓` | Saltar al Prompt del Comando Siguiente | Shell Integration |
