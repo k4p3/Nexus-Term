@@ -4,6 +4,7 @@ pub mod settings;
 pub mod snippets;
 pub mod ssh;
 pub mod ssh_config;
+pub mod tunnels;
 pub mod vault;
 
 use std::fs;
@@ -16,6 +17,10 @@ use crate::settings::{get_app_settings, reset_app_settings, save_app_settings};
 use crate::snippets::{delete_snippet, get_snippets, save_snippet};
 use crate::ssh::{connect_ssh, SshSessionManager};
 use crate::ssh_config::{detect_ssh_config, import_ssh_config};
+use crate::tunnels::commands::{
+    delete_tunnel, get_tunnel_statuses, list_tunnels, save_tunnel, start_tunnel, stop_tunnel,
+};
+use crate::tunnels::manager::SshTunnelManager;
 use crate::vault::db::{
     VaultManager, vault_change_password, vault_init, vault_lock, vault_status, vault_unlock,
 };
@@ -47,6 +52,7 @@ pub fn run() {
             app.manage(vault_mgr.clone());
             app.manage(PtySessionManager::new());
             app.manage(SshSessionManager::new());
+            app.manage(Arc::new(SshTunnelManager::new()));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -77,6 +83,12 @@ pub fn run() {
             delete_snippet,
             detect_ssh_config,
             import_ssh_config,
+            list_tunnels,
+            save_tunnel,
+            delete_tunnel,
+            start_tunnel,
+            stop_tunnel,
+            get_tunnel_statuses,
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application");

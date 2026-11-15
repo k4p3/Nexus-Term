@@ -130,6 +130,20 @@ impl VaultManager {
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             );
+
+            CREATE TABLE IF NOT EXISTS ssh_tunnels (
+                id TEXT PRIMARY KEY,
+                host_id TEXT NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+                name TEXT NOT NULL,
+                tunnel_type TEXT NOT NULL CHECK (tunnel_type IN ('local', 'remote', 'dynamic')),
+                local_host TEXT NOT NULL DEFAULT '127.0.0.1',
+                local_port INTEGER NOT NULL,
+                remote_host TEXT,
+                remote_port INTEGER,
+                auto_start INTEGER NOT NULL DEFAULT 0,
+                created_at TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );
             ",
         )?;
         let _ = conn.execute("ALTER TABLE identities ADD COLUMN public_key TEXT", []);

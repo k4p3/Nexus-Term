@@ -98,6 +98,109 @@ pub struct SshSessionManager {
     sessions: Arc<Mutex<HashMap<String, mpsc::Sender<SshSessionCommand>>>>,
 }
 
+pub async fn create_authenticated_ssh_session(
+    vault_mgr: Arc<VaultManager>,
+    host_id: &str,
+) -> Result<client::Handle<SshClientHandler>, String> {
+    let inv = vault_mgr
+        .get_inventory()
+        .map_err(|e| format!("Vault error: {}", e))?;
+
+    let host = inv
+        .hosts
+        .into_iter()
+        .find(|h| h.id == host_id)
+        .ok_or_else(|| "Host not found".to_string())?;
+
+    let identity = if let Some(id_id) = &host.identity_id {
+        Some(
+            vault_mgr
+                .get_decrypted_identity(id_id)
+                .map_err(|e| format!("Failed to decrypt identity: {}", e))?,
+        )
+    } else {
+        None
+    };
+
+    let username = host
+        .username_override
+        .as_deref()
+        .or_else(|| identity.as_ref().map(|i| i.username.as_str()))
+        .unwrap_or("root");
+
+    let config = Arc::new(client::Config::default());
+    let handler = SshClientHandler {
+        hostname: host.hostname.clone(),
+        port: host.port,
+        vault_manager: vault_mgr.clone(),
+    };
+
+    let addr = format!("{}:{}", host.hostname, host.port);
+    let mut session = client::connect(config, addr, handler)
+        .await
+        .map_err(|e| format!("SSH connection failed: {}", e))?;
+
+    // Authenticate
+    let mut authenticated = false;
+    if let Some(ident) = &identity {
+        if ident.auth_type == "password" {
+            if let Some(pwd) = &ident.secret {
+                let res = session
+                    .authenticate_password(username, pwd)
+                    .await
+                    .map_err(|e| format!("SSH password auth error: {}", e))?;
+                authenticated = matches!(res, client::AuthResult::Success);
+            }
+        } else if ident.auth_type == "private_key" {
+            if let Some(key_data) = &ident.secret {
+                let passphrase = ident.passphrase.as_deref();
+                let key = decode_secret_key(key_data, passphrase)
+                    .map_err(|e| format!("Failed to decode private key: {}", e))?;
+                let key_with_alg = PrivateKeyWithHashAlg::new(Arc::new(key), None);
+                let res = session
+                    .authenticate_publickey(username, key_with_alg)
+                    .await
+                    .map_err(|e| format!("SSH public key auth error: {}", e))?;
+                authenticated = matches!(res, client::AuthResult::Success);
+            }
+        } else if ident.auth_type == "agent" {
+            #[cfg(unix)]
+            let mut agent_client = russh::keys::agent::client::AgentClient::connect_env()
+                .await
+                .map_err(|e| format!("SSH agent connection failed: {}. Ensure SSH_AUTH_SOCK is active and valid.", e))?;
+
+            #[cfg(windows)]
+            let mut agent_client = russh::keys::agent::client::AgentClient::connect_pageant().await;
+
+            let identities = agent_client
+                .request_identities()
+                .await
+                .map_err(|e| format!("Failed to query identities from SSH agent: {}", e))?;
+
+            if identities.is_empty() {
+                return Err("SSH agent has no keys loaded. Add keys using ssh-add first.".to_string());
+            }
+
+            for pubkey in identities {
+                let res = session
+                    .authenticate_publickey_with(username, pubkey, None, &mut agent_client)
+                    .await;
+
+                if let Ok(client::AuthResult::Success) = res {
+                    authenticated = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if !authenticated {
+        return Err("SSH Authentication failed or credentials rejected by server".to_string());
+    }
+
+    Ok(session)
+}
+
 impl SshSessionManager {
     pub fn new() -> Self {
         Self {
@@ -113,101 +216,7 @@ impl SshSessionManager {
         rows: u16,
         on_data: Channel<Vec<u8>>,
     ) -> Result<String, String> {
-        let inv = vault_mgr
-            .get_inventory()
-            .map_err(|e| format!("Vault error: {}", e))?;
-
-        let host = inv
-            .hosts
-            .into_iter()
-            .find(|h| h.id == host_id)
-            .ok_or_else(|| "Host not found".to_string())?;
-
-        let identity = if let Some(id_id) = &host.identity_id {
-            Some(
-                vault_mgr
-                    .get_decrypted_identity(id_id)
-                    .map_err(|e| format!("Failed to decrypt identity: {}", e))?,
-            )
-        } else {
-            None
-        };
-
-        let username = host
-            .username_override
-            .as_deref()
-            .or_else(|| identity.as_ref().map(|i| i.username.as_str()))
-            .unwrap_or("root");
-
-        let config = Arc::new(client::Config::default());
-        let handler = SshClientHandler {
-            hostname: host.hostname.clone(),
-            port: host.port,
-            vault_manager: vault_mgr.clone(),
-        };
-
-        let addr = format!("{}:{}", host.hostname, host.port);
-        let mut session = client::connect(config, addr, handler)
-            .await
-            .map_err(|e| format!("SSH connection failed: {}", e))?;
-
-        // Authenticate
-        let mut authenticated = false;
-        if let Some(ident) = &identity {
-            if ident.auth_type == "password" {
-                if let Some(pwd) = &ident.secret {
-                    let res = session
-                        .authenticate_password(username, pwd)
-                        .await
-                        .map_err(|e| format!("SSH password auth error: {}", e))?;
-                    authenticated = matches!(res, client::AuthResult::Success);
-                }
-            } else if ident.auth_type == "private_key" {
-                if let Some(key_data) = &ident.secret {
-                    let passphrase = ident.passphrase.as_deref();
-                    let key = decode_secret_key(key_data, passphrase)
-                        .map_err(|e| format!("Failed to decode private key: {}", e))?;
-                    let key_with_alg = PrivateKeyWithHashAlg::new(Arc::new(key), None);
-                    let res = session
-                        .authenticate_publickey(username, key_with_alg)
-                        .await
-                        .map_err(|e| format!("SSH public key auth error: {}", e))?;
-                    authenticated = matches!(res, client::AuthResult::Success);
-                }
-            } else if ident.auth_type == "agent" {
-                #[cfg(unix)]
-                let mut agent_client = russh::keys::agent::client::AgentClient::connect_env()
-                    .await
-                    .map_err(|e| format!("SSH agent connection failed: {}. Ensure SSH_AUTH_SOCK is active and valid.", e))?;
-
-                #[cfg(windows)]
-                let mut agent_client = russh::keys::agent::client::AgentClient::connect_pageant().await;
-
-                let identities = agent_client
-                    .request_identities()
-                    .await
-                    .map_err(|e| format!("Failed to query identities from SSH agent: {}", e))?;
-
-                if identities.is_empty() {
-                    return Err("SSH agent has no keys loaded. Add keys using ssh-add first.".to_string());
-                }
-
-                for pubkey in identities {
-                    let res = session
-                        .authenticate_publickey_with(username, pubkey, None, &mut agent_client)
-                        .await;
-
-                    if let Ok(client::AuthResult::Success) = res {
-                        authenticated = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        if !authenticated {
-            return Err("SSH Authentication failed or credentials rejected by server".to_string());
-        }
+        let session = create_authenticated_ssh_session(vault_mgr, host_id).await?;
 
         // Open interactive channel
         let mut channel = session

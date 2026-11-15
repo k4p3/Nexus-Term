@@ -4,24 +4,28 @@ import { useI18n } from "vue-i18n";
 import { useVaultStore } from "./stores/vault.store";
 import { useSessionsStore } from "./stores/sessions.store";
 import { useSettingsStore } from "./stores/settings.store";
+import { useTunnelsStore } from "./stores/tunnels.store";
 import VaultUnlockScreen from "./components/vault/VaultUnlockScreen.vue";
 import HostTreeSidebar from "./components/hosts/HostTreeSidebar.vue";
 import QuickConnectModal from "./components/hosts/QuickConnectModal.vue";
 import SettingsModal from "./components/settings/SettingsModal.vue";
 import SnippetDrawer from "./components/snippets/SnippetDrawer.vue";
+import PortForwardManager from "./components/tunnels/PortForwardManager.vue";
 import TerminalWorkspace from "./components/terminal/TerminalWorkspace.vue";
 import type { HostSummary } from "./types/inventory";
 import { sessionService } from "./services/session.service";
-import { Lock, Terminal, RefreshCw, Search, Settings, Code } from "lucide-vue-next";
+import { Lock, Terminal, RefreshCw, Search, Settings, Code, ArrowRightLeft } from "lucide-vue-next";
 
 const { t } = useI18n();
 const vaultStore = useVaultStore();
 const sessionsStore = useSessionsStore();
 const settingsStore = useSettingsStore();
+const tunnelsStore = useTunnelsStore();
 
 const isQuickConnectOpen = ref(false);
 const isSettingsOpen = ref(false);
 const isSnippetsOpen = ref(false);
+const isTunnelsOpen = ref(false);
 const isSidebarVisible = ref(true);
 
 onMounted(async () => {
@@ -111,6 +115,20 @@ function handleInsertCommand(command: string) {
         </button>
 
         <button
+          v-if="vaultStore.isUnlocked"
+          @click="isTunnelsOpen = !isTunnelsOpen"
+          title="Gestor de Túneles SSH"
+          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer relative"
+        >
+          <ArrowRightLeft class="w-3.5 h-3.5 text-cyan-400" />
+          <span>Túneles</span>
+          <span
+            v-if="tunnelsStore.activeTunnelsCount > 0"
+            class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5"
+          ></span>
+        </button>
+
+        <button
           @click="isSettingsOpen = true"
           :title="t('settings.title')"
           class="p-1.5 text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
@@ -161,6 +179,7 @@ function handleInsertCommand(command: string) {
           @open-local-pty="handleOpenLocalPty"
           @open-settings="isSettingsOpen = true"
           @open-snippets="isSnippetsOpen = true"
+          @open-tunnels="isTunnelsOpen = true"
           @insert-command="handleInsertCommand"
         />
       </div>
@@ -176,6 +195,12 @@ function handleInsertCommand(command: string) {
         :is-open="isSnippetsOpen"
         @close="isSnippetsOpen = false"
         @insert-command="handleInsertCommand"
+      />
+
+      <!-- Port Forwarding Manager Modal -->
+      <PortForwardManager
+        :is-open="isTunnelsOpen"
+        @close="isTunnelsOpen = false"
       />
     </main>
   </div>

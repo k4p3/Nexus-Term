@@ -5,7 +5,7 @@ import { useVaultStore } from "../../stores/vault.store";
 import { useSnippetsStore } from "../../stores/snippets.store";
 import type { HostSummary } from "../../types/inventory";
 import type { CommandSnippet } from "../../types/snippets";
-import { Search, Server, Terminal, Settings, Code, Folder, Tag, CornerDownLeft } from "lucide-vue-next";
+import { Search, Server, Terminal, Settings, Code, Folder, Tag, CornerDownLeft, ArrowRightLeft } from "lucide-vue-next";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -17,6 +17,7 @@ const emit = defineEmits<{
   (e: "open-local-pty"): void;
   (e: "open-settings"): void;
   (e: "open-snippets"): void;
+  (e: "open-tunnels"): void;
   (e: "insert-command", command: string): void;
 }>();
 
@@ -28,7 +29,7 @@ const selectedIndex = ref(0);
 const searchInput = ref<HTMLInputElement | null>(null);
 
 interface SearchItem {
-  type: "local" | "host" | "settings" | "snippet";
+  type: "local" | "host" | "settings" | "snippet" | "tunnels";
   id: string;
   label: string;
   subtitle: string;
@@ -49,6 +50,16 @@ const items = computed<SearchItem[]>(() => {
       id: "action-settings",
       label: t('settings.title'),
       subtitle: `${t('settings.tabs.general')} • ${t('settings.tabs.terminal')} • ${t('settings.tabs.security')}`,
+    });
+  }
+
+  // Tunnels shortcut
+  if (!q || "tunnels tuneles port forwarding puertos socks5".includes(q)) {
+    result.push({
+      type: "tunnels",
+      id: "action-tunnels",
+      label: "Túneles SSH & Port Forwarding",
+      subtitle: "Reenvío Local (-L), Remoto (-R) y SOCKS5 (-D)",
     });
   }
 
@@ -155,6 +166,8 @@ function handleKeyDown(e: KeyboardEvent) {
 function executeItem(item: SearchItem) {
   if (item.type === "settings") {
     emit("open-settings");
+  } else if (item.type === "tunnels") {
+    emit("open-tunnels");
   } else if (item.type === "local") {
     emit("open-local-pty");
   } else if (item.type === "snippet" && item.snippet) {
@@ -219,6 +232,8 @@ onUnmounted(() => {
                   ? 'bg-blue-500/20 text-blue-400'
                   : item.type === 'snippet'
                   ? 'bg-amber-500/20 text-amber-400'
+                  : item.type === 'tunnels'
+                  ? 'bg-cyan-500/20 text-cyan-400'
                   : item.type === 'local'
                   ? 'bg-purple-500/20 text-purple-400'
                   : 'bg-theme-active text-theme-accent'
@@ -226,6 +241,7 @@ onUnmounted(() => {
             >
               <Settings v-if="item.type === 'settings'" class="w-4 h-4" />
               <Code v-else-if="item.type === 'snippet'" class="w-4 h-4" />
+              <ArrowRightLeft v-else-if="item.type === 'tunnels'" class="w-4 h-4" />
               <Terminal v-else-if="item.type === 'local'" class="w-4 h-4" />
               <Server v-else class="w-4 h-4" />
             </div>
