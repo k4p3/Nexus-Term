@@ -76,6 +76,7 @@ pub fn run() {
                 .menu(&tray_menu)
                 .tooltip("NexusTerm - Gestor SSH y Terminal")
                 .show_menu_on_left_click(false)
+                .icon_as_template(true)
                 .on_menu_event(|app, event| match event.id.as_ref() {
                     "show" => {
                         if let Some(window) = app.get_webview_window("main") {
@@ -109,9 +110,8 @@ pub fn run() {
                     }
                 });
 
-            if let Some(icon) = app.default_window_icon() {
-                tray_builder = tray_builder.icon(icon.clone());
-            }
+            let tray_img = tauri::include_image!("icons/tray-64x64.png");
+            tray_builder = tray_builder.icon(tray_img);
 
             let _tray = tray_builder.build(app)?;
             Ok(())
