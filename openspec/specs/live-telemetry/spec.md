@@ -1,6 +1,9 @@
-# Delta Spec: Live Telemetry & System Monitoring
+# live-telemetry Specification
 
-## ADDED Requirements
+## Purpose
+Proporciona la recolección, transmisión asíncrona por canales IPC y visualización en tiempo real de métricas de telemetría del sistema remoto (CPU, RAM, disco /, red y uptime) sobre la conexión multiplexada SSH existente, sin requerir la instalación de ningún agente o daemon externo en el servidor.
+
+## Requirements
 
 ### Requirement: Remote System Metrics Collection
 The system SHALL collect real-time telemetry metrics from the connected remote host using an SSH exec channel over the existing multiplexed SSH connection without requiring any remote agent or daemon.

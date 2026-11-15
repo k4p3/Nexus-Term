@@ -1,6 +1,9 @@
-# Delta Spec: System Tray Integration & Background Persistence
+# system-tray Specification
 
-## ADDED Requirements
+## Purpose
+Proporciona la integración nativa con el área de notificación y bandeja del sistema (System Tray / StatusNotifierItem en Linux/KDE Plasma, Windows y macOS), permitiendo minimizar la ventana a segundo plano sin interrumpir conexiones activas y controlar la visibilidad mediante menú contextual y atajos de ratón.
+
+## Requirements
 
 ### Requirement: Native System Tray Icon
 The application SHALL register a native tray icon in the operating system's system tray (StatusNotifierItem on Linux / KDE Plasma, System Tray on Windows, and Menu Bar item on macOS).
