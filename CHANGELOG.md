@@ -1,0 +1,74 @@
+# Changelog
+
+All notable changes to **NexusTerm** will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [0.1.0-beta] - 2026-11-15
+
+Initial public Beta release of **NexusTerm**, a modern, lightweight, and open-source SSH & SFTP manager and terminal multiplexer built with **Tauri v2 (Rust)**, **Vue 3**, **TypeScript**, and **xterm.js**.
+
+### Added
+
+#### Core Vault & Cryptographic Security
+- Master password protection using **Argon2id** key derivation.
+- Authenticated per-record encryption using **AES-256-GCM** with a master-wrapped `VaultKey`.
+- Guaranteed in-memory wiping of keys, passphrases, and plaintext secrets using **Zeroize**.
+- SQLite persistence (`vault.db`) with automatic schema migrations.
+- Configurable auto-lock timers with secure master password rotation without re-encrypting inventory records.
+
+#### Inventory & Identity Management
+- Hierarchical folder and host organization with custom color indicators and tag filters.
+- Native dual SSH key generation in pure Rust (**Ed25519** and **RSA 4096-bit**).
+- OpenSSH public key extraction, persistent storage in vault, and 1-click clipboard copy.
+- Local operating system SSH Agent integration via `$SSH_AUTH_SOCK` (Linux/macOS) and named pipes (Windows).
+- Visual authentication badges in host modals and trees (`Ed25519`, `RSA`, `Agent`, `Password`).
+
+#### Native SSH Config & Known Hosts Importer
+- Built-in parser for `~/.ssh/config` supporting `Host`, `HostName`, `User`, `Port`, `IdentityFile`, `ProxyJump`, and wildcards.
+- Built-in parser for `~/.known_hosts` with SHA-256 fingerprint verification.
+- Trust-on-first-use (TOFU) support and automatic detection of host key changes to prevent MITM attacks.
+- Import preview modal with folder selection and selective import.
+
+#### Terminal Multiplexer & Shell Integration
+- High-performance binary streaming over `tauri::ipc::Channel<Vec<u8>>` directly to `@xterm/xterm` with WebGL acceleration.
+- Local PTY engine using `portable-pty` for Zsh, Bash, and Fish shells.
+- Resizable split panes (horizontal and vertical) with persistent layout trees across tab switching.
+- **Broadcast Mode**: Replicates keyboard keystrokes simultaneously across all active split panes with visual warning banners.
+- **Shell Integration (OSC 133)**: Detects command prompt markers, execution duration in milliseconds, exit code badges (`0` vs error), prompt-to-prompt jumping (`Ctrl+Shift+↑`/`↓`), and 1-click command output copying.
+- In-terminal buffer search with regex, case sensitivity, and whole word matching (`Ctrl+F`).
+
+#### SSH Tunnels & Port Forwarding Manager
+- Visual manager for **Local Forwarding (`-L`)**, **Remote Forwarding (`-R`)**, and **Dynamic SOCKS5 Proxy (`-D`)**.
+- Multiplexed channel forwarding without opening additional TCP connections.
+- Background Tokio actors with real-time tunnel status monitoring and traffic byte counters.
+
+#### Integrated SFTP Explorer & File Transfer
+- Dedicated SFTP subsystem client over the authenticated SSH session (`russh-sftp`).
+- Directory tree exploration with breadcrumbs, file search filtering, and UNIX permission badges.
+- Remote file operations: folder creation (`mkdir`), item renaming, deletion, and property inspection.
+- Asynchronous transfer queue with progress tracking (speed, percentage, transferred bytes) for background uploads and downloads.
+- Prominent SFTP entry points across host trees, active terminal tab bars, top navigation headers, and the Quick Connect palette.
+
+#### Live Telemetry & System Monitoring
+- Non-invasive remote system monitoring reading Linux pseudo-filesystems (`/proc/stat`, `/proc/meminfo`, `/proc/net/dev`, `df`, `/proc/uptime`, `/proc/loadavg`) over an SSH exec channel.
+- Real-time differential calculation for CPU usage percentage, RAM/Swap usage, root disk capacity, network throughput (Rx/Tx kB/s), load averages, and uptime.
+- Compact `TelemetryBar` integrated into remote terminal panes with color-coded severity indicators (green < 70%, amber 70–85%, red > 85%), pause/resume controls, and configurable polling intervals.
+
+#### Command Snippets Library
+- Interactive snippet library with parameter placeholders (`{{variable}}`).
+- Dynamic parameter substitution modal before executing commands into the active terminal.
+- Tag filtering and quick insert shortcuts.
+
+#### Theming, Desktop Integration & UX
+- 6 built-in themes: Midnight Dark, Cyberpunk Neon, Nord Frost, Solarized Dark, Monokai Pro, and Light Clean.
+- Quick Connect palette (`Ctrl+K`) for lightning-fast server, snippet, and tool discovery.
+- Collapsible sidebar (`Ctrl+B`) with integrated tab-bar toggle.
+- Linux Wayland and X11 native integration with GTK Application ID (`dev.nexusterm.app`) and window icons.
+
+### Packaging
+- Linux packages: `.AppImage` (universal portable), `.deb` (Debian/Ubuntu/Mint), `.rpm` (Fedora/RHEL/openSUSE), and native release binaries.
+- Strict **GNU GPLv3** and FOSS license compliance across all Rust crates and npm dependencies.
