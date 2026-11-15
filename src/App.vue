@@ -107,9 +107,7 @@ function handleInsertCommand(command: string) {
     <!-- Top Application Bar -->
     <header class="h-10 bg-theme-header border-b border-theme flex items-center px-3.5 justify-between select-none shrink-0 z-20">
       <div class="flex items-center space-x-2.5">
-        <div class="w-6 h-6 rounded-lg bg-theme-accent flex items-center justify-center shadow-xs">
-          <Terminal class="w-3.5 h-3.5 text-slate-950 font-bold" />
-        </div>
+        <img src="/icon.png" class="w-6 h-6 rounded-lg shadow-xs object-cover border border-theme" alt="NexusTerm Logo" />
         <span class="text-sm font-bold tracking-tight text-theme-main flex items-center space-x-1">
           <span>Nexus</span><span class="text-theme-accent">Term</span>
         </span>
