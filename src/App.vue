@@ -5,22 +5,26 @@ import { useVaultStore } from "./stores/vault.store";
 import { useSessionsStore } from "./stores/sessions.store";
 import { useSettingsStore } from "./stores/settings.store";
 import { useTunnelsStore } from "./stores/tunnels.store";
+import { useSftpStore } from "./stores/sftp.store";
 import VaultUnlockScreen from "./components/vault/VaultUnlockScreen.vue";
 import HostTreeSidebar from "./components/hosts/HostTreeSidebar.vue";
 import QuickConnectModal from "./components/hosts/QuickConnectModal.vue";
 import SettingsModal from "./components/settings/SettingsModal.vue";
 import SnippetDrawer from "./components/snippets/SnippetDrawer.vue";
 import PortForwardManager from "./components/tunnels/PortForwardManager.vue";
+import SftpSidebar from "./components/sftp/SftpSidebar.vue";
+import TransferQueue from "./components/sftp/TransferQueue.vue";
 import TerminalWorkspace from "./components/terminal/TerminalWorkspace.vue";
 import type { HostSummary } from "./types/inventory";
 import { sessionService } from "./services/session.service";
-import { Lock, Terminal, RefreshCw, Search, Settings, Code, ArrowRightLeft } from "lucide-vue-next";
+import { Lock, Terminal, RefreshCw, Search, Settings, Code, ArrowRightLeft, FolderSync } from "lucide-vue-next";
 
 const { t } = useI18n();
 const vaultStore = useVaultStore();
 const sessionsStore = useSessionsStore();
 const settingsStore = useSettingsStore();
 const tunnelsStore = useTunnelsStore();
+const sftpStore = useSftpStore();
 
 const isQuickConnectOpen = ref(false);
 const isSettingsOpen = ref(false);
@@ -129,6 +133,16 @@ function handleInsertCommand(command: string) {
         </button>
 
         <button
+          v-if="vaultStore.isUnlocked && (sftpStore.isOpen || sftpStore.currentSessionId)"
+          @click="sftpStore.isOpen = !sftpStore.isOpen"
+          title="Explorador SFTP"
+          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/30 rounded-lg transition-colors cursor-pointer"
+        >
+          <FolderSync class="w-3.5 h-3.5 text-amber-400" />
+          <span>SFTP</span>
+        </button>
+
+        <button
           @click="isSettingsOpen = true"
           :title="t('settings.title')"
           class="p-1.5 text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
@@ -171,6 +185,9 @@ function handleInsertCommand(command: string) {
           @toggle-sidebar="isSidebarVisible = !isSidebarVisible"
         />
 
+        <!-- SFTP Explorer Sidebar -->
+        <SftpSidebar />
+
         <!-- Quick Connect Palette Modal -->
         <QuickConnectModal
           :is-open="isQuickConnectOpen"
@@ -202,6 +219,9 @@ function handleInsertCommand(command: string) {
         :is-open="isTunnelsOpen"
         @close="isTunnelsOpen = false"
       />
+
+      <!-- SFTP Transfer Queue Drawer -->
+      <TransferQueue />
     </main>
   </div>
 </template>

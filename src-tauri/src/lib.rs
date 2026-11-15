@@ -1,6 +1,7 @@
 pub mod pty;
 pub mod session;
 pub mod settings;
+pub mod sftp;
 pub mod snippets;
 pub mod ssh;
 pub mod ssh_config;
@@ -14,6 +15,11 @@ use rusqlite::Connection;
 use crate::pty::{open_local_pty, PtySessionManager};
 use crate::session::{close_session, extract_public_key, generate_ssh_key, resize_session, write_session};
 use crate::settings::{get_app_settings, reset_app_settings, save_app_settings};
+use crate::sftp::commands::{
+    sftp_connect, sftp_disconnect, sftp_download, sftp_list_dir, sftp_mkdir, sftp_remove,
+    sftp_rename, sftp_resolve_home, sftp_upload,
+};
+use crate::sftp::SftpSessionManager;
 use crate::snippets::{delete_snippet, get_snippets, save_snippet};
 use crate::ssh::{connect_ssh, SshSessionManager};
 use crate::ssh_config::{detect_ssh_config, import_ssh_config};
@@ -53,6 +59,7 @@ pub fn run() {
             app.manage(PtySessionManager::new());
             app.manage(SshSessionManager::new());
             app.manage(Arc::new(SshTunnelManager::new()));
+            app.manage(Arc::new(SftpSessionManager::new()));
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
@@ -89,6 +96,15 @@ pub fn run() {
             start_tunnel,
             stop_tunnel,
             get_tunnel_statuses,
+            sftp_connect,
+            sftp_resolve_home,
+            sftp_list_dir,
+            sftp_mkdir,
+            sftp_rename,
+            sftp_remove,
+            sftp_download,
+            sftp_upload,
+            sftp_disconnect,
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application");

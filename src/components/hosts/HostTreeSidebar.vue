@@ -2,6 +2,7 @@
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVaultStore } from "../../stores/vault.store";
+import { useSftpStore } from "../../stores/sftp.store";
 import type { HostSummary, Folder, IdentitySummary } from "../../types/inventory";
 import HostModal from "./HostModal.vue";
 import FolderModal from "./FolderModal.vue";
@@ -23,6 +24,7 @@ import {
   Copy,
   Check,
   FileCode,
+  FolderSync,
 } from "lucide-vue-next";
 
 const { t } = useI18n();
@@ -33,6 +35,7 @@ const emit = defineEmits<{
 }>();
 
 const vaultStore = useVaultStore();
+const sftpStore = useSftpStore();
 
 const searchQuery = ref("");
 const collapsedFolders = ref<Record<string, boolean>>({});
@@ -326,6 +329,13 @@ async function handleDeleteIdentity(id: string) {
                   <Terminal class="w-3.5 h-3.5" />
                 </button>
                 <button
+                  @click.stop="sftpStore.openSftp(host.id)"
+                  class="p-1 text-amber-400 hover:bg-amber-500/20 rounded cursor-pointer"
+                  title="Explorador SFTP"
+                >
+                  <FolderSync class="w-3.5 h-3.5" />
+                </button>
+                <button
                   @click.stop="openEditHost(host)"
                   class="p-1 text-slate-400 hover:text-white rounded"
                   title="Editar"
@@ -372,6 +382,13 @@ async function handleDeleteIdentity(id: string) {
                 title="Conectar"
               >
                 <Terminal class="w-3.5 h-3.5" />
+              </button>
+              <button
+                @click.stop="sftpStore.openSftp(host.id)"
+                class="p-1 text-amber-400 hover:bg-amber-500/20 rounded cursor-pointer"
+                title="Explorador SFTP"
+              >
+                <FolderSync class="w-3.5 h-3.5" />
               </button>
               <button
                 @click.stop="openEditHost(host)"
