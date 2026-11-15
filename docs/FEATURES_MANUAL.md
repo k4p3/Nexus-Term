@@ -88,6 +88,7 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 | Atajo | Acción | Contexto |
 | :--- | :--- | :--- |
 | `Ctrl + K` / `Cmd + K` | Abrir Paleta de Conexión Rápida | Global |
+| `Ctrl + B` / `Cmd + B` | Alternar Visibilidad de Barra Lateral | Global |
 | `Ctrl + ,` / `Cmd + ,` | Abrir Panel de Configuración | Global |
 | `Ctrl + F` / `Cmd + F` | Buscar en el Buffer de la Terminal | Terminal Activa |
 | `Ctrl + Shift + O` / `Ctrl + Shift + D` | Dividir Horizontalmente (Duplica sesión actual) | Terminal Activa |

@@ -316,6 +316,9 @@ onMounted(async () => {
         isSearchOpen.value = !isSearchOpen.value;
         return false;
       }
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'b') {
+        return false;
+      }
       if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
         const k = e.key.toLowerCase();
         if (k === 'arrowup') {
