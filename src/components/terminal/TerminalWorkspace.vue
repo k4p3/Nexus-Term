@@ -88,18 +88,24 @@ function handleNewTab() {
       </button>
     </div>
 
-    <!-- Active Tab Workspace -->
+    <!-- Tab Workspaces (Persistent across tab switching) -->
     <div class="flex-1 overflow-hidden relative">
-      <SplitPaneNode
-        v-if="activeTab"
-        :node="activeTab.rootPane"
-        :tab-id="activeTab.id"
-        :active-pane-id="activeTab.activePaneId"
-      />
+      <div
+        v-for="tab in sessionsStore.tabs"
+        :key="tab.id"
+        v-show="tab.id === sessionsStore.activeTabId"
+        class="h-full w-full"
+      >
+        <SplitPaneNode
+          :node="tab.rootPane"
+          :tab-id="tab.id"
+          :active-pane-id="tab.activePaneId"
+        />
+      </div>
 
       <!-- Empty State -->
       <div
-        v-else
+        v-if="sessionsStore.tabs.length === 0"
         class="h-full w-full flex flex-col items-center justify-center p-8 text-center"
       >
         <div class="p-4 rounded-3xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 mb-4 shadow-xl">

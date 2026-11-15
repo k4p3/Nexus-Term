@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
@@ -88,6 +88,21 @@ watch(
       if (sessionId) {
         sessionService.resizeSession(sessionId, term.cols, term.rows);
       }
+    }
+  }
+);
+
+watch(
+  () => props.isActive,
+  (active) => {
+    if (active && term) {
+      nextTick(() => {
+        fitAddon?.fit();
+        term?.focus();
+        if (sessionId && term) {
+          sessionService.resizeSession(sessionId, term.cols, term.rows);
+        }
+      });
     }
   }
 );

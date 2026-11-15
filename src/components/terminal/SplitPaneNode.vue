@@ -14,6 +14,7 @@ defineProps<{
     <!-- Leaf Terminal Pane -->
     <TerminalPane
       v-if="node.type === 'leaf'"
+      :key="node.id"
       :pane="node"
       :tab-id="tabId"
       :is-active="node.id === activePaneId"
@@ -22,11 +23,13 @@ defineProps<{
     <!-- Split Pane Container -->
     <div
       v-else
+      :key="node.id"
       class="h-full w-full flex overflow-hidden"
       :class="node.direction === 'horizontal' ? 'flex-row' : 'flex-col'"
     >
       <div class="flex-1 overflow-hidden h-full">
         <SplitPaneNode
+          :key="node.first.id"
           :node="node.first"
           :tab-id="tabId"
           :active-pane-id="activePaneId"
@@ -41,6 +44,7 @@ defineProps<{
 
       <div class="flex-1 overflow-hidden h-full">
         <SplitPaneNode
+          :key="node.second.id"
           :node="node.second"
           :tab-id="tabId"
           :active-pane-id="activePaneId"
