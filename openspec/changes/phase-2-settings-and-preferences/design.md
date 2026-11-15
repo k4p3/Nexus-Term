@@ -23,6 +23,9 @@ En la Fase 1 establecimos los cimientos funcionales de NexusTerm (bóveda cifrad
 ### 2. Estructura de `AppSettings`
 ```typescript
 export interface AppSettings {
+  // General & i18n
+  locale: string; // "en" | "es" | código IETF
+
   // Terminal Appearance
   font_family: string;
   font_size: number;
@@ -59,6 +62,14 @@ term.options.cursorBlink = settings.cursor_blink;
 term.options.theme = getThemeById(settings.theme_id);
 fitAddon.fit();
 ```
+
+### 5. Arquitectura de Internacionalización (`vue-i18n` + JSON Estándar)
+- **Biblioteca**: `vue-i18n` (v10+ para Vue 3 Composition API).
+- **Estructura**:
+  - `src/locales/en.json`: Diccionario base en inglés con estructura anidada modular (`common`, `vault`, `hosts`, `terminal`, `settings`).
+  - `src/locales/es.json`: Diccionario completo en español.
+  - `src/locales/index.ts`: Configuración con `fallbackLocale: 'en'`.
+- **Extensibilidad Comunitaria**: Cualquier usuario o colaborador puede añadir una nueva traducción agregando `src/locales/<código>.json` o cargando un archivo JSON dinámicamente desde el panel de ajustes con `i18n.global.setLocaleMessage(...)`.
 
 ## Risks / Trade-offs
 

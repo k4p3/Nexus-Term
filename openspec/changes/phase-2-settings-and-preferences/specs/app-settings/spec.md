@@ -24,6 +24,17 @@ El sistema SHALL permitir configurar la familia tipográfica, tamaño de fuente,
 - **WHEN** el usuario selecciona un tema de color (como Dracula o Catppuccin)
 - **THEN** el sistema asigna la paleta de 16 colores ANSI y colores de fondo/texto correspondientes a la configuración activa
 
+### Requirement: Internacionalización e Idioma de la Aplicación
+El sistema SHALL permitir al usuario seleccionar el idioma de la interfaz gráfica (inglés y español preinstalados) y MUST cargar dinámicamente traducciones en formato JSON estándar con fallback automático a inglés.
+
+#### Scenario: Cambio de idioma en caliente
+- **WHEN** el usuario selecciona "Español" o "English" en las preferencias de idioma
+- **THEN** la interfaz actualiza reactivamente todos los textos visibles sin requerir recargar la aplicación ni reiniciar procesos de backend
+
+#### Scenario: Carga de idioma comunitario personalizado
+- **WHEN** el usuario proporciona un archivo JSON con traducciones válidas para un nuevo idioma
+- **THEN** el sistema registra el nuevo idioma en el catálogo local y permite su activación inmediata con fallback a inglés para claves no traducidas
+
 ### Requirement: Opciones de Seguridad y Shell Local
 El sistema SHALL permitir configurar la ruta del shell predeterminado para nuevas sesiones locales y MUST proporcionar una interfaz para rotar la contraseña maestra de la bóveda.
 
