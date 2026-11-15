@@ -8,9 +8,11 @@ import VaultUnlockScreen from "./components/vault/VaultUnlockScreen.vue";
 import HostTreeSidebar from "./components/hosts/HostTreeSidebar.vue";
 import QuickConnectModal from "./components/hosts/QuickConnectModal.vue";
 import SettingsModal from "./components/settings/SettingsModal.vue";
+import SnippetDrawer from "./components/snippets/SnippetDrawer.vue";
 import TerminalWorkspace from "./components/terminal/TerminalWorkspace.vue";
 import type { HostSummary } from "./types/inventory";
-import { Lock, Terminal, RefreshCw, Search, Settings } from "lucide-vue-next";
+import { sessionService } from "./services/session.service";
+import { Lock, Terminal, RefreshCw, Search, Settings, Code } from "lucide-vue-next";
 
 const { t } = useI18n();
 const vaultStore = useVaultStore();
@@ -19,6 +21,7 @@ const settingsStore = useSettingsStore();
 
 const isQuickConnectOpen = ref(false);
 const isSettingsOpen = ref(false);
+const isSnippetsOpen = ref(false);
 
 onMounted(async () => {
   await settingsStore.loadSettings();
@@ -49,6 +52,16 @@ function handleConnectHost(host: HostSummary) {
 function handleOpenLocalPty() {
   sessionsStore.createTab(t('terminal.newLocal'));
 }
+
+function handleInsertCommand(command: string) {
+  if (!sessionsStore.activeTabId) return;
+  const tab = sessionsStore.tabs.find((t) => t.id === sessionsStore.activeTabId);
+  if (!tab) return;
+  const sessionId = sessionsStore.paneSessionMap[tab.activePaneId];
+  if (sessionId) {
+    sessionService.writeSession(sessionId, new TextEncoder().encode(command));
+  }
+}
 </script>
 
 <template>
@@ -77,6 +90,16 @@ function handleOpenLocalPty() {
           <kbd class="ml-1 text-[10px] font-mono bg-slate-900 px-1 py-0.2 rounded-sm border border-slate-700 text-slate-400">
             Ctrl+K
           </kbd>
+        </button>
+
+        <button
+          v-if="vaultStore.isUnlocked"
+          @click="isSnippetsOpen = !isSnippetsOpen"
+          title="Biblioteca de Snippets"
+          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-colors cursor-pointer"
+        >
+          <Code class="w-3.5 h-3.5 text-blue-400" />
+          <span>Snippets</span>
         </button>
 
         <button
@@ -124,6 +147,8 @@ function handleOpenLocalPty() {
           @connect-host="handleConnectHost"
           @open-local-pty="handleOpenLocalPty"
           @open-settings="isSettingsOpen = true"
+          @open-snippets="isSnippetsOpen = true"
+          @insert-command="handleInsertCommand"
         />
       </div>
 
@@ -131,6 +156,13 @@ function handleOpenLocalPty() {
       <SettingsModal
         v-if="isSettingsOpen"
         @close="isSettingsOpen = false"
+      />
+
+      <!-- Snippets Drawer -->
+      <SnippetDrawer
+        :is-open="isSnippetsOpen"
+        @close="isSnippetsOpen = false"
+        @insert-command="handleInsertCommand"
       />
     </main>
   </div>

@@ -3,7 +3,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useSessionsStore } from "../../stores/sessions.store";
 import SplitPaneNode from "./SplitPaneNode.vue";
-import { Plus, X, Terminal, Server, Sparkles } from "lucide-vue-next";
+import { Plus, X, Terminal, Server, Sparkles, Radio, AlertTriangle } from "lucide-vue-next";
 
 const { t } = useI18n();
 const sessionsStore = useSessionsStore();
@@ -20,35 +20,71 @@ function handleNewTab() {
 <template>
   <div class="flex-1 flex flex-col h-full w-full bg-slate-950 overflow-hidden select-none">
     <!-- Tab Bar -->
-    <div class="h-9 bg-slate-900/80 border-b border-slate-800 flex items-center px-2 space-x-1 overflow-x-auto shrink-0 select-none">
-      <div
-        v-for="tab in sessionsStore.tabs"
-        :key="tab.id"
-        @click="sessionsStore.activeTabId = tab.id"
-        class="group flex items-center space-x-2 px-3 py-1.5 rounded-t-lg text-xs font-medium cursor-pointer transition border-b-2"
-        :class="
-          sessionsStore.activeTabId === tab.id
-            ? 'bg-slate-950 text-cyan-400 border-cyan-400 font-semibold'
-            : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border-transparent'
-        "
-      >
-        <Terminal class="w-3.5 h-3.5 shrink-0" />
-        <span class="max-w-[140px] truncate">{{ tab.title }}</span>
-        <button
-          @click.stop="sessionsStore.closeTab(tab.id)"
-          class="p-0.5 rounded text-slate-400 hover:text-red-400 opacity-60 group-hover:opacity-100 transition"
-          :title="t('terminal.closePane')"
+    <div class="h-9 bg-slate-900/80 border-b border-slate-800 flex items-center justify-between px-2 overflow-x-auto shrink-0 select-none">
+      <div class="flex items-center space-x-1">
+        <div
+          v-for="tab in sessionsStore.tabs"
+          :key="tab.id"
+          @click="sessionsStore.activeTabId = tab.id"
+          class="group flex items-center space-x-2 px-3 py-1.5 rounded-t-lg text-xs font-medium cursor-pointer transition border-b-2"
+          :class="
+            sessionsStore.activeTabId === tab.id
+              ? 'bg-slate-950 text-cyan-400 border-cyan-400 font-semibold'
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border-transparent'
+          "
         >
-          <X class="w-3 h-3" />
+          <Terminal class="w-3.5 h-3.5 shrink-0" />
+          <span class="max-w-[140px] truncate">{{ tab.title }}</span>
+          <button
+            @click.stop="sessionsStore.closeTab(tab.id)"
+            class="p-0.5 rounded text-slate-400 hover:text-red-400 opacity-60 group-hover:opacity-100 transition"
+            :title="t('terminal.closePane')"
+          >
+            <X class="w-3 h-3" />
+          </button>
+        </div>
+
+        <button
+          @click="handleNewTab"
+          :title="t('terminal.newLocal')"
+          class="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+        >
+          <Plus class="w-4 h-4" />
         </button>
       </div>
 
+      <!-- Right Tab Toolbar: Broadcast Toggle -->
+      <div v-if="sessionsStore.tabs.length > 0" class="flex items-center space-x-2 pl-2">
+        <button
+          @click="sessionsStore.toggleBroadcastMode()"
+          :class="[
+            'flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all cursor-pointer',
+            sessionsStore.isBroadcastMode
+              ? 'bg-amber-500/20 text-amber-300 border-amber-500/60 shadow-xs'
+              : 'text-slate-400 hover:text-slate-200 bg-slate-800/60 border-slate-700/60 hover:bg-slate-800',
+          ]"
+          :title="sessionsStore.isBroadcastMode ? 'Desactivar Modo Broadcast' : 'Activar Modo Broadcast (Replicar teclas en todos los paneles)'"
+        >
+          <Radio class="w-3.5 h-3.5" :class="sessionsStore.isBroadcastMode ? 'animate-pulse text-amber-400' : ''" />
+          <span>Broadcast</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Broadcast Mode Warning Banner -->
+    <div
+      v-if="sessionsStore.isBroadcastMode"
+      class="h-7 bg-amber-500/15 border-b border-amber-500/30 px-3 flex items-center justify-between text-xs text-amber-300 font-medium select-none shrink-0"
+    >
+      <div class="flex items-center space-x-2">
+        <AlertTriangle class="w-3.5 h-3.5 text-amber-400 shrink-0" />
+        <span>MODO BROADCAST ACTIVO: Todas las teclas se enviarán a los paneles divididos abiertos.</span>
+      </div>
       <button
-        @click="handleNewTab"
-        :title="t('terminal.newLocal')"
-        class="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition"
+        @click="sessionsStore.toggleBroadcastMode()"
+        class="text-[11px] underline hover:text-white cursor-pointer"
       >
-        <Plus class="w-4 h-4" />
+        Desactivar
       </button>
     </div>
 

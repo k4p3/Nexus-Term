@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { HostSummary } from "../types/inventory";
 import type { SessionTab, PaneNode, LeafPane, SplitDirection } from "../types/session";
+import { sessionService } from "../services/session.service";
 
 function generateId(): string {
   return "pane-" + Math.random().toString(36).substring(2, 9);
@@ -10,6 +11,52 @@ function generateId(): string {
 export const useSessionsStore = defineStore("sessions", () => {
   const tabs = ref<SessionTab[]>([]);
   const activeTabId = ref<string | null>(null);
+  const isBroadcastMode = ref(false);
+  const paneSessionMap = ref<Record<string, string>>({});
+
+  function registerPaneSession(paneId: string, sessionId: string) {
+    paneSessionMap.value[paneId] = sessionId;
+  }
+
+  function unregisterPaneSession(paneId: string) {
+    delete paneSessionMap.value[paneId];
+  }
+
+  function toggleBroadcastMode() {
+    isBroadcastMode.value = !isBroadcastMode.value;
+  }
+
+  function getLeafPanesInTab(tabId: string): LeafPane[] {
+    const tab = tabs.value.find((t) => t.id === tabId);
+    if (!tab) return [];
+
+    const leaves: LeafPane[] = [];
+    function collect(node: PaneNode) {
+      if (node.type === "leaf") {
+        leaves.push(node);
+      } else {
+        collect(node.first);
+        collect(node.second);
+      }
+    }
+    collect(tab.rootPane);
+    return leaves;
+  }
+
+  function broadcastData(sourcePaneId: string, tabId: string, data: Uint8Array) {
+    if (!isBroadcastMode.value) return;
+    const leaves = getLeafPanesInTab(tabId);
+    for (const leaf of leaves) {
+      if (leaf.id !== sourcePaneId) {
+        const sid = paneSessionMap.value[leaf.id];
+        if (sid) {
+          sessionService.writeSession(sid, data).catch((err) => {
+            console.error("Broadcast write error:", err);
+          });
+        }
+      }
+    }
+  }
 
   function createTab(title?: string, host?: HostSummary): string {
     const tabId = "tab-" + Math.random().toString(36).substring(2, 9);
@@ -142,6 +189,13 @@ export const useSessionsStore = defineStore("sessions", () => {
   return {
     tabs,
     activeTabId,
+    isBroadcastMode,
+    paneSessionMap,
+    registerPaneSession,
+    unregisterPaneSession,
+    toggleBroadcastMode,
+    getLeafPanesInTab,
+    broadcastData,
     createTab,
     closeTab,
     splitPane,

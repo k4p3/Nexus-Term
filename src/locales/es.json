@@ -130,5 +130,19 @@
     "passwordChanged": "¡Contraseña maestra actualizada correctamente!",
     "savedSuccessfully": "Configuración guardada correctamente",
     "resetDefaults": "Restablecer Valores Predeterminados"
+  },
+  "snippets": {
+    "title": "Snippets",
+    "newSnippet": "Nuevo Snippet",
+    "editSnippet": "Editar Snippet",
+    "searchPlaceholder": "Buscar por comando, título o tag...",
+    "noSnippets": "No hay snippets guardados.",
+    "createFirst": "Crear primer snippet",
+    "commandTemplate": "Plantilla de Comando",
+    "paramNotice": "Soporta parámetros dinámicos con {{param}}",
+    "fillParamsPrompt": "Ingresa los valores de los parámetros:",
+    "insertIntoTerminal": "Enviar a Terminal",
+    "copyCommand": "Copiar Comando",
+    "deleteConfirm": "¿Eliminar snippet?"
   }
 }

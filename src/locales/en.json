@@ -130,5 +130,19 @@
     "passwordChanged": "Master password changed successfully!",
     "savedSuccessfully": "Settings saved successfully",
     "resetDefaults": "Reset to Defaults"
+  },
+  "snippets": {
+    "title": "Snippets",
+    "newSnippet": "New Snippet",
+    "editSnippet": "Edit Snippet",
+    "searchPlaceholder": "Search snippets by title, command or tag...",
+    "noSnippets": "No snippets saved yet.",
+    "createFirst": "Create first snippet",
+    "commandTemplate": "Command Template",
+    "paramNotice": "Supports dynamic parameters with {{param}}",
+    "fillParamsPrompt": "Fill in parameter values:",
+    "insertIntoTerminal": "Send to Terminal",
+    "copyCommand": "Copy Command",
+    "deleteConfirm": "Delete snippet?"
   }
 }

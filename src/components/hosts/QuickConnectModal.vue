@@ -2,8 +2,10 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVaultStore } from "../../stores/vault.store";
+import { useSnippetsStore } from "../../stores/snippets.store";
 import type { HostSummary } from "../../types/inventory";
-import { Search, Server, Terminal, Settings, Folder, Tag, CornerDownLeft } from "lucide-vue-next";
+import type { CommandSnippet } from "../../types/snippets";
+import { Search, Server, Terminal, Settings, Code, Folder, Tag, CornerDownLeft } from "lucide-vue-next";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -14,22 +16,26 @@ const emit = defineEmits<{
   (e: "connect-host", host: HostSummary): void;
   (e: "open-local-pty"): void;
   (e: "open-settings"): void;
+  (e: "open-snippets"): void;
+  (e: "insert-command", command: string): void;
 }>();
 
 const { t } = useI18n();
 const vaultStore = useVaultStore();
+const snippetsStore = useSnippetsStore();
 const query = ref("");
 const selectedIndex = ref(0);
 const searchInput = ref<HTMLInputElement | null>(null);
 
 interface SearchItem {
-  type: "local" | "host" | "settings";
+  type: "local" | "host" | "settings" | "snippet";
   id: string;
   label: string;
   subtitle: string;
   folderName?: string;
   tags?: string[];
   host?: HostSummary;
+  snippet?: CommandSnippet;
 }
 
 const items = computed<SearchItem[]>(() => {
@@ -77,6 +83,26 @@ const items = computed<SearchItem[]>(() => {
         folderName: folderName || undefined,
         tags: host.tags,
         host,
+      });
+    }
+  }
+
+  // Find matching snippets
+  for (const snip of snippetsStore.snippets) {
+    const tagsStr = snip.tags.join(" ").toLowerCase();
+    if (
+      q &&
+      (snip.title.toLowerCase().includes(q) ||
+        snip.command_template.toLowerCase().includes(q) ||
+        tagsStr.includes(q))
+    ) {
+      result.push({
+        type: "snippet",
+        id: "snip-" + snip.id,
+        label: snip.title,
+        subtitle: snip.command_template,
+        tags: snip.tags,
+        snippet: snip,
       });
     }
   }
@@ -131,6 +157,13 @@ function executeItem(item: SearchItem) {
     emit("open-settings");
   } else if (item.type === "local") {
     emit("open-local-pty");
+  } else if (item.type === "snippet" && item.snippet) {
+    const params = snippetsStore.extractParameters(item.snippet.command_template);
+    if (params.length > 0) {
+      emit("open-snippets");
+    } else {
+      emit("insert-command", item.snippet.command_template + "\n");
+    }
   } else if (item.host) {
     emit("connect-host", item.host);
   }
@@ -181,9 +214,18 @@ onUnmounted(() => {
           <div class="flex items-center space-x-2.5 truncate">
             <div
               class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-              :class="item.type === 'settings' ? 'bg-blue-500/20 text-blue-400' : item.type === 'local' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'"
+              :class="
+                item.type === 'settings'
+                  ? 'bg-blue-500/20 text-blue-400'
+                  : item.type === 'snippet'
+                  ? 'bg-amber-500/20 text-amber-400'
+                  : item.type === 'local'
+                  ? 'bg-purple-500/20 text-purple-400'
+                  : 'bg-cyan-500/20 text-cyan-400'
+              "
             >
               <Settings v-if="item.type === 'settings'" class="w-4 h-4" />
+              <Code v-else-if="item.type === 'snippet'" class="w-4 h-4" />
               <Terminal v-else-if="item.type === 'local'" class="w-4 h-4" />
               <Server v-else class="w-4 h-4" />
             </div>
