@@ -185,31 +185,31 @@ onUnmounted(() => {
     @click.self="emit('close')"
     class="fixed inset-0 z-50 flex items-start justify-center pt-24 bg-black/60 backdrop-blur-xs p-4"
   >
-    <div class="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+    <div class="w-full max-w-xl bg-theme-surface border border-theme rounded-2xl shadow-2xl overflow-hidden flex flex-col text-theme-main transition-colors">
       <!-- Input header -->
-      <div class="px-4 py-3 border-b border-slate-800 flex items-center space-x-3 bg-slate-950/60">
-        <Search class="w-5 h-5 text-cyan-400 shrink-0" />
+      <div class="px-4 py-3 border-b border-theme flex items-center space-x-3 bg-theme-header">
+        <Search class="w-5 h-5 text-theme-accent shrink-0" />
         <input
           ref="searchInput"
           v-model="query"
           type="text"
           placeholder="Escribe para buscar servidor, carpeta o comando rápido..."
-          class="w-full bg-transparent text-sm text-white placeholder-slate-500 focus:outline-none"
+          class="w-full bg-transparent text-sm text-theme-main placeholder-slate-500 focus:outline-none"
         />
-        <kbd class="px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-slate-800 border border-slate-700 rounded">
+        <kbd class="px-1.5 py-0.5 text-[10px] font-mono text-theme-muted bg-theme-app border border-theme rounded">
           ESC
         </kbd>
       </div>
 
       <!-- Results list -->
-      <div class="max-h-80 overflow-y-auto p-2 space-y-1">
+      <div class="max-h-80 overflow-y-auto p-2 space-y-1 bg-theme-surface">
         <div
           v-for="(item, index) in items"
           :key="item.id"
           @click="executeItem(item)"
           @mouseenter="selectedIndex = index"
           class="flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer text-xs transition"
-          :class="selectedIndex === index ? 'bg-cyan-500/15 text-white border border-cyan-500/30' : 'text-slate-300 hover:bg-slate-800/60 border border-transparent'"
+          :class="selectedIndex === index ? 'bg-theme-active text-theme-main border border-theme shadow-xs' : 'text-theme-muted hover:bg-theme-app/50 border border-transparent'"
         >
           <div class="flex items-center space-x-2.5 truncate">
             <div
@@ -221,7 +221,7 @@ onUnmounted(() => {
                   ? 'bg-amber-500/20 text-amber-400'
                   : item.type === 'local'
                   ? 'bg-purple-500/20 text-purple-400'
-                  : 'bg-cyan-500/20 text-cyan-400'
+                  : 'bg-theme-active text-theme-accent'
               "
             >
               <Settings v-if="item.type === 'settings'" class="w-4 h-4" />
@@ -231,14 +231,14 @@ onUnmounted(() => {
             </div>
 
             <div class="truncate">
-              <div class="font-medium text-slate-100 flex items-center space-x-2 truncate">
+              <div class="font-medium text-theme-main flex items-center space-x-2 truncate">
                 <span>{{ item.label }}</span>
-                <span v-if="item.folderName" class="text-[10px] px-1.5 py-0.2 bg-slate-800 text-slate-400 rounded flex items-center space-x-1">
+                <span v-if="item.folderName" class="text-[10px] px-1.5 py-0.2 bg-theme-app text-theme-muted border border-theme rounded flex items-center space-x-1">
                   <Folder class="w-2.5 h-2.5" />
                   <span>{{ item.folderName }}</span>
                 </span>
               </div>
-              <div class="text-[10px] text-slate-400 font-mono truncate">
+              <div class="text-[10px] text-theme-muted font-mono truncate">
                 {{ item.subtitle }}
               </div>
             </div>
@@ -249,12 +249,12 @@ onUnmounted(() => {
               <span
                 v-for="tag in item.tags.slice(0, 2)"
                 :key="tag"
-                class="px-1.5 py-0.5 rounded bg-slate-800/80 text-[10px] text-slate-400"
+                class="px-1.5 py-0.5 rounded bg-theme-app border border-theme text-[10px] text-theme-muted"
               >
                 #{{ tag }}
               </span>
             </div>
-            <CornerDownLeft v-if="selectedIndex === index" class="w-3.5 h-3.5 text-cyan-400" />
+            <CornerDownLeft v-if="selectedIndex === index" class="w-3.5 h-3.5 text-theme-accent" />
           </div>
         </div>
 

@@ -1,9 +1,22 @@
 import type { ITheme } from '@xterm/xterm';
 
+export interface UiThemePalette {
+  bgApp: string;        // Main window / terminal background wrapper
+  bgSurface: string;    // Sidebar, modal container, card surface
+  bgHeader: string;     // Titlebar / top bar and tab bar idle background
+  bgActive: string;     // Active tab, hover row, button active
+  border: string;       // Panel borders, dividers, card borders
+  textMain: string;     // Primary high-contrast text
+  textMuted: string;    // Secondary/muted descriptions, labels
+  accent: string;       // Primary brand/theme accent
+  accentHover: string;  // Hover state for accent buttons
+}
+
 export interface TerminalTheme {
   id: string;
   name: string;
   theme: ITheme;
+  ui?: UiThemePalette;
 }
 
 export const PRESET_THEMES: TerminalTheme[] = [
@@ -34,6 +47,17 @@ export const PRESET_THEMES: TerminalTheme[] = [
       brightCyan: '#0db9d7',
       brightWhite: '#acb0d0',
     },
+    ui: {
+      bgApp: '#1a1b26',
+      bgSurface: '#16161e',
+      bgHeader: '#13141c',
+      bgActive: '#24283b',
+      border: '#292e42',
+      textMain: '#c0caf5',
+      textMuted: '#787c99',
+      accent: '#7aa2f7',
+      accentHover: '#89b4fa',
+    },
   },
   {
     id: 'one-dark',
@@ -61,6 +85,17 @@ export const PRESET_THEMES: TerminalTheme[] = [
       brightMagenta: '#c678dd',
       brightCyan: '#56b6c2',
       brightWhite: '#ffffff',
+    },
+    ui: {
+      bgApp: '#1e1e1e',
+      bgSurface: '#21252b',
+      bgHeader: '#181a1f',
+      bgActive: '#2c313a',
+      border: '#3b4048',
+      textMain: '#abb2bf',
+      textMuted: '#5c6370',
+      accent: '#61afef',
+      accentHover: '#528bff',
     },
   },
   {
@@ -90,6 +125,17 @@ export const PRESET_THEMES: TerminalTheme[] = [
       brightCyan: '#a4ffff',
       brightWhite: '#ffffff',
     },
+    ui: {
+      bgApp: '#282a36',
+      bgSurface: '#21222c',
+      bgHeader: '#191a21',
+      bgActive: '#343746',
+      border: '#44475a',
+      textMain: '#f8f8f2',
+      textMuted: '#6272a4',
+      accent: '#bd93f9',
+      accentHover: '#ff79c6',
+    },
   },
   {
     id: 'catppuccin',
@@ -117,6 +163,17 @@ export const PRESET_THEMES: TerminalTheme[] = [
       brightMagenta: '#f5bde6',
       brightCyan: '#8bd5ca',
       brightWhite: '#a5adcb',
+    },
+    ui: {
+      bgApp: '#24273a',
+      bgSurface: '#1e2030',
+      bgHeader: '#181926',
+      bgActive: '#363a4f',
+      border: '#494d64',
+      textMain: '#cad3f5',
+      textMuted: '#8087a2',
+      accent: '#8aadf4',
+      accentHover: '#8bd5ca',
     },
   },
   {
@@ -146,6 +203,17 @@ export const PRESET_THEMES: TerminalTheme[] = [
       brightCyan: '#8fbcbb',
       brightWhite: '#eceff4',
     },
+    ui: {
+      bgApp: '#2e3440',
+      bgSurface: '#242933',
+      bgHeader: '#1e222a',
+      bgActive: '#3b4252',
+      border: '#434c5e',
+      textMain: '#eceff4',
+      textMuted: '#7b88a1',
+      accent: '#88c0d0',
+      accentHover: '#81a1c1',
+    },
   },
   {
     id: 'breeze-dark',
@@ -174,10 +242,68 @@ export const PRESET_THEMES: TerminalTheme[] = [
       brightCyan: '#16a085',
       brightWhite: '#ffffff',
     },
+    ui: {
+      bgApp: '#232629',
+      bgSurface: '#1b1e20',
+      bgHeader: '#16181a',
+      bgActive: '#2a2e32',
+      border: '#31363b',
+      textMain: '#fcfcfc',
+      textMuted: '#7f8c8d',
+      accent: '#3daee9',
+      accentHover: '#1d99f3',
+    },
   },
 ];
+
+function adjustHexBrightness(hex: string, delta: number): string {
+  let clean = hex.replace('#', '');
+  if (clean.length === 3) {
+    clean = clean.split('').map((c) => c + c).join('');
+  }
+  const num = parseInt(clean, 16);
+  if (isNaN(num)) return hex;
+
+  let r = (num >> 16) + delta;
+  let g = ((num >> 8) & 0x00ff) + delta;
+  let b = (num & 0x0000ff) + delta;
+
+  r = Math.min(255, Math.max(0, r));
+  g = Math.min(255, Math.max(0, g));
+  b = Math.min(255, Math.max(0, b));
+
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
+
+export function deriveUiPalette(theme: ITheme): UiThemePalette {
+  const bg = theme.background || '#0f172a';
+  const fg = theme.foreground || '#f8fafc';
+  const accent = theme.cyan || theme.blue || theme.magenta || '#06b6d4';
+  const border = theme.brightBlack || theme.selectionBackground || '#334155';
+
+  return {
+    bgApp: bg,
+    bgSurface: adjustHexBrightness(bg, -10),
+    bgHeader: adjustHexBrightness(bg, -18),
+    bgActive: theme.selectionBackground || adjustHexBrightness(bg, 18),
+    border: border,
+    textMain: fg,
+    textMuted: theme.brightBlack || theme.white || '#94a3b8',
+    accent: accent,
+    accentHover: theme.brightCyan || theme.brightBlue || accent,
+  };
+}
 
 export function getThemeById(id: string): ITheme {
   const found = PRESET_THEMES.find((t) => t.id === id);
   return found ? found.theme : PRESET_THEMES[0].theme;
+}
+
+export function getUiPaletteByThemeId(id: string, customThemes: TerminalTheme[] = []): UiThemePalette {
+  const all = [...PRESET_THEMES, ...customThemes];
+  const found = all.find((t) => t.id === id);
+  if (found) {
+    return found.ui || deriveUiPalette(found.theme);
+  }
+  return PRESET_THEMES[0].ui!;
 }

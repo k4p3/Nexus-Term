@@ -31,16 +31,16 @@ function handleNewTab() {
 </script>
 
 <template>
-  <div class="flex-1 flex flex-col h-full w-full bg-slate-950 overflow-hidden select-none">
+  <div class="flex-1 flex flex-col h-full w-full bg-theme-app overflow-hidden select-none">
     <!-- Tab Bar -->
-    <div class="h-9 bg-slate-900/80 border-b border-slate-800 flex items-center justify-between px-2 overflow-x-auto shrink-0 select-none">
+    <div class="h-9 bg-theme-header border-b border-theme flex items-center justify-between px-2 overflow-x-auto shrink-0 select-none">
       <div class="flex items-center space-x-1">
         <!-- Sidebar Toggle Button (Integrated in Tab Bar) -->
         <button
           @click="emit('toggle-sidebar')"
           :title="props.isSidebarVisible ? 'Ocultar Barra Lateral (Ctrl+B)' : 'Mostrar Barra Lateral (Ctrl+B)'"
           class="p-1.5 rounded-md transition-colors cursor-pointer mr-0.5 flex items-center justify-center shrink-0"
-          :class="!props.isSidebarVisible ? 'text-cyan-400 bg-cyan-500/15 border border-cyan-500/30 hover:bg-cyan-500/25' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/80'"
+          :class="!props.isSidebarVisible ? 'text-theme-accent bg-theme-active border border-theme hover:brightness-110' : 'text-theme-muted hover:text-theme-main hover:bg-theme-active'"
         >
           <PanelLeft class="w-3.5 h-3.5" />
         </button>
@@ -52,15 +52,15 @@ function handleNewTab() {
           class="group flex items-center space-x-2 px-3 py-1.5 rounded-t-lg text-xs font-medium cursor-pointer transition border-b-2"
           :class="
             sessionsStore.activeTabId === tab.id
-              ? 'bg-slate-950 text-cyan-400 border-cyan-400 font-semibold'
-              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60 border-transparent'
+              ? 'bg-theme-app text-theme-accent border-theme-accent font-semibold'
+              : 'text-theme-muted hover:text-theme-main hover:bg-theme-active/60 border-transparent'
           "
         >
           <Terminal class="w-3.5 h-3.5 shrink-0" />
           <span class="max-w-[140px] truncate">{{ tab.title }}</span>
           <button
             @click.stop="sessionsStore.closeTab(tab.id)"
-            class="p-0.5 rounded text-slate-400 hover:text-red-400 opacity-60 group-hover:opacity-100 transition"
+            class="p-0.5 rounded text-theme-muted hover:text-red-400 opacity-60 group-hover:opacity-100 transition cursor-pointer"
             :title="t('terminal.closePane')"
           >
             <X class="w-3 h-3" />
@@ -70,7 +70,7 @@ function handleNewTab() {
         <button
           @click="handleNewTab"
           :title="t('terminal.newLocal')"
-          class="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+          class="p-1.5 text-theme-muted hover:text-theme-accent hover:bg-theme-active rounded-lg transition cursor-pointer"
         >
           <Plus class="w-4 h-4" />
         </button>

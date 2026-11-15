@@ -73,17 +73,17 @@ function handleInsertCommand(command: string) {
 </script>
 
 <template>
-  <div class="h-full w-full flex flex-col bg-slate-950 text-slate-100 select-none">
+  <div class="h-full w-full flex flex-col bg-theme-app text-theme-main select-none">
     <!-- Top Application Bar -->
-    <header class="h-10 bg-slate-900 border-b border-slate-800/80 flex items-center px-3.5 justify-between select-none shrink-0 z-20">
+    <header class="h-10 bg-theme-header border-b border-theme flex items-center px-3.5 justify-between select-none shrink-0 z-20">
       <div class="flex items-center space-x-2.5">
-        <div class="w-6 h-6 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center shadow-xs">
+        <div class="w-6 h-6 rounded-lg bg-theme-accent flex items-center justify-center shadow-xs">
           <Terminal class="w-3.5 h-3.5 text-slate-950 font-bold" />
         </div>
-        <span class="text-sm font-bold tracking-tight text-white flex items-center space-x-1">
-          <span>Nexus</span><span class="text-cyan-400">Term</span>
+        <span class="text-sm font-bold tracking-tight text-theme-main flex items-center space-x-1">
+          <span>Nexus</span><span class="text-theme-accent">Term</span>
         </span>
-        <span class="text-[10px] px-1.5 py-0.5 rounded-sm bg-slate-800 text-slate-400 font-mono">v0.1</span>
+        <span class="text-[10px] px-1.5 py-0.5 rounded-sm bg-theme-active text-theme-muted font-mono">v0.1</span>
       </div>
 
       <div class="flex items-center space-x-2">
@@ -91,11 +91,11 @@ function handleInsertCommand(command: string) {
           v-if="vaultStore.isUnlocked"
           @click="isQuickConnectOpen = true"
           :title="t('hosts.quickConnect')"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-colors cursor-pointer"
+          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
         >
-          <Search class="w-3.5 h-3.5 text-cyan-400" />
+          <Search class="w-3.5 h-3.5 text-theme-accent" />
           <span>{{ t('common.search') }}</span>
-          <kbd class="ml-1 text-[10px] font-mono bg-slate-900 px-1 py-0.2 rounded-sm border border-slate-700 text-slate-400">
+          <kbd class="ml-1 text-[10px] font-mono bg-theme-header px-1 py-0.2 rounded-sm border border-theme text-theme-muted">
             Ctrl+K
           </kbd>
         </button>
@@ -104,25 +104,25 @@ function handleInsertCommand(command: string) {
           v-if="vaultStore.isUnlocked"
           @click="isSnippetsOpen = !isSnippetsOpen"
           title="Biblioteca de Snippets"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-colors cursor-pointer"
+          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
         >
-          <Code class="w-3.5 h-3.5 text-blue-400" />
+          <Code class="w-3.5 h-3.5 text-theme-accent" />
           <span>Snippets</span>
         </button>
 
         <button
           @click="isSettingsOpen = true"
           :title="t('settings.title')"
-          class="p-1.5 text-slate-400 hover:text-white bg-slate-800/60 hover:bg-slate-800 border border-slate-700/60 rounded-lg transition-colors cursor-pointer"
+          class="p-1.5 text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
         >
-          <Settings class="w-3.5 h-3.5 text-slate-300" />
+          <Settings class="w-3.5 h-3.5 text-theme-muted" />
         </button>
 
         <button
           v-if="vaultStore.isUnlocked"
           @click="vaultStore.lock()"
           :title="t('vault.lockVault')"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium text-slate-300 hover:text-white bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/60 rounded-lg transition-colors cursor-pointer"
+          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
         >
           <Lock class="w-3.5 h-3.5 text-amber-400" />
           <span>{{ t('vault.lockVault') }}</span>

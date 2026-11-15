@@ -84,7 +84,8 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 ## 5. Personalización, Temas de Color e Internacionalización
 
 - **Internacionalización (i18n)**: Interfaz disponible en **Inglés** y **Español** con detección automática del sistema. Posibilidad de importar archivos `.json` de traducción comunitarios.
-- **Paletas de Color Estándar**: Soporte para temas ANSI de 16 colores (*Tokyo Night*, *One Dark*, *Dracula*, *Catppuccin Macchiato*, *Nord*, *KDE Breeze Dark*) y compatibilidad para importar temas JSON de Alacritty, Tabby o Windows Terminal.
+- **Tematización Unificada de toda la Aplicación (Full-App Theming)**: Al cambiar de tema, la paleta cromática se aplica tanto al emulador de terminal `xterm.js` como a la totalidad del marco visual de NexusTerm (barra superior, barra lateral de servidores, pestañas, modales de conexión rápida y ajustes, divisores de split y cajón de snippets) mediante tokens semánticos dinámicos en CSS.
+- **Paletas de Color Estándar**: Soporte para temas ANSI de 16 colores y sus contrapartes de interfaz (*Tokyo Night*, *One Dark*, *Dracula*, *Catppuccin Macchiato*, *Nord*, *KDE Breeze Dark*), así como derivación algorítmica automática para temas JSON importados de Alacritty, Tabby o Windows Terminal.
 - **Aplicación en Caliente**: Los cambios de fuentes, tamaños de texto, colores y estilos de cursor se aplican en vivo sin interrumpir las sesiones en curso.
 
 ---

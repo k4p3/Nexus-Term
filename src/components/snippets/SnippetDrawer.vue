@@ -99,18 +99,18 @@ function handleCopy(item: CommandSnippet) {
     <!-- Drawer Panel (Right slide-in) -->
     <aside
       :class="[
-        'fixed top-0 right-0 z-40 h-full w-80 sm:w-96 bg-neutral-900 border-l border-neutral-800 shadow-2xl flex flex-col transition-transform duration-200 ease-in-out',
+        'fixed top-0 right-0 z-40 h-full w-80 sm:w-96 bg-theme-surface border-l border-theme shadow-2xl flex flex-col transition-transform duration-200 ease-in-out text-theme-main',
         isOpen ? 'translate-x-0' : 'translate-x-full',
       ]"
     >
       <!-- Drawer Header -->
-      <div class="p-4 border-b border-neutral-800 flex items-center justify-between bg-neutral-950/60 shrink-0">
+      <div class="p-4 border-b border-theme flex items-center justify-between bg-theme-header shrink-0">
         <div class="flex items-center gap-2">
-          <div class="p-1.5 bg-blue-500/20 text-blue-400 rounded-lg">
+          <div class="p-1.5 bg-theme-app text-theme-accent rounded-lg border border-theme">
             <Code class="w-4 h-4" />
           </div>
-          <h2 class="text-sm font-semibold text-white">Snippets</h2>
-          <span class="text-[10px] px-1.5 py-0.2 rounded bg-neutral-800 text-neutral-400 font-mono">
+          <h2 class="text-sm font-semibold text-theme-main">Snippets</h2>
+          <span class="text-[10px] px-1.5 py-0.2 rounded bg-theme-app text-theme-muted font-mono border border-theme">
             {{ snippetsStore.snippets.length }}
           </span>
         </div>
@@ -118,14 +118,14 @@ function handleCopy(item: CommandSnippet) {
         <div class="flex items-center gap-1">
           <button
             @click="handleOpenNew"
-            class="p-1.5 text-neutral-300 hover:text-white bg-blue-600 hover:bg-blue-500 rounded-lg transition-colors cursor-pointer"
+            class="p-1.5 text-slate-950 font-bold bg-theme-accent hover:brightness-110 rounded-lg transition-colors cursor-pointer"
             title="Nuevo Snippet"
           >
             <Plus class="w-4 h-4" />
           </button>
           <button
             @click="emit('close')"
-            class="p-1.5 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition-colors"
+            class="p-1.5 text-theme-muted hover:text-theme-main rounded-lg hover:bg-theme-active transition-colors cursor-pointer"
           >
             <X class="w-4 h-4" />
           </button>
@@ -133,14 +133,14 @@ function handleCopy(item: CommandSnippet) {
       </div>
 
       <!-- Search Input -->
-      <div class="p-3 border-b border-neutral-800 bg-neutral-950/20 shrink-0">
+      <div class="p-3 border-b border-theme bg-theme-app/30 shrink-0">
         <div class="relative">
-          <Search class="w-3.5 h-3.5 text-neutral-500 absolute left-2.5 top-2.5" />
+          <Search class="w-3.5 h-3.5 text-theme-muted absolute left-2.5 top-2.5" />
           <input
             v-model="snippetsStore.searchQuery"
             type="text"
             placeholder="Buscar por comando, título o tag..."
-            class="w-full pl-8 pr-3 py-1.5 bg-neutral-950 border border-neutral-800 rounded-lg text-xs text-white placeholder-neutral-500 focus:outline-hidden focus:border-blue-500"
+            class="w-full pl-8 pr-3 py-1.5 bg-theme-app border border-theme rounded-lg text-xs text-theme-main placeholder-slate-500 focus:outline-hidden focus:border-theme-accent"
           />
         </div>
       </div>

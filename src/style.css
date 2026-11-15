@@ -3,7 +3,30 @@
 
 :root {
   color-scheme: dark;
+
+  /* Theme tokens default (Tokyo Night) */
+  --theme-bg-app: #1a1b26;
+  --theme-bg-surface: #16161e;
+  --theme-bg-header: #13141c;
+  --theme-bg-active: #24283b;
+  --theme-border: #292e42;
+  --theme-text-main: #c0caf5;
+  --theme-text-muted: #787c99;
+  --theme-accent: #7aa2f7;
+  --theme-accent-hover: #89b4fa;
 }
+
+/* Theme utility classes */
+.bg-theme-app { background-color: var(--theme-bg-app); }
+.bg-theme-surface { background-color: var(--theme-bg-surface); }
+.bg-theme-header { background-color: var(--theme-bg-header); }
+.bg-theme-active { background-color: var(--theme-bg-active); }
+.border-theme { border-color: var(--theme-border); }
+.text-theme-main { color: var(--theme-text-main); }
+.text-theme-muted { color: var(--theme-text-muted); }
+.text-theme-accent { color: var(--theme-accent); }
+.bg-theme-accent { background-color: var(--theme-accent); }
+.border-theme-accent { border-color: var(--theme-accent); }
 
 /* Custom scrollbars for dark mode */
 ::-webkit-scrollbar {
@@ -14,9 +37,9 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: var(--theme-border, #334155);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: var(--theme-bg-active, #475569);
 }

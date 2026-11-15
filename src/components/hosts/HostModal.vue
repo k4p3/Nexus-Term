@@ -108,16 +108,16 @@ async function handleSave() {
 
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-    <div class="w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div class="w-full max-w-lg bg-theme-surface border border-theme rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-theme-main transition-colors">
       <!-- Header -->
-      <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/40">
+      <div class="px-5 py-3.5 border-b border-theme flex items-center justify-between bg-theme-header">
         <div class="flex items-center space-x-2">
-          <Server class="w-5 h-5 text-cyan-400" />
-          <h3 class="text-sm font-bold text-white">
+          <Server class="w-5 h-5 text-theme-accent" />
+          <h3 class="text-sm font-bold text-theme-main">
             {{ hostToEdit ? 'Editar Servidor SSH' : 'Nuevo Servidor SSH' }}
           </h3>
         </div>
-        <button @click="emit('close')" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <button @click="emit('close')" class="text-theme-muted hover:text-theme-main p-1 rounded-lg hover:bg-theme-active transition cursor-pointer">
           <X class="w-4 h-4" />
         </button>
       </div>
@@ -253,18 +253,18 @@ async function handleSave() {
         </div>
 
         <!-- Actions -->
-        <div class="pt-3 border-t border-slate-800 flex items-center justify-end space-x-2">
+        <div class="pt-3 border-t border-theme flex items-center justify-end space-x-2">
           <button
             type="button"
             @click="emit('close')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-theme-muted hover:text-theme-main hover:bg-theme-active transition cursor-pointer"
           >
             Cancelar
           </button>
           <button
             type="submit"
             :disabled="isSubmitting"
-            class="px-4 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold rounded-xl text-xs shadow-md shadow-cyan-500/20 transition disabled:opacity-50"
+            class="px-4 py-1.5 bg-theme-accent hover:brightness-110 text-slate-950 font-semibold rounded-xl text-xs shadow-md transition disabled:opacity-50 cursor-pointer"
           >
             Guardar Servidor
           </button>

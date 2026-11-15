@@ -459,24 +459,24 @@ function handleClose() {
 <template>
   <div
     @click="handlePaneClick"
-    class="flex-1 flex flex-col h-full w-full bg-slate-950 overflow-hidden relative border transition-colors"
+    class="flex-1 flex flex-col h-full w-full bg-theme-app overflow-hidden relative border transition-colors"
     :class="[
       sessionsStore.isBroadcastMode
         ? 'border-amber-500/60 ring-1 ring-amber-500/40'
         : isActive
-        ? 'border-cyan-500/50 shadow-xs'
-        : 'border-slate-800/80',
+        ? 'border-theme-accent shadow-xs'
+        : 'border-theme',
     ]"
   >
     <!-- Pane Mini Header -->
     <div
       class="h-7 border-b flex items-center justify-between px-2.5 text-xs select-none shrink-0"
-      :class="sessionsStore.isBroadcastMode ? 'bg-amber-950/30 border-amber-800/60' : 'bg-slate-900/90 border-slate-800/80'"
+      :class="sessionsStore.isBroadcastMode ? 'bg-amber-950/30 border-amber-800/60' : 'bg-theme-header border-theme'"
     >
       <div class="flex items-center space-x-2 truncate">
-        <Server v-if="pane.hostId" class="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+        <Server v-if="pane.hostId" class="w-3.5 h-3.5 text-theme-accent shrink-0" />
         <TerminalIcon v-else class="w-3.5 h-3.5 text-purple-400 shrink-0" />
-        <span class="text-[11px] font-medium text-slate-300 truncate">{{ pane.title }}</span>
+        <span class="text-[11px] font-medium text-theme-main truncate">{{ pane.title }}</span>
 
         <!-- Broadcast Indicator -->
         <span
@@ -572,15 +572,15 @@ function handleClose() {
     <div
       v-if="isSplitMenuOpen"
       @click.stop
-      class="absolute right-2 top-8 z-40 w-64 bg-neutral-900 border border-neutral-700/90 rounded-xl shadow-2xl p-2.5 space-y-2 text-xs select-none backdrop-blur-md"
+      class="absolute right-2 top-8 z-40 w-64 bg-theme-surface border border-theme rounded-xl shadow-2xl p-2.5 space-y-2 text-xs select-none backdrop-blur-md"
     >
-      <div class="flex items-center justify-between pb-1.5 border-b border-neutral-800">
-        <span class="font-semibold text-white">Dividir Panel</span>
-        <div class="flex items-center gap-1 bg-neutral-950 p-0.5 rounded-lg border border-neutral-800">
+      <div class="flex items-center justify-between pb-1.5 border-b border-theme">
+        <span class="font-semibold text-theme-main">Dividir Panel</span>
+        <div class="flex items-center gap-1 bg-theme-app p-0.5 rounded-lg border border-theme">
           <button
             type="button"
             @click.stop="splitDirection = 'horizontal'"
-            :class="['p-1 rounded transition-colors', splitDirection === 'horizontal' ? 'bg-cyan-500/20 text-cyan-300 font-bold' : 'text-neutral-400']"
+            :class="['p-1 rounded transition-colors', splitDirection === 'horizontal' ? 'bg-theme-active text-theme-accent font-bold' : 'text-theme-muted']"
             title="Horizontal"
           >
             <Columns class="w-3 h-3" />
@@ -588,7 +588,7 @@ function handleClose() {
           <button
             type="button"
             @click.stop="splitDirection = 'vertical'"
-            :class="['p-1 rounded transition-colors', splitDirection === 'vertical' ? 'bg-cyan-500/20 text-cyan-300 font-bold' : 'text-neutral-400']"
+            :class="['p-1 rounded transition-colors', splitDirection === 'vertical' ? 'bg-theme-active text-theme-accent font-bold' : 'text-theme-muted']"
             title="Vertical"
           >
             <Rows class="w-3 h-3" />

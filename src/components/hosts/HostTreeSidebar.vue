@@ -118,22 +118,22 @@ async function handleDeleteIdentity(id: string) {
 </script>
 
 <template>
-  <aside class="w-72 bg-slate-900/90 border-r border-slate-800 flex flex-col h-full select-none shrink-0">
+  <aside class="w-72 bg-theme-surface border-r border-theme flex flex-col h-full select-none shrink-0">
     <!-- Top toolbar & tabs -->
-    <div class="p-3 border-b border-slate-800 space-y-2.5">
+    <div class="p-3 border-b border-theme space-y-2.5">
       <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-1 bg-slate-950 p-0.5 rounded-lg border border-slate-800 text-xs">
+        <div class="flex items-center space-x-1 bg-theme-app p-0.5 rounded-lg border border-theme text-xs">
           <button
             @click="activeTab = 'hosts'"
-            class="px-2.5 py-1 rounded-md font-medium transition"
-            :class="activeTab === 'hosts' ? 'bg-cyan-500/10 text-cyan-400 font-semibold shadow-xs' : 'text-slate-400 hover:text-slate-200'"
+            class="px-2.5 py-1 rounded-md font-medium transition cursor-pointer"
+            :class="activeTab === 'hosts' ? 'bg-theme-active text-theme-accent font-semibold shadow-xs' : 'text-theme-muted hover:text-theme-main'"
           >
             {{ t('hosts.title') }} ({{ vaultStore.hosts.length }})
           </button>
           <button
             @click="activeTab = 'identities'"
-            class="px-2.5 py-1 rounded-md font-medium transition"
-            :class="activeTab === 'identities' ? 'bg-cyan-500/10 text-cyan-400 font-semibold shadow-xs' : 'text-slate-400 hover:text-slate-200'"
+            class="px-2.5 py-1 rounded-md font-medium transition cursor-pointer"
+            :class="activeTab === 'identities' ? 'bg-theme-active text-theme-accent font-semibold shadow-xs' : 'text-theme-muted hover:text-theme-main'"
           >
             {{ t('hostModal.identity') }} ({{ vaultStore.identities.length }})
           </button>
@@ -143,14 +143,14 @@ async function handleDeleteIdentity(id: string) {
           <button
             @click="emit('open-local-pty')"
             :title="t('terminal.newLocal')"
-            class="p-1.5 text-slate-300 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition cursor-pointer"
+            class="p-1.5 text-theme-muted hover:text-theme-accent hover:bg-theme-active rounded-lg transition cursor-pointer"
           >
             <Terminal class="w-4 h-4" />
           </button>
           <button
             @click="emit('toggle-sidebar')"
             title="Ocultar Barra Lateral (Ctrl+B)"
-            class="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition cursor-pointer"
+            class="p-1.5 text-theme-muted hover:text-theme-main hover:bg-theme-active rounded-lg transition cursor-pointer"
           >
             <PanelLeftClose class="w-4 h-4" />
           </button>
@@ -159,12 +159,12 @@ async function handleDeleteIdentity(id: string) {
 
       <!-- Quick search input -->
       <div class="relative">
-        <Search class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" />
+        <Search class="w-3.5 h-3.5 text-theme-muted absolute left-2.5 top-2.5" />
         <input
           v-model="searchQuery"
           type="text"
           :placeholder="t('hosts.searchPlaceholder')"
-          class="w-full pl-8 pr-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:border-cyan-500/60 transition"
+          class="w-full pl-8 pr-2.5 py-1.5 bg-theme-app border border-theme rounded-lg text-xs text-theme-main placeholder-slate-500 focus:outline-hidden focus:border-theme-accent transition"
         />
       </div>
 
@@ -172,14 +172,14 @@ async function handleDeleteIdentity(id: string) {
       <div v-if="activeTab === 'hosts'" class="flex items-center space-x-1.5">
         <button
           @click="openAddHost()"
-          class="flex-1 py-1 px-2 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition"
+          class="flex-1 py-1 px-2 bg-theme-active hover:brightness-110 border border-theme text-theme-accent rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition cursor-pointer"
         >
           <Plus class="w-3.5 h-3.5" />
           <span>{{ t('hosts.newHost') }}</span>
         </button>
         <button
           @click="openAddFolder()"
-          class="py-1 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition"
+          class="py-1 px-2.5 bg-theme-app hover:bg-theme-active border border-theme text-theme-muted hover:text-theme-main rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition cursor-pointer"
         >
           <Plus class="w-3.5 h-3.5" />
           <span>{{ t('hosts.newFolder') }}</span>
@@ -189,7 +189,7 @@ async function handleDeleteIdentity(id: string) {
       <div v-else class="flex items-center space-x-1.5">
         <button
           @click="openAddIdentity()"
-          class="w-full py-1 px-2 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition"
+          class="w-full py-1 px-2 bg-theme-active hover:brightness-110 border border-theme text-theme-accent rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition cursor-pointer"
         >
           <Plus class="w-3.5 h-3.5" />
           <span>{{ t('hosts.newIdentity') }}</span>

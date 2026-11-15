@@ -141,21 +141,21 @@ async function handleResetDefaults() {
 <template>
   <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4">
     <div
-      class="bg-neutral-900 border border-neutral-700/80 rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden text-neutral-100"
+      class="bg-theme-surface border border-theme rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden text-theme-main transition-colors"
     >
       <!-- Modal Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b border-neutral-800 bg-neutral-950/40">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-theme bg-theme-header">
         <div class="flex items-center gap-2.5">
-          <div class="p-1.5 bg-neutral-800 text-blue-400 rounded-lg">
+          <div class="p-1.5 bg-theme-app text-theme-accent rounded-lg border border-theme">
             <Cpu class="w-5 h-5" />
           </div>
-          <h2 class="text-base font-semibold text-white tracking-wide">
+          <h2 class="text-base font-semibold text-theme-main tracking-wide">
             {{ t('settings.title') }}
           </h2>
         </div>
         <button
           @click="emit('close')"
-          class="p-1.5 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition-colors"
+          class="p-1.5 text-theme-muted hover:text-theme-main rounded-lg hover:bg-theme-active transition-colors cursor-pointer"
           :title="t('common.close')"
         >
           <X class="w-5 h-5" />
@@ -165,14 +165,14 @@ async function handleResetDefaults() {
       <!-- Main Layout: Sidebar Tabs + Content Area -->
       <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar Navigation -->
-        <nav class="w-56 border-r border-neutral-800 bg-neutral-950/20 p-3 space-y-1 shrink-0">
+        <nav class="w-56 border-r border-theme bg-theme-app/50 p-3 space-y-1 shrink-0">
           <button
             @click="activeTab = 'general'"
             :class="[
-              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left',
+              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left cursor-pointer',
               activeTab === 'general'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/60',
+                ? 'bg-theme-active text-theme-accent border border-theme shadow-xs font-semibold'
+                : 'text-theme-muted hover:text-theme-main hover:bg-theme-active/50',
             ]"
           >
             <Globe class="w-4 h-4 shrink-0" />
@@ -182,10 +182,10 @@ async function handleResetDefaults() {
           <button
             @click="activeTab = 'terminal'"
             :class="[
-              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left',
+              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left cursor-pointer',
               activeTab === 'terminal'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/60',
+                ? 'bg-theme-active text-theme-accent border border-theme shadow-xs font-semibold'
+                : 'text-theme-muted hover:text-theme-main hover:bg-theme-active/50',
             ]"
           >
             <Terminal class="w-4 h-4 shrink-0" />
@@ -195,10 +195,10 @@ async function handleResetDefaults() {
           <button
             @click="activeTab = 'shell'"
             :class="[
-              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left',
+              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left cursor-pointer',
               activeTab === 'shell'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/60',
+                ? 'bg-theme-active text-theme-accent border border-theme shadow-xs font-semibold'
+                : 'text-theme-muted hover:text-theme-main hover:bg-theme-active/50',
             ]"
           >
             <Cpu class="w-4 h-4 shrink-0" />
@@ -208,10 +208,10 @@ async function handleResetDefaults() {
           <button
             @click="activeTab = 'security'"
             :class="[
-              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left',
+              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left cursor-pointer',
               activeTab === 'security'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/60',
+                ? 'bg-theme-active text-theme-accent border border-theme shadow-xs font-semibold'
+                : 'text-theme-muted hover:text-theme-main hover:bg-theme-active/50',
             ]"
           >
             <ShieldCheck class="w-4 h-4 shrink-0" />
@@ -221,10 +221,10 @@ async function handleResetDefaults() {
           <button
             @click="activeTab = 'about'"
             :class="[
-              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left',
+              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left cursor-pointer',
               activeTab === 'about'
-                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30'
-                : 'text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/60',
+                ? 'bg-theme-active text-theme-accent border border-theme shadow-xs font-semibold'
+                : 'text-theme-muted hover:text-theme-main hover:bg-theme-active/50',
             ]"
           >
             <Info class="w-4 h-4 shrink-0" />
@@ -233,7 +233,7 @@ async function handleResetDefaults() {
         </nav>
 
         <!-- Tab Content -->
-        <div class="flex-1 overflow-y-auto p-6 space-y-6">
+        <div class="flex-1 overflow-y-auto p-6 space-y-6 bg-theme-app/30">
           <!-- 1. GENERAL TAB (LANGUAGE & EXTENSION) -->
           <div v-if="activeTab === 'general'" class="space-y-6">
             <div>
