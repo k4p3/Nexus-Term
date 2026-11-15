@@ -128,6 +128,19 @@ export const useVaultStore = defineStore("vault", () => {
     await fetchInventory();
   }
 
+  async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    isLoading.value = true;
+    error.value = null;
+    try {
+      await vaultService.changePassword(currentPassword, newPassword);
+    } catch (err: any) {
+      error.value = typeof err === "string" ? err : err?.message || "Error al cambiar la contraseña maestra";
+      throw error.value;
+    } finally {
+      isLoading.value = false;
+    }
+  }
+
   return {
     isInitialized,
     isUnlocked,
@@ -140,6 +153,7 @@ export const useVaultStore = defineStore("vault", () => {
     init,
     unlock,
     lock,
+    changePassword,
     fetchInventory,
     saveFolder,
     deleteFolder,

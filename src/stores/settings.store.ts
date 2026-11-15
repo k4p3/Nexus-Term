@@ -1,0 +1,88 @@
+import { defineStore } from 'pinia';
+import type { AppSettings } from '../types/settings';
+import { PRESET_THEMES, type TerminalTheme } from '../types/themes';
+import type { ITheme } from '@xterm/xterm';
+import { settingsService } from '../services/settings.service';
+import { setAppLocale, registerCustomLocale } from '../locales';
+
+const DEFAULT_SETTINGS: AppSettings = {
+  locale: 'en',
+  font_family: "'MesloLGS NF', 'Hack Nerd Font Mono', 'Hack Nerd Font', 'FiraCode Nerd Font', 'JetBrainsMono Nerd Font', monospace",
+  font_size: 13,
+  line_height: 1.2,
+  cursor_style: 'block',
+  cursor_blink: true,
+  theme_id: 'tokyo-night',
+  default_shell: null,
+  auto_lock_minutes: 0,
+};
+
+export const useSettingsStore = defineStore('settings', {
+  state: () => ({
+    settings: { ...DEFAULT_SETTINGS } as AppSettings,
+    customThemes: [] as TerminalTheme[],
+    loaded: false,
+  }),
+
+  getters: {
+    allThemes: (state): TerminalTheme[] => {
+      return [...PRESET_THEMES, ...state.customThemes];
+    },
+    activeTheme(): ITheme {
+      const found = this.allThemes.find((t) => t.id === this.settings.theme_id);
+      return found ? found.theme : PRESET_THEMES[0].theme;
+    },
+  },
+
+  actions: {
+    async loadSettings() {
+      try {
+        const loaded = await settingsService.getSettings();
+        this.settings = { ...DEFAULT_SETTINGS, ...loaded };
+        setAppLocale(this.settings.locale);
+      } catch (err) {
+        console.warn('Failed to load settings, using defaults:', err);
+      } finally {
+        this.loaded = true;
+      }
+    },
+
+    async updateSettings(partial: Partial<AppSettings>) {
+      this.settings = { ...this.settings, ...partial };
+      if (partial.locale) {
+        setAppLocale(partial.locale);
+      }
+      try {
+        await settingsService.saveSettings(this.settings);
+      } catch (err) {
+        console.error('Failed to save settings:', err);
+        throw err;
+      }
+    },
+
+    async resetSettings() {
+      try {
+        const defaults = await settingsService.resetSettings();
+        this.settings = defaults;
+        setAppLocale(defaults.locale);
+      } catch (err) {
+        console.error('Failed to reset settings:', err);
+        this.settings = { ...DEFAULT_SETTINGS };
+        setAppLocale(DEFAULT_SETTINGS.locale);
+      }
+    },
+
+    importCustomTheme(name: string, theme: ITheme): string {
+      const id = 'custom-' + Date.now();
+      this.customThemes.push({ id, name, theme });
+      this.updateSettings({ theme_id: id });
+      return id;
+    },
+
+    importCustomLocale(code: string, jsonContent: string) {
+      const parsed = JSON.parse(jsonContent);
+      registerCustomLocale(code, parsed);
+      this.updateSettings({ locale: code });
+    },
+  },
+});

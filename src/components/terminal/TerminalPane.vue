@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onBeforeUnmount } from "vue";
+import { ref, onMounted, onBeforeUnmount, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebglAddon } from "@xterm/addon-webgl";
@@ -7,6 +8,7 @@ import { SearchAddon } from "@xterm/addon-search";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { sessionService } from "../../services/session.service";
 import { useSessionsStore } from "../../stores/sessions.store";
+import { useSettingsStore } from "../../stores/settings.store";
 import type { LeafPane } from "../../types/session";
 import {
   Columns,
@@ -24,7 +26,9 @@ const props = defineProps<{
   isActive: boolean;
 }>();
 
+const { t } = useI18n();
 const sessionsStore = useSessionsStore();
+const settingsStore = useSettingsStore();
 
 const terminalContainer = ref<HTMLDivElement | null>(null);
 const isConnecting = ref(true);
@@ -35,41 +39,47 @@ let fitAddon: FitAddon | null = null;
 let resizeObserver: ResizeObserver | null = null;
 let sessionId: string | null = null;
 
+// Watch for live settings hot-reload
+watch(
+  () => [
+    settingsStore.settings.font_family,
+    settingsStore.settings.font_size,
+    settingsStore.settings.line_height,
+    settingsStore.settings.cursor_style,
+    settingsStore.settings.cursor_blink,
+    settingsStore.settings.theme_id,
+  ],
+  () => {
+    if (!term) return;
+    term.options.fontFamily = settingsStore.settings.font_family;
+    term.options.fontSize = settingsStore.settings.font_size;
+    term.options.lineHeight = settingsStore.settings.line_height;
+    term.options.cursorStyle = settingsStore.settings.cursor_style;
+    term.options.cursorBlink = settingsStore.settings.cursor_blink;
+    term.options.theme = settingsStore.activeTheme;
+
+    if (fitAddon) {
+      fitAddon.fit();
+      if (sessionId) {
+        sessionService.resizeSession(sessionId, term.cols, term.rows);
+      }
+    }
+  }
+);
+
 onMounted(async () => {
   if (!terminalContainer.value) return;
 
-  // Initialize xterm
+  // Initialize xterm with user settings
   term = new Terminal({
-    cursorBlink: true,
+    cursorBlink: settingsStore.settings.cursor_blink,
+    cursorStyle: settingsStore.settings.cursor_style,
     allowProposedApi: true,
-    fontFamily:
-      "'MesloLGS NF', 'Hack Nerd Font Mono', 'Hack Nerd Font', 'JetBrainsMono Nerd Font', 'FiraCode Nerd Font', 'Cascadia Code', monospace",
-    fontSize: 13,
-    lineHeight: 1.2,
+    fontFamily: settingsStore.settings.font_family,
+    fontSize: settingsStore.settings.font_size,
+    lineHeight: settingsStore.settings.line_height,
     allowTransparency: true,
-    theme: {
-      background: "#020617", // slate-950
-      foreground: "#f8fafc", // slate-50
-      cursor: "#38bdf8",     // cyan-400
-      cursorAccent: "#020617",
-      selectionBackground: "#38bdf840",
-      black: "#0f172a",
-      red: "#f87171",
-      green: "#4ade80",
-      yellow: "#facc15",
-      blue: "#60a5fa",
-      magenta: "#c084fc",
-      cyan: "#38bdf8",
-      white: "#f1f5f9",
-      brightBlack: "#475569",
-      brightRed: "#ef4444",
-      brightGreen: "#22c55e",
-      brightYellow: "#eab308",
-      brightBlue: "#3b82f6",
-      brightMagenta: "#a855f7",
-      brightCyan: "#06b6d4",
-      brightWhite: "#ffffff",
-    },
+    theme: settingsStore.activeTheme,
   });
 
   fitAddon = new FitAddon();
@@ -116,7 +126,8 @@ onMounted(async () => {
         term.rows,
         (chunk) => {
           term?.write(chunk);
-        }
+        },
+        settingsStore.settings.default_shell
       );
     }
     isConnecting.value = false;
@@ -189,22 +200,22 @@ function handleClose() {
       <div class="flex items-center space-x-1">
         <button
           @click.stop="handleSplitHorizontal"
-          title="Dividir Horizontalmente"
-          class="p-0.5 text-slate-400 hover:text-white rounded hover:bg-slate-800 transition"
+          :title="t('terminal.splitRight')"
+          class="p-0.5 text-slate-400 hover:text-white rounded-sm hover:bg-slate-800 transition-colors"
         >
           <Columns class="w-3 h-3" />
         </button>
         <button
           @click.stop="handleSplitVertical"
-          title="Dividir Verticalmente"
-          class="p-0.5 text-slate-400 hover:text-white rounded hover:bg-slate-800 transition"
+          :title="t('terminal.splitDown')"
+          class="p-0.5 text-slate-400 hover:text-white rounded-sm hover:bg-slate-800 transition-colors"
         >
           <Rows class="w-3 h-3" />
         </button>
         <button
           @click.stop="handleClose"
-          title="Cerrar Panel"
-          class="p-0.5 text-slate-400 hover:text-red-400 rounded hover:bg-slate-800 transition"
+          :title="t('terminal.closePane')"
+          class="p-0.5 text-slate-400 hover:text-red-400 rounded-sm hover:bg-slate-800 transition-colors"
         >
           <X class="w-3 h-3" />
         </button>

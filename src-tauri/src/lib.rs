@@ -1,5 +1,6 @@
 pub mod pty;
 pub mod session;
+pub mod settings;
 pub mod ssh;
 pub mod vault;
 
@@ -9,6 +10,7 @@ use tauri::Manager;
 use rusqlite::Connection;
 use crate::pty::{open_local_pty, PtySessionManager};
 use crate::session::{close_session, generate_ssh_key, resize_session, write_session};
+use crate::settings::{get_app_settings, reset_app_settings, save_app_settings};
 use crate::ssh::{connect_ssh, SshSessionManager};
 use crate::vault::db::{
     VaultManager, vault_change_password, vault_init, vault_lock, vault_status, vault_unlock,
@@ -56,6 +58,9 @@ pub fn run() {
             write_session,
             resize_session,
             close_session,
+            get_app_settings,
+            save_app_settings,
+            reset_app_settings,
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application");

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useVaultStore } from "../../stores/vault.store";
 import { Lock, KeyRound, ShieldCheck, AlertCircle, Loader2 } from "lucide-vue-next";
 
+const { t } = useI18n();
 const vaultStore = useVaultStore();
 
 const password = ref("");
@@ -13,17 +15,17 @@ async function handleAction() {
   localError.value = null;
 
   if (!password.value) {
-    localError.value = "Por favor ingrese la contraseña maestra.";
+    localError.value = t('vault.emptyPassword');
     return;
   }
 
   if (!vaultStore.isInitialized) {
     if (password.value.length < 8) {
-      localError.value = "La contraseña maestra debe tener al menos 8 caracteres.";
+      localError.value = "La contraseña debe tener al menos 8 caracteres / Password must be at least 8 characters.";
       return;
     }
     if (password.value !== confirmPassword.value) {
-      localError.value = "Las contraseñas no coinciden.";
+      localError.value = t('vault.mismatchPassword');
       return;
     }
     try {
@@ -57,19 +59,17 @@ async function handleAction() {
           <Lock v-else class="w-8 h-8" />
         </div>
         <h2 class="text-2xl font-bold tracking-tight text-white">
-          {{ !vaultStore.isInitialized ? 'Configurar Bóveda Cifrada' : 'Bóveda Protegida' }}
+          {{ !vaultStore.isInitialized ? t('vault.createTitle') : t('vault.unlockTitle') }}
         </h2>
         <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-          {{ !vaultStore.isInitialized 
-            ? 'Crea una contraseña maestra para cifrar tus servidores y credenciales con Argon2id y AES-256-GCM.' 
-            : 'Ingresa tu contraseña maestra para desbloquear tus conexiones e identidades.' }}
+          {{ !vaultStore.isInitialized ? t('vault.initPrompt') : t('vault.unlockPrompt') }}
         </p>
       </div>
 
       <form @submit.prevent="handleAction" class="space-y-4">
         <div>
           <label class="block text-xs font-medium text-slate-300 mb-1.5">
-            Contraseña Maestra
+            {{ t('vault.masterPassword') }}
           </label>
           <input
             v-model="password"
@@ -77,20 +77,20 @@ async function handleAction() {
             autocomplete="current-password"
             autofocus
             placeholder="••••••••••••"
-            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition shadow-sm"
+            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-hidden focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition shadow-xs"
           />
         </div>
 
         <div v-if="!vaultStore.isInitialized">
           <label class="block text-xs font-medium text-slate-300 mb-1.5">
-            Confirmar Contraseña Maestra
+            {{ t('vault.confirmPassword') }}
           </label>
           <input
             v-model="confirmPassword"
             type="password"
             autocomplete="new-password"
             placeholder="••••••••••••"
-            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition shadow-sm"
+            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-hidden focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition shadow-xs"
           />
         </div>
 
@@ -106,13 +106,13 @@ async function handleAction() {
         >
           <Loader2 v-if="vaultStore.isLoading" class="w-4 h-4 animate-spin text-slate-950" />
           <span>
-            {{ !vaultStore.isInitialized ? 'Crear e Inicializar Bóveda' : 'Desbloquear Bóveda' }}
+            {{ !vaultStore.isInitialized ? t('vault.createVault') : t('vault.unlock') }}
           </span>
         </button>
 
         <div class="pt-2 flex items-center justify-center space-x-1.5 text-[11px] text-slate-500">
           <ShieldCheck class="w-3.5 h-3.5 text-cyan-400/80" />
-          <span>Cifrado de grado militar de extremo a extremo en disco local</span>
+          <span>Argon2id + AES-256-GCM Zero-Knowledge</span>
         </div>
       </form>
     </div>

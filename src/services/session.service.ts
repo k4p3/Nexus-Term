@@ -13,7 +13,8 @@ export const sessionService = {
   async openLocalPty(
     cols: number,
     rows: number,
-    onData: (data: Uint8Array) => void
+    onData: (data: Uint8Array) => void,
+    customShell?: string | null
   ): Promise<string> {
     const channel = new Channel<number[]>();
     channel.onmessage = (chunk: number[]) => {
@@ -23,6 +24,7 @@ export const sessionService = {
     return await invoke<string>("open_local_pty", {
       cols,
       rows,
+      customShell: customShell || null,
       onData: channel,
     });
   },

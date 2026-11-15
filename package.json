@@ -18,7 +18,8 @@
     "@xterm/xterm": "^5.5.0",
     "lucide-vue-next": "^0.475.0",
     "pinia": "^2.3.1",
-    "vue": "^3.5.13"
+    "vue": "^3.5.13",
+    "vue-i18n": "^11.4.19"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.0.6",

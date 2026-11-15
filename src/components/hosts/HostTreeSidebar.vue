@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useVaultStore } from "../../stores/vault.store";
 import type { HostSummary, Folder, IdentitySummary } from "../../types/inventory";
 import HostModal from "./HostModal.vue";
@@ -19,6 +20,7 @@ import {
   Shield,
 } from "lucide-vue-next";
 
+const { t } = useI18n();
 const emit = defineEmits<{
   (e: "connect-host", host: HostSummary): void;
   (e: "open-local-pty"): void;
@@ -124,20 +126,20 @@ async function handleDeleteIdentity(id: string) {
             class="px-2.5 py-1 rounded-md font-medium transition"
             :class="activeTab === 'hosts' ? 'bg-cyan-500/10 text-cyan-400 font-semibold shadow-xs' : 'text-slate-400 hover:text-slate-200'"
           >
-            Servidores ({{ vaultStore.hosts.length }})
+            {{ t('hosts.title') }} ({{ vaultStore.hosts.length }})
           </button>
           <button
             @click="activeTab = 'identities'"
             class="px-2.5 py-1 rounded-md font-medium transition"
             :class="activeTab === 'identities' ? 'bg-cyan-500/10 text-cyan-400 font-semibold shadow-xs' : 'text-slate-400 hover:text-slate-200'"
           >
-            Credenciales ({{ vaultStore.identities.length }})
+            {{ t('hostModal.identity') }} ({{ vaultStore.identities.length }})
           </button>
         </div>
 
         <button
           @click="emit('open-local-pty')"
-          title="Abrir Shell Local"
+          :title="t('terminal.newLocal')"
           class="p-1.5 text-slate-300 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition"
         >
           <Terminal class="w-4 h-4" />
@@ -150,8 +152,8 @@ async function handleDeleteIdentity(id: string) {
         <input
           v-model="searchQuery"
           type="text"
-          placeholder="Buscar servidores (Ctrl+K)..."
-          class="w-full pl-8 pr-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500/60 transition"
+          :placeholder="t('hosts.searchPlaceholder')"
+          class="w-full pl-8 pr-2.5 py-1.5 bg-slate-950 border border-slate-800 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-hidden focus:border-cyan-500/60 transition"
         />
       </div>
 
@@ -162,14 +164,14 @@ async function handleDeleteIdentity(id: string) {
           class="flex-1 py-1 px-2 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition"
         >
           <Plus class="w-3.5 h-3.5" />
-          <span>Servidor</span>
+          <span>{{ t('hosts.newHost') }}</span>
         </button>
         <button
           @click="openAddFolder()"
           class="py-1 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition"
         >
           <Plus class="w-3.5 h-3.5" />
-          <span>Carpeta</span>
+          <span>{{ t('hosts.newFolder') }}</span>
         </button>
       </div>
 
@@ -179,7 +181,7 @@ async function handleDeleteIdentity(id: string) {
           class="w-full py-1 px-2 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition"
         >
           <Plus class="w-3.5 h-3.5" />
-          <span>Nueva Credencial</span>
+          <span>{{ t('hosts.newIdentity') }}</span>
         </button>
       </div>
     </div>

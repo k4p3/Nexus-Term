@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useSessionsStore } from "../../stores/sessions.store";
 import SplitPaneNode from "./SplitPaneNode.vue";
 import { Plus, X, Terminal, Server, Sparkles } from "lucide-vue-next";
 
+const { t } = useI18n();
 const sessionsStore = useSessionsStore();
 
 const activeTab = computed(() => {
@@ -11,7 +13,7 @@ const activeTab = computed(() => {
 });
 
 function handleNewTab() {
-  sessionsStore.createTab("Local Shell");
+  sessionsStore.createTab(t('terminal.newLocal'));
 }
 </script>
 
@@ -35,7 +37,7 @@ function handleNewTab() {
         <button
           @click.stop="sessionsStore.closeTab(tab.id)"
           class="p-0.5 rounded text-slate-400 hover:text-red-400 opacity-60 group-hover:opacity-100 transition"
-          title="Cerrar Pestaña"
+          :title="t('terminal.closePane')"
         >
           <X class="w-3 h-3" />
         </button>
@@ -43,7 +45,7 @@ function handleNewTab() {
 
       <button
         @click="handleNewTab"
-        title="Nueva Terminal Local"
+        :title="t('terminal.newLocal')"
         class="p-1.5 text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-lg transition"
       >
         <Plus class="w-4 h-4" />
@@ -67,9 +69,9 @@ function handleNewTab() {
         <div class="p-4 rounded-3xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 mb-4 shadow-xl">
           <Terminal class="w-10 h-10" />
         </div>
-        <h3 class="text-xl font-bold text-white mb-2">No hay sesiones activas</h3>
+        <h3 class="text-xl font-bold text-white mb-2">{{ t('terminal.activeSessions') }}</h3>
         <p class="text-xs text-slate-400 max-w-sm mb-6">
-          Abre una terminal local del sistema o selecciona un servidor SSH desde la barra lateral.
+          {{ t('hosts.noHosts') }}
         </p>
 
         <div class="flex items-center space-x-3">
@@ -78,13 +80,13 @@ function handleNewTab() {
             class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-semibold rounded-xl text-xs shadow-lg shadow-cyan-500/20 flex items-center space-x-1.5 transition cursor-pointer"
           >
             <Plus class="w-4 h-4" />
-            <span>Abrir Terminal Local</span>
+            <span>{{ t('terminal.newLocal') }}</span>
           </button>
         </div>
 
         <div class="mt-8 flex items-center space-x-2 text-[11px] text-slate-500">
           <Sparkles class="w-3.5 h-3.5 text-cyan-400" />
-          <span>Tip: Presiona <kbd class="px-1.5 py-0.5 bg-slate-900 border border-slate-800 rounded text-slate-300 font-mono">Ctrl+K</kbd> para conectar a cualquier servidor al instante.</span>
+          <span>{{ t('hosts.quickConnect') }} (Ctrl+K)</span>
         </div>
       </div>
     </div>

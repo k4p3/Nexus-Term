@@ -28,6 +28,7 @@ impl PtySessionManager {
         &self,
         cols: u16,
         rows: u16,
+        custom_shell: Option<String>,
         on_data: Channel<Vec<u8>>,
     ) -> Result<String, String> {
         let pty_system = native_pty_system();
@@ -41,13 +42,17 @@ impl PtySessionManager {
             .map_err(|e| format!("Failed to open PTY: {}", e))?;
 
         // Determine default shell
-        let shell = std::env::var("SHELL").unwrap_or_else(|_| {
-            if cfg!(windows) {
-                "powershell.exe".to_string()
-            } else {
-                "/bin/bash".to_string()
-            }
-        });
+        let shell = custom_shell
+            .filter(|s| !s.trim().is_empty())
+            .unwrap_or_else(|| {
+                std::env::var("SHELL").unwrap_or_else(|_| {
+                    if cfg!(windows) {
+                        "powershell.exe".to_string()
+                    } else {
+                        "/bin/bash".to_string()
+                    }
+                })
+            });
 
         let mut cmd = CommandBuilder::new(&shell);
         if cfg!(unix) {
@@ -168,7 +173,8 @@ pub fn open_local_pty(
     manager: tauri::State<'_, PtySessionManager>,
     cols: u16,
     rows: u16,
+    custom_shell: Option<String>,
     on_data: Channel<Vec<u8>>,
 ) -> Result<String, String> {
-    manager.spawn_local(cols, rows, on_data)
+    manager.spawn_local(cols, rows, custom_shell, on_data)
 }

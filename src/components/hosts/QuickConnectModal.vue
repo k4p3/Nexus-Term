@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useVaultStore } from "../../stores/vault.store";
 import type { HostSummary } from "../../types/inventory";
-import { Search, Server, Terminal, Folder, Tag, CornerDownLeft } from "lucide-vue-next";
+import { Search, Server, Terminal, Settings, Folder, Tag, CornerDownLeft } from "lucide-vue-next";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -12,15 +13,17 @@ const emit = defineEmits<{
   (e: "close"): void;
   (e: "connect-host", host: HostSummary): void;
   (e: "open-local-pty"): void;
+  (e: "open-settings"): void;
 }>();
 
+const { t } = useI18n();
 const vaultStore = useVaultStore();
 const query = ref("");
 const selectedIndex = ref(0);
 const searchInput = ref<HTMLInputElement | null>(null);
 
 interface SearchItem {
-  type: "local" | "host";
+  type: "local" | "host" | "settings";
   id: string;
   label: string;
   subtitle: string;
@@ -33,13 +36,23 @@ const items = computed<SearchItem[]>(() => {
   const result: SearchItem[] = [];
   const q = query.value.trim().toLowerCase();
 
+  // Settings shortcut
+  if (!q || "settings configuracion preferencias options theme idioma language".includes(q)) {
+    result.push({
+      type: "settings",
+      id: "action-settings",
+      label: t('settings.title'),
+      subtitle: `${t('settings.tabs.general')} • ${t('settings.tabs.terminal')} • ${t('settings.tabs.security')}`,
+    });
+  }
+
   // Always include local shell action if matches or empty query
   if (!q || "terminal local shell bash zsh".includes(q)) {
     result.push({
       type: "local",
       id: "action-local-pty",
-      label: "Nueva Terminal Local",
-      subtitle: "Abrir shell interactivo del sistema (Zsh/Bash)",
+      label: t('terminal.newLocal'),
+      subtitle: "Zsh / Bash / Fish",
     });
   }
 
@@ -114,7 +127,9 @@ function handleKeyDown(e: KeyboardEvent) {
 }
 
 function executeItem(item: SearchItem) {
-  if (item.type === "local") {
+  if (item.type === "settings") {
+    emit("open-settings");
+  } else if (item.type === "local") {
     emit("open-local-pty");
   } else if (item.host) {
     emit("connect-host", item.host);
@@ -166,9 +181,10 @@ onUnmounted(() => {
           <div class="flex items-center space-x-2.5 truncate">
             <div
               class="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-              :class="item.type === 'local' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'"
+              :class="item.type === 'settings' ? 'bg-blue-500/20 text-blue-400' : item.type === 'local' ? 'bg-purple-500/20 text-purple-400' : 'bg-cyan-500/20 text-cyan-400'"
             >
-              <Terminal v-if="item.type === 'local'" class="w-4 h-4" />
+              <Settings v-if="item.type === 'settings'" class="w-4 h-4" />
+              <Terminal v-else-if="item.type === 'local'" class="w-4 h-4" />
               <Server v-else class="w-4 h-4" />
             </div>
 
