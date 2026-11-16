@@ -199,6 +199,7 @@ pnpm tauri build
 
 - **[Guía de Arquitectura y Referencia Técnica (ARCHITECTURE.md)](ARCHITECTURE.md)**: Explicación a fondo de la arquitectura por capas y dominios, streaming binario por Tauri IPC, criptografía zero-knowledge y guía para extender el sistema.
 - **[Manual de Funcionalidades y Atajos (docs/FEATURES_MANUAL.md)](docs/FEATURES_MANUAL.md)**: Manual de usuario detallando el uso de split panes, atajos de teclado, prompts semánticos y temas.
+- **[Guía de Publicación y Distribución Linux (docs/DISTRIBUTION_AND_RELEASE_GUIDE.md)](docs/DISTRIBUTION_AND_RELEASE_GUIDE.md)**: Configuración y publicación para AUR, Flathub, Snap Store y automatización en GitHub Actions.
 - **[Flujo de Desarrollo SDD para Agentes (AGENTS.md)](AGENTS.md)**: Metodología con OpenSpec, cumplimiento estricto de licencias FOSS y política de testing obligatorio.
 
 ---
