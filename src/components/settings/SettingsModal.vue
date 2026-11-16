@@ -3,6 +3,9 @@ import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSettingsStore } from '../../stores/settings.store';
 import { useVaultStore } from '../../stores/vault.store';
+import { useHistoryStore } from '../../stores/history.store';
+import { useUiStore } from '../../stores/ui.store';
+import { createCanvasInstalledChecker, ligatureStatus } from '../../utils/font-check';
 import { SUPPORTED_LOCALES } from '../../locales';
 import CustomSelect, { type SelectOption } from '../common/CustomSelect.vue';
 import {
@@ -25,6 +28,25 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const settingsStore = useSettingsStore();
 const vaultStore = useVaultStore();
+const historyStore = useHistoryStore();
+const uiStoreSettings = useUiStore();
+
+// Aviso de ligaduras: la ligadura la dibuja la fuente, que debe estar instalada y soportarla
+const isFontInstalled = createCanvasInstalledChecker();
+const ligStatus = computed(() => ligatureStatus(settingsStore.settings.font_family, isFontInstalled));
+
+// Gestión del historial de comandos
+const historyHostChoice = ref<string>('local');
+async function clearHostHistory() {
+  if (!confirm(t('settings.historyClearHostConfirm'))) return;
+  const n = await historyStore.clear(historyHostChoice.value);
+  uiStoreSettings.pushToast(t('settings.historyCleared', { n }), { kind: 'success' });
+}
+async function clearAllHistory() {
+  if (!confirm(t('settings.historyClearAllConfirm'))) return;
+  const n = await historyStore.clear();
+  uiStoreSettings.pushToast(t('settings.historyCleared', { n }), { kind: 'success' });
+}
 
 const activeTab = ref<'general' | 'terminal' | 'shell' | 'security' | 'about'>('general');
 
@@ -408,6 +430,84 @@ async function handleResetDefaults() {
                   <span class="block text-xs text-neutral-400">{{ t('settings.notifyIncludeCommandDesc') }}</span>
                 </span>
               </label>
+            </div>
+
+            <div class="pt-4 border-t border-theme space-y-3">
+              <h4 class="text-sm font-semibold text-theme-main mb-1">{{ t('settings.historySection') }}</h4>
+              <label class="flex items-start space-x-2 cursor-pointer max-w-md">
+                <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.history_enabled"
+                  @change="settingsStore.updateSettings({ history_enabled: ($event.target as HTMLInputElement).checked })" />
+                <span>
+                  <span class="block text-xs font-medium text-theme-main">{{ t('settings.historyEnabled') }}</span>
+                  <span class="block text-xs text-neutral-400">{{ t('settings.historyEnabledDesc') }}</span>
+                </span>
+              </label>
+              <label class="flex items-start space-x-2 cursor-pointer max-w-md">
+                <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.osc52_clipboard"
+                  @change="settingsStore.updateSettings({ osc52_clipboard: ($event.target as HTMLInputElement).checked })" />
+                <span>
+                  <span class="block text-xs font-medium text-theme-main">{{ t('settings.osc52') }}</span>
+                  <span class="block text-xs text-neutral-400">{{ t('settings.osc52Desc') }}</span>
+                </span>
+              </label>
+              <label class="flex items-start space-x-2 cursor-pointer max-w-md">
+                <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.inline_images"
+                  @change="settingsStore.updateSettings({ inline_images: ($event.target as HTMLInputElement).checked })" />
+                <span>
+                  <span class="block text-xs font-medium text-theme-main">{{ t('settings.inlineImages') }}</span>
+                  <span class="block text-xs text-neutral-400">{{ t('settings.inlineImagesDesc') }}</span>
+                </span>
+              </label>
+              <label class="flex items-start space-x-2 cursor-pointer max-w-md">
+                <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.font_ligatures"
+                  @change="settingsStore.updateSettings({ font_ligatures: ($event.target as HTMLInputElement).checked })" />
+                <span>
+                  <span class="block text-xs font-medium text-theme-main">{{ t('settings.fontLigatures') }}</span>
+                  <span class="block text-xs text-neutral-400">{{ t('settings.fontLigaturesDesc') }}</span>
+                  <span v-if="settingsStore.settings.font_ligatures && ligStatus.ok" class="block text-xs text-emerald-400 mt-1">
+                    ✓ {{ t('settings.fontLigaturesOk', { font: ligStatus.effective }) }}
+                  </span>
+                  <span v-else-if="settingsStore.settings.font_ligatures" class="block text-xs text-amber-400 mt-1">
+                    ⚠ {{ ligStatus.effective
+                      ? t('settings.fontLigaturesNoSupport', { font: ligStatus.effective })
+                      : t('settings.fontLigaturesNoFont') }}
+                    <template v-if="ligStatus.missing.length"> {{ t('settings.fontLigaturesMissing', { fonts: ligStatus.missing.join(', ') }) }}</template>
+                  </span>
+                </span>
+              </label>
+              <label class="flex items-center space-x-2 max-w-md">
+                <span class="flex-1">
+                  <span class="block text-xs font-medium text-theme-main">{{ t('settings.restoreSessions') }}</span>
+                  <span class="block text-xs text-neutral-400">{{ t('settings.restoreSessionsDesc') }}</span>
+                </span>
+                <select class="px-2 py-1 bg-theme-input border border-theme rounded-lg text-xs"
+                  :value="settingsStore.settings.restore_sessions"
+                  @change="settingsStore.updateSettings({ restore_sessions: ($event.target as HTMLSelectElement).value as 'ask' | 'auto' | 'off' })">
+                  <option value="ask">{{ t('settings.restoreAsk') }}</option>
+                  <option value="auto">{{ t('settings.restoreAuto') }}</option>
+                  <option value="off">{{ t('settings.restoreOff') }}</option>
+                </select>
+              </label>
+              <label class="flex items-start space-x-2 cursor-pointer max-w-md">
+                <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.instant_replay"
+                  @change="settingsStore.updateSettings({ instant_replay: ($event.target as HTMLInputElement).checked })" />
+                <span>
+                  <span class="block text-xs font-medium text-theme-main">{{ t('settings.instantReplay') }}</span>
+                  <span class="block text-xs text-neutral-400">{{ t('settings.instantReplayDesc') }}</span>
+                </span>
+              </label>
+              <div class="flex items-center space-x-2 max-w-md">
+                <select v-model="historyHostChoice" class="flex-1 px-2 py-1 bg-theme-input border border-theme rounded-lg text-xs">
+                  <option value="local">{{ t('settings.historyLocalShells') }}</option>
+                  <option v-for="h in vaultStore.hosts" :key="h.id" :value="h.id">{{ h.label }}</option>
+                </select>
+                <button type="button" class="px-2 py-1 text-xs rounded-lg border border-theme hover:bg-theme-hover cursor-pointer" @click="clearHostHistory">
+                  {{ t('settings.historyClearHost') }}
+                </button>
+              </div>
+              <button type="button" class="px-2 py-1 text-xs rounded-lg border border-rose-500/40 text-rose-400 hover:bg-rose-500/10 cursor-pointer" @click="clearAllHistory">
+                {{ t('settings.historyClearAll') }}
+              </button>
             </div>
 
             <div class="pt-4 border-t border-theme">

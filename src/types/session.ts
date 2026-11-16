@@ -28,4 +28,6 @@ export interface SessionTab {
   title: string;
   rootPane: PaneNode;
   activePaneId: string;
+  /** Pestaña restaurada que aún no se ha activado: sus paneles no se montan ni conectan. */
+  pending?: boolean;
 }

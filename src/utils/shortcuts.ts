@@ -49,6 +49,9 @@ export const SHORTCUTS: ShortcutDef[] = [
   def("terminal.quickSelect", { code: "Space", ctrl: true, shift: true }, "terminal", "selection"),
   def("terminal.palette", { key: "p", ctrl: true, shift: true }, "workspace", "tools"),
   def("terminal.pasteHistory", { key: "v", ctrl: true, alt: true }, "terminal", "clipboard"),
+  def("terminal.history", { key: "h", ctrl: true, shift: true }, "terminal", "tools"),
+  def("terminal.rerunBlock", { key: "r", ctrl: true, shift: true }, "terminal", "tools"),
+  def("terminal.instantReplay", { key: "y", ctrl: true, shift: true }, "terminal", "tools"),
 ];
 
 type KeyLike = Pick<KeyboardEvent, "key" | "code" | "ctrlKey" | "metaKey" | "shiftKey" | "altKey">;

@@ -47,7 +47,7 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 - **Nerd Fonts & Powerline Ready**: Native support for icons and fonts such as *MesloLGS NF*, *Hack Nerd Font*, *JetBrains Mono*, and *Fira Code*.
 
 ### ⚡ Advanced Power Tools
-- **Shell Integration (OSC 133)**: Semantic prompt detection for Zsh, Bash, and Fish. Visual indicators show command exit codes (`0` vs. errors), execution runtime (e.g., `⏱ 2.1s`), and enable instant prompt navigation (`Ctrl+Shift+↑/↓`).
+- **Shell Integration (OSC 133)**: Semantic prompt detection for Zsh, Bash, and Fish. Visual indicators show command exit codes (`0` vs. errors), execution runtime (e.g., `⏱ 2.1s`), and enable instant prompt navigation (`Ctrl+Shift+↑/↓`). Each command is a **block** tracked with xterm markers (so it stays correct when the scrollback is trimmed): click its ✓/✗ marker to select it, copy its command or output, search only inside it, or re-run it (`Ctrl+Shift+R`).
 - **Broadcast / Multi-Exec Mode (`Ctrl+Shift+B`)**: Type once and stream keystrokes across all split panes simultaneously—ideal for clustered server updates.
 - **Parameterized Snippet Library**: Store common Docker, Kubernetes, Git, and administration commands with `{{placeholders}}` that prompt for inputs on execution.
 - **Buffer Search (`Ctrl+F`)**: High-speed buffer searching with regex matching and result highlighting.
@@ -55,6 +55,10 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 - **Quick Select (`Ctrl+Shift+Space`)**: Highlights URLs, paths, git hashes, IPs, UUIDs and e-mails on screen with keyboard labels. Type the label to copy it; hold `Shift` to paste it into the prompt.
 - **Terminal Command Palette (`Ctrl+Shift+P`)**: Fuzzy-search every terminal action, theme and snippet, with its shortcut shown next to it.
 - **Safe Paste & Paste History (`Ctrl+Alt+V`)**: Multi-line pastes, dangerous commands (`sudo`, `rm -rf`, `curl | sh`…) and hidden control characters ask for confirmation with a preview. The paste history lives in memory only and is wiped when the vault locks.
+- **Per-Host Command History (`Ctrl+Shift+H`)**: Commands detected through shell integration are stored per host, encrypted with the vault key, and searchable with a fuzzy picker together with your snippets. `Enter` inserts the command, `Ctrl+Enter` runs it (dangerous commands still ask for confirmation). Commands starting with a space or that look like secrets are never recorded; clear it per host or entirely from Settings.
+- **Instant Replay (`Ctrl+Shift+Y`)**: Each pane keeps its last 5 minutes (8 MiB max) of output in memory only, so you can scrub a read-only timeline and recover what a `clear` or a screen reset wiped. Never written to disk; discarded when the vault locks or the pane closes.
+- **Session Restore**: The layout of tabs and split panes (hosts and titles only, never contents or credentials) is saved and offered back after unlocking the vault (*Ask* / *Always* / *Never*). Tabs reconnect lazily, when you first open them; missing hosts are skipped.
+- **Terminal Compatibility**: Unicode 11 widths (emoji, CJK), **OSC 52** remote copy from `tmux`/`vim` (write-only, max 1 MiB: remote programs can never read your clipboard), inline **sixel / iTerm2 images**, and optional **font ligatures**. Ligatures need a ligature font installed on your system (e.g. JetBrains Mono, Fira Code, Cascadia Code); Settings warns you if the font in use has none. Each of these can be turned off in Settings.
 - **Long-Command Notifications**: A desktop notification (or in-app toast) when a command detected through shell integration finishes after a configurable threshold and you are not looking at it. The command text is never included unless you enable it.
 - **Shortcut Cheat Sheet (`Ctrl+Shift+/`)**: Every keyboard shortcut grouped by context, generated from a single registry.
 
@@ -108,6 +112,9 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd> | Quick Select (copy on-screen tokens with labels) | Active Terminal |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> | Terminal Command Palette | Workspace |
 | <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd> | Paste History | Active Terminal |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd> | Per-Host Command History (`Enter` inserts, `Ctrl+Enter` runs) | Active Terminal |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> | Re-run the command of the selected (or last) block | Shell Integration |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd> | Instant Replay (review recent output after a `clear`) | Active Terminal |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd> | Keyboard Shortcuts Cheat Sheet | Global |
 | <kbd>Escape</kbd> | Dismiss Active Modals / Dropdowns | Global |
 

@@ -87,7 +87,14 @@
     "authKey": "Private Key",
     "authAgent": "SSH Agent"
   },
+  "history": {
+    "snippet": "Snippet",
+    "placeholder": "Search host history and snippets… (Enter inserts, Ctrl+Enter runs)",
+    "empty": "No history for this host yet"
+  },
   "terminal": {
+    "blockOk": "Succeeded ({time}) — click to select block",
+    "blockFailed": "Failed with code {code} ({time}) — click to select block",
     "newLocal": "Local Terminal",
     "newTab": "New Tab",
     "splitRight": "Split Right",
@@ -95,7 +102,9 @@
     "closePane": "Close Pane",
     "reconnect": "Reconnect",
     "activeSessions": "Active Sessions",
-    "searchPrompt": "Find in terminal..."
+    "searchPrompt": "Find in terminal...",
+    "osc52Copied": "Copied to clipboard by the remote program (OSC 52)",
+    "osc52TooLarge": "OSC 52 copy ignored: larger than 1 MiB"
   },
   "settings": {
     "title": "Settings",
@@ -152,7 +161,33 @@
     "notifyLongDesc": "Desktop notice when the window is not in view (requires shell integration).",
     "notifyThreshold": "Threshold (seconds)",
     "notifyIncludeCommand": "Include the command text in the notification",
-    "notifyIncludeCommandDesc": "Off by default: the command may contain secrets."
+    "notifyIncludeCommandDesc": "Off by default: the command may contain secrets.",
+    "historySection": "Command history",
+    "historyEnabled": "Record command history per host",
+    "historyEnabledDesc": "Stored encrypted in the vault. Commands starting with a space or that look like they contain secrets are never recorded.",
+    "historyLocalShells": "Local shells",
+    "historyClearHost": "Clear this host",
+    "historyClearAll": "Clear all history",
+    "historyClearHostConfirm": "Delete the command history of the selected host?",
+    "historyClearAllConfirm": "Delete ALL command history? This cannot be undone.",
+    "historyCleared": "History cleared ({n} entries)",
+    "instantReplay": "Keep recent output for Instant Replay",
+    "instantReplayDesc": "In memory only (last 5 minutes / 8 MiB per pane). Discarded when the vault locks or the pane closes.",
+    "restoreSessions": "Restore tabs on startup",
+    "restoreSessionsDesc": "Saves only the layout (hosts and titles), never contents or credentials.",
+    "restoreAsk": "Ask",
+    "restoreAuto": "Always",
+    "restoreOff": "Never",
+    "osc52": "Allow remote programs to copy to the clipboard (OSC 52)",
+    "osc52Desc": "For tmux/vim over SSH. Write-only: remote programs can never read your clipboard. Max 1 MiB.",
+    "inlineImages": "Inline images (sixel / iTerm2)",
+    "inlineImagesDesc": "Cache limited to 64 MB per terminal.",
+    "fontLigatures": "Font ligatures",
+    "fontLigaturesDesc": "Requires a font with ligatures installed on your system (e.g. JetBrains Mono, Fira Code). Uses the canvas renderer instead of WebGL, which can be slower.",
+    "fontLigaturesOk": "Using “{font}”, which supports ligatures.",
+    "fontLigaturesNoSupport": "The font in use (“{font}”) is not known to have ligatures, so nothing will change.",
+    "fontLigaturesNoFont": "No installed font from your font list was found.",
+    "fontLigaturesMissing": "Not installed: {fonts}. Install a ligature font (e.g. JetBrains Mono, Fira Code, Cascadia Code), restart the app and put it first in the font list."
   },
   "snippets": {
     "title": "Snippets",
@@ -205,7 +240,10 @@
     "terminal.paste": "Paste",
     "terminal.quickSelect": "Quick Select (copy with hints)",
     "terminal.palette": "Terminal command palette",
-    "terminal.pasteHistory": "Paste history"
+    "terminal.pasteHistory": "Paste history",
+    "terminal.history": "Command history",
+    "terminal.instantReplay": "Instant Replay",
+    "terminal.rerunBlock": "Re-run command of the selected block"
   },
   "shortcutsModal": {
     "title": "Keyboard shortcuts",
@@ -235,7 +273,11 @@
       "closePane": "Close pane",
       "broadcast": "Toggle Broadcast",
       "quickConnect": "Quick Connect",
-      "shortcuts": "Show keyboard shortcuts"
+      "shortcuts": "Show keyboard shortcuts",
+      "history": "Command history",
+      "instantReplay": "Instant Replay",
+      "rerunBlock": "Re-run command of selected/last block",
+      "copyBlockCommand": "Copy command of selected/last block"
     }
   },
   "paste": {
@@ -264,5 +306,23 @@
   },
   "toast": {
     "go": "Go"
+  },
+  "replay": {
+    "title": "Instant Replay",
+    "readOnly": "read-only",
+    "empty": "Nothing recorded yet in this pane",
+    "timeline": "Timeline",
+    "now": "Now",
+    "secondsAgo": "{n}s ago",
+    "toEnd": "Latest",
+    "window": "Window: {n}s",
+    "disabled": "Instant Replay is turned off in Settings"
+  },
+  "restore": {
+    "title": "Restore previous session?",
+    "body": "Your last session had {n} tab(s). Hosts reconnect when you open each tab.",
+    "startEmpty": "Start empty",
+    "restore": "Restore ({n} tabs)",
+    "skipped": "{n} pane(s) skipped because the host no longer exists: {names}"
   }
 }

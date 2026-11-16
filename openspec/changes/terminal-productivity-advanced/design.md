@@ -23,7 +23,7 @@ class BlockTracker { onOsc(action: "A"|"B"|"C"|"D", args: string[], term): void;
 ```sql
 CREATE TABLE IF NOT EXISTS command_history (
   id TEXT PRIMARY KEY,
-  host_id TEXT NOT NULL REFERENCES hosts(id) ON DELETE CASCADE,
+  host_id TEXT NOT NULL,               -- id de host, o 'local' para shells locales
   dedupe_key TEXT NOT NULL,            -- sha256(host_id || 0x00 || comando) en hex
   encrypted_command BLOB NOT NULL,     -- AES-256-GCM con VaultKey
   use_count INTEGER NOT NULL DEFAULT 1,
@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS command_history (
 );
 CREATE INDEX IF NOT EXISTS idx_history_host_recent ON command_history(host_id, last_used_at DESC);
 ```
+La cascada al borrar un host se implementa con un *trigger* `AFTER DELETE ON hosts` (una FK impediría usar la clave `local`).
 El hash de deduplicación revela únicamente igualdad entre comandos del mismo host; el texto va siempre cifrado.
 ### Contratos IPC
 | Comando | Entrada | Salida |
@@ -43,7 +44,7 @@ El hash de deduplicación revela únicamente igualdad entre comandos del mismo h
 | `history_clear` | `{ host_id? }` | `u64` (filas) |
 La búsqueda difusa y el *ranking* (puntuación → `use_count` → recencia) se hacen en el frontend sobre un máximo de 2000 entradas por host.
 ### Captura y exclusiones
-Al recibir `OSC 133;C` se lee el texto entre `commandStart` y `outputStart` del búfer. Se omite si empieza por espacio, supera 4 KiB, está vacío o coincide con `SECRET_PATTERNS` (`password`, `passwd`, `token`, `secret`, `api[_-]?key`, `Authorization:`, `export\s+\w*(KEY|TOKEN|SECRET)\w*=`). Los hosts locales usan la clave `local`.
+Al recibir `OSC 133;D` (cuando ya se conoce el código de salida) se lee el texto entre `commandStart` y `outputStart` del búfer. Se omite si empieza por espacio, supera 4 KiB, está vacío o coincide con `SECRET_PATTERNS` (`password`, `passwd`, `token`, `secret`, `api[_-]?key`, `Authorization:`, `export\s+\w*(KEY|TOKEN|SECRET)\w*=`). Los hosts locales usan la clave `local`.
 
 ## 3. Instant Replay (`src/utils/replay-buffer.ts`)
 ```ts
@@ -51,7 +52,7 @@ class ReplayBuffer { constructor(maxMs = 300_000, maxBytes = 8*1024*1024);
   push(ts: number, chunk: Uint8Array): void;      // descarta lo más antiguo al superar límites
   range(fromTs: number, toTs: number): Uint8Array[]; clear(): void; get span(): [number, number] | null }
 ```
-Se alimenta en el mismo punto donde se escribe en xterm. El visor (`InstantReplayModal.vue`) crea un `Terminal` de solo lectura, y para un instante *t* hace `reset()` y escribe los fragmentos hasta *t* (con límite de coste: salto a puntos de control cada 30 s). Se vacía en `vault_lock`, al cerrar el panel y al salir; no hay escritura a disco.
+Se alimenta en el mismo punto donde se escribe en xterm. El visor (`InstantReplayModal.vue`) crea un `Terminal` de solo lectura, y para un instante *t* hace `reset()` y escribe los fragmentos hasta *t* (la reproducción es incremental hacia delante y solo se reinicia al retroceder; el coste está acotado por el límite de 8 MiB, por lo que no se usan puntos de control). Se vacía en `vault_lock`, al cerrar el panel y al salir; no hay escritura a disco.
 
 ## 4. Restauración de sesiones
 ### Persistencia
@@ -74,6 +75,11 @@ Tras `vault_unlock`: según `restore_sessions` → diálogo (`ask`), restauraci�
 | `@xterm/addon-image` | 0.8.0 | `storageLimit` acotado; *spike* de compatibilidad con WebGL |
 | `@xterm/addon-ligatures` | 0.9.0 | desactivado por defecto; *spike* con WebGL |
 Los addons se cargan según preferencias y se descartan al cambiarlas.
+
+**Resultado del spike (tarea 1.2)**:
+- `addon-image` dibuja en sus propios *canvas* superpuestos y es compatible con WebGL y con el renderizador DOM; no requiere respaldo.
+- `addon-ligatures` está pensado para entornos con Node.js (resuelve la fuente desde disco con `font-finder`); en Tauri solo funcionan sus ligaduras de respaldo (`fallbackLigatures`). Además depende de *character joiners*, no soportados por WebGL. **Decisión**: si `font_ligatures` está activo se descarga `WebglAddon` y se carga `@xterm/addon-canvas` (renderizador canvas) antes de `addon-ligatures`; al desactivarlo se restaura WebGL.
+**Corrección tras prueba real**: la primera decisión (renderizador DOM) era incorrecta. El renderizador DOM de xterm 5.5 fija `letter-spacing` distinto de cero en las filas (medido: `-0.00625px`) y los navegadores desactivan las ligaduras con espaciado de letras, de modo que no se veían. Con el renderizador canvas el texto unido se dibuja como una cadena y el motor aplica las ligaduras de la fuente (verificado en Chrome con JetBrains Mono). La fuente debe estar instalada en el sistema.
 
 ## 6. Preferencias
 ```rust

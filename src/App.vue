@@ -17,6 +17,8 @@ import TransferQueue from "./components/sftp/TransferQueue.vue";
 import TerminalWorkspace from "./components/terminal/TerminalWorkspace.vue";
 import TerminalCommandPalette from "./components/terminal/TerminalCommandPalette.vue";
 import ShortcutsModal from "./components/terminal/ShortcutsModal.vue";
+import RestoreSessionsModal from "./components/terminal/RestoreSessionsModal.vue";
+import { useSessionRestore } from "./composables/useSessionRestore";
 import ToastHost from "./components/common/ToastHost.vue";
 import { useUiStore } from "./stores/ui.store";
 import { matchShortcut } from "./utils/shortcuts";
@@ -32,6 +34,7 @@ const tunnelsStore = useTunnelsStore();
 const sftpStore = useSftpStore();
 const uiStore = useUiStore();
 
+const sessionRestore = useSessionRestore();
 const isQuickConnectOpen = ref(false);
 const isSettingsOpen = ref(false);
 const isSnippetsOpen = ref(false);
@@ -288,6 +291,12 @@ function handleInsertCommand(command: string) {
       <TransferQueue />
 
       <TerminalCommandPalette v-if="uiStore.paletteOpen" @close="uiStore.paletteOpen = false" />
+      <RestoreSessionsModal
+        v-if="sessionRestore.pendingLayout.value && vaultStore.isUnlocked"
+        :tab-count="sessionRestore.pendingTabCount()"
+        @restore="sessionRestore.confirmRestore()"
+        @discard="sessionRestore.discardRestore()"
+      />
       <ShortcutsModal v-if="uiStore.shortcutsOpen" @close="uiStore.shortcutsOpen = false" />
     </main>
     <ToastHost />

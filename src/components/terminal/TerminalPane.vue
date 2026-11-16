@@ -4,6 +4,14 @@ import { useI18n } from "vue-i18n";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebglAddon } from "@xterm/addon-webgl";
+import { Unicode11Addon } from "@xterm/addon-unicode11";
+import { ClipboardAddon } from "@xterm/addon-clipboard";
+import { ImageAddon } from "@xterm/addon-image";
+import { CanvasAddon } from "@xterm/addon-canvas";
+import { LigaturesAddon } from "@xterm/addon-ligatures";
+import {
+  TerminalAddonManager, planAddons, createWriteOnlyClipboardProvider, IMAGE_STORAGE_LIMIT_MB, type AddonSpec,
+} from "../../utils/terminal-addons";
 import { SearchAddon } from "@xterm/addon-search";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { sessionService } from "../../services/session.service";
@@ -14,6 +22,10 @@ import { useTelemetryStore } from "../../stores/telemetry.store";
 import TerminalSearchBar, { type SearchOptions } from "./TerminalSearchBar.vue";
 import PasteConfirmModal from "./PasteConfirmModal.vue";
 import PasteHistoryPicker from "./PasteHistoryPicker.vue";
+import HistoryPicker from "./HistoryPicker.vue";
+import InstantReplayModal from "./InstantReplayModal.vue";
+import { useReplayStore } from "../../stores/replay.store";
+import { useHistoryStore } from "../../stores/history.store";
 import QuickSelectOverlay from "./QuickSelectOverlay.vue";
 import TerminalLinkMenu, { type LinkMenuItem } from "./TerminalLinkMenu.vue";
 import { useUiStore } from "../../stores/ui.store";
@@ -23,6 +35,7 @@ import { useQuickSelect } from "../../composables/useQuickSelect";
 import { matchShortcut } from "../../utils/shortcuts";
 import { analyzePaste, toSingleLine, type PasteAnalysis } from "../../utils/paste-guard";
 import { findIpLinks, findPathLinks, dirname } from "../../utils/link-detect";
+import { BlockTracker, searchInRange, formatDuration, type CommandBlock, type SearchMatch } from "../../utils/command-blocks";
 import { buildNotificationBody, shouldNotify } from "../../utils/notify";
 import TelemetryBar from "./TelemetryBar.vue";
 import type { LeafPane } from "../../types/session";
@@ -60,11 +73,15 @@ const vaultStore = useVaultStore();
 const telemetryStore = useTelemetryStore();
 const uiStore = useUiStore();
 const pasteHistory = usePasteHistoryStore();
+const historyStore = useHistoryStore();
 const sftpStore = useSftpStore();
 
 // Pegado seguro, historial de pegado y menú de enlaces
-const pendingPaste = ref<{ text: string; analysis: PasteAnalysis } | null>(null);
+const pendingPaste = ref<{ text: string; analysis: PasteAnalysis; execute?: boolean } | null>(null);
 const isPasteHistoryOpen = ref(false);
+const isHistoryOpen = ref(false);
+const isReplayOpen = ref(false);
+const replayStore = useReplayStore();
 const linkMenu = ref<{ x: number; y: number; kind: "path" | "ip"; value: string } | null>(null);
 
 const quickSelect = useQuickSelect(
@@ -118,12 +135,50 @@ function onPasteEvent(e: ClipboardEvent) {
 function confirmPaste(singleLine = false) {
   const p = pendingPaste.value;
   pendingPaste.value = null;
-  if (p) doPaste(singleLine ? toSingleLine(p.text) : p.text);
+  if (!p) return;
+  doPaste(singleLine ? toSingleLine(p.text) : p.text);
+  if (p.execute) term?.input("\r");
 }
 
 function cancelPaste() {
   pendingPaste.value = null;
   term?.focus();
+}
+
+/**
+ * Inserta un comando en el prompt (y opcionalmente lo ejecuta). Pasa por las reglas de seguridad
+ * del pegado: si es peligroso o multilínea se pide confirmación antes de insertar/ejecutar.
+ */
+function insertCommand(text: string, execute = false) {
+  if (!text) return;
+  if (execute) term?.input("\x15"); // Ctrl+U: limpia lo que hubiera escrito en el prompt
+  const analysis = analyzePaste(text);
+  if (settingsStore.settings.paste_warning && analysis.needsConfirm) {
+    pendingPaste.value = { text, analysis, execute };
+    return;
+  }
+  doPaste(text);
+  if (execute) term?.input("\r");
+}
+
+/** Instant Replay: retiene la salida con marca de tiempo solo en memoria, si el ajuste está activo. */
+function recordOutput(chunk: Uint8Array) {
+  if (!settingsStore.settings.instant_replay) return;
+  replayStore.bufferFor(props.pane.id).push(Date.now(), chunk);
+}
+
+function openReplay() {
+  if (!settingsStore.settings.instant_replay) {
+    uiStore.pushToast(t("replay.disabled"));
+    return;
+  }
+  isReplayOpen.value = true;
+}
+
+function onHistoryInsert(text: string, execute: boolean) {
+  isHistoryOpen.value = false;
+  term?.focus();
+  insertCommand(text, execute);
 }
 
 function onPasteFromHistory(text: string) {
@@ -166,6 +221,8 @@ function openLinkMenu(ev: MouseEvent, kind: "path" | "ip", value: string) {
   linkMenu.value = { x: ev.clientX, y: ev.clientY, kind, value };
 }
 
+let lastCommandText: string | undefined;
+
 async function notifyCommandFinished(code: number, durationMs: number) {
   const channel = shouldNotify({
     enabled: settingsStore.settings.notify_long_commands,
@@ -179,7 +236,7 @@ async function notifyCommandFinished(code: number, durationMs: number) {
     ok: code === 0,
     hostLabel: props.pane.title,
     durationMs,
-    command: undefined, // el texto del comando solo estará disponible con el historial (cambio avanzado)
+    command: lastCommandText,
     includeCommand: settingsStore.settings.notify_include_command,
   });
   if (channel === "desktop") {
@@ -246,17 +303,10 @@ function dockExistingTab(sourceTabId: string) {
   isSplitMenuOpen.value = false;
 }
 
-// Shell integration (OSC 133) state
-interface CommandBlock {
-  promptLine: number;
-  commandStartLine?: number;
-  outputStartLine?: number;
-  endLine?: number;
-  exitCode?: number;
-  startTime?: number;
-  durationMs?: number;
-}
-const commandBlocks = ref<CommandBlock[]>([]);
+// Shell integration (OSC 133): bloques basados en markers de xterm
+let tracker: BlockTracker | null = null;
+const blockCount = ref(0);
+const selectedBlockId = ref<number | null>(null);
 const lastExitCode = ref<number | null>(null);
 const lastDuration = ref<string | null>(null);
 const isOutputCopied = ref(false);
@@ -266,6 +316,13 @@ let fitAddon: FitAddon | null = null;
 let searchAddon: SearchAddon | null = null;
 let resizeObserver: ResizeObserver | null = null;
 let sessionId: string | null = null;
+
+watch(
+  () => settingsStore.settings.instant_replay,
+  (on) => {
+    if (!on) replayStore.release(props.pane.id);
+  },
+);
 
 // Watch for live settings hot-reload
 watch(
@@ -311,6 +368,7 @@ watch(
 );
 
 function handleSearch(query: string, options: SearchOptions, direction: 'next' | 'previous') {
+  if (selectedBlockId.value !== null && searchWithinBlock(query, options, direction)) return;
   if (!searchAddon) return;
   const searchOpts = {
     regex: options.regex,
@@ -332,52 +390,201 @@ function handleSearch(query: string, options: SearchOptions, direction: 'next' |
 function handleCloseSearch() {
   isSearchOpen.value = false;
   searchAddon?.clearDecorations();
+  clearBlockSearch();
   term?.focus();
 }
 
-function jumpToPreviousPrompt() {
-  if (!term || commandBlocks.value.length === 0) return;
-  const currentLine = term.buffer.active.viewportY;
-  const prev = [...commandBlocks.value].reverse().find((b) => b.promptLine < currentLine - 1);
-  if (prev) {
-    term.scrollToLine(prev.promptLine);
-  } else {
-    term.scrollToLine(commandBlocks.value[0].promptLine);
+function refreshBlockCount() {
+  blockCount.value = tracker?.executed().length ?? 0;
+  if (selectedBlockId.value !== null && !tracker?.find(selectedBlockId.value)) {
+    selectedBlockId.value = null;
+    clearBlockSearch();
   }
 }
 
-function jumpToNextPrompt() {
-  if (!term || commandBlocks.value.length === 0) return;
+function jumpToPreviousPrompt() {
+  if (!term || !tracker) return;
+  const blocks = tracker.executed();
+  if (blocks.length === 0) return;
   const currentLine = term.buffer.active.viewportY;
-  const next = commandBlocks.value.find((b) => b.promptLine > currentLine + 1);
+  const prev = [...blocks].reverse().find((b) => b.prompt.line < currentLine - 1);
+  term.scrollToLine((prev ?? blocks[0]).prompt.line);
+}
+
+function jumpToNextPrompt() {
+  if (!term || !tracker) return;
+  const currentLine = term.buffer.active.viewportY;
+  const next = tracker.executed().find((b) => b.prompt.line > currentLine + 1);
   if (next) {
-    term.scrollToLine(next.promptLine);
+    term.scrollToLine(next.prompt.line);
   } else {
     term.scrollToBottom();
   }
 }
 
-function copyLastOutput() {
-  if (!term || commandBlocks.value.length === 0) return;
-  const last = commandBlocks.value[commandBlocks.value.length - 1];
-  const start = last.outputStartLine ?? last.promptLine;
-  const end = last.endLine ?? (term.buffer.active.baseY + term.buffer.active.cursorY);
-
-  let text = '';
-  for (let l = start; l <= end; l++) {
-    const line = term.buffer.active.getLine(l);
-    if (line) text += line.translateToString(true) + '\n';
+/** Bloque seleccionado o, si no hay, el último ejecutado. */
+function targetBlock(): CommandBlock | undefined {
+  if (!tracker) return undefined;
+  if (selectedBlockId.value !== null) {
+    const b = tracker.find(selectedBlockId.value);
+    if (b) return b;
   }
+  const all = tracker.executed();
+  return all[all.length - 1];
+}
 
-  const clean = text.trim();
-  if (clean) {
-    navigator.clipboard.writeText(clean);
-    isOutputCopied.value = true;
-    setTimeout(() => {
-      isOutputCopied.value = false;
-    }, 2000);
+function flashCopied() {
+  isOutputCopied.value = true;
+  setTimeout(() => {
+    isOutputCopied.value = false;
+  }, 2000);
+}
+
+function copyLastOutput() {
+  const b = targetBlock();
+  if (!b || !tracker) return;
+  const text = tracker.outputText(b);
+  if (text) {
+    navigator.clipboard.writeText(text);
+    flashCopied();
   }
 }
+
+function copyBlockCommand() {
+  const b = targetBlock();
+  if (!b || !tracker) return;
+  const text = tracker.commandText(b);
+  if (text) {
+    navigator.clipboard.writeText(text);
+    flashCopied();
+  }
+}
+
+/** Repite el comando del bloque seleccionado (o del último), sujeto a las reglas de pegado seguro. */
+function rerunBlockCommand() {
+  const b = targetBlock();
+  if (!b || !tracker) return;
+  const text = tracker.commandText(b);
+  if (text) insertCommand(text, true);
+}
+
+function selectBlock(id: number | null) {
+  selectedBlockId.value = id;
+  clearBlockSearch();
+  if (!term) return;
+  if (id === null || !tracker) {
+    term.clearSelection();
+    return;
+  }
+  const b = tracker.find(id);
+  if (!b) return;
+  const r = tracker.lineRange(b);
+  term.selectLines(r.start, r.end);
+}
+
+// Búsqueda acotada a un bloque
+let blockMatches: SearchMatch[] = [];
+let blockMatchIdx = -1;
+
+function clearBlockSearch() {
+  blockMatches = [];
+  blockMatchIdx = -1;
+}
+
+function searchWithinBlock(query: string, options: SearchOptions, direction: 'next' | 'previous') {
+  const b = selectedBlockId.value !== null ? tracker?.find(selectedBlockId.value) : undefined;
+  if (!term || !tracker || !b) return false;
+  blockMatches = searchInRange(term, tracker.lineRange(b), query, { caseSensitive: options.matchCase });
+  if (blockMatches.length === 0) {
+    blockMatchIdx = -1;
+    term.clearSelection();
+    return true;
+  }
+  const step = direction === 'next' ? 1 : -1;
+  blockMatchIdx = (blockMatchIdx + step + blockMatches.length) % blockMatches.length;
+  const m = blockMatches[blockMatchIdx];
+  term.select(m.col, m.line, m.length);
+  term.scrollToLine(Math.max(0, m.line - 2));
+  return true;
+}
+
+// Indicador ✓/✗ + duración en el margen derecho de la línea del prompt
+function decorateBlock(b: CommandBlock) {
+  if (!term || b.exitCode === undefined) return;
+  const ok = b.exitCode === 0;
+  const label = `${ok ? "✓" : "✗"}${b.durationMs !== undefined ? " " + formatDuration(b.durationMs) : ""}`;
+  const deco = term.registerDecoration({ marker: b.prompt, x: 0, anchor: "right", width: label.length + 1 });
+  deco?.onRender((el) => {
+    el.textContent = label;
+    el.style.cssText = `color:${ok ? "#34d399" : "#fb7185"};font-size:0.8em;text-align:right;cursor:pointer;opacity:.85`;
+    el.title = ok
+      ? t("terminal.blockOk", { time: formatDuration(b.durationMs) })
+      : t("terminal.blockFailed", { code: b.exitCode, time: formatDuration(b.durationMs) });
+    el.onclick = () => selectBlock(selectedBlockId.value === b.id ? null : b.id);
+  });
+}
+
+let addonManager: TerminalAddonManager | null = null;
+
+function buildAddonSpecs(t0: Terminal): Record<"unicode11" | "clipboard" | "canvas" | "webgl" | "ligatures" | "image", AddonSpec> {
+  return {
+    unicode11: {
+      create: () => new Unicode11Addon(),
+      onLoaded: () => {
+        t0.unicode.activeVersion = "11";
+      },
+    },
+    clipboard: {
+      create: () =>
+        new ClipboardAddon(
+          createWriteOnlyClipboardProvider(
+            (text) => navigator.clipboard.writeText(text),
+            {
+              onCopied: () => uiStore.pushToast(t("terminal.osc52Copied"), { kind: "success" }),
+              onRejected: () => uiStore.pushToast(t("terminal.osc52TooLarge"), { kind: "warning" }),
+            },
+          ) as never,
+        ),
+    },
+    image: { create: () => new ImageAddon({ storageLimit: IMAGE_STORAGE_LIMIT_MB }) },
+    canvas: { create: () => new CanvasAddon() },
+    ligatures: { create: () => new LigaturesAddon() },
+    webgl: {
+      create: () => {
+        const webgl = new WebglAddon();
+        webgl.onContextLoss(() => webgl.dispose());
+        return webgl;
+      },
+    },
+  };
+}
+
+/** Carga/descarta addons según las preferencias; si cambia el renderizador se reajusta el tamaño. */
+function applyAddonPrefs() {
+  if (!addonManager) return;
+  const changed = addonManager.apply(
+    planAddons({
+      osc52_clipboard: settingsStore.settings.osc52_clipboard,
+      inline_images: settingsStore.settings.inline_images,
+      font_ligatures: settingsStore.settings.font_ligatures,
+    }),
+  );
+  if (changed.includes("webgl") || changed.includes("canvas") || changed.includes("ligatures")) {
+    nextTick(() => {
+      fitAddon?.fit();
+      term?.refresh(0, Math.max(0, (term?.rows ?? 1) - 1));
+    });
+  }
+}
+
+watch(
+  () => [
+    settingsStore.settings.osc52_clipboard,
+    settingsStore.settings.inline_images,
+    settingsStore.settings.font_ligatures,
+  ],
+  applyAddonPrefs,
+);
 
 onMounted(async () => {
   if (!terminalContainer.value) return;
@@ -400,48 +607,28 @@ onMounted(async () => {
   term.loadAddon(searchAddon);
   term.loadAddon(new WebLinksAddon());
 
-  // Register OSC 133 Shell Integration Parser
+  // Register OSC 133 Shell Integration Parser (bloques basados en markers)
+  tracker = new BlockTracker(term as unknown as ConstructorParameters<typeof BlockTracker>[0]);
   term.parser.registerOscHandler(133, (data) => {
-    const parts = data.split(';');
-    const action = parts[0];
-    const curY = (term?.buffer.active.baseY || 0) + (term?.buffer.active.cursorY || 0);
-
-    if (action === 'A') {
-      // Prompt start
-      commandBlocks.value.push({
-        promptLine: curY,
-        startTime: Date.now(),
-      });
-    } else if (action === 'B') {
-      // Command input start
-      const last = commandBlocks.value[commandBlocks.value.length - 1];
-      if (last) last.commandStartLine = curY;
-    } else if (action === 'C') {
-      // Command output start
-      const last = commandBlocks.value[commandBlocks.value.length - 1];
-      if (last) {
-        last.outputStartLine = curY;
-        last.startTime = Date.now();
+    const [action, ...args] = data.split(';');
+    const finished = tracker?.onOsc(action, args);
+    if (finished && finished.exitCode !== undefined) {
+      const cmdText = finished.commandStart ? tracker?.commandText(finished, false) ?? '' : '';
+      if (cmdText) {
+        void historyStore.record(props.pane.hostId, cmdText, finished.exitCode, settingsStore.settings.history_enabled);
       }
-    } else if (action === 'D') {
-      // Command finished with exit code
-      const last = commandBlocks.value[commandBlocks.value.length - 1];
-      const code = parts[1] !== undefined ? parseInt(parts[1], 10) : 0;
-      if (last) {
-        last.endLine = curY;
-        last.exitCode = code;
-        if (last.startTime) {
-          last.durationMs = Date.now() - last.startTime;
-        }
-      }
-      lastExitCode.value = code;
-      if (last?.durationMs) {
-        lastDuration.value = (last.durationMs / 1000).toFixed(1) + 's';
-        notifyCommandFinished(code, last.durationMs);
+      lastCommandText = cmdText || undefined;
+      lastExitCode.value = finished.exitCode;
+      decorateBlock(finished);
+      if (finished.durationMs) {
+        lastDuration.value = (finished.durationMs / 1000).toFixed(1) + 's';
+        notifyCommandFinished(finished.exitCode, finished.durationMs);
       }
     }
+    refreshBlockCount();
     return true;
   });
+  term.onScroll(refreshBlockCount);
 
   term.open(terminalContainer.value);
 
@@ -467,6 +654,9 @@ onMounted(async () => {
       'terminal.nextPrompt': jumpToNextPrompt,
       'terminal.quickSelect': () => quickSelect.start(),
       'terminal.pasteHistory': () => (isPasteHistoryOpen.value = true),
+      'terminal.rerunBlock': rerunBlockCommand,
+      'terminal.history': () => (isHistoryOpen.value = true),
+      'terminal.instantReplay': openReplay,
     };
     action[def.id]?.();
     return false;
@@ -493,13 +683,13 @@ onMounted(async () => {
     },
   });
 
-  // Try loading WebGL addon with canvas fallback
-  try {
-    const webgl = new WebglAddon();
-    term.loadAddon(webgl);
-  } catch (e) {
-    console.warn("WebGL addon unavailable, using default canvas renderer", e);
-  }
+  // Addons de compatibilidad (Unicode 11, OSC 52, imágenes, ligaduras) y renderizador WebGL
+  addonManager = new TerminalAddonManager(
+    term as unknown as ConstructorParameters<typeof TerminalAddonManager>[0],
+    buildAddonSpecs(term),
+    (name, e) => console.warn(`Addon "${name}" unavailable, continuing without it`, e),
+  );
+  applyAddonPrefs();
 
   fitAddon.fit();
 
@@ -526,6 +716,7 @@ onMounted(async () => {
         term.rows,
         (chunk) => {
           term?.write(chunk);
+          recordOutput(chunk);
         }
       );
     } else {
@@ -534,6 +725,7 @@ onMounted(async () => {
         term.rows,
         (chunk) => {
           term?.write(chunk);
+          recordOutput(chunk);
         },
         settingsStore.settings.default_shell
       );
@@ -569,6 +761,10 @@ onMounted(async () => {
     splitV: handleSplitVertical,
     closePane: handleClose,
     copyLastOutput,
+    rerunBlock: rerunBlockCommand,
+    history: () => (isHistoryOpen.value = true),
+    instantReplay: openReplay,
+    copyBlockCommand,
   });
   term.focus();
 });
@@ -590,6 +786,11 @@ onBeforeUnmount(async () => {
   if (props.pane.hostId) {
     telemetryStore.stopMonitoring(props.pane.hostId);
   }
+  addonManager?.dispose();
+  addonManager = null;
+  tracker?.dispose();
+  tracker = null;
+  replayStore.release(props.pane.id);
   if (term) {
     term.dispose();
     term = null;
@@ -665,7 +866,7 @@ function handleClose() {
       <div class="flex items-center space-x-1">
         <!-- Copy Output button -->
         <button
-          v-if="commandBlocks.length > 0"
+          v-if="blockCount > 0"
           @click.stop="copyLastOutput"
           :title="isOutputCopied ? '¡Copiado!' : 'Copiar Salida del Último Comando'"
           class="p-1 text-slate-400 hover:text-cyan-300 rounded-sm hover:bg-slate-800 transition-colors"
@@ -684,7 +885,7 @@ function handleClose() {
 
         <!-- Prompt navigation buttons -->
         <button
-          v-if="commandBlocks.length > 0"
+          v-if="blockCount > 0"
           @click.stop="jumpToPreviousPrompt"
           title="Comando Anterior (Ctrl+Shift+↑)"
           class="p-1 text-slate-400 hover:text-white rounded-sm hover:bg-slate-800 transition-colors"
@@ -692,7 +893,7 @@ function handleClose() {
           <ChevronUp class="w-3 h-3" />
         </button>
         <button
-          v-if="commandBlocks.length > 0"
+          v-if="blockCount > 0"
           @click.stop="jumpToNextPrompt"
           title="Comando Siguiente (Ctrl+Shift+↓)"
           class="p-1 text-slate-400 hover:text-white rounded-sm hover:bg-slate-800 transition-colors"
@@ -893,6 +1094,8 @@ function handleClose() {
     @single-line="confirmPaste(true)"
     @cancel="cancelPaste"
   />
+  <InstantReplayModal v-if="isReplayOpen && term" :buffer="replayStore.bufferFor(pane.id)" :cols="term.cols" :rows="term.rows" @close="isReplayOpen = false; term?.focus()" />
+  <HistoryPicker v-if="isHistoryOpen" :host-id="pane.hostId" @insert="onHistoryInsert" @close="isHistoryOpen = false; term?.focus()" />
   <PasteHistoryPicker v-if="isPasteHistoryOpen" @paste="onPasteFromHistory" @close="isPasteHistoryOpen = false; term?.focus()" />
   <TerminalLinkMenu
     v-if="linkMenu"

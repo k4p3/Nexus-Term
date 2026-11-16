@@ -47,7 +47,7 @@ Diseñado de manera nativa sobre **Tauri v2** y **Rust**, elimina el alto consum
 - **Compatibilidad con Nerd Fonts y Powerline**: Soporte total para fuentes como *MesloLGS NF*, *Hack Nerd Font*, *JetBrains Mono* y *Fira Code*.
 
 ### ⚡ Herramientas Avanzadas (Power Tools)
-- **Integración con el Shell (OSC 133)**: Reconocimiento semántico de prompts para Zsh, Bash y Fish. Indica si los comandos terminaron con éxito (`0`) o error, muestra el tiempo de ejecución (ej. `⏱ 2.1s`) y permite saltar entre prompts instantáneamente (`Ctrl+Shift+↑/↓`).
+- **Integración con el Shell (OSC 133)**: Reconocimiento semántico de prompts para Zsh, Bash y Fish. Indica si los comandos terminaron con éxito (`0`) o error, muestra el tiempo de ejecución (ej. `⏱ 2.1s`) y permite saltar entre prompts instantáneamente (`Ctrl+Shift+↑/↓`). Cada comando es un **bloque** seguido con *markers* de xterm (sigue siendo correcto al recortarse el scrollback): haz clic en su marca ✓/✗ para seleccionarlo, copiar su comando o su salida, buscar solo dentro de él o repetirlo (`Ctrl+Shift+R`).
 - **Modo Broadcast / Multi-Exec (`Ctrl+Shift+B`)**: Escribe una sola vez y replica tus pulsaciones en todos los paneles divididos activos de la pestaña de forma simultánea.
 - **Biblioteca de Snippets con Parámetros**: Guarda comandos frecuentes de Docker, Kubernetes, Git y administración con variables `{{parametro}}` que solicitan valores antes de ejecutarse.
 - **Búsqueda en el Buffer (`Ctrl+F`)**: Búsqueda rápida con soporte para expresiones regulares (RegEx) y resaltado interactivo.
@@ -55,6 +55,10 @@ Diseñado de manera nativa sobre **Tauri v2** y **Rust**, elimina el alto consum
 - **Quick Select (`Ctrl+Shift+Space`)**: Resalta URLs, rutas, hashes de git, IPs, UUID y correos visibles con etiquetas de teclado. Escribe la etiqueta para copiar; con `Shift` pega en el prompt.
 - **Paleta de Comandos de la Terminal (`Ctrl+Shift+P`)**: Búsqueda difusa de acciones, temas y snippets, mostrando su atajo.
 - **Pegado Seguro e Historial de Pegado (`Ctrl+Alt+V`)**: Los pegados multilínea, los comandos peligrosos (`sudo`, `rm -rf`, `curl | sh`…) y los caracteres de control ocultos piden confirmación con vista previa. El historial de pegado vive solo en memoria y se borra al bloquear la bóveda.
+- **Historial de Comandos por Host (`Ctrl+Shift+H`)**: Los comandos detectados por la integración de shell se guardan por host, cifrados con la clave de la bóveda, y se buscan con un selector difuso junto a tus snippets. `Enter` inserta el comando y `Ctrl+Enter` lo ejecuta (los comandos peligrosos siguen pidiendo confirmación). Los comandos que empiezan por espacio o parecen secretos nunca se registran; se puede borrar por host o todo desde Ajustes.
+- **Instant Replay (`Ctrl+Shift+Y`)**: Cada panel conserva en memoria sus últimos 5 minutos (máx. 8 MiB) de salida para recorrer una línea de tiempo de solo lectura y recuperar lo que borró un `clear` o un reinicio de pantalla. Nunca se escribe en disco; se descarta al bloquear la bóveda o cerrar el panel.
+- **Restauración de Sesiones**: La distribución de pestañas y paneles (solo hosts y títulos, nunca contenido ni credenciales) se guarda y se ofrece restaurar tras desbloquear la bóveda (*Preguntar* / *Siempre* / *Nunca*). Las pestañas se reconectan de forma diferida, al abrirlas por primera vez; los hosts que ya no existen se omiten.
+- **Compatibilidad de Terminal**: Anchos Unicode 11 (emoji, CJK), copia remota **OSC 52** desde `tmux`/`vim` (solo escritura, máx. 1 MiB: los programas remotos nunca pueden leer tu portapapeles), **imágenes sixel / iTerm2** en línea y **ligaduras de tipografía** opcionales. Las ligaduras requieren una fuente con ligaduras instalada en el sistema (p. ej. JetBrains Mono, Fira Code, Cascadia Code); Ajustes avisa si la fuente en uso no las tiene. Cada una se puede desactivar en Ajustes.
 - **Notificaciones de Comandos Largos**: Aviso de escritorio (o *toast* interno) cuando un comando detectado por la integración de shell termina tras un umbral configurable y no lo estás mirando. El texto del comando nunca se incluye salvo que lo actives.
 - **Hoja de Atajos (`Ctrl+Shift+/`)**: Todos los atajos agrupados por contexto, generada desde un registro único.
 
@@ -108,6 +112,9 @@ Diseñado de manera nativa sobre **Tauri v2** y **Rust**, elimina el alto consum
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd> | Quick Select (copiar elementos de la pantalla con etiquetas) | Terminal Activa |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> | Paleta de Comandos de la Terminal | Espacio de Trabajo |
 | <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd> | Historial de Pegado | Terminal Activa |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd> | Historial de Comandos por Host (`Enter` inserta, `Ctrl+Enter` ejecuta) | Terminal Activa |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> | Repetir el comando del bloque seleccionado (o del último) | Integración de Shell |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd> | Instant Replay (revisar la salida reciente tras un `clear`) | Terminal Activa |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd> | Hoja de Atajos de Teclado | Global |
 | <kbd>Escape</kbd> | Cerrar Modales y Paneles Emergentes | Global |
 

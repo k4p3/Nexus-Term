@@ -4,7 +4,7 @@
 
 ## En planificación (OpenSpec)
 - `terminal-productivity-quick-wins`: Quick Select, paleta de comandos, enlaces inteligentes, pegado seguro, notificación de comandos largos y registro de atajos.
-- `terminal-productivity-advanced`: bloques de comandos, historial por host, Instant Replay, restauración de sesiones y addons de xterm.
+- `terminal-productivity-advanced`: bloques de comandos, historial por host, Instant Replay, restauración de sesiones y addons de xterm (implementado; pendiente de verificación manual y archivo).
 - `vnc-rdp-graphical-access`: acceso a escritorios remotos RDP/VNC (en implementación).
 
 ## Ideas tentativas

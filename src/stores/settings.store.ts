@@ -29,6 +29,12 @@ const DEFAULT_SETTINGS: AppSettings = {
   notify_long_commands: true,
   notify_threshold_seconds: 10,
   notify_include_command: false,
+  history_enabled: true,
+  instant_replay: true,
+  restore_sessions: 'ask',
+  osc52_clipboard: true,
+  inline_images: true,
+  font_ligatures: false,
 };
 
 export const useSettingsStore = defineStore('settings', {

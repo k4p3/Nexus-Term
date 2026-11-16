@@ -139,6 +139,7 @@ function handleNewTab() {
         :class="tab.id === sessionsStore.activeTabId ? 'z-10 visible' : 'z-0 invisible pointer-events-none'"
       >
         <SplitPaneNode
+          v-if="!tab.pending || tab.id === sessionsStore.activeTabId"
           :node="tab.rootPane"
           :tab-id="tab.id"
           :active-pane-id="tab.activePaneId"

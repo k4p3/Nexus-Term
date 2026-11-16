@@ -16,4 +16,10 @@ export interface AppSettings {
   notify_long_commands: boolean;
   notify_threshold_seconds: number;
   notify_include_command: boolean;
+  history_enabled: boolean;
+  instant_replay: boolean;
+  restore_sessions: 'ask' | 'auto' | 'off';
+  osc52_clipboard: boolean;
+  inline_images: boolean;
+  font_ligatures: boolean;
 }

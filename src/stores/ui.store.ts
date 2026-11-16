@@ -10,7 +10,11 @@ export type TerminalActionId =
   | "splitH"
   | "splitV"
   | "closePane"
-  | "copyLastOutput";
+  | "copyLastOutput"
+  | "rerunBlock"
+  | "history"
+  | "instantReplay"
+  | "copyBlockCommand";
 
 export type PaneActions = Partial<Record<TerminalActionId, () => void>>;
 

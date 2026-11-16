@@ -87,7 +87,14 @@
     "authKey": "Llave Privada",
     "authAgent": "Agente SSH"
   },
+  "history": {
+    "snippet": "Snippet",
+    "placeholder": "Buscar en el historial del host y snippets… (Enter inserta, Ctrl+Enter ejecuta)",
+    "empty": "Aún no hay historial para este host"
+  },
   "terminal": {
+    "blockOk": "Correcto ({time}) — clic para seleccionar el bloque",
+    "blockFailed": "Falló con código {code} ({time}) — clic para seleccionar el bloque",
     "newLocal": "Terminal Local",
     "newTab": "Nueva Pestaña",
     "splitRight": "Dividir a la Derecha",
@@ -95,7 +102,9 @@
     "closePane": "Cerrar Panel",
     "reconnect": "Reconectar",
     "activeSessions": "Sesiones Activas",
-    "searchPrompt": "Buscar en la terminal..."
+    "searchPrompt": "Buscar en la terminal...",
+    "osc52Copied": "Copiado al portapapeles por el programa remoto (OSC 52)",
+    "osc52TooLarge": "Copia OSC 52 ignorada: supera 1 MiB"
   },
   "settings": {
     "title": "Configuración",
@@ -152,7 +161,33 @@
     "notifyLongDesc": "Aviso de escritorio si la ventana no está a la vista (requiere integración de shell).",
     "notifyThreshold": "Umbral (segundos)",
     "notifyIncludeCommand": "Incluir el texto del comando en la notificación",
-    "notifyIncludeCommandDesc": "Desactivado por defecto: el comando podría contener secretos."
+    "notifyIncludeCommandDesc": "Desactivado por defecto: el comando podría contener secretos.",
+    "historySection": "Historial de comandos",
+    "historyEnabled": "Registrar historial de comandos por host",
+    "historyEnabledDesc": "Se guarda cifrado en la bóveda. Los comandos que empiezan por espacio o que parecen contener secretos nunca se registran.",
+    "historyLocalShells": "Shells locales",
+    "historyClearHost": "Borrar este host",
+    "historyClearAll": "Borrar todo el historial",
+    "historyClearHostConfirm": "¿Borrar el historial de comandos del host seleccionado?",
+    "historyClearAllConfirm": "¿Borrar TODO el historial de comandos? No se puede deshacer.",
+    "historyCleared": "Historial borrado ({n} entradas)",
+    "instantReplay": "Conservar salida reciente para Instant Replay",
+    "instantReplayDesc": "Solo en memoria (últimos 5 minutos / 8 MiB por panel). Se descarta al bloquear la bóveda o cerrar el panel.",
+    "restoreSessions": "Restaurar pestañas al iniciar",
+    "restoreSessionsDesc": "Guarda solo la distribución (hosts y títulos), nunca contenido ni credenciales.",
+    "restoreAsk": "Preguntar",
+    "restoreAuto": "Siempre",
+    "restoreOff": "Nunca",
+    "osc52": "Permitir que programas remotos copien al portapapeles (OSC 52)",
+    "osc52Desc": "Para tmux/vim por SSH. Solo escritura: los programas remotos nunca pueden leer tu portapapeles. Máx. 1 MiB.",
+    "inlineImages": "Imágenes en línea (sixel / iTerm2)",
+    "inlineImagesDesc": "Caché limitada a 64 MB por terminal.",
+    "fontLigatures": "Ligaduras de tipografía",
+    "fontLigaturesDesc": "Requiere una fuente con ligaduras instalada en tu sistema (p. ej. JetBrains Mono, Fira Code). Usa el renderizador canvas en lugar de WebGL, que puede ser más lento.",
+    "fontLigaturesOk": "Se usa «{font}», que admite ligaduras.",
+    "fontLigaturesNoSupport": "La fuente en uso («{font}») no se sabe que tenga ligaduras, por lo que no se verá ningún cambio.",
+    "fontLigaturesNoFont": "No se encontró ninguna fuente instalada de tu lista de fuentes.",
+    "fontLigaturesMissing": "No instaladas: {fonts}. Instala una fuente con ligaduras (p. ej. JetBrains Mono, Fira Code, Cascadia Code), reinicia la aplicación y ponla la primera de la lista."
   },
   "snippets": {
     "title": "Snippets",
@@ -205,7 +240,10 @@
     "terminal.paste": "Pegar",
     "terminal.quickSelect": "Quick Select (copiar con etiquetas)",
     "terminal.palette": "Paleta de comandos de la terminal",
-    "terminal.pasteHistory": "Historial de pegado"
+    "terminal.pasteHistory": "Historial de pegado",
+    "terminal.history": "Historial de comandos",
+    "terminal.instantReplay": "Instant Replay (revisar salida)",
+    "terminal.rerunBlock": "Repetir el comando del bloque seleccionado"
   },
   "shortcutsModal": {
     "title": "Atajos de teclado",
@@ -235,7 +273,11 @@
       "closePane": "Cerrar panel",
       "broadcast": "Activar/desactivar Broadcast",
       "quickConnect": "Conexión rápida",
-      "shortcuts": "Ver atajos de teclado"
+      "shortcuts": "Ver atajos de teclado",
+      "history": "Historial de comandos",
+      "instantReplay": "Instant Replay",
+      "rerunBlock": "Repetir comando del bloque seleccionado/último",
+      "copyBlockCommand": "Copiar comando del bloque seleccionado/último"
     }
   },
   "paste": {
@@ -264,5 +306,23 @@
   },
   "toast": {
     "go": "Ir"
+  },
+  "replay": {
+    "title": "Instant Replay",
+    "readOnly": "solo lectura",
+    "empty": "Aún no hay salida registrada en este panel",
+    "timeline": "Línea de tiempo",
+    "now": "Ahora",
+    "secondsAgo": "hace {n}s",
+    "toEnd": "Último",
+    "window": "Ventana: {n}s",
+    "disabled": "Instant Replay está desactivado en Ajustes"
+  },
+  "restore": {
+    "title": "¿Restaurar la sesión anterior?",
+    "body": "Tu última sesión tenía {n} pestaña(s). Los hosts se reconectan al abrir cada pestaña.",
+    "startEmpty": "Empezar vacío",
+    "restore": "Restaurar ({n} pestañas)",
+    "skipped": "Se omitieron {n} panel(es) porque el host ya no existe: {names}"
   }
 }

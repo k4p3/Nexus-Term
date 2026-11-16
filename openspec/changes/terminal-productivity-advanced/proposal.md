@@ -40,6 +40,7 @@ Segunda fase de mejoras inspiradas en Warp, iTerm2, WezTerm, Termius y Tabby. Se
 | `@xterm/addon-clipboard` | 0.1.0 | MIT | Sí |
 | `@xterm/addon-image` | 0.8.0 | MIT | Sí |
 | `@xterm/addon-ligatures` | 0.9.0 | MIT | Sí |
+| `@xterm/addon-canvas` | 0.7.0 | MIT | Sí |
 
 Versiones verificadas en npm (2026-11-15) como compatibles con `@xterm/xterm ^5.5` (las series 0.9–0.14 posteriores exigen xterm 6). Se comprobará la licencia del árbol transitivo (p. ej. `font-finder` de ligatures) antes de incorporar cada paquete.
 

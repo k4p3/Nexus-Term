@@ -32,6 +32,9 @@ describe("shortcut registry", () => {
     expect(matchShortcut(ev({ key: "?", code: "Slash", ctrlKey: true, shiftKey: true }))?.id).toBe("app.shortcuts");
     expect(matchShortcut(ev({ key: "v", ctrlKey: true, altKey: true }))?.id).toBe("terminal.pasteHistory");
     expect(matchShortcut(ev({ key: "k", metaKey: true }))?.id).toBe("app.quickConnect");
+    expect(matchShortcut(ev({ key: "H", ctrlKey: true, shiftKey: true }))?.id).toBe("terminal.history");
+    expect(matchShortcut(ev({ key: "y", ctrlKey: true, shiftKey: true }))?.id).toBe("terminal.instantReplay");
+    expect(matchShortcut(ev({ key: "R", ctrlKey: true, shiftKey: true }))?.id).toBe("terminal.rerunBlock");
   });
 
   it("does not match with extra or missing modifiers", () => {
@@ -60,6 +63,8 @@ describe("shortcut registry", () => {
     expect(formatShortcut(SHORTCUTS.find((s) => s.id === "app.shortcuts")!)).toBe("Ctrl+Shift+/");
     expect(formatShortcut(SHORTCUTS.find((s) => s.id === "terminal.prevPrompt")!)).toBe("Ctrl+Shift+↑");
     expect(formatShortcut(SHORTCUTS.find((s) => s.id === "terminal.pasteHistory")!)).toBe("Ctrl+Alt+V");
+    expect(formatShortcut(SHORTCUTS.find((s) => s.id === "terminal.history")!)).toBe("Ctrl+Shift+H");
+    expect(formatShortcut(SHORTCUTS.find((s) => s.id === "terminal.history")!, "mac")).toBe("⌘⇧H");
   });
 
   it("every shortcut id is unique", () => {

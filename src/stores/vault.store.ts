@@ -1,5 +1,7 @@
 import { defineStore } from "pinia";
 import { usePasteHistoryStore } from "./paste-history.store";
+import { useHistoryStore } from "./history.store";
+import { useReplayStore } from "./replay.store";
 import { ref } from "vue";
 import { vaultService } from "../services/vault.service";
 import { inventoryService } from "../services/inventory.service";
@@ -77,6 +79,8 @@ export const useVaultStore = defineStore("vault", () => {
       isUnlocked.value = false;
       // El historial de pegado puede contener secretos: se descarta al bloquear.
       usePasteHistoryStore().clear();
+      useHistoryStore().reset();
+      useReplayStore().clearAll();
       folders.value = [];
       identities.value = [];
       hosts.value = [];

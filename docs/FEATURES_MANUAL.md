@@ -64,6 +64,11 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 - **Estado de Salida y Tiempo de Ejecución**: Muestra visualmente si el comando terminó con éxito (código `0`) o error (código `1+`), junto con el tiempo exacto transcurrido (ej. `⏱ 2.1s`).
 - **Navegación entre Prompts**: Atajo `Ctrl+Shift+↑` y `Ctrl+Shift+↓` para desplazarse instantáneamente al comando anterior o siguiente sin usar la rueda del ratón.
 - **Copiado Inteligente**: Opciones para "Copiar solo la salida" o "Copiar el comando ejecutado".
+- **Bloques de Comandos**: cada comando es un bloque basado en *markers* de xterm, por lo que sigue apuntando a las líneas correctas cuando el *scrollback* se recorta (los bloques cuyas líneas se descartan desaparecen).
+  - Indicador **✓/✗ con la duración** en el margen derecho de la línea del prompt; un clic selecciona el bloque.
+  - Con un bloque seleccionado (o el último, si no hay ninguno): **copiar comando**, **copiar salida**, **repetir comando** (`Ctrl+Shift+R`, pasa por las comprobaciones del pegado seguro) y **buscar solo dentro del bloque** (`Ctrl+F`).
+  - Si el shell no emite OSC 133, las acciones de bloque no aparecen y la terminal se comporta como siempre.
+  - Limitación: xterm.js no permite ocultar líneas, por lo que no se pueden *colapsar* salidas (ver `docs/ROADMAP.md`).
 
 ### 4.2. Biblioteca de Snippets con Parámetros Dinámicos
 - Almacena comandos recurrentes de Docker, Kubernetes, Git, bases de datos y scripts de mantenimiento.
@@ -111,6 +116,38 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 
 ---
 
+### 4.11. Historial de Comandos por Host (`Ctrl+Shift+H`)
+- Requiere la integración de shell (§4.1). Cada comando terminado se guarda **cifrado con la clave de la bóveda** (AES-256-GCM), asociado al host (o a `local` para shells locales), con su número de usos, último código de salida y fecha. Los repetidos se fusionan.
+- **Nunca se registran** comandos que empiecen por espacio, vacíos, de más de 4 KiB o que parezcan contener secretos (`password`, `token`, `secret`, `api_key`, `Authorization:`, `export …KEY=`).
+- `Ctrl+Shift+H` abre un selector difuso con el historial del host y tus snippets habilitados, ordenado por coincidencia, usos y recencia. `Enter` inserta el comando sin ejecutarlo; `Ctrl+Enter` lo ejecuta (si es peligroso o multilínea se pide confirmación, como en el pegado seguro).
+- Al borrar un host se borra su historial. En *Ajustes → Productividad de la terminal* se puede desactivar, borrar el de un host o borrar todo. Se descarta de memoria al bloquear la bóveda.
+
+### 4.12. Instant Replay (`Ctrl+Shift+Y`)
+- Cada panel guarda su salida reciente con marca de tiempo en un **búfer circular solo en memoria**: máximo **5 minutos** y **8 MiB** por panel; al superar cualquiera de los límites se descarta lo más antiguo.
+- `Ctrl+Shift+Y` abre un visor **de solo lectura** con una línea de tiempo: al mover el control se reconstruye la pantalla en ese instante, por lo que se puede ver lo que había antes de un `clear`. El visor no envía entrada a la sesión y el terminal real sigue funcionando.
+- **Privacidad**: nunca se escribe en disco. Se vacía al bloquear la bóveda, al cerrar el panel y al salir de la aplicación. Se puede desactivar en *Ajustes → Productividad de la terminal* (entonces no se retiene nada).
+- Limitación: la pantalla se reconstruye reproduciendo la salida desde el inicio del búfer, por lo que un programa de pantalla completa iniciado antes de esa ventana puede verse parcialmente.
+
+### 4.13. Restauración de Sesiones
+- La **distribución de pestañas y paneles divididos** (estructura, proporciones, títulos e identificadores de host) se guarda automáticamente, con un pequeño retardo tras cada cambio. **Nunca** se guardan credenciales, hostnames, contenido de la terminal ni comandos.
+- Tras desbloquear la bóveda, según *Ajustes → Productividad de la terminal → Restaurar pestañas al iniciar*:
+  - **Preguntar** (por defecto): un diálogo ofrece *Restaurar (N pestañas)* o *Empezar vacío*.
+  - **Siempre**: se restaura sin preguntar.
+  - **Nunca**: no se guarda ni se ofrece nada, y se borra el layout guardado.
+- **Conexión diferida**: cada pestaña restaurada conecta solo la primera vez que se activa, para no abrir muchas conexiones a la vez.
+- Los hosts que ya no existen se omiten y se avisa. Los shells locales se abren como shells nuevos (no se restaura el directorio ni el contenido). Los paneles RDP/VNC se restauran como paneles de escritorio remoto.
+- Bloquear y desbloquear la bóveda durante la misma ejecución no vuelve a preguntar.
+
+### 4.14. Compatibilidad de Terminal (Unicode, OSC 52, Imágenes y Ligaduras)
+Se configuran en *Ajustes → Productividad de la terminal*.
+- **Unicode 11**: los emoji y caracteres anchos (CJK) ocupan dos celdas y el cursor y el ajuste de línea los tienen en cuenta. Siempre activo.
+- **Portapapeles OSC 52** (activo por defecto): un programa remoto como `tmux` o `vim` puede **copiar** al portapapeles local (hasta 1 MiB; se muestra un aviso). Es **solo escritura**: las peticiones de lectura se ignoran, por lo que un programa remoto nunca puede leer tu portapapeles.
+- **Imágenes en línea** (activo por defecto): se dibujan imágenes *sixel* y *iTerm2* en la posición del cursor. La caché está limitada a 64 MB por terminal; al superarla se descartan las más antiguas.
+- **Ligaduras de tipografía** (desactivadas por defecto): `=>`, `===`, `<=`… se dibujan como ligaduras.
+  - **Requiere una fuente con ligaduras instalada en el sistema** (JetBrains Mono, Fira Code, Cascadia Code, Iosevka…) y que sea la primera instalada de la lista de fuentes. La ligadura la dibuja la fuente: sin ella la opción no cambia nada. Ajustes muestra un ✓ si la fuente en uso las admite, o un ⚠ con las fuentes que faltan.
+  - Se necesita el renderizador *canvas* en lugar de WebGL (el renderizador DOM no sirve porque su espaciado de letras desactiva las ligaduras), por lo que puede ser algo más lento. Al desactivar la opción se vuelve a WebGL.
+  - Algunas ligaduras son sutiles según la fuente (p. ej. `->` o `!=` pueden verse igual); prueba con `===`, `=>` o `<->`.
+
 ## 5. Personalización, Temas de Color e Internacionalización
 
 - **Internacionalización (i18n)**: Interfaz disponible en **Inglés** y **Español** con detección automática del sistema. Posibilidad de importar archivos `.json` de traducción comunitarios.
@@ -139,5 +176,8 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 | `Ctrl + Shift + Space` | Quick Select (copiar/pegar con etiquetas) | Terminal Activa |
 | `Ctrl + Shift + P` | Paleta de Comandos de la Terminal | Espacio de Trabajo |
 | `Ctrl + Alt + V` | Historial de Pegado | Terminal Activa |
+| `Ctrl + Shift + H` | Historial de Comandos por Host (`Enter` inserta, `Ctrl+Enter` ejecuta) | Terminal Activa |
+| `Ctrl + Shift + R` | Repetir el comando del bloque seleccionado (o del último) | Integración de Shell |
+| `Ctrl + Shift + Y` | Instant Replay (revisar la salida reciente) | Terminal Activa |
 | `Ctrl + Shift + /` | Hoja de Atajos de Teclado | Global |
 | `Escape` | Cerrar Modales y Paneles Flotantes | Global |

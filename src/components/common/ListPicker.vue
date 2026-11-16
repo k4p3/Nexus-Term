@@ -14,8 +14,10 @@ const props = defineProps<{
   items: PickerItem[];
   placeholder: string;
   emptyText: string;
+  /** Ordenación propia (p. ej. por uso y recencia); por defecto, difusa por título. */
+  ranker?: (items: PickerItem[], query: string) => PickerItem[];
 }>();
-const emit = defineEmits<{ (e: "select", id: string): void; (e: "close"): void }>();
+const emit = defineEmits<{ (e: "select", id: string, withCtrl: boolean): void; (e: "close"): void }>();
 
 const query = ref("");
 const index = ref(0);
@@ -23,7 +25,10 @@ const input = ref<HTMLInputElement | null>(null);
 const list = ref<HTMLDivElement | null>(null);
 
 const filtered = computed(() =>
-  fuzzyFilter(props.items, query.value, (i) => `${i.title} ${i.subtitle ?? ""}`).filter((i) => !i.disabled),
+  (props.ranker
+    ? props.ranker(props.items, query.value)
+    : fuzzyFilter(props.items, query.value, (i) => `${i.title} ${i.subtitle ?? ""}`)
+  ).filter((i) => !i.disabled),
 );
 
 watch(query, () => (index.value = 0));
@@ -44,7 +49,7 @@ function onKey(e: KeyboardEvent) {
   } else if (e.key === "Enter") {
     e.preventDefault();
     const item = filtered.value[index.value];
-    if (item) emit("select", item.id);
+    if (item) emit("select", item.id, e.ctrlKey || e.metaKey);
   } else if (e.key === "Escape") {
     e.preventDefault();
     e.stopPropagation();
@@ -75,7 +80,7 @@ onMounted(() => input.value?.focus());
           class="w-full flex items-center justify-between px-4 py-2 text-left text-sm transition-colors cursor-pointer"
           :class="i === index ? 'bg-theme-active text-theme-main' : 'text-theme-muted hover:bg-theme-hover'"
           @mousemove="index = i"
-          @click="emit('select', item.id)"
+          @click="emit('select', item.id, false)"
         >
           <span class="min-w-0">
             <span class="block truncate">{{ item.title }}</span>

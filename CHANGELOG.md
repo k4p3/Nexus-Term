@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Command blocks** based on xterm markers (OSC 133): ✓/✗ + duration in the margin, block selection, copy command/output, search within a block and re-run (`Ctrl+Shift+R`). Blocks stay correct when the scrollback is trimmed (the previous model used absolute line numbers).
+- **Per-host command history** (`Ctrl+Shift+H`): stored encrypted with the vault key (AES-256-GCM), fuzzy picker with snippets, `Enter` inserts / `Ctrl+Enter` runs. Commands with a leading space or secret-looking text are never recorded; management from Settings.
+- **Instant Replay** (`Ctrl+Shift+Y`): in-memory circular buffer (5 min / 8 MiB per pane) with a read-only timeline viewer; never written to disk and wiped on vault lock.
+- **Session restore**: layout of tabs and panes saved (no credentials or contents) and restored after unlocking the vault (*Ask* / *Always* / *Never*), with lazy per-tab connection.
+- **Terminal compatibility** via `@xterm/addon-unicode11`, `addon-clipboard` (OSC 52, write-only, 1 MiB), `addon-image` (sixel / iTerm2) and `addon-ligatures` + `addon-canvas` (optional font ligatures; a Settings notice checks that the font in use has them). All MIT-licensed.
+- New settings: `history_enabled`, `instant_replay`, `restore_sessions`, `osc52_clipboard`, `inline_images`, `font_ligatures`; new tables `command_history` and `session_layout`.
 - **Terminal Quick Select** (`Ctrl+Shift+Space`): keyboard hints for URLs, paths, git hashes, IPs, UUIDs and e-mails; lowercase copies, uppercase pastes.
 - **Terminal Command Palette** (`Ctrl+Shift+P`): fuzzy search over terminal actions, themes and snippets, with shortcuts shown.
 - **Safe Paste**: confirmation with preview for multi-line text, dangerous commands and hidden control characters; in-memory **Paste History** (`Ctrl+Alt+V`) wiped on vault lock.

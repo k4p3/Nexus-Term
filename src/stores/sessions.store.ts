@@ -1,8 +1,9 @@
 import { defineStore } from "pinia";
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import type { HostSummary } from "../types/inventory";
 import type { SessionTab, PaneNode, LeafPane, SplitDirection } from "../types/session";
 import { sessionService } from "../services/session.service";
+import { buildRestoredTabs, type SessionLayout } from "../utils/session-layout";
 
 function generateId(): string {
   return "pane-" + Math.random().toString(36).substring(2, 9);
@@ -13,6 +14,27 @@ export const useSessionsStore = defineStore("sessions", () => {
   const activeTabId = ref<string | null>(null);
   const isBroadcastMode = ref(false);
   const paneSessionMap = ref<Record<string, string>>({});
+
+  // Una pestaña restaurada conecta solo al activarse por primera vez (conexión diferida).
+  watch(
+    activeTabId,
+    (id) => {
+      const tab = tabs.value.find((t) => t.id === id);
+      if (tab?.pending) tab.pending = false;
+    },
+    { flush: "sync" },
+  );
+
+  /** Reconstruye las pestañas de un layout guardado. Devuelve cuántas se restauraron y los paneles omitidos. */
+  function restoreLayout(layout: SessionLayout, hosts: HostSummary[]): { restored: number; skipped: string[] } {
+    const r = buildRestoredTabs(layout, hosts, (prefix) =>
+      prefix === "tab" ? "tab-" + Math.random().toString(36).substring(2, 9) : generateId(),
+    );
+    if (r.tabs.length === 0) return { restored: 0, skipped: r.skipped };
+    tabs.value.push(...r.tabs);
+    activeTabId.value = r.activeTabId; // al activarla se limpia su estado pendiente
+    return { restored: r.tabs.length, skipped: r.skipped };
+  }
 
   function registerPaneSession(paneId: string, sessionId: string) {
     paneSessionMap.value[paneId] = sessionId;
@@ -240,6 +262,7 @@ export const useSessionsStore = defineStore("sessions", () => {
     getLeafPanesInTab,
     broadcastData,
     createTab,
+    restoreLayout,
     closeTab,
     splitPane,
     dockTabIntoPane,
