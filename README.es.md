@@ -66,6 +66,29 @@ Diseñado de manera nativa sobre **Tauri v2** y **Rust**, elimina el alto consum
 - **Notificaciones de Comandos Largos**: Aviso de escritorio (o *toast* interno) cuando un comando detectado por la integración de shell termina tras un umbral configurable y no lo estás mirando. El texto del comando nunca se incluye salvo que lo actives.
 - **Hoja de Atajos (`Ctrl+Shift+/`)**: Todos los atajos agrupados por contexto, generada desde un registro único.
 
+### 📁 Gestor SFTP y Cola de Transferencias
+- **Explorador de Archivos Remoto Integrado**: Navega, crea, renombra y elimina archivos remotos directamente desde la barra lateral junto a tu terminal sin necesidad de abrir clientes externos como FileZilla.
+- **Cola de Transferencias Concurrente**: Sube y descarga archivos en segundo plano con barras de progreso en tiempo real, métricas de velocidad, cancelación/pausa y reintentos automáticos.
+- **Enlace Terminal a SFTP**: Haz clic en rutas de archivos detectadas en la terminal (`/var/log/nginx/error.log`) para saltar de inmediato al archivo en el explorador SFTP.
+
+### 🌐 Túneles SSH y Jump Hosts (Bastiones)
+- **Gestor Visual de Port Forwarding**: Configura y supervisa túneles Local (`-L`), Remoto (`-R`) y Dinámico SOCKS5 (`-D`) con indicadores visuales de estado activo/inactivo.
+- **Encadenamiento Transparente de Bastiones**: Salta a través de múltiples servidores intermedios (`A -> B -> Destino`) usando multiplexación nativa `direct-tcpip` en Rust sin depender de binarios OpenSSH externos ni scripts complejos de `ProxyJump`.
+
+### 🖱️ Escritorios Remotos Gráficos (RDP y VNC)
+- **Pestañas y Paneles Divididos Gráficos**: Conéctate a escritorios Windows mediante **RDP** (autenticación a nivel de red NLA y cifrado TLS) y a escritorios Linux/macOS mediante **VNC** integrados en pestañas y paneles divididos junto a tus terminales.
+- **Criptografía TOFU (Trust-On-First-Use)**: Comprobación de huella digital SHA-256 de certificados TLS para alertarte antes de transmitir credenciales a servidores desconocidos.
+- **Controles de Escritorio**: Barra de herramientas con modo pantalla completa, captura de ratón/teclado y envío de secuencias como `Ctrl+Alt+Supr`.
+
+### 📊 Telemetría de Servidores en Tiempo Real
+- **Monitor de Recursos Sin Agentes**: Consulta periódica de `/proc/stat`, `/proc/meminfo`, `df` y `/proc/net/dev` sobre la conexión SSH activa sin instalar servicios ni agentes en el servidor remoto.
+- **Barra de Telemetría Discreta**: Muestra en tiempo real la carga de CPU, uso de memoria RAM, porcentaje de disco raíz y ancho de banda de red en el borde inferior del panel activo.
+
+### 🧰 Integración Nativa y Migración Rápida
+- **Bandeja del Sistema (System Tray)**: Soporte nativo para StatusNotifierItem (KDE Plasma/Linux), bandeja de Windows y barra de menús de macOS. El modo "Cerrar a la bandeja" mantiene vivos tus túneles y transferencias SFTP en segundo plano.
+- **Importador de OpenSSH en 1 Clic**: Importa automáticamente tus servidores, credenciales, alias e identidades desde `~/.ssh/config` y `~/.ssh/known_hosts`.
+- **Ligera y con Carga Bajo Demanda (Lazy Loading)**: Binario de producción inferior a 20 MB gracias a optimizaciones LTO y stripping en Rust; módulos pesados (SFTP, RDP/VNC, túneles, snippets, ajustes) se cargan bajo demanda con `defineAsyncComponent` para minimizar la memoria RAM al arranque.
+
 ### 🎨 Tematización Unificada de toda la Aplicación
 - **Sincronización Total de Color**: Cambiar de tema actualiza tanto la terminal `xterm.js` como la interfaz completa de la ventana (barra superior, panel de servidores, pestañas, modales y bordes de división).
 - **Temas Predefinidos**: *Tokyo Night*, *One Dark*, *Dracula*, *Catppuccin Macchiato*, *Nord* y *KDE Breeze Dark*, además de derivación algorítmica para esquemas de color JSON importados.

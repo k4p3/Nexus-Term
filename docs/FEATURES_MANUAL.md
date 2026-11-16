@@ -13,7 +13,13 @@ Este documento sirve como manual vivo para desarrolladores y usuarios finales, d
 3. [Emulador de Terminal y Multiplexación](#3-emulador-de-terminal-y-multiplexación)
 4. [Herramientas de Terminal Avanzada (Power Tools)](#4-herramientas-de-terminal-avanzada-power-tools)
 5. [Personalización, Temas de Color e Internacionalización](#5-personalización-temas-de-color-e-internacionalización)
-6. [Tabla de Atajos de Teclado (Cheat Sheet)](#6-tabla-de-atajos-de-teclado-cheat-sheet)
+6. [Explorador SFTP y Cola de Transferencias](#6-explorador-sftp-y-cola-de-transferencias)
+7. [Túneles SSH (Port Forwarding) y Jump Hosts](#7-túneles-ssh-port-forwarding-y-jump-hosts)
+8. [Acceso Gráfico Remoto (VNC y RDP)](#8-acceso-gráfico-remoto-vnc-y-rdp)
+9. [Telemetría en Vivo de Servidores](#9-telemetría-en-vivo-de-servidores)
+10. [Integración con el Sistema Operativo y Migración](#10-integración-con-el-sistema-operativo-y-migración)
+11. [Tabla de Atajos de Teclado (Cheat Sheet)](#11-tabla-de-atajos-de-teclado-cheat-sheet)
+
 
 ---
 
@@ -157,7 +163,53 @@ Se configuran en *Ajustes → Productividad de la terminal*.
 
 ---
 
-## 6. Tabla de Atajos de Teclado (Cheat Sheet)
+## 6. Explorador SFTP y Cola de Transferencias
+
+NexusTerm multiplexa un canal SFTP sobre la misma conexión SSH autenticada de la sesión:
+- **Explorador Integrado**: Navegación de directorios remotos, creación de carpetas, renombrado y borrado de archivos desde el panel lateral.
+- **Cola de Transferencias Concurrente**: Subidas y descargas en segundo plano con indicadores de porcentaje, velocidad de transferencia, pausa, cancelación y reintentos automáticos ante cortes intermitentes.
+- **Conexión Automática**: Al hacer clic en el botón SFTP de la cabecera, si hay una terminal activa conectada a un host remoto, el explorador se vincula automáticamente a dicho host sin pedir credenciales adicionales.
+
+---
+
+## 7. Túneles SSH (Port Forwarding) y Jump Hosts
+
+- **Gestor Visual de Túneles**: Configuración sencilla de túneles:
+  - **Local (`-L`)**: Redirige un puerto de tu equipo local hacia un servicio interno del servidor remoto (ej. base de datos PostgreSQL en `localhost:5432`).
+  - **Remoto (`-R`)**: Expone un puerto de tu máquina local en el servidor remoto.
+  - **Dinámico SOCKS5 (`-D`)**: Convierte la conexión SSH en un proxy SOCKS5 completo para navegar de forma segura a través del servidor remoto.
+- **Encadenamiento de Bastiones (Jump Hosts)**: Asigna un servidor de salto intermedio en la configuración del host. NexusTerm encadena los canales mediante `direct-tcpip` en Rust de forma completamente transparente.
+
+---
+
+## 8. Acceso Gráfico Remoto (VNC y RDP)
+
+- **Escritorios Remotos en Pestañas y Split Panes**: Accede a servidores gráficos directamente en NexusTerm:
+  - **RDP (Remote Desktop Protocol)**: Compatible con Windows Server y escritorios modernos mediante autenticación NLA (CredSSP) y cifrado TLS.
+  - **VNC (Virtual Network Computing)**: Compatible con x11vnc, TigerVNC y entornos gráficos Linux.
+- **Seguridad Criptográfica TOFU**: Validación de huellas digitales SHA-256 de certificados TLS para alertarte ante cambios sospechosos en el servidor remoto.
+- **Barra de Herramientas de Escritorio**: Modos de captura de ratón/teclado, sincronización de portapapeles y botón para emitir la secuencia `Ctrl+Alt+Supr`.
+
+---
+
+## 9. Telemetría en Vivo de Servidores
+
+- **Monitoreo No Invasivo**: Consulta periódica mediante `exec` de bajo impacto leyendo `/proc/stat`, `/proc/meminfo`, `df` y `/proc/net/dev`.
+- **Cero Agentes**: No requiere instalar daemons ni software adicional en las máquinas remotas.
+- **Barra Inferior de Telemetría**: Indicadores en tiempo real de uso de CPU (con barras porcentuales), consumo de memoria RAM, uso de disco raíz (`/`) y tráfico de red entrante/saliente.
+
+---
+
+## 10. Integración con el Sistema Operativo y Migración
+
+- **Bandeja del Sistema (System Tray)**: Integración nativa con StatusNotifierItem (KDE/Linux), bandeja de Windows y menú superior de macOS.
+- **Modo Cerrar a la Bandeja (`close_to_tray`)**: Oculta la ventana sin destruir el proceso, manteniendo vivas las conexiones SSH, túneles de puertos y transferencias de archivos.
+- **Importador de `~/.ssh/config` y `known_hosts`**: Importa con 1 solo clic todos tus servidores, puertos, llaves privadas y aliases existentes en tu sistema operativo.
+- **Rendimiento y Carga Perezosa (Lazy Loading)**: Ejecutable compilado con LTO (<20 MB) y carga asíncrona mediante `defineAsyncComponent` para garantizar una huella mínima de memoria RAM.
+
+---
+
+## 11. Tabla de Atajos de Teclado (Cheat Sheet)
 
 | Atajo | Acción | Contexto |
 | :--- | :--- | :--- |
