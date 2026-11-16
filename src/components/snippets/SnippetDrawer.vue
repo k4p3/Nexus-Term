@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useSnippetsStore } from '../../stores/snippets.store';
+import { useSnippetsStore, type SnippetOriginFilter } from '../../stores/snippets.store';
 import type { CommandSnippet, SaveSnippetPayload } from '../../types/snippets';
 import SnippetModal from './SnippetModal.vue';
 import SnippetParamModal from './SnippetParamModal.vue';
@@ -15,7 +15,11 @@ import {
   Trash2,
   Tag,
   Copy,
+  CopyPlus,
   Check,
+  Globe,
+  User,
+  Power,
 } from 'lucide-vue-next';
 
 const props = defineProps<{
@@ -53,9 +57,23 @@ function handleEdit(item: CommandSnippet) {
 }
 
 async function handleDelete(item: CommandSnippet) {
-  if (confirm(`¿Eliminar el snippet "${item.title}"?`)) {
-    await snippetsStore.deleteSnippet(item.id);
+  if (item.is_builtin) {
+    if (confirm(`¿Deseas deshabilitar el snippet comunitario "${item.title}"? Podrás reactivarlo cuando quieras.`)) {
+      await snippetsStore.toggleSnippetEnabled(item.id, false);
+    }
+  } else {
+    if (confirm(`¿Eliminar permanentemente el snippet "${item.title}"?`)) {
+      await snippetsStore.deleteSnippet(item.id);
+    }
   }
+}
+
+async function handleToggleEnabled(item: CommandSnippet, enabled: boolean) {
+  await snippetsStore.toggleSnippetEnabled(item.id, enabled);
+}
+
+async function handleDuplicate(item: CommandSnippet) {
+  await snippetsStore.duplicateSnippet(item);
 }
 
 async function handleSave(payload: SaveSnippetPayload) {
@@ -63,6 +81,7 @@ async function handleSave(payload: SaveSnippetPayload) {
 }
 
 function handleInsertSnippet(item: CommandSnippet) {
+  if (!item.is_enabled) return;
   const params = snippetsStore.extractParameters(item.command_template);
   if (params.length > 0) {
     snippetForParam.value = item;
@@ -99,7 +118,7 @@ function handleCopy(item: CommandSnippet) {
     <!-- Drawer Panel (Right slide-in) -->
     <aside
       :class="[
-        'fixed top-0 right-0 z-40 h-full w-80 sm:w-96 bg-theme-surface border-l border-theme shadow-2xl flex flex-col transition-transform duration-200 ease-in-out text-theme-main',
+        'fixed top-0 right-0 z-40 h-full w-84 sm:w-[420px] bg-theme-surface border-l border-theme shadow-2xl flex flex-col transition-transform duration-200 ease-in-out text-theme-main',
         isOpen ? 'translate-x-0' : 'translate-x-full',
       ]"
     >
@@ -109,19 +128,20 @@ function handleCopy(item: CommandSnippet) {
           <div class="p-1.5 bg-theme-app text-theme-accent rounded-lg border border-theme">
             <Code class="w-4 h-4" />
           </div>
-          <h2 class="text-sm font-semibold text-theme-main">Snippets</h2>
-          <span class="text-[10px] px-1.5 py-0.2 rounded bg-theme-app text-theme-muted font-mono border border-theme">
-            {{ snippetsStore.snippets.length }}
-          </span>
+          <div>
+            <h2 class="text-sm font-semibold text-theme-main leading-tight">Biblioteca de Snippets</h2>
+            <p class="text-[10px] text-theme-muted">Comunitarios y personalizados</p>
+          </div>
         </div>
 
-        <div class="flex items-center gap-1">
+        <div class="flex items-center gap-1.5">
           <button
             @click="handleOpenNew"
-            class="p-1.5 text-slate-950 font-bold bg-theme-accent hover:brightness-110 rounded-lg transition-colors cursor-pointer"
+            class="px-2 py-1 text-xs font-semibold text-slate-950 bg-theme-accent hover:brightness-110 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
             title="Nuevo Snippet"
           >
-            <Plus class="w-4 h-4" />
+            <Plus class="w-3.5 h-3.5" />
+            <span>Crear</span>
           </button>
           <button
             @click="emit('close')"
@@ -132,16 +152,82 @@ function handleCopy(item: CommandSnippet) {
         </div>
       </div>
 
-      <!-- Search Input -->
-      <div class="p-3 border-b border-theme bg-theme-app/30 shrink-0">
+      <!-- Filters & Tabs -->
+      <div class="px-3 pt-3 pb-2 border-b border-theme bg-theme-app/30 shrink-0 space-y-2.5">
+        <!-- Origin Tabs -->
+        <div class="flex p-0.5 bg-theme-app rounded-lg border border-theme text-xs font-medium">
+          <button
+            @click="snippetsStore.originFilter = 'all'"
+            :class="[
+              'flex-1 py-1 px-2 rounded-md transition-all text-center flex items-center justify-center gap-1 cursor-pointer',
+              snippetsStore.originFilter === 'all'
+                ? 'bg-theme-surface text-theme-accent shadow-xs'
+                : 'text-theme-muted hover:text-theme-main',
+            ]"
+          >
+            <span>Todos</span>
+            <span class="text-[10px] px-1 py-0.2 rounded-full bg-theme-active opacity-80">
+              {{ snippetsStore.snippets.length }}
+            </span>
+          </button>
+
+          <button
+            @click="snippetsStore.originFilter = 'community'"
+            :class="[
+              'flex-1 py-1 px-2 rounded-md transition-all text-center flex items-center justify-center gap-1 cursor-pointer',
+              snippetsStore.originFilter === 'community'
+                ? 'bg-theme-surface text-theme-accent shadow-xs'
+                : 'text-theme-muted hover:text-theme-main',
+            ]"
+          >
+            <Globe class="w-3 h-3 text-cyan-400" />
+            <span>Comunidad</span>
+            <span class="text-[10px] px-1 py-0.2 rounded-full bg-theme-active opacity-80">
+              {{ snippetsStore.communitySnippets.length }}
+            </span>
+          </button>
+
+          <button
+            @click="snippetsStore.originFilter = 'custom'"
+            :class="[
+              'flex-1 py-1 px-2 rounded-md transition-all text-center flex items-center justify-center gap-1 cursor-pointer',
+              snippetsStore.originFilter === 'custom'
+                ? 'bg-theme-surface text-theme-accent shadow-xs'
+                : 'text-theme-muted hover:text-theme-main',
+            ]"
+          >
+            <User class="w-3 h-3 text-purple-400" />
+            <span>Mis Snippets</span>
+            <span class="text-[10px] px-1 py-0.2 rounded-full bg-theme-active opacity-80">
+              {{ snippetsStore.customSnippets.length }}
+            </span>
+          </button>
+        </div>
+
+        <!-- Search Input -->
         <div class="relative">
           <Search class="w-3.5 h-3.5 text-theme-muted absolute left-2.5 top-2.5" />
           <input
             v-model="snippetsStore.searchQuery"
             type="text"
-            placeholder="Buscar por comando, título o tag..."
+            placeholder="Buscar por comando, título o etiqueta..."
             class="w-full pl-8 pr-3 py-1.5 bg-theme-app border border-theme rounded-lg text-xs text-theme-main placeholder-slate-500 focus:outline-hidden focus:border-theme-accent"
           />
+        </div>
+
+        <!-- Show Disabled Checkbox -->
+        <div class="flex items-center justify-between text-[11px] text-theme-muted px-0.5">
+          <label class="flex items-center gap-1.5 cursor-pointer hover:text-theme-main select-none">
+            <input
+              type="checkbox"
+              v-model="snippetsStore.showDisabled"
+              class="rounded border-theme bg-theme-app text-theme-accent focus:ring-0 cursor-pointer w-3.5 h-3.5"
+            />
+            <span>Mostrar snippets deshabilitados</span>
+          </label>
+          <span class="text-[10px] opacity-75">
+            {{ snippetsStore.filteredSnippets.length }} visibles
+          </span>
         </div>
       </div>
 
@@ -152,49 +238,111 @@ function handleCopy(item: CommandSnippet) {
           class="h-48 flex flex-col items-center justify-center text-center p-4"
         >
           <Code class="w-8 h-8 text-neutral-600 mb-2" />
-          <p class="text-xs text-neutral-400">No hay snippets guardados.</p>
+          <p class="text-xs text-neutral-400">No se encontraron snippets con el filtro seleccionado.</p>
           <button
             @click="handleOpenNew"
-            class="mt-3 px-3 py-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs rounded-lg transition-colors"
+            class="mt-3 px-3 py-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs rounded-lg transition-colors cursor-pointer"
           >
-            + Crear primer snippet
+            + Crear nuevo snippet
           </button>
         </div>
 
         <div
           v-for="item in snippetsStore.filteredSnippets"
           :key="item.id"
-          class="group p-3 bg-neutral-950/70 border border-neutral-800 hover:border-neutral-700 rounded-xl transition-all space-y-2"
+          :class="[
+            'group p-3 bg-neutral-950/70 border rounded-xl transition-all space-y-2 relative',
+            item.is_enabled
+              ? 'border-neutral-800 hover:border-neutral-700'
+              : 'border-neutral-800/40 opacity-60 bg-neutral-950/40',
+          ]"
         >
+          <!-- Top Row: Badge, Title & Actions -->
           <div class="flex items-start justify-between gap-2">
-            <div>
-              <h4 class="text-xs font-semibold text-neutral-200 truncate">{{ item.title }}</h4>
-              <p v-if="item.description" class="text-[11px] text-neutral-400 line-clamp-1 mt-0.5">
+            <div class="space-y-0.5 min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <!-- Origin Badge -->
+                <span
+                  v-if="item.is_builtin"
+                  class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-cyan-950/80 text-cyan-300 border border-cyan-800/60"
+                  title="Snippet estándar de la comunidad"
+                >
+                  <Globe class="w-2.5 h-2.5" />
+                  Comunidad
+                </span>
+                <span
+                  v-else
+                  class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-purple-950/80 text-purple-300 border border-purple-800/60"
+                >
+                  <User class="w-2.5 h-2.5" />
+                  Personal
+                </span>
+
+                <span
+                  v-if="!item.is_enabled"
+                  class="px-1.5 py-0.2 rounded text-[9px] font-medium bg-neutral-800 text-neutral-400"
+                >
+                  Deshabilitado
+                </span>
+
+                <h4 class="text-xs font-semibold text-neutral-200 truncate">{{ item.title }}</h4>
+              </div>
+
+              <p v-if="item.description" class="text-[11px] text-neutral-400 line-clamp-1">
                 {{ item.description }}
               </p>
             </div>
 
             <!-- Action buttons -->
-            <div class="flex items-center gap-1 opacity-80 group-hover:opacity-100 transition-opacity">
+            <div class="flex items-center gap-1 shrink-0">
+              <!-- Enable / Disable Switch -->
+              <button
+                @click="handleToggleEnabled(item, !item.is_enabled)"
+                :class="[
+                  'p-1 rounded transition-colors cursor-pointer',
+                  item.is_enabled
+                    ? 'text-emerald-400 hover:bg-emerald-950/40'
+                    : 'text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800',
+                ]"
+                :title="item.is_enabled ? 'Deshabilitar snippet' : 'Habilitar snippet'"
+              >
+                <Power class="w-3.5 h-3.5" />
+              </button>
+
+              <!-- Duplicate Button -->
+              <button
+                @click="handleDuplicate(item)"
+                class="p-1 text-neutral-400 hover:text-cyan-300 rounded hover:bg-neutral-800 transition-colors cursor-pointer"
+                title="Duplicar como snippet personal"
+              >
+                <CopyPlus class="w-3.5 h-3.5" />
+              </button>
+
+              <!-- Copy Command -->
               <button
                 @click="handleCopy(item)"
-                class="p-1 text-neutral-400 hover:text-white rounded hover:bg-neutral-800 transition-colors"
+                class="p-1 text-neutral-400 hover:text-white rounded hover:bg-neutral-800 transition-colors cursor-pointer"
                 :title="copiedSnippetId === item.id ? '¡Copiado!' : 'Copiar comando'"
               >
                 <Check v-if="copiedSnippetId === item.id" class="w-3.5 h-3.5 text-emerald-400" />
                 <Copy v-else class="w-3.5 h-3.5" />
               </button>
+
+              <!-- Edit (only for custom or allows editing) -->
               <button
+                v-if="!item.is_builtin"
                 @click="handleEdit(item)"
-                class="p-1 text-neutral-400 hover:text-white rounded hover:bg-neutral-800 transition-colors"
+                class="p-1 text-neutral-400 hover:text-white rounded hover:bg-neutral-800 transition-colors cursor-pointer"
                 title="Editar"
               >
                 <Edit2 class="w-3.5 h-3.5" />
               </button>
+
+              <!-- Delete / Disable -->
               <button
                 @click="handleDelete(item)"
-                class="p-1 text-neutral-400 hover:text-rose-400 rounded hover:bg-neutral-800 transition-colors"
-                title="Eliminar"
+                class="p-1 text-neutral-400 hover:text-rose-400 rounded hover:bg-neutral-800 transition-colors cursor-pointer"
+                :title="item.is_builtin ? 'Deshabilitar snippet comunitario' : 'Eliminar snippet personal'"
               >
                 <Trash2 class="w-3.5 h-3.5" />
               </button>
@@ -204,10 +352,19 @@ function handleCopy(item: CommandSnippet) {
           <!-- Code Box -->
           <div
             @click="handleInsertSnippet(item)"
-            class="p-2 bg-neutral-900 border border-neutral-800/80 rounded-lg font-mono text-[11px] text-cyan-300 break-all cursor-pointer hover:border-cyan-500/50 hover:bg-neutral-900/90 transition-all flex items-center justify-between gap-2 group/code"
+            :class="[
+              'p-2 bg-neutral-900 border rounded-lg font-mono text-[11px] break-all flex items-center justify-between gap-2 transition-all',
+              item.is_enabled
+                ? 'text-cyan-300 border-neutral-800/80 cursor-pointer hover:border-cyan-500/50 hover:bg-neutral-900/90 group/code'
+                : 'text-neutral-500 border-neutral-800/40 cursor-not-allowed opacity-75',
+            ]"
+            :title="item.is_enabled ? 'Hacer clic para insertar en la terminal' : 'Snippet deshabilitado (actívalo para usarlo)'"
           >
             <span class="truncate">{{ item.command_template }}</span>
-            <div class="p-1 rounded bg-neutral-800 group-hover/code:bg-cyan-500 group-hover/code:text-slate-950 text-neutral-400 shrink-0 transition-colors">
+            <div
+              v-if="item.is_enabled"
+              class="p-1 rounded bg-neutral-800 group-hover/code:bg-cyan-500 group-hover/code:text-slate-950 text-neutral-400 shrink-0 transition-colors"
+            >
               <Play class="w-3 h-3 fill-current" />
             </div>
           </div>

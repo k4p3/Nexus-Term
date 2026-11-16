@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+- **Default Community Snippets**: Built-in curated catalog of 15 essential sysadmin/DevOps snippets (Docker, Systemd, Network, Storage & Kernel diagnostics).
+- **Snippet State Management**: Toggle snippets enabled/disabled individually without deleting them from the database.
+- **Origin Filtering & Cloning**: Filter snippets by "All", "Community", or "Custom" in the drawer, and 1-click duplicate built-in snippets to customize them.
+- **Branding**: Official GitHub Social Preview card (1280x640) added to `public/social-preview.png`.
+
+---
+
 ## [0.1.0-beta] - 2026-11-15
 
 Initial public Beta release of **NexusTerm**, a modern, lightweight, and open-source SSH & SFTP manager and terminal multiplexer built with **Tauri v2 (Rust)**, **Vue 3**, **TypeScript**, and **xterm.js**.

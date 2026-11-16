@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { useSnippetsStore } from './snippets.store';
+import type { CommandSnippet } from '../types/snippets';
 
-describe('snippets store parameter engine', () => {
+describe('snippets store parameter engine and state management', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
   });
@@ -44,5 +45,67 @@ describe('snippets store parameter engine', () => {
     });
 
     expect(result).toBe('git commit -m "feat: add feature" --author="{{author}}"');
+  });
+
+  it('should filter snippets by origin and enabled state', () => {
+    const store = useSnippetsStore();
+    const mockSnippets: CommandSnippet[] = [
+      {
+        id: 'builtin-1',
+        title: 'Docker Logs',
+        command_template: 'docker logs',
+        description: 'Logs',
+        tags: ['docker'],
+        is_builtin: true,
+        is_enabled: true,
+        created_at: '2026-11-15T00:00:00Z',
+        updated_at: '2026-11-15T00:00:00Z',
+      },
+      {
+        id: 'builtin-2',
+        title: 'Systemctl Status',
+        command_template: 'systemctl status',
+        description: 'Status',
+        tags: ['system'],
+        is_builtin: true,
+        is_enabled: false,
+        created_at: '2026-11-15T00:00:00Z',
+        updated_at: '2026-11-15T00:00:00Z',
+      },
+      {
+        id: 'custom-1',
+        title: 'My Custom Script',
+        command_template: './run.sh',
+        description: null,
+        tags: ['custom'],
+        is_builtin: false,
+        is_enabled: true,
+        created_at: '2026-11-15T00:00:00Z',
+        updated_at: '2026-11-15T00:00:00Z',
+      },
+    ];
+
+    store.snippets = mockSnippets;
+
+    // 1. By default, disabled snippets are hidden
+    expect(store.filteredSnippets.length).toBe(2);
+    expect(store.filteredSnippets.map((s) => s.id)).toEqual(['builtin-1', 'custom-1']);
+
+    // 2. When showDisabled is enabled, all 3 are returned
+    store.showDisabled = true;
+    expect(store.filteredSnippets.length).toBe(3);
+
+    // 3. Filter by community origin
+    store.originFilter = 'community';
+    expect(store.filteredSnippets.map((s) => s.id)).toEqual(['builtin-1', 'builtin-2']);
+
+    // 4. Filter by custom origin
+    store.originFilter = 'custom';
+    expect(store.filteredSnippets.map((s) => s.id)).toEqual(['custom-1']);
+
+    // 5. Computed lists
+    expect(store.communitySnippets.length).toBe(2);
+    expect(store.customSnippets.length).toBe(1);
+    expect(store.enabledSnippets.length).toBe(2);
   });
 });

@@ -127,6 +127,8 @@ impl VaultManager {
                 command_template TEXT NOT NULL,
                 description TEXT,
                 tags_json TEXT NOT NULL DEFAULT '[]',
+                is_builtin INTEGER NOT NULL DEFAULT 0,
+                is_enabled INTEGER NOT NULL DEFAULT 1,
                 created_at TEXT NOT NULL,
                 updated_at TEXT NOT NULL
             );
@@ -147,6 +149,11 @@ impl VaultManager {
             ",
         )?;
         let _ = conn.execute("ALTER TABLE identities ADD COLUMN public_key TEXT", []);
+        let _ = conn.execute("ALTER TABLE snippets ADD COLUMN is_builtin INTEGER NOT NULL DEFAULT 0", []);
+        let _ = conn.execute("ALTER TABLE snippets ADD COLUMN is_enabled INTEGER NOT NULL DEFAULT 1", []);
+
+        // Seed default community snippets idempotently
+        crate::snippets::seed_community_snippets(conn)?;
         Ok(())
     }
 

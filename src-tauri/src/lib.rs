@@ -23,7 +23,7 @@ use crate::sftp::commands::{
     sftp_rename, sftp_resolve_home, sftp_upload,
 };
 use crate::sftp::SftpSessionManager;
-use crate::snippets::{delete_snippet, get_snippets, save_snippet};
+use crate::snippets::{delete_snippet, get_snippets, save_snippet, toggle_snippet_enabled};
 use crate::ssh::{connect_ssh, SshSessionManager};
 use crate::ssh_config::{detect_ssh_config, import_ssh_config};
 use crate::telemetry::commands::{fetch_telemetry_snapshot, start_telemetry_stream, stop_telemetry_stream};
@@ -162,6 +162,7 @@ pub fn run() {
             reset_app_settings,
             get_snippets,
             save_snippet,
+            toggle_snippet_enabled,
             delete_snippet,
             detect_ssh_config,
             import_ssh_config,
