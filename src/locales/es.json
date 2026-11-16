@@ -61,7 +61,9 @@
     "selectIdentity": "Seleccionar Identidad (o Predeterminada)",
     "selectFolder": "Sin Carpeta (Raíz)",
     "createIdentityQuick": "+ Crear Identidad",
-    "createFolderQuick": "+ Crear Carpeta"
+    "createFolderQuick": "+ Crear Carpeta",
+    "protocol": "Protocolo",
+    "rdpDomain": "Dominio (RDP, opcional)"
   },
   "folderModal": {
     "titleNew": "Nueva Carpeta",
@@ -138,7 +140,10 @@
     "sftpConcurrent2": "2 (Recomendado - Balance óptimo)",
     "sftpConcurrent3": "3 (Conexiones de alta velocidad)",
     "sftpConcurrent4": "4 (Alto rendimiento)",
-    "sftpConcurrent5": "5 (Máximo concurrente)"
+    "sftpConcurrent5": "5 (Máximo concurrente)",
+    "remoteDesktopSection": "Escritorio remoto (RDP / VNC)",
+    "remoteClipboard": "Sincronizar portapapeles de texto",
+    "remoteClipboardDesc": "Comparte el texto copiado entre tu equipo y las sesiones RDP/VNC."
   },
   "snippets": {
     "title": "Snippets",
@@ -153,5 +158,25 @@
     "insertIntoTerminal": "Enviar a Terminal",
     "copyCommand": "Copiar Comando",
     "deleteConfirm": "¿Eliminar snippet?"
+  },
+  "remote": {
+    "connecting": "Conectando a {host}…",
+    "disconnected": "Sesión desconectada",
+    "connectionError": "Error de conexión",
+    "reconnect": "Reconectar",
+    "close": "Cerrar panel",
+    "ctrlAltDel": "Ctrl+Alt+Supr",
+    "fullscreen": "Pantalla completa",
+    "fit": "Ajustar a la ventana",
+    "actualSize": "Tamaño real",
+    "disconnect": "Desconectar",
+    "unencryptedWarning": "VNC viaja sin cifrar. Usa un Servidor de Salto (SSH) o una red de confianza.",
+    "certTitleNew": "Certificado del servidor desconocido",
+    "certTitleChanged": "¡El certificado del servidor ha cambiado!",
+    "certDescNew": "Es la primera vez que te conectas a este equipo. Verifica la huella antes de enviar tus credenciales.",
+    "certDescChanged": "La huella no coincide con la aceptada anteriormente. Podría tratarse de un ataque de intermediario.",
+    "certFingerprint": "Huella SHA-256",
+    "certAccept": "Aceptar y conectar",
+    "certReject": "Rechazar"
   }
 }

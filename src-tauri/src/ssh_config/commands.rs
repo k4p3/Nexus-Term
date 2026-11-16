@@ -180,6 +180,8 @@ pub fn import_ssh_config(
             id: None,
             folder_id: target_folder_id.clone(),
             jump_host_id,
+            protocol: "ssh".to_string(),
+            rdp_domain: None,
             label: entry.alias.clone(),
             hostname: entry.hostname,
             port: entry.port,

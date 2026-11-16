@@ -31,10 +31,16 @@ export interface SaveIdentityPayload {
   passphrase?: string | null;
 }
 
+export type HostProtocol = "ssh" | "rdp" | "vnc";
+
+export const DEFAULT_PORTS: Record<HostProtocol, number> = { ssh: 22, rdp: 3389, vnc: 5900 };
+
 export interface HostSummary {
   id: string;
   folder_id: string | null;
   jump_host_id: string | null;
+  protocol?: HostProtocol;
+  rdp_domain?: string | null;
   label: string;
   hostname: string;
   port: number;
@@ -49,6 +55,8 @@ export interface SaveHostPayload {
   id?: string | null;
   folder_id?: string | null;
   jump_host_id?: string | null;
+  protocol?: HostProtocol;
+  rdp_domain?: string | null;
   label: string;
   hostname: string;
   port: number;

@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import type { PaneNode } from "../../types/session";
 import TerminalPane from "./TerminalPane.vue";
+import RemoteDesktopPane from "../remote/RemoteDesktopPane.vue";
+
+const isGraphical = (host?: { protocol?: string } | null) =>
+  host?.protocol === "rdp" || host?.protocol === "vnc";
 
 defineProps<{
   node: PaneNode;
@@ -11,9 +15,18 @@ defineProps<{
 
 <template>
   <div class="h-full w-full flex-1 overflow-hidden">
+    <!-- Leaf Remote Desktop Pane (RDP / VNC) -->
+    <RemoteDesktopPane
+      v-if="node.type === 'leaf' && isGraphical(node.host)"
+      :key="node.id"
+      :pane="node"
+      :tab-id="tabId"
+      :is-active="node.id === activePaneId"
+    />
+
     <!-- Leaf Terminal Pane -->
     <TerminalPane
-      v-if="node.type === 'leaf'"
+      v-else-if="node.type === 'leaf'"
       :key="node.id"
       :pane="node"
       :tab-id="tabId"

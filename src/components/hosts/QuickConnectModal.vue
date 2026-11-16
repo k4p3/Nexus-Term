@@ -271,6 +271,10 @@ onUnmounted(() => {
             <div class="truncate">
               <div class="font-medium text-theme-main flex items-center space-x-2 truncate">
                 <span>{{ item.label }}</span>
+                <span
+                  v-if="item.host?.protocol && item.host.protocol !== 'ssh'"
+                  class="text-[10px] font-semibold uppercase px-1.5 py-0.2 bg-sky-500/15 text-sky-300 border border-sky-500/30 rounded"
+                >{{ item.host.protocol }}</span>
                 <span v-if="item.jumpHostLabel" class="text-[10px] px-1.5 py-0.2 bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded flex items-center space-x-1">
                   <Route class="w-2.5 h-2.5 text-amber-400" />
                   <span>via {{ item.jumpHostLabel }}</span>

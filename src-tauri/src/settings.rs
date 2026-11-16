@@ -39,6 +39,14 @@ pub struct AppSettings {
     // SFTP Transfers
     #[serde(default = "default_sftp_max_concurrent_transfers")]
     pub sftp_max_concurrent_transfers: u32,
+
+    // Remote Desktop (RDP / VNC)
+    #[serde(default = "default_remote_desktop_clipboard")]
+    pub remote_desktop_clipboard: bool,
+}
+
+fn default_remote_desktop_clipboard() -> bool {
+    true
 }
 
 fn default_sftp_max_concurrent_transfers() -> u32 {
@@ -95,6 +103,7 @@ impl Default for AppSettings {
             close_to_tray: default_close_to_tray(),
             auto_lock_minutes: default_auto_lock(),
             sftp_max_concurrent_transfers: default_sftp_max_concurrent_transfers(),
+            remote_desktop_clipboard: default_remote_desktop_clipboard(),
         }
     }
 }
@@ -178,6 +187,7 @@ mod tests {
         assert_eq!(initial.cursor_style, "block");
         assert_eq!(initial.close_to_tray, true);
         assert_eq!(initial.sftp_max_concurrent_transfers, 2);
+        assert!(initial.remote_desktop_clipboard);
 
         // Save customized settings
         let mut customized = initial.clone();
@@ -195,5 +205,19 @@ mod tests {
         let fetched = get_settings_internal(&conn).unwrap();
         assert_eq!(fetched, customized);
         assert_eq!(fetched.sftp_max_concurrent_transfers, 4);
+    }
+
+    #[test]
+    fn test_legacy_settings_json_defaults_remote_clipboard_to_enabled() {
+        let conn = Connection::open_in_memory().unwrap();
+        VaultManager::run_migrations(&conn).unwrap();
+        conn.execute(
+            "INSERT INTO app_settings (id, settings_json, updated_at) VALUES (1, '{\"locale\":\"es\"}', 'now')",
+            [],
+        )
+        .unwrap();
+        let s = get_settings_internal(&conn).unwrap();
+        assert_eq!(s.locale, "es");
+        assert!(s.remote_desktop_clipboard);
     }
 }

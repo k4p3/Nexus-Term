@@ -61,7 +61,9 @@
     "selectIdentity": "Select Identity (or Default)",
     "selectFolder": "No Folder (Root)",
     "createIdentityQuick": "+ Create Identity",
-    "createFolderQuick": "+ Create Folder"
+    "createFolderQuick": "+ Create Folder",
+    "protocol": "Protocol",
+    "rdpDomain": "Domain (RDP, optional)"
   },
   "folderModal": {
     "titleNew": "New Folder",
@@ -138,7 +140,10 @@
     "sftpConcurrent2": "2 (Recommended - Optimal balance)",
     "sftpConcurrent3": "3 (High-speed connections)",
     "sftpConcurrent4": "4 (High throughput)",
-    "sftpConcurrent5": "5 (Maximum concurrent)"
+    "sftpConcurrent5": "5 (Maximum concurrent)",
+    "remoteDesktopSection": "Remote desktop (RDP / VNC)",
+    "remoteClipboard": "Sync text clipboard",
+    "remoteClipboardDesc": "Share copied text between your machine and RDP/VNC sessions."
   },
   "snippets": {
     "title": "Snippets",
@@ -153,5 +158,25 @@
     "insertIntoTerminal": "Send to Terminal",
     "copyCommand": "Copy Command",
     "deleteConfirm": "Delete snippet?"
+  },
+  "remote": {
+    "connecting": "Connecting to {host}…",
+    "disconnected": "Session disconnected",
+    "connectionError": "Connection error",
+    "reconnect": "Reconnect",
+    "close": "Close pane",
+    "ctrlAltDel": "Ctrl+Alt+Del",
+    "fullscreen": "Fullscreen",
+    "fit": "Fit to window",
+    "actualSize": "Actual size",
+    "disconnect": "Disconnect",
+    "unencryptedWarning": "VNC traffic is not encrypted. Use an SSH Jump Host or a trusted network.",
+    "certTitleNew": "Unknown server certificate",
+    "certTitleChanged": "The server certificate has changed!",
+    "certDescNew": "This is the first time you connect to this machine. Verify the fingerprint before sending credentials.",
+    "certDescChanged": "The fingerprint does not match the one accepted before. This could be a man-in-the-middle attack.",
+    "certFingerprint": "SHA-256 fingerprint",
+    "certAccept": "Accept and connect",
+    "certReject": "Reject"
   }
 }

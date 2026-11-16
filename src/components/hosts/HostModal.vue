@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, computed } from "vue";
 import { useVaultStore } from "../../stores/vault.store";
-import type { HostSummary, SaveHostPayload } from "../../types/inventory";
+import { DEFAULT_PORTS, type HostProtocol, type HostSummary, type SaveHostPayload } from "../../types/inventory";
+import { useI18n } from "vue-i18n";
 import FolderModal from "./FolderModal.vue";
 import IdentityModal from "./IdentityModal.vue";
 import CustomSelect, { type SelectOption } from "../common/CustomSelect.vue";
@@ -29,10 +30,23 @@ const emit = defineEmits<{
 }>();
 
 const vaultStore = useVaultStore();
+const { t } = useI18n();
 
 const label = ref("");
 const hostname = ref("");
+const protocol = ref<HostProtocol>("ssh");
+const rdpDomain = ref("");
 const port = ref(22);
+const protocolOptions = computed<SelectOption[]>(() => [
+  { value: "ssh", label: "SSH", icon: Server },
+  { value: "rdp", label: "RDP (Escritorio remoto)", icon: Server },
+  { value: "vnc", label: "VNC", icon: Server },
+]);
+
+// Al cambiar de protocolo, si el puerto era el predeterminado del anterior, usa el del nuevo.
+watch(protocol, (next, prev) => {
+  if (prev && Number(port.value) === DEFAULT_PORTS[prev]) port.value = DEFAULT_PORTS[next];
+});
 const folderId = ref<string | null>(null);
 const identityId = ref<string | null>(null);
 const jumpHostId = ref<string | null>(null);
@@ -151,6 +165,8 @@ watch(
     if (host) {
       label.value = host.label;
       hostname.value = host.hostname;
+      protocol.value = host.protocol ?? "ssh";
+      rdpDomain.value = host.rdp_domain || "";
       port.value = host.port;
       folderId.value = host.folder_id;
       identityId.value = host.identity_id;
@@ -161,6 +177,8 @@ watch(
     } else {
       label.value = "";
       hostname.value = "";
+      protocol.value = "ssh";
+      rdpDomain.value = "";
       port.value = 22;
       folderId.value = null;
       identityId.value = vaultStore.identities.length > 0 ? vaultStore.identities[0].id : null;
@@ -193,7 +211,9 @@ async function handleSave() {
       id: props.hostToEdit?.id,
       label: label.value.trim(),
       hostname: hostname.value.trim(),
-      port: Number(port.value) || 22,
+      protocol: protocol.value,
+      rdp_domain: protocol.value === "rdp" && rdpDomain.value.trim() ? rdpDomain.value.trim() : null,
+      port: Number(port.value) || DEFAULT_PORTS[protocol.value],
       folder_id: folderId.value || null,
       identity_id: identityId.value || null,
       jump_host_id: jumpHostId.value || null,
@@ -220,7 +240,7 @@ async function handleSave() {
         <div class="flex items-center space-x-2">
           <Server class="w-5 h-5 text-theme-accent" />
           <h3 class="text-sm font-bold text-theme-main">
-            {{ hostToEdit ? 'Editar Servidor SSH' : 'Nuevo Servidor SSH' }}
+            {{ hostToEdit ? 'Editar Servidor' : 'Nuevo Servidor' }}
           </h3>
         </div>
         <button @click="emit('close')" class="text-theme-muted hover:text-theme-main p-1 rounded-lg hover:bg-theme-active transition cursor-pointer">
@@ -241,6 +261,22 @@ async function handleSave() {
           />
         </div>
 
+        <div :class="protocol === 'rdp' ? 'grid grid-cols-2 gap-3' : ''">
+          <div>
+            <label class="block text-xs font-medium text-theme-muted mb-1">{{ t('hostModal.protocol') }}</label>
+            <CustomSelect v-model="protocol" :options="protocolOptions" />
+          </div>
+          <div v-if="protocol === 'rdp'">
+            <label class="block text-xs font-medium text-theme-muted mb-1">{{ t('hostModal.rdpDomain') }}</label>
+            <input
+              v-model="rdpDomain"
+              type="text"
+              placeholder="CORP"
+              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+            />
+          </div>
+        </div>
+
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">
             <label class="block text-xs font-medium text-theme-muted mb-1">Dirección IP o Hostname</label>
@@ -257,7 +293,7 @@ async function handleSave() {
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-theme-muted mb-1">Puerto SSH</label>
+            <label class="block text-xs font-medium text-theme-muted mb-1">Puerto</label>
             <input
               v-model="port"
               type="number"

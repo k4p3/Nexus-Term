@@ -369,6 +369,22 @@ async function handleResetDefaults() {
                 />
               </div>
             </div>
+
+            <div class="pt-4 border-t border-theme">
+              <h4 class="text-sm font-semibold text-theme-main mb-1">{{ t('settings.remoteDesktopSection') }}</h4>
+              <label class="flex items-start space-x-2 cursor-pointer max-w-md">
+                <input
+                  type="checkbox"
+                  class="mt-0.5"
+                  :checked="settingsStore.settings.remote_desktop_clipboard"
+                  @change="settingsStore.updateSettings({ remote_desktop_clipboard: ($event.target as HTMLInputElement).checked })"
+                />
+                <span>
+                  <span class="block text-xs font-medium text-theme-main">{{ t('settings.remoteClipboard') }}</span>
+                  <span class="block text-xs text-neutral-400">{{ t('settings.remoteClipboardDesc') }}</span>
+                </span>
+              </label>
+            </div>
           </div>
 
           <!-- 2. TERMINAL APPEARANCE TAB -->

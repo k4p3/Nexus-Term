@@ -23,6 +23,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   close_to_tray: true,
   auto_lock_minutes: 0,
   sftp_max_concurrent_transfers: 2,
+  remote_desktop_clipboard: true,
 };
 
 export const useSettingsStore = defineStore('settings', {

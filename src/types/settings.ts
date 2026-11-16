@@ -10,4 +10,5 @@ export interface AppSettings {
   close_to_tray: boolean;
   auto_lock_minutes: number;
   sftp_max_concurrent_transfers: number;
+  remote_desktop_clipboard: boolean;
 }

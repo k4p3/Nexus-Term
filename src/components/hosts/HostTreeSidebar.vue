@@ -354,6 +354,10 @@ async function handleDeleteIdentity(id: string) {
                   <div class="font-medium text-slate-200 truncate leading-tight flex items-center min-w-0">
                     <span class="truncate">{{ host.label }}</span>
                     <span
+                      v-if="host.protocol && host.protocol !== 'ssh'"
+                      class="text-[9px] font-semibold uppercase bg-sky-500/15 text-sky-300 border border-sky-500/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
+                    >{{ host.protocol }}</span>
+                    <span
                       v-if="host.jump_host_id"
                       class="inline-flex items-center space-x-0.5 text-[9px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
                       :title="'Conectado vía Bastion: ' + (getJumpHostLabel(host.jump_host_id) || host.jump_host_id)"
@@ -418,6 +422,10 @@ async function handleDeleteIdentity(id: string) {
               <div class="truncate min-w-0 flex-1">
                 <div class="font-medium text-slate-200 truncate leading-tight flex items-center min-w-0">
                   <span class="truncate">{{ host.label }}</span>
+                  <span
+                    v-if="host.protocol && host.protocol !== 'ssh'"
+                    class="text-[9px] font-semibold uppercase bg-sky-500/15 text-sky-300 border border-sky-500/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
+                  >{{ host.protocol }}</span>
                   <span
                     v-if="host.jump_host_id"
                     class="inline-flex items-center space-x-0.5 text-[9px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30 px-1 py-0.2 rounded ml-1.5 shrink-0"

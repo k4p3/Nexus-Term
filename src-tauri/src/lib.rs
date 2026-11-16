@@ -1,4 +1,5 @@
 pub mod pty;
+pub mod remote_desktop;
 pub mod session;
 pub mod settings;
 pub mod sftp;
@@ -16,6 +17,10 @@ use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent}
 use tauri::{Manager, WindowEvent};
 use rusqlite::Connection;
 use crate::pty::{open_local_pty, PtySessionManager};
+use crate::remote_desktop::manager::{
+    rd_accept_cert, rd_connect, rd_disconnect, rd_resize, rd_send_cad, rd_send_input, rd_set_clipboard,
+    RemoteDesktopManager,
+};
 use crate::session::{close_session, extract_public_key, generate_ssh_key, resize_session, write_session};
 use crate::settings::{get_app_settings, reset_app_settings, save_app_settings};
 use crate::sftp::commands::{
@@ -67,6 +72,7 @@ pub fn run() {
             app.manage(Arc::new(SshTunnelManager::new()));
             app.manage(Arc::new(SftpSessionManager::new()));
             app.manage(Arc::new(TelemetryManager::new()));
+            app.manage(Arc::new(RemoteDesktopManager::new()));
 
             // Build Native System Tray (StatusNotifierItem on KDE / Linux)
             let show_item = MenuItem::with_id(app, "show", "Mostrar NexusTerm", true, None::<&str>)?;
@@ -188,6 +194,13 @@ pub fn run() {
             fetch_telemetry_snapshot,
             start_telemetry_stream,
             stop_telemetry_stream,
+            rd_connect,
+            rd_send_input,
+            rd_resize,
+            rd_send_cad,
+            rd_set_clipboard,
+            rd_accept_cert,
+            rd_disconnect,
         ])
         .run(tauri::generate_context!())
         .expect("error while building tauri application");

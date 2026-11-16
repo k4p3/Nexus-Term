@@ -52,11 +52,30 @@ pub struct SaveIdentityPayload {
     pub passphrase: Option<String>,
 }
 
+pub const PROTOCOLS: [&str; 3] = ["ssh", "rdp", "vnc"];
+
+pub fn default_protocol() -> String {
+    "ssh".to_string()
+}
+
+/// Puerto por defecto de cada protocolo (22 / 3389 / 5900).
+pub fn default_port_for(protocol: &str) -> u16 {
+    match protocol {
+        "rdp" => 3389,
+        "vnc" => 5900,
+        _ => 22,
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct HostSummary {
     pub id: String,
     pub folder_id: Option<String>,
     pub jump_host_id: Option<String>,
+    #[serde(default = "default_protocol")]
+    pub protocol: String,
+    #[serde(default)]
+    pub rdp_domain: Option<String>,
     pub label: String,
     pub hostname: String,
     pub port: u16,
@@ -72,6 +91,10 @@ pub struct SaveHostPayload {
     pub id: Option<String>,
     pub folder_id: Option<String>,
     pub jump_host_id: Option<String>,
+    #[serde(default = "default_protocol")]
+    pub protocol: String,
+    #[serde(default)]
+    pub rdp_domain: Option<String>,
     pub label: String,
     pub hostname: String,
     pub port: u16,
@@ -129,7 +152,7 @@ impl VaultManager {
             .collect::<Result<Vec<_>, _>>()?;
 
         // 3. Hosts
-        let mut stmt = conn.prepare("SELECT id, folder_id, label, hostname, port, username_override, identity_id, tags_json, encrypted_notes, jump_host_id, updated_at FROM hosts ORDER BY label ASC")?;
+        let mut stmt = conn.prepare("SELECT id, folder_id, label, hostname, port, username_override, identity_id, tags_json, encrypted_notes, jump_host_id, updated_at, protocol, rdp_domain FROM hosts ORDER BY label ASC")?;
         let hosts = stmt
             .query_map([], |row| {
                 let tags_str: String = row.get(7)?;
@@ -147,6 +170,8 @@ impl VaultManager {
                     id: row.get(0)?,
                     folder_id: row.get(1)?,
                     jump_host_id: row.get(9)?,
+                    protocol: row.get(11)?,
+                    rdp_domain: row.get(12)?,
                     label: row.get(2)?,
                     hostname: row.get(3)?,
                     port: row.get::<_, u32>(4)? as u16,
@@ -346,6 +371,22 @@ impl VaultManager {
             .filter(|s| !s.is_empty())
             .unwrap_or_else(|| Uuid::now_v7().to_string());
         let jump_host_id = payload.jump_host_id.filter(|s| !s.trim().is_empty());
+        let protocol = payload.protocol.trim().to_lowercase();
+        if !PROTOCOLS.contains(&protocol.as_str()) {
+            return Err(VaultError::ValidationError(format!(
+                "Protocolo no soportado: {}",
+                payload.protocol
+            )));
+        }
+        let rdp_domain = payload
+            .rdp_domain
+            .map(|d| d.trim().to_string())
+            .filter(|d| !d.is_empty());
+        let port = if payload.port == 0 {
+            default_port_for(&protocol)
+        } else {
+            payload.port
+        };
 
         if let Some(ref jump_id) = jump_host_id {
             check_jump_host_cycles(&conn, &id, jump_id)?;
@@ -366,8 +407,8 @@ impl VaultManager {
         };
 
         conn.execute(
-            "INSERT INTO hosts (id, folder_id, label, hostname, port, username_override, identity_id, tags_json, encrypted_notes, jump_host_id, updated_at)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)
+            "INSERT INTO hosts (id, folder_id, label, hostname, port, username_override, identity_id, tags_json, encrypted_notes, jump_host_id, updated_at, protocol, rdp_domain)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13)
              ON CONFLICT(id) DO UPDATE SET
                 folder_id = excluded.folder_id,
                 label = excluded.label,
@@ -378,23 +419,63 @@ impl VaultManager {
                 tags_json = excluded.tags_json,
                 encrypted_notes = excluded.encrypted_notes,
                 jump_host_id = excluded.jump_host_id,
+                protocol = excluded.protocol,
+                rdp_domain = excluded.rdp_domain,
                 updated_at = excluded.updated_at",
             params![
                 id,
                 payload.folder_id,
                 payload.label,
                 payload.hostname,
-                payload.port as u32,
+                port as u32,
                 payload.username_override,
                 payload.identity_id,
                 tags_json,
                 enc_notes,
                 jump_host_id,
-                now
+                now,
+                protocol,
+                rdp_domain
             ],
         )?;
 
         Ok(id)
+    }
+
+    /// Devuelve la huella SHA-256 (hex) del certificado RDP aceptado para un host.
+    pub fn get_rdp_cert_fingerprint(&self, host_id: &str) -> Result<Option<String>, VaultError> {
+        let _ = self.get_active_vault_key()?;
+        let conn = self.db.lock().unwrap();
+        let fp = conn
+            .query_row(
+                "SELECT sha256_hex FROM rdp_cert_fingerprints WHERE host_id = ?1",
+                params![host_id],
+                |row| row.get::<_, String>(0),
+            )
+            .optional()?;
+        Ok(fp)
+    }
+
+    /// Guarda (o reemplaza) la huella SHA-256 del certificado RDP aceptado por el usuario.
+    pub fn accept_rdp_cert_fingerprint(
+        &self,
+        host_id: &str,
+        sha256_hex: &str,
+    ) -> Result<(), VaultError> {
+        let _ = self.get_active_vault_key()?;
+        let fp = sha256_hex.trim().to_lowercase();
+        if fp.len() != 64 || !fp.chars().all(|c| c.is_ascii_hexdigit()) {
+            return Err(VaultError::ValidationError(
+                "Huella SHA-256 inválida".into(),
+            ));
+        }
+        let conn = self.db.lock().unwrap();
+        conn.execute(
+            "INSERT INTO rdp_cert_fingerprints (host_id, sha256_hex, accepted_at) VALUES (?1, ?2, ?3)
+             ON CONFLICT(host_id) DO UPDATE SET sha256_hex = excluded.sha256_hex, accepted_at = excluded.accepted_at",
+            params![host_id, fp, Utc::now().to_rfc3339()],
+        )?;
+        Ok(())
     }
 
     pub fn delete_host(&self, id: &str) -> Result<(), VaultError> {
@@ -531,6 +612,8 @@ mod tests {
                 id: None,
                 folder_id: Some(folder_id.clone()),
                 jump_host_id: None,
+                protocol: "ssh".to_string(),
+                rdp_domain: None,
                 label: "DB Primary".to_string(),
                 hostname: "192.168.1.50".to_string(),
                 port: 22,
@@ -593,6 +676,8 @@ mod tests {
                 id: Some("host-bastion-a".to_string()),
                 folder_id: None,
                 jump_host_id: None,
+                protocol: "ssh".to_string(),
+                rdp_domain: None,
                 label: "Bastion A".to_string(),
                 hostname: "bastion-a.internal".to_string(),
                 port: 22,
@@ -609,6 +694,8 @@ mod tests {
                 id: Some("host-bastion-b".to_string()),
                 folder_id: None,
                 jump_host_id: Some(bastion_a_id.clone()),
+                protocol: "ssh".to_string(),
+                rdp_domain: None,
                 label: "Bastion B".to_string(),
                 hostname: "bastion-b.internal".to_string(),
                 port: 22,
@@ -625,6 +712,8 @@ mod tests {
                 id: Some("host-target-c".to_string()),
                 folder_id: None,
                 jump_host_id: Some(bastion_b_id.clone()),
+                protocol: "ssh".to_string(),
+                rdp_domain: None,
                 label: "Target Server C".to_string(),
                 hostname: "target-c.internal".to_string(),
                 port: 2222,
@@ -649,6 +738,8 @@ mod tests {
             id: Some(bastion_a_id.clone()),
             folder_id: None,
             jump_host_id: Some(bastion_a_id.clone()),
+            protocol: "ssh".to_string(),
+            rdp_domain: None,
             label: "Bastion A".to_string(),
             hostname: "bastion-a.internal".to_string(),
             port: 22,
@@ -664,6 +755,8 @@ mod tests {
             id: Some(bastion_a_id.clone()),
             folder_id: None,
             jump_host_id: Some(bastion_b_id.clone()),
+            protocol: "ssh".to_string(),
+            rdp_domain: None,
             label: "Bastion A".to_string(),
             hostname: "bastion-a.internal".to_string(),
             port: 22,
@@ -679,6 +772,8 @@ mod tests {
             id: Some(bastion_a_id.clone()),
             folder_id: None,
             jump_host_id: Some(target_c_id.clone()),
+            protocol: "ssh".to_string(),
+            rdp_domain: None,
             label: "Bastion A".to_string(),
             hostname: "bastion-a.internal".to_string(),
             port: 22,
@@ -688,5 +783,120 @@ mod tests {
             notes: None,
         });
         assert!(matches!(indirect_cycle_err, Err(VaultError::ValidationError(_))));
+    }
+
+    fn protocol_payload(protocol: &str, port: u16) -> SaveHostPayload {
+        SaveHostPayload {
+            id: None,
+            folder_id: None,
+            jump_host_id: None,
+            protocol: protocol.to_string(),
+            rdp_domain: None,
+            label: format!("{} host", protocol),
+            hostname: "10.0.0.5".to_string(),
+            port,
+            username_override: None,
+            identity_id: None,
+            tags: vec![],
+            notes: None,
+        }
+    }
+
+    fn unlocked_manager() -> VaultManager {
+        let conn = Connection::open_in_memory().unwrap();
+        let manager = VaultManager::new(conn).unwrap();
+        manager.init("VaultMasterPass!2026").unwrap();
+        manager
+    }
+
+    #[test]
+    fn test_default_ports_per_protocol() {
+        assert_eq!(default_port_for("ssh"), 22);
+        assert_eq!(default_port_for("rdp"), 3389);
+        assert_eq!(default_port_for("vnc"), 5900);
+    }
+
+    #[test]
+    fn test_save_rdp_and_vnc_hosts_with_protocol_and_domain() {
+        let manager = unlocked_manager();
+        let mut rdp = protocol_payload("RDP", 3389);
+        rdp.rdp_domain = Some("  CORP  ".to_string());
+        manager.save_host(rdp).unwrap();
+        manager.save_host(protocol_payload("vnc", 5901)).unwrap();
+
+        let inv = manager.get_inventory().unwrap();
+        let rdp = inv.hosts.iter().find(|h| h.protocol == "rdp").unwrap();
+        assert_eq!(rdp.rdp_domain.as_deref(), Some("CORP"));
+        assert_eq!(rdp.port, 3389);
+        let vnc = inv.hosts.iter().find(|h| h.protocol == "vnc").unwrap();
+        assert_eq!(vnc.port, 5901);
+    }
+
+    #[test]
+    fn test_port_zero_uses_protocol_default() {
+        let manager = unlocked_manager();
+        manager.save_host(protocol_payload("rdp", 0)).unwrap();
+        let inv = manager.get_inventory().unwrap();
+        assert_eq!(inv.hosts[0].port, 3389);
+    }
+
+    #[test]
+    fn test_invalid_protocol_is_rejected() {
+        let manager = unlocked_manager();
+        let err = manager.save_host(protocol_payload("telnet", 23));
+        assert!(matches!(err, Err(VaultError::ValidationError(_))));
+        assert!(manager.get_inventory().unwrap().hosts.is_empty());
+    }
+
+    #[test]
+    fn test_legacy_host_defaults_to_ssh_after_migration() {
+        let conn = Connection::open_in_memory().unwrap();
+        // Esquema antiguo sin columnas de protocolo
+        conn.execute_batch(
+            "CREATE TABLE hosts (
+                id TEXT PRIMARY KEY, folder_id TEXT, jump_host_id TEXT, label TEXT NOT NULL,
+                hostname TEXT NOT NULL, port INTEGER NOT NULL DEFAULT 22, username_override TEXT,
+                identity_id TEXT, tags_json TEXT NOT NULL DEFAULT '[]', encrypted_notes BLOB,
+                updated_at TEXT NOT NULL);
+             INSERT INTO hosts (id, label, hostname, port, updated_at) VALUES ('h1','old','1.1.1.1',22,'now');",
+        )
+        .unwrap();
+        VaultManager::run_migrations(&conn).unwrap();
+        let proto: String = conn
+            .query_row("SELECT protocol FROM hosts WHERE id='h1'", [], |r| r.get(0))
+            .unwrap();
+        assert_eq!(proto, "ssh");
+    }
+
+    #[test]
+    fn test_rdp_cert_fingerprint_tofu_roundtrip() {
+        let manager = unlocked_manager();
+        let id = manager.save_host(protocol_payload("rdp", 3389)).unwrap();
+        assert_eq!(manager.get_rdp_cert_fingerprint(&id).unwrap(), None);
+
+        let fp1 = "AB".repeat(32);
+        manager.accept_rdp_cert_fingerprint(&id, &fp1).unwrap();
+        assert_eq!(
+            manager.get_rdp_cert_fingerprint(&id).unwrap(),
+            Some(fp1.to_lowercase())
+        );
+
+        let fp2 = "cd".repeat(32);
+        manager.accept_rdp_cert_fingerprint(&id, &fp2).unwrap();
+        assert_eq!(manager.get_rdp_cert_fingerprint(&id).unwrap(), Some(fp2));
+
+        assert!(matches!(
+            manager.accept_rdp_cert_fingerprint(&id, "zz"),
+            Err(VaultError::ValidationError(_))
+        ));
+    }
+
+    #[test]
+    fn test_rdp_fingerprint_removed_with_host() {
+        let manager = unlocked_manager();
+        let id = manager.save_host(protocol_payload("rdp", 3389)).unwrap();
+        manager.accept_rdp_cert_fingerprint(&id, &"ab".repeat(32)).unwrap();
+        manager.delete_host(&id).unwrap();
+        assert_eq!(manager.get_rdp_cert_fingerprint(&id).unwrap(), None);
     }
 }

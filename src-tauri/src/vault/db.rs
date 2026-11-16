@@ -97,6 +97,8 @@ impl VaultManager {
                 id TEXT PRIMARY KEY,
                 folder_id TEXT REFERENCES folders(id) ON DELETE SET NULL,
                 jump_host_id TEXT REFERENCES hosts(id) ON DELETE SET NULL,
+                protocol TEXT NOT NULL DEFAULT 'ssh' CHECK (protocol IN ('ssh', 'rdp', 'vnc')),
+                rdp_domain TEXT,
                 label TEXT NOT NULL,
                 hostname TEXT NOT NULL,
                 port INTEGER NOT NULL DEFAULT 22,
@@ -153,6 +155,15 @@ impl VaultManager {
         )?;
         let _ = conn.execute("ALTER TABLE identities ADD COLUMN public_key TEXT", []);
         let _ = conn.execute("ALTER TABLE hosts ADD COLUMN jump_host_id TEXT REFERENCES hosts(id) ON DELETE SET NULL", []);
+        let _ = conn.execute("ALTER TABLE hosts ADD COLUMN protocol TEXT NOT NULL DEFAULT 'ssh' CHECK (protocol IN ('ssh', 'rdp', 'vnc'))", []);
+        let _ = conn.execute("ALTER TABLE hosts ADD COLUMN rdp_domain TEXT", []);
+        conn.execute_batch(
+            "CREATE TABLE IF NOT EXISTS rdp_cert_fingerprints (
+                host_id TEXT PRIMARY KEY REFERENCES hosts(id) ON DELETE CASCADE,
+                sha256_hex TEXT NOT NULL,
+                accepted_at TEXT NOT NULL
+            );",
+        )?;
         let _ = conn.execute("ALTER TABLE snippets ADD COLUMN is_builtin INTEGER NOT NULL DEFAULT 0", []);
         let _ = conn.execute("ALTER TABLE snippets ADD COLUMN is_enabled INTEGER NOT NULL DEFAULT 1", []);
 
