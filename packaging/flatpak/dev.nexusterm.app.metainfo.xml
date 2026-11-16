@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>dev.nexusterm.app</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <name>NexusTerm</name>
+  <summary>Modern multiplatform SSH, SFTP, and terminal manager</summary>
+  <summary xml:lang="es">Gestor SSH, SFTP y terminal moderno y multiplataforma</summary>
+  <description>
+    <p>
+      NexusTerm is a lightweight, modern, and privacy-focused SSH connection manager,
+      built with Tauri v2 (Rust), Vue 3, and xterm.js. Designed for high performance,
+      low memory consumption, and seamless Linux desktop integration.
+    </p>
+    <p xml:lang="es">
+      NexusTerm es un gestor de conexiones SSH, SFTP y emulador de terminal moderno,
+      liviano y enfocado en la privacidad, construido con Tauri v2 (Rust), Vue 3 y xterm.js.
+      Diseñado para un rendimiento ultra rápido, bajo consumo de RAM y perfecta integración en Linux.
+    </p>
+    <ul>
+      <li>End-to-end encrypted SQLite vault with Argon2id and AES-256-GCM</li>
+      <li xml:lang="es">Bóveda cifrada en SQLite con derivación Argon2id y AES-256-GCM</li>
+      <li>SSH multiplexing over single TCP connection for interactive PTY, SFTP, and real-time telemetry</li>
+      <li xml:lang="es">Multiplexación SSH en una sola conexión TCP para PTY interactivo, SFTP y telemetría en vivo</li>
+      <li>SSH Jump Hosts (Bastion Chaining) via direct-tcpip channels</li>
+      <li xml:lang="es">Servidores de Salto (Jump Hosts / Bastion Chaining) mediante canales direct-tcpip</li>
+      <li>Port Forwarding manager (Local -L, Remote -R, Dynamic SOCKS5 -D)</li>
+      <li xml:lang="es">Gestor de Port Forwarding (Local -L, Remoto -R, Dinámico SOCKS5 -D)</li>
+      <li>Organized host inventory with folders, tags, and reusable identities</li>
+      <li xml:lang="es">Inventario de servidores con carpetas, etiquetas e identidades reutilizables</li>
+      <li>Built-in community snippets library and quick connect command palette (Ctrl+K)</li>
+      <li xml:lang="es">Biblioteca de snippets comunitarios y paleta de comandos rápidos (Ctrl+K)</li>
+      <li>System tray support with background persistence and KDE Plasma StatusNotifierItem</li>
+      <li xml:lang="es">Bandeja del sistema con persistencia en segundo plano y StatusNotifierItem para KDE Plasma</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">dev.nexusterm.app.desktop</launchable>
+  <url type="homepage">https://github.com/k4p3/Nexus-Term</url>
+  <url type="bugtracker">https://github.com/k4p3/Nexus-Term/issues</url>
+  <url type="vcs-browser">https://github.com/k4p3/Nexus-Term</url>
+  <developer id="dev.nexusterm">
+    <name>Jonathan Bailon Segura</name>
+  </developer>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Terminal multiplexer and telemetry bar</caption>
+      <caption xml:lang="es">Multiplexor de terminal y barra de telemetría en vivo</caption>
+      <image>https://raw.githubusercontent.com/k4p3/Nexus-Term/main/public/social-preview.png</image>
+    </screenshot>
+  </screenshots>
+  <categories>
+    <category>Network</category>
+    <category>System</category>
+    <category>TerminalEmulator</category>
+  </categories>
+  <keywords>
+    <keyword>ssh</keyword>
+    <keyword>sftp</keyword>
+    <keyword>terminal</keyword>
+    <keyword>multiplexer</keyword>
+    <keyword>bastion</keyword>
+    <keyword>tunnels</keyword>
+  </keywords>
+  <releases>
+    <release version="0.1.0" date="2026-11-15">
+      <description>
+        <p>Initial release of NexusTerm featuring encrypted vault, SSH multiplexing, SFTP file transfer, live telemetry, jump host chaining, port forwarding, and system tray integration.</p>
+        <p xml:lang="es">Lanzamiento inicial de NexusTerm con bóveda cifrada, multiplexación SSH, transferencias SFTP, telemetría en vivo, salto por Bastions, túneles de puertos e integración en la bandeja del sistema.</p>
+      </description>
+    </release>
+  </releases>
+  <content_rating type="oars-1.1" />
+</component>

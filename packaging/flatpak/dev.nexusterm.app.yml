@@ -1,0 +1,49 @@
+app-id: dev.nexusterm.app
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: nexus-term
+finish-args:
+  # Graphical display and GPU rendering
+  - --socket=wayland
+  - --socket=fallback-x11
+  - --share=ipc
+  - --device=dri
+  # Full networking for SSH multiplexing, SFTP, and port forward tunnels
+  - --share=network
+  # Host SSH-Agent socket access
+  - --socket=ssh-auth
+  # Desktop notifications and System Tray (KDE Plasma StatusNotifierItem)
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.freedesktop.StatusNotifierWatcher
+  # Allow spawning host terminal commands if flatpak-spawn is invoked
+  - --talk-name=org.freedesktop.Flatpak
+
+modules:
+  - name: nexus-term
+    buildsystem: simple
+    build-commands:
+      # Binary
+      - install -Dm755 nexus-term /app/bin/nexus-term
+      # Desktop file
+      - install -Dm644 dev.nexusterm.app.desktop /app/share/applications/dev.nexusterm.app.desktop
+      # AppStream metadata
+      - install -Dm644 dev.nexusterm.app.metainfo.xml /app/share/metainfo/dev.nexusterm.app.metainfo.xml
+      # Icons
+      - install -Dm644 icons/32x32.png /app/share/icons/hicolor/32x32/apps/dev.nexusterm.app.png
+      - install -Dm644 icons/128x128.png /app/share/icons/hicolor/128x128/apps/dev.nexusterm.app.png
+      - install -Dm644 icons/128x128@2x.png /app/share/icons/hicolor/256x256/apps/dev.nexusterm.app.png
+      - install -Dm644 icons/icon.png /app/share/icons/hicolor/512x512/apps/dev.nexusterm.app.png
+    sources:
+      - type: archive
+        url: https://github.com/k4p3/Nexus-Term/releases/download/v0.1.0/nexus-term_0.1.0_amd64.deb
+        sha256: SKIP
+        only-ar-members:
+          - data.tar.gz
+      - type: file
+        path: dev.nexusterm.app.metainfo.xml
+      - type: file
+        path: ../aur/dev.nexusterm.app.desktop
+      - type: dir
+        path: ../../src-tauri/icons
+        dest: icons

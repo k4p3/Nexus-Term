@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=NexusTerm
+Comment=Modern multiplatform SSH, SFTP, and terminal manager
+Comment[es]=Gestor SSH, SFTP y terminal moderno y multiplataforma
+GenericName=SSH & Terminal Manager
+GenericName[es]=Gestor de Terminales y Conexiones SSH
+Exec=nexus-term %U
+Icon=dev.nexusterm.app
+Terminal=false
+Type=Application
+Categories=Network;System;TerminalEmulator;RemoteAccess;
+Keywords=ssh;sftp;terminal;multiplexer;bastion;tunnel;port-forwarding;
+StartupWMClass=nexus-term
+X-KDE-SubstituteUID=false

@@ -1,0 +1,32 @@
+# Maintainer: Jonathan Bailon Segura <jonn59@gmail.com>
+pkgname=nexus-term-bin
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Modern multiplatform SSH, SFTP, and terminal manager built with Tauri v2"
+arch=('x86_64')
+url="https://github.com/k4p3/Nexus-Term"
+license=('GPL-3.0-or-later')
+depends=(
+  'gtk3'
+  'webkit2gtk-4.1'
+  'libappindicator-gtk3'
+  'openssl'
+  'hicolor-icon-theme'
+)
+optdepends=(
+  'openssh: For system ssh-agent and ssh-add integration'
+)
+provides=('nexus-term')
+conflicts=('nexus-term')
+source=("https://github.com/k4p3/Nexus-Term/releases/download/v${pkgver}/nexus-term_${pkgver}_amd64.deb")
+sha256sums=('SKIP')
+
+package() {
+  if [ -f data.tar.gz ]; then
+    tar -xzf data.tar.gz -C "${pkgdir}"
+  elif [ -f data.tar.xz ]; then
+    tar -xJf data.tar.xz -C "${pkgdir}"
+  elif [ -f data.tar.zst ]; then
+    tar --zstd -xf data.tar.zst -C "${pkgdir}"
+  fi
+}

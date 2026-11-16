@@ -104,6 +104,39 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 
 ---
 
+## Installation & Distribution
+
+NexusTerm provides pre-built packages for major Linux distributions, Windows, and macOS:
+
+### 🐧 Linux
+
+#### Arch Linux / Manjaro (AUR)
+Install using `yay`, `paru`, or the graphical Pamac package manager:
+```bash
+yay -S nexus-term-bin
+# or
+paru -S nexus-term-bin
+```
+
+#### Universal Flatpak (Flathub)
+Install via Flathub on any Linux distribution (KDE Discover / GNOME Software):
+```bash
+flatpak install flathub dev.nexusterm.app
+flatpak run dev.nexusterm.app
+```
+
+#### AppImage & Direct Packages
+Download the standalone `.AppImage`, `.deb` (Debian/Ubuntu), or `.rpm` (Fedora/RHEL) from [GitHub Releases](https://github.com/k4p3/Nexus-Term/releases):
+```bash
+chmod +x nexus-term_*_amd64.AppImage
+./nexus-term_*_amd64.AppImage
+```
+
+### 🪟 Windows & 🍎 macOS
+Pre-compiled installers (`.msi`, `.exe`, `.dmg`) are available directly on the [GitHub Releases](https://github.com/k4p3/Nexus-Term/releases) page.
+
+---
+
 ## Getting Started
 
 ### Prerequisites

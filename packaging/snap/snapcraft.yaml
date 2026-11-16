@@ -1,0 +1,44 @@
+name: nexus-term
+base: core24
+version: '0.1.0'
+summary: Modern multiplatform SSH, SFTP, and terminal manager
+description: |
+  NexusTerm is a lightweight, modern, and privacy-focused SSH connection manager,
+  built with Tauri v2 (Rust), Vue 3, and xterm.js. Designed for high performance,
+  low memory consumption, and seamless Linux desktop integration.
+
+  Features:
+  - End-to-end encrypted SQLite vault with Argon2id and AES-256-GCM.
+  - SSH multiplexing over a single TCP connection for interactive PTY, SFTP, and live telemetry.
+  - SSH Jump Hosts (Bastion Chaining) via direct-tcpip channels.
+  - Port Forwarding manager (Local -L, Remote -R, Dynamic SOCKS5 -D).
+  - Organized host inventory with folders, tags, and reusable identities.
+  - Built-in community snippets library and quick connect command palette (Ctrl+K).
+  - System tray support with background persistence.
+
+grade: stable
+confinement: strict
+
+apps:
+  nexus-term:
+    command: bin/nexus-term
+    extensions: [gnome]
+    plugs:
+      - network
+      - network-bind
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+      - unity7
+      - ssh-keys
+
+parts:
+  nexus-term:
+    plugin: dump
+    source: https://github.com/k4p3/Nexus-Term/releases/download/v0.1.0/nexus-term_0.1.0_amd64.deb
+    source-type: deb
+    stage-packages:
+      - libwebkit2gtk-4.1-0
+      - libappindicator3-1
+      - openssl
