@@ -120,6 +120,15 @@ pub fn import_ssh_config(
     }
 
     // 2. Import hosts & identities
+    let mut alias_to_id: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+    if let Ok(inv) = vault_mgr.get_inventory() {
+        for h in inv.hosts {
+            alias_to_id.insert(h.label.clone(), h.id.clone());
+        }
+    }
+
+    let mut pending_forward_jumps: Vec<(String, String)> = Vec::new();
+
     for entry in payload.selected_hosts {
         if entry.is_duplicate && !payload.overwrite_duplicates {
             summary.hosts_skipped += 1;
@@ -162,10 +171,16 @@ pub fn import_ssh_config(
             tags.push(format!("jump:{}", jump));
         }
 
+        let jump_host_id = entry
+            .proxy_jump
+            .as_ref()
+            .and_then(|jump| alias_to_id.get(jump).cloned());
+
         let host_payload = SaveHostPayload {
             id: None,
             folder_id: target_folder_id.clone(),
-            label: entry.alias,
+            jump_host_id,
+            label: entry.alias.clone(),
             hostname: entry.hostname,
             port: entry.port,
             username_override: entry.user,
@@ -174,11 +189,29 @@ pub fn import_ssh_config(
             notes: Some("Importado automáticamente desde ~/.ssh/config".to_string()),
         };
 
-        vault_mgr
+        let saved_id = vault_mgr
             .save_host(host_payload)
             .map_err(|e| format!("Failed to save host: {}", e))?;
 
+        if let Some(jump) = entry.proxy_jump {
+            if !alias_to_id.contains_key(&jump) {
+                pending_forward_jumps.push((saved_id.clone(), jump));
+            }
+        }
+
+        alias_to_id.insert(entry.alias, saved_id);
         summary.hosts_imported += 1;
+    }
+
+    // Resolve forward-referenced jump hosts
+    for (host_id, jump_alias) in pending_forward_jumps {
+        if let Some(target_jump_id) = alias_to_id.get(&jump_alias) {
+            let conn = vault_mgr.db.lock().unwrap();
+            let _ = conn.execute(
+                "UPDATE hosts SET jump_host_id = ?1 WHERE id = ?2 AND jump_host_id IS NULL",
+                params![target_jump_id, host_id],
+            );
+        }
     }
 
     // 3. Import known_hosts if requested

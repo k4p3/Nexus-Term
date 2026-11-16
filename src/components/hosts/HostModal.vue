@@ -4,7 +4,7 @@ import { useVaultStore } from "../../stores/vault.store";
 import type { HostSummary, SaveHostPayload } from "../../types/inventory";
 import FolderModal from "./FolderModal.vue";
 import IdentityModal from "./IdentityModal.vue";
-import { X, Server, Globe, Tag, Plus, KeyRound } from "lucide-vue-next";
+import { X, Server, Globe, Tag, Plus, KeyRound, Route } from "lucide-vue-next";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -22,7 +22,11 @@ const hostname = ref("");
 const port = ref(22);
 const folderId = ref<string | null>(null);
 const identityId = ref<string | null>(null);
+const jumpHostId = ref<string | null>(null);
 const selectedIdentity = computed(() => vaultStore.identities.find((i) => i.id === identityId.value));
+const availableJumpHosts = computed(() =>
+  vaultStore.hosts.filter((h) => !props.hostToEdit || h.id !== props.hostToEdit.id)
+);
 const usernameOverride = ref("");
 const tagsInput = ref("");
 const notes = ref("");
@@ -52,6 +56,7 @@ watch(
       port.value = host.port;
       folderId.value = host.folder_id;
       identityId.value = host.identity_id;
+      jumpHostId.value = host.jump_host_id || null;
       usernameOverride.value = host.username_override || "";
       tagsInput.value = host.tags ? host.tags.join(", ") : "";
       notes.value = host.notes || "";
@@ -61,6 +66,7 @@ watch(
       port.value = 22;
       folderId.value = null;
       identityId.value = vaultStore.identities.length > 0 ? vaultStore.identities[0].id : null;
+      jumpHostId.value = null;
       usernameOverride.value = "";
       tagsInput.value = "";
       notes.value = "";
@@ -92,6 +98,7 @@ async function handleSave() {
       port: Number(port.value) || 22,
       folder_id: folderId.value || null,
       identity_id: identityId.value || null,
+      jump_host_id: jumpHostId.value || null,
       username_override: usernameOverride.value.trim() ? usernameOverride.value.trim() : null,
       tags,
       notes: notes.value.trim() ? notes.value.trim() : null,
@@ -213,6 +220,29 @@ async function handleSave() {
               🔑 {{ selectedIdentity.public_key.slice(0, 36) }}...
             </div>
           </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-theme-muted mb-1 flex items-center space-x-1.5">
+            <Route class="w-3.5 h-3.5 text-theme-accent" />
+            <span>Servidor de Salto / Bastion (Opcional)</span>
+          </label>
+          <select
+            v-model="jumpHostId"
+            class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+          >
+            <option :value="null">Conexión directa (Sin Servidor de Salto)</option>
+            <option
+              v-for="jHost in availableJumpHosts"
+              :key="jHost.id"
+              :value="jHost.id"
+            >
+              🌐 {{ jHost.label }} ({{ jHost.hostname }}:{{ jHost.port }})
+            </option>
+          </select>
+          <p class="mt-1 text-[11px] text-theme-muted">
+            Si se especifica, NexusTerm tunelizará la conexión SSH a través de este Bastion usando direct-tcpip.
+          </p>
         </div>
 
         <div>

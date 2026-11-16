@@ -25,6 +25,7 @@ import {
   Check,
   FileCode,
   FolderSync,
+  Route,
 } from "lucide-vue-next";
 
 const { t } = useI18n();
@@ -74,6 +75,12 @@ const rootHosts = computed(() => {
 
 function getFolderHosts(folderId: string) {
   return filteredHosts.value.filter((h) => h.folder_id === folderId);
+}
+
+function getJumpHostLabel(jumpId: string | null | undefined): string | null {
+  if (!jumpId) return null;
+  const jh = vaultStore.hosts.find((h) => h.id === jumpId);
+  return jh ? jh.label : null;
 }
 
 // Actions
@@ -313,7 +320,17 @@ async function handleDeleteIdentity(id: string) {
               <div class="flex items-center space-x-2 truncate">
                 <Server class="w-3.5 h-3.5 text-cyan-400/80 shrink-0" />
                 <div class="truncate">
-                  <div class="font-medium text-slate-200 truncate leading-tight">{{ host.label }}</div>
+                  <div class="font-medium text-slate-200 truncate leading-tight flex items-center">
+                    <span class="truncate">{{ host.label }}</span>
+                    <span
+                      v-if="host.jump_host_id"
+                      class="inline-flex items-center space-x-0.5 text-[9px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
+                      :title="'Conectado vía Bastion: ' + (getJumpHostLabel(host.jump_host_id) || host.jump_host_id)"
+                    >
+                      <Route class="w-2.5 h-2.5 text-amber-400" />
+                      <span>via {{ getJumpHostLabel(host.jump_host_id) || 'bastion' }}</span>
+                    </span>
+                  </div>
                   <div class="text-[10px] text-slate-500 font-mono truncate leading-tight">
                     {{ host.hostname }}:{{ host.port }}
                   </div>
@@ -368,7 +385,17 @@ async function handleDeleteIdentity(id: string) {
             <div class="flex items-center space-x-2 truncate">
               <Server class="w-3.5 h-3.5 text-cyan-400/80 shrink-0" />
               <div class="truncate">
-                <div class="font-medium text-slate-200 truncate leading-tight">{{ host.label }}</div>
+                <div class="font-medium text-slate-200 truncate leading-tight flex items-center">
+                  <span class="truncate">{{ host.label }}</span>
+                  <span
+                    v-if="host.jump_host_id"
+                    class="inline-flex items-center space-x-0.5 text-[9px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
+                    :title="'Conectado vía Bastion: ' + (getJumpHostLabel(host.jump_host_id) || host.jump_host_id)"
+                  >
+                    <Route class="w-2.5 h-2.5 text-amber-400" />
+                    <span>via {{ getJumpHostLabel(host.jump_host_id) || 'bastion' }}</span>
+                  </span>
+                </div>
                 <div class="text-[10px] text-slate-500 font-mono truncate leading-tight">
                   {{ host.hostname }}:{{ host.port }}
                 </div>

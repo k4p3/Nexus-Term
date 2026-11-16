@@ -135,10 +135,38 @@ pub async fn create_authenticated_ssh_session(
         vault_manager: vault_mgr.clone(),
     };
 
-    let addr = format!("{}:{}", host.hostname, host.port);
-    let mut session = client::connect(config, addr, handler)
-        .await
-        .map_err(|e| format!("SSH connection failed: {}", e))?;
+    let mut session = if let Some(ref jump_id) = host.jump_host_id {
+        let jump_session = Box::pin(create_authenticated_ssh_session(vault_mgr.clone(), jump_id))
+            .await
+            .map_err(|e| format!("Servidor de Salto (Bastion) falló al conectar: {}", e))?;
+
+        let channel = jump_session
+            .channel_open_direct_tcpip(&host.hostname, host.port as u32, "127.0.0.1", 0)
+            .await
+            .map_err(|e| {
+                format!(
+                    "Fallo al abrir canal direct-tcpip hacia {}:{} a través del Bastion: {}",
+                    host.hostname, host.port, e
+                )
+            })?;
+
+        let stream = channel.into_stream();
+
+        // Keep jump host session active in background for the lifetime of the direct-tcpip stream
+        tokio::spawn(async move {
+            let _keep = jump_session;
+            tokio::time::sleep(tokio::time::Duration::from_secs(365 * 24 * 3600)).await;
+        });
+
+        client::connect_stream(config, stream, handler)
+            .await
+            .map_err(|e| format!("Fallo de negociación SSH a través del canal Bastion: {}", e))?
+    } else {
+        let addr = format!("{}:{}", host.hostname, host.port);
+        client::connect(config, addr, handler)
+            .await
+            .map_err(|e| format!("SSH connection failed: {}", e))?
+    };
 
     // Authenticate
     let mut authenticated = false;

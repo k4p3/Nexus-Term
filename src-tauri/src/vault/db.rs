@@ -15,6 +15,8 @@ pub enum VaultError {
     DbError(#[from] rusqlite::Error),
     #[error("Crypto error: {0}")]
     Crypto(#[from] CryptoError),
+    #[error("Validation error: {0}")]
+    ValidationError(String),
     #[error("Vault is already initialized")]
     AlreadyInitialized,
     #[error("Vault is not initialized yet")]
@@ -94,6 +96,7 @@ impl VaultManager {
             CREATE TABLE IF NOT EXISTS hosts (
                 id TEXT PRIMARY KEY,
                 folder_id TEXT REFERENCES folders(id) ON DELETE SET NULL,
+                jump_host_id TEXT REFERENCES hosts(id) ON DELETE SET NULL,
                 label TEXT NOT NULL,
                 hostname TEXT NOT NULL,
                 port INTEGER NOT NULL DEFAULT 22,
@@ -149,6 +152,7 @@ impl VaultManager {
             ",
         )?;
         let _ = conn.execute("ALTER TABLE identities ADD COLUMN public_key TEXT", []);
+        let _ = conn.execute("ALTER TABLE hosts ADD COLUMN jump_host_id TEXT REFERENCES hosts(id) ON DELETE SET NULL", []);
         let _ = conn.execute("ALTER TABLE snippets ADD COLUMN is_builtin INTEGER NOT NULL DEFAULT 0", []);
         let _ = conn.execute("ALTER TABLE snippets ADD COLUMN is_enabled INTEGER NOT NULL DEFAULT 1", []);
 

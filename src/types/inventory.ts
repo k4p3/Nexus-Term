@@ -34,6 +34,7 @@ export interface SaveIdentityPayload {
 export interface HostSummary {
   id: string;
   folder_id: string | null;
+  jump_host_id: string | null;
   label: string;
   hostname: string;
   port: number;
@@ -47,6 +48,7 @@ export interface HostSummary {
 export interface SaveHostPayload {
   id?: string | null;
   folder_id?: string | null;
+  jump_host_id?: string | null;
   label: string;
   hostname: string;
   port: number;

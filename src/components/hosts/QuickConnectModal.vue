@@ -5,7 +5,7 @@ import { useVaultStore } from "../../stores/vault.store";
 import { useSnippetsStore } from "../../stores/snippets.store";
 import type { HostSummary } from "../../types/inventory";
 import type { CommandSnippet } from "../../types/snippets";
-import { Search, Server, Terminal, Settings, Code, Folder, Tag, CornerDownLeft, ArrowRightLeft, FolderSync } from "lucide-vue-next";
+import { Search, Server, Terminal, Settings, Code, Folder, Tag, CornerDownLeft, ArrowRightLeft, FolderSync, Route } from "lucide-vue-next";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -36,6 +36,7 @@ interface SearchItem {
   label: string;
   subtitle: string;
   folderName?: string;
+  jumpHostLabel?: string;
   tags?: string[];
   host?: HostSummary;
   snippet?: CommandSnippet;
@@ -98,12 +99,16 @@ const items = computed<SearchItem[]>(() => {
       folderName.toLowerCase().includes(q) ||
       tagsStr.includes(q)
     ) {
+      const jumpHost = host.jump_host_id ? vaultStore.hosts.find((h) => h.id === host.jump_host_id) : undefined;
+      const jumpHostLabel = jumpHost ? jumpHost.label : undefined;
+
       result.push({
         type: "host",
         id: host.id,
         label: host.label,
         subtitle: `${host.hostname}:${host.port}`,
         folderName: folderName || undefined,
+        jumpHostLabel,
         tags: host.tags,
         host,
       });
@@ -266,6 +271,10 @@ onUnmounted(() => {
             <div class="truncate">
               <div class="font-medium text-theme-main flex items-center space-x-2 truncate">
                 <span>{{ item.label }}</span>
+                <span v-if="item.jumpHostLabel" class="text-[10px] px-1.5 py-0.2 bg-amber-500/15 text-amber-300 border border-amber-500/30 rounded flex items-center space-x-1">
+                  <Route class="w-2.5 h-2.5 text-amber-400" />
+                  <span>via {{ item.jumpHostLabel }}</span>
+                </span>
                 <span v-if="item.folderName" class="text-[10px] px-1.5 py-0.2 bg-theme-app text-theme-muted border border-theme rounded flex items-center space-x-1">
                   <Folder class="w-2.5 h-2.5" />
                   <span>{{ item.folderName }}</span>

@@ -1,6 +1,7 @@
 use chrono::Utc;
-use rusqlite::params;
+use rusqlite::{params, OptionalExtension};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use uuid::Uuid;
 
 use super::crypto::{decrypt_record, encrypt_record};
@@ -55,6 +56,7 @@ pub struct SaveIdentityPayload {
 pub struct HostSummary {
     pub id: String,
     pub folder_id: Option<String>,
+    pub jump_host_id: Option<String>,
     pub label: String,
     pub hostname: String,
     pub port: u16,
@@ -69,6 +71,7 @@ pub struct HostSummary {
 pub struct SaveHostPayload {
     pub id: Option<String>,
     pub folder_id: Option<String>,
+    pub jump_host_id: Option<String>,
     pub label: String,
     pub hostname: String,
     pub port: u16,
@@ -126,7 +129,7 @@ impl VaultManager {
             .collect::<Result<Vec<_>, _>>()?;
 
         // 3. Hosts
-        let mut stmt = conn.prepare("SELECT id, folder_id, label, hostname, port, username_override, identity_id, tags_json, encrypted_notes, updated_at FROM hosts ORDER BY label ASC")?;
+        let mut stmt = conn.prepare("SELECT id, folder_id, label, hostname, port, username_override, identity_id, tags_json, encrypted_notes, jump_host_id, updated_at FROM hosts ORDER BY label ASC")?;
         let hosts = stmt
             .query_map([], |row| {
                 let tags_str: String = row.get(7)?;
@@ -143,6 +146,7 @@ impl VaultManager {
                 Ok(HostSummary {
                     id: row.get(0)?,
                     folder_id: row.get(1)?,
+                    jump_host_id: row.get(9)?,
                     label: row.get(2)?,
                     hostname: row.get(3)?,
                     port: row.get::<_, u32>(4)? as u16,
@@ -150,7 +154,7 @@ impl VaultManager {
                     identity_id: row.get(6)?,
                     tags,
                     notes,
-                    updated_at: row.get(9)?,
+                    updated_at: row.get(10)?,
                 })
             })?
             .collect::<Result<Vec<_>, _>>()?;
@@ -341,6 +345,12 @@ impl VaultManager {
             .id
             .filter(|s| !s.is_empty())
             .unwrap_or_else(|| Uuid::now_v7().to_string());
+        let jump_host_id = payload.jump_host_id.filter(|s| !s.trim().is_empty());
+
+        if let Some(ref jump_id) = jump_host_id {
+            check_jump_host_cycles(&conn, &id, jump_id)?;
+        }
+
         let now = Utc::now().to_rfc3339();
         let tags_json = serde_json::to_string(&payload.tags).unwrap_or_else(|_| "[]".to_string());
 
@@ -356,8 +366,8 @@ impl VaultManager {
         };
 
         conn.execute(
-            "INSERT INTO hosts (id, folder_id, label, hostname, port, username_override, identity_id, tags_json, encrypted_notes, updated_at)
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)
+            "INSERT INTO hosts (id, folder_id, label, hostname, port, username_override, identity_id, tags_json, encrypted_notes, jump_host_id, updated_at)
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)
              ON CONFLICT(id) DO UPDATE SET
                 folder_id = excluded.folder_id,
                 label = excluded.label,
@@ -367,6 +377,7 @@ impl VaultManager {
                 identity_id = excluded.identity_id,
                 tags_json = excluded.tags_json,
                 encrypted_notes = excluded.encrypted_notes,
+                jump_host_id = excluded.jump_host_id,
                 updated_at = excluded.updated_at",
             params![
                 id,
@@ -378,6 +389,7 @@ impl VaultManager {
                 payload.identity_id,
                 tags_json,
                 enc_notes,
+                jump_host_id,
                 now
             ],
         )?;
@@ -391,6 +403,49 @@ impl VaultManager {
         conn.execute("DELETE FROM hosts WHERE id = ?1", params![id])?;
         Ok(())
     }
+}
+
+pub fn check_jump_host_cycles(
+    conn: &rusqlite::Connection,
+    target_host_id: &str,
+    candidate_jump_id: &str,
+) -> Result<(), VaultError> {
+    if target_host_id == candidate_jump_id {
+        return Err(VaultError::ValidationError(
+            "Un host no puede ser su propio servidor de salto".into(),
+        ));
+    }
+
+    let mut current = candidate_jump_id.to_string();
+    let mut visited = HashSet::new();
+    visited.insert(target_host_id.to_string());
+    visited.insert(candidate_jump_id.to_string());
+
+    loop {
+        let next_jump: Option<String> = conn
+            .query_row(
+                "SELECT jump_host_id FROM hosts WHERE id = ?1",
+                params![current],
+                |row| row.get::<_, Option<String>>(0),
+            )
+            .optional()?
+            .flatten();
+
+        match next_jump {
+            Some(jump) if !jump.trim().is_empty() => {
+                if visited.contains(&jump) {
+                    return Err(VaultError::ValidationError(
+                        "Referencia circular detectada en la cadena de servidores de salto".into(),
+                    ));
+                }
+                visited.insert(jump.clone());
+                current = jump;
+            }
+            _ => break,
+        }
+    }
+
+    Ok(())
 }
 
 // Tauri IPC Command wrappers
@@ -475,6 +530,7 @@ mod tests {
             .save_host(SaveHostPayload {
                 id: None,
                 folder_id: Some(folder_id.clone()),
+                jump_host_id: None,
                 label: "DB Primary".to_string(),
                 hostname: "192.168.1.50".to_string(),
                 port: 22,
@@ -499,6 +555,7 @@ mod tests {
         assert_eq!(inv.identities[0].public_key.as_deref(), Some(dummy_pub_key));
         assert_eq!(inv.hosts.len(), 1);
         assert_eq!(inv.hosts[0].notes.as_deref(), Some(sensitive_note));
+        assert_eq!(inv.hosts[0].jump_host_id, None);
 
         // 6. CRITICAL SECURITY CHECK:
         // Direct query to the raw database to verify NO plain text secrets exist in SQLite columns!
@@ -522,5 +579,114 @@ mod tests {
             .unwrap();
         assert_ne!(raw_notes, sensitive_note.as_bytes());
         assert!(!raw_notes.windows(sensitive_note.len()).any(|w| w == sensitive_note.as_bytes()));
+    }
+
+    #[test]
+    fn test_jump_host_chaining_and_cycle_prevention() {
+        let conn = Connection::open_in_memory().unwrap();
+        let manager = VaultManager::new(conn).unwrap();
+        manager.init("VaultMasterPass!2026").unwrap();
+
+        // 1. Create Bastion A
+        let bastion_a_id = manager
+            .save_host(SaveHostPayload {
+                id: Some("host-bastion-a".to_string()),
+                folder_id: None,
+                jump_host_id: None,
+                label: "Bastion A".to_string(),
+                hostname: "bastion-a.internal".to_string(),
+                port: 22,
+                username_override: None,
+                identity_id: None,
+                tags: vec![],
+                notes: None,
+            })
+            .unwrap();
+
+        // 2. Create Bastion B jumping through Bastion A
+        let bastion_b_id = manager
+            .save_host(SaveHostPayload {
+                id: Some("host-bastion-b".to_string()),
+                folder_id: None,
+                jump_host_id: Some(bastion_a_id.clone()),
+                label: "Bastion B".to_string(),
+                hostname: "bastion-b.internal".to_string(),
+                port: 22,
+                username_override: None,
+                identity_id: None,
+                tags: vec![],
+                notes: None,
+            })
+            .unwrap();
+
+        // 3. Create Target C jumping through Bastion B
+        let target_c_id = manager
+            .save_host(SaveHostPayload {
+                id: Some("host-target-c".to_string()),
+                folder_id: None,
+                jump_host_id: Some(bastion_b_id.clone()),
+                label: "Target Server C".to_string(),
+                hostname: "target-c.internal".to_string(),
+                port: 2222,
+                username_override: None,
+                identity_id: None,
+                tags: vec![],
+                notes: None,
+            })
+            .unwrap();
+
+        // 4. Verify chain persisted properly
+        let inv = manager.get_inventory().unwrap();
+        let host_a = inv.hosts.iter().find(|h| h.id == bastion_a_id).unwrap();
+        let host_b = inv.hosts.iter().find(|h| h.id == bastion_b_id).unwrap();
+        let host_c = inv.hosts.iter().find(|h| h.id == target_c_id).unwrap();
+        assert_eq!(host_a.jump_host_id, None);
+        assert_eq!(host_b.jump_host_id.as_deref(), Some(bastion_a_id.as_str()));
+        assert_eq!(host_c.jump_host_id.as_deref(), Some(bastion_b_id.as_str()));
+
+        // 5. TEST: Host cannot be its own jump host
+        let self_cycle_err = manager.save_host(SaveHostPayload {
+            id: Some(bastion_a_id.clone()),
+            folder_id: None,
+            jump_host_id: Some(bastion_a_id.clone()),
+            label: "Bastion A".to_string(),
+            hostname: "bastion-a.internal".to_string(),
+            port: 22,
+            username_override: None,
+            identity_id: None,
+            tags: vec![],
+            notes: None,
+        });
+        assert!(matches!(self_cycle_err, Err(VaultError::ValidationError(_))));
+
+        // 6. TEST: Direct cycle A -> B -> A should fail
+        let direct_cycle_err = manager.save_host(SaveHostPayload {
+            id: Some(bastion_a_id.clone()),
+            folder_id: None,
+            jump_host_id: Some(bastion_b_id.clone()),
+            label: "Bastion A".to_string(),
+            hostname: "bastion-a.internal".to_string(),
+            port: 22,
+            username_override: None,
+            identity_id: None,
+            tags: vec![],
+            notes: None,
+        });
+        assert!(matches!(direct_cycle_err, Err(VaultError::ValidationError(_))));
+
+        // 7. TEST: Indirect cycle A -> B -> C -> A should fail
+        let indirect_cycle_err = manager.save_host(SaveHostPayload {
+            id: Some(bastion_a_id.clone()),
+            folder_id: None,
+            jump_host_id: Some(target_c_id.clone()),
+            label: "Bastion A".to_string(),
+            hostname: "bastion-a.internal".to_string(),
+            port: 22,
+            username_override: None,
+            identity_id: None,
+            tags: vec![],
+            notes: None,
+        });
+        assert!(matches!(indirect_cycle_err, Err(VaultError::ValidationError(_))));
     }
 }
