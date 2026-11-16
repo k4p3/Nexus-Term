@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Project website** (GitHub Pages, English and Spanish): home page, step-by-step usage guide and shortcut cheat sheet, built as plain static HTML/CSS in `site/` with no third-party resources, published by `.github/workflows/pages.yml` and covered by an automated test (`src/utils/site.docs.test.ts`) that checks language parity, every registered shortcut, links and the absence of external resources.
 - **Command blocks** based on xterm markers (OSC 133): ✓/✗ + duration in the margin, block selection, copy command/output, search within a block and re-run (`Ctrl+Shift+R`). Blocks stay correct when the scrollback is trimmed (the previous model used absolute line numbers).
 - **Per-host command history** (`Ctrl+Shift+H`): stored encrypted with the vault key (AES-256-GCM), fuzzy picker with snippets, `Enter` inserts / `Ctrl+Enter` runs. Commands with a leading space or secret-looking text are never recorded; management from Settings.
 - **Instant Replay** (`Ctrl+Shift+Y`): in-memory circular buffer (5 min / 8 MiB per pane) with a read-only timeline viewer; never written to disk and wiped on vault lock.

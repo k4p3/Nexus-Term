@@ -22,6 +22,10 @@
   <strong>English</strong> | <a href="README.es.md">Español</a>
 </p>
 
+<p align="center">
+  🌐 <a href="https://k4p3.github.io/Nexus-Term/en/index.html"><strong>Website &amp; usage guide</strong></a>
+</p>
+
 ---
 
 ## Overview

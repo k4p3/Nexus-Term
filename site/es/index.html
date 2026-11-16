@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NexusTerm — gestor SSH/SFTP y terminal libre</title>
+<meta name="description" content="NexusTerm es un gestor SSH, SFTP y emulador de terminal libre (GPLv3), ligero y con bóveda cifrada de conocimiento cero. Para Linux, Windows y macOS.">
+<link rel="canonical" href="https://k4p3.github.io/Nexus-Term/es/index.html">
+<link rel="alternate" hreflang="en" href="https://k4p3.github.io/Nexus-Term/en/index.html">
+<link rel="alternate" hreflang="es" href="https://k4p3.github.io/Nexus-Term/es/index.html">
+<link rel="alternate" hreflang="x-default" href="https://k4p3.github.io/Nexus-Term/en/index.html">
+<link rel="icon" href="../assets/img/favicon.ico">
+<link rel="stylesheet" href="../assets/style.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NexusTerm">
+<meta property="og:title" content="NexusTerm — gestor SSH/SFTP y terminal libre">
+<meta property="og:description" content="NexusTerm es un gestor SSH, SFTP y emulador de terminal libre (GPLv3), ligero y con bóveda cifrada de conocimiento cero. Para Linux, Windows y macOS.">
+<meta property="og:url" content="https://k4p3.github.io/Nexus-Term/es/index.html">
+<meta property="og:image" content="https://k4p3.github.io/Nexus-Term/assets/img/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="color-scheme" content="dark light">
+</head>
+<body>
+<a class="skip" href="#main">Saltar al contenido</a>
+<header class="site-header"><div class="wrap">
+<a class="brand" href="index.html"><img src="../assets/img/logo.png" alt="" width="32" height="32"><span>NexusTerm</span></a>
+<nav class="nav" aria-label="Principal"><a href="index.html" aria-current="page">Inicio</a><a href="guia.html">Guía</a><a href="atajos.html">Atajos</a><a href="https://github.com/k4p3/Nexus-Term">GitHub</a><a class="lang" data-lang="en" lang="en" hreflang="en" href="../en/index.html" title="Read in English">English</a></nav>
+</div></header>
+<main id="main">
+<section class="hero"><div class="wrap">
+<img class="logo" src="../assets/img/logo.png" alt="Logo de NexusTerm" width="96" height="96">
+<h1>NexusTerm</h1>
+<p class="lead">Gestor SSH/SFTP y terminal moderno, ligero y de conocimiento cero. Una alternativa 100% libre a Termius, Tabby o MobaXterm.</p>
+<div class="cta"><a class="btn primary" href="https://github.com/k4p3/Nexus-Term/releases">Descargar</a><a class="btn" href="guia.html">Cómo se usa</a></div>
+<ul class="badges"><li>GPLv3</li><li>Linux · Windows · macOS</li><li>Tauri v2 + Rust</li></ul>
+</div></section>
+<section><div class="wrap split">
+<div><h2>Tu terminal, con superpoderes</h2>
+<p class="sub">Cada comando es un bloque que muestra si salió bien (✓) o mal (✗) y cuánto tardó. Puedes copiar su salida, repetirlo o buscar solo dentro de él.</p></div>
+<figure class="shot" data-slot="terminal" role="img" aria-label="Ilustración de la terminal con bloques de comandos marcados con ✓ y ✗"><div class="win"><div class="bar"><i></i><i></i><i></i><b>prod-web-01</b></div><div class="body">
+<div class="ln"><span><span class="p">deploy@web-01</span> <span class="dim">~</span> $ systemctl status nginx</span><span class="ok">✓ 0.2s</span></div>
+<div class="ln"><span class="dim">● nginx.service - active (running)</span><span></span></div>
+<div class="ln"><span><span class="p">deploy@web-01</span> <span class="dim">~</span> $ cat /etc/nginx/missing.conf</span><span class="bad">✗ 0.0s</span></div>
+<div class="ln"><span class="bad">cat: /etc/nginx/missing.conf: No such file or directory</span><span></span></div>
+<div class="ln"><span><span class="p">deploy@web-01</span> <span class="dim">~</span> $ tar czf backup.tgz /var/www</span><span class="ok">✓ 14.8s</span></div>
+<div class="ln"><span><span class="p">deploy@web-01</span> <span class="dim">~</span> $ <span class="sel">&#9608;</span></span><span></span></div>
+</div></div><figcaption>Ilustración</figcaption></figure></div></section>
+<section id="features"><div class="wrap"><h2>Qué incluye</h2>
+<p class="sub">Todo lo que necesitas para gestionar servidores, sin salir de una sola aplicación.</p>
+<div class="grid">
+<article class="card"><span class="ico" aria-hidden="true">🔐</span><h3>Bóveda de conocimiento cero</h3><p>Las credenciales y llaves SSH se cifran por registro con AES-256-GCM. La contraseña maestra se deriva con Argon2id, nunca se escribe en disco y las llaves se borran de la memoria al bloquear.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">🖥️</span><h3>SSH, SFTP y telemetría</h3><p>Una única conexión SSH autenticada sirve la terminal interactiva, el explorador SFTP con cola de transferencias y una barra de CPU/RAM/red en vivo.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">🪟</span><h3>Paneles divididos y pestañas</h3><p>Divide cualquier pestaña en horizontal o vertical, acopla pestañas en paneles y envía tus teclas a varios servidores a la vez (Broadcast).</p></article>
+<article class="card"><span class="ico" aria-hidden="true">🧭</span><h3>Túneles y jump hosts</h3><p>Reenvío de puertos local (-L), remoto (-R) y dinámico SOCKS5 (-D), y bastiones encadenados.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">🖱️</span><h3>RDP y VNC</h3><p>Abre escritorios gráficos como pestañas junto a tus terminales.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">⚡</span><h3>Una terminal más inteligente</h3><p>Bloques de comandos con ✓/✗ y duración, historial cifrado por host, Instant Replay, Quick Select, pegado seguro y enlaces inteligentes.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">📋</span><h3>Snippets</h3><p>Biblioteca de comandos con parámetros {{placeholders}} y un catálogo comunitario para Docker, systemd y red.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">🎨</span><h3>Temas e idiomas</h3><p>Tokyo Night, One Dark, Dracula, Catppuccin, Nord y KDE Breeze Dark, con inglés y español incluidos.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">🪶</span><h3>Ligera</h3><p>Construida con Tauri v2 y Rust: sin Electron, poco consumo de memoria y terminal acelerada con WebGL.</p></article>
+</div></div></section>
+<section><div class="wrap split rev">
+<figure class="shot" data-slot="history" role="img" aria-label="Ilustración del selector de historial por host"><div class="win"><div class="bar"><i></i><i></i><i></i><b>prod-web-01</b></div><div class="body">
+<div class="picker"><div class="q">› dock</div>
+<div class="it on"><span>docker compose up -d</span><span class="dim">×12</span></div>
+<div class="it"><span>docker logs -f api --tail 100</span><span class="dim">×7</span></div>
+<div class="it"><span>docker ps --format "table …"</span><span class="dim">×3</span></div>
+<div class="it"><span class="dim">snippet: Docker prune</span><span></span></div></div>
+<div class="dim" style="margin-top:8px">Enter ↵ inserta · Ctrl+Enter ejecuta</div>
+</div></div><figcaption>Ilustración</figcaption></figure>
+<div><h2>Historial por host, cifrado</h2>
+<p class="sub">Pulsa Ctrl+Shift+H para buscar entre los comandos que ya ejecutaste en ese servidor, junto a tus snippets. Se guarda cifrado en la bóveda y nunca registra comandos con aspecto de secreto.</p>
+<p class="sub">También tienes Instant Replay (Ctrl+Shift+Y) para recuperar la salida que borró un clear, y restauración de pestañas al reabrir la aplicación.</p></div>
+</div></section>
+<section id="security"><div class="wrap split">
+<div><h2>Seguridad: conocimiento cero</h2>
+<ul>
+<li>Contraseña maestra con Argon2id (64 MiB, 3 iteraciones, 4 hilos); nunca se guarda en disco.</li>
+<li>Cada registro se cifra con AES-256-GCM y un IV único.</li>
+<li>Puedes cambiar la contraseña maestra sin recifrar todos tus servidores.</li>
+<li>Las llaves se borran de la memoria al bloquear la bóveda.</li>
+<li>Sin cuentas ni servicios en la nube: tus datos se quedan en tu equipo.</li></ul></div>
+<figure class="shot" data-slot="vault" role="img" aria-label="Ilustración de la pantalla de desbloqueo de la bóveda cifrada"><div class="win"><div class="bar"><i></i><i></i><i></i><b>NexusTerm</b></div><div class="body lock">
+<div class="big">🔐</div>
+<div>Bóveda cifrada</div>
+<div class="field">Contraseña maestra ••••••••••••</div>
+<div class="dim">Argon2id · AES-256-GCM</div>
+</div></div><figcaption>Ilustración</figcaption></figure></div></section>
+<section id="install"><div class="wrap"><h2>Instalación</h2>
+<p class="sub">Descarga el instalador para tu sistema desde la página de versiones: AppImage, .deb y .rpm para Linux, .msi/.exe para Windows y .dmg para macOS.</p>
+<p><a class="btn primary" href="https://github.com/k4p3/Nexus-Term/releases">Ir a las versiones</a></p>
+<h3 style="margin-top:24px">En Linux (AppImage)</h3>
+<pre data-copy data-copy-label="Copiar" data-copied-label="Copiado"><code>chmod +x nexus-term_*_amd64.AppImage
+./nexus-term_*_amd64.AppImage</code></pre>
+<h3>Desde el código fuente</h3>
+<pre data-copy data-copy-label="Copiar" data-copied-label="Copiado"><code>git clone https://github.com/k4p3/Nexus-Term.git
+cd Nexus-Term
+pnpm install
+pnpm tauri dev</code></pre>
+<p class="sub">Requiere Node.js 20+, pnpm y Rust estable; en Linux, además, las dependencias de WebKitGTK (consulta el README).</p>
+</div></section>
+<section><div class="wrap"><h2>¿Y ahora?</h2>
+<div class="cta" style="justify-content:flex-start"><a class="btn primary" href="guia.html">Lee la guía de uso</a><a class="btn" href="atajos.html">Ver todos los atajos</a><a class="btn" href="https://github.com/k4p3/Nexus-Term">Código fuente</a></div></div></section>
+</main>
+<footer class="site-footer"><div class="wrap"><span>NexusTerm es software libre bajo la licencia GNU GPLv3.</span><span><a href="https://github.com/k4p3/Nexus-Term">Código fuente</a> · <a href="https://github.com/k4p3/Nexus-Term/releases">Versiones</a> · <a href="https://github.com/k4p3/Nexus-Term/issues">Informar de un problema</a></span></div></footer>
+<script src="../assets/site.js"></script>
+</body>
+</html>

@@ -15,6 +15,8 @@ export default defineConfig({
   test: {
     environment: "happy-dom",
     globals: true,
+    // Por defecto Vitest sustituye el CSS por una cadena vacía; la prueba del sitio necesita leer su hoja de estilos.
+    css: { include: [/site\/assets\/style\.css/] },
   },
   // Tauri expects a fixed port, fail if that port is not available
   server: {
