@@ -143,7 +143,16 @@
     "sftpConcurrent5": "5 (Maximum concurrent)",
     "remoteDesktopSection": "Remote desktop (RDP / VNC)",
     "remoteClipboard": "Sync text clipboard",
-    "remoteClipboardDesc": "Share copied text between your machine and RDP/VNC sessions."
+    "remoteClipboardDesc": "Share copied text between your machine and RDP/VNC sessions.",
+    "terminalProductivitySection": "Terminal productivity",
+    "pasteWarning": "Warn when pasting multi-line or dangerous text",
+    "pasteWarningDesc": "Shows a preview before pasting several lines, destructive commands or hidden characters.",
+    "pasteHistorySize": "Paste history entries (memory only)",
+    "notifyLong": "Notify when long commands finish",
+    "notifyLongDesc": "Desktop notice when the window is not in view (requires shell integration).",
+    "notifyThreshold": "Threshold (seconds)",
+    "notifyIncludeCommand": "Include the command text in the notification",
+    "notifyIncludeCommandDesc": "Off by default: the command may contain secrets."
   },
   "snippets": {
     "title": "Snippets",
@@ -178,5 +187,82 @@
     "certFingerprint": "SHA-256 fingerprint",
     "certAccept": "Accept and connect",
     "certReject": "Reject"
+  },
+  "shortcuts": {
+    "app.quickConnect": "Quick Connect",
+    "app.toggleSidebar": "Toggle sidebar",
+    "app.settings": "Settings",
+    "app.shortcuts": "Keyboard shortcuts cheat sheet",
+    "terminal.search": "Search terminal buffer",
+    "terminal.splitH": "Split horizontally",
+    "terminal.splitHAlt": "Split horizontally (alternative)",
+    "terminal.splitV": "Split vertically",
+    "terminal.closePane": "Close active pane",
+    "workspace.broadcast": "Toggle Broadcast mode",
+    "terminal.prevPrompt": "Jump to previous prompt",
+    "terminal.nextPrompt": "Jump to next prompt",
+    "terminal.copy": "Copy selection",
+    "terminal.paste": "Paste",
+    "terminal.quickSelect": "Quick Select (copy with hints)",
+    "terminal.palette": "Terminal command palette",
+    "terminal.pasteHistory": "Paste history"
+  },
+  "shortcutsModal": {
+    "title": "Keyboard shortcuts",
+    "groups": {
+      "navigation": "Navigation",
+      "panes": "Panes & tabs",
+      "selection": "Selection",
+      "clipboard": "Clipboard",
+      "tools": "Tools"
+    }
+  },
+  "palette": {
+    "placeholder": "Type an action, theme or snippet…",
+    "empty": "No results",
+    "theme": "Theme: {name}",
+    "themeCategory": "Change theme",
+    "snippetCategory": "Snippet",
+    "actions": {
+      "search": "Search buffer",
+      "quickSelect": "Quick Select",
+      "pasteHistory": "Paste history",
+      "prevPrompt": "Jump to previous prompt",
+      "nextPrompt": "Jump to next prompt",
+      "copyLastOutput": "Copy last command output",
+      "splitH": "Split horizontally",
+      "splitV": "Split vertically",
+      "closePane": "Close pane",
+      "broadcast": "Toggle Broadcast",
+      "quickConnect": "Quick Connect",
+      "shortcuts": "Show keyboard shortcuts"
+    }
+  },
+  "paste": {
+    "title": "Confirm paste",
+    "summary": "{lines} line(s) · {bytes} bytes",
+    "dangerous": "Contains potentially dangerous commands (highlighted).",
+    "control": "Contains control or hidden characters: this could be a paste-jacking attack.",
+    "secret": "Looks like a secret (key or token).",
+    "confirm": "Paste",
+    "oneLine": "Paste as one line",
+    "cancel": "Cancel",
+    "historyPlaceholder": "Search paste history…",
+    "historyEmpty": "Paste history is empty"
+  },
+  "quickSelect": {
+    "hint": "Type the label to copy · Uppercase to paste · Esc cancels",
+    "none": "Nothing to select on screen",
+    "copied": "Copied: {text}",
+    "copyFailed": "Could not copy to the clipboard"
+  },
+  "links": {
+    "copyPath": "Copy path",
+    "showInSftp": "Show in SFTP",
+    "connectSsh": "Connect via SSH to {ip}",
+    "copyIp": "Copy IP"
+  },
+  "toast": {
+    "go": "Go"
   }
 }

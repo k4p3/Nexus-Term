@@ -49,6 +49,7 @@ use crate::vault::inventory::{
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_notification::init())
         .setup(|app| {
             if let Some(icon) = app.default_window_icon() {
                 if let Some(window) = app.get_webview_window("main") {

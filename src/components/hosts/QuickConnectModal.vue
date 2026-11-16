@@ -9,6 +9,8 @@ import { Search, Server, Terminal, Settings, Code, Folder, Tag, CornerDownLeft, 
 
 const props = defineProps<{
   isOpen: boolean;
+  /** Texto inicial de búsqueda (p. ej. una IP detectada en la terminal). */
+  prefill?: string | null;
 }>();
 
 const emit = defineEmits<{
@@ -146,7 +148,7 @@ watch(
   () => props.isOpen,
   (open) => {
     if (open) {
-      query.value = "";
+      query.value = props.prefill ?? "";
       selectedIndex.value = 0;
       nextTick(() => {
         searchInput.value?.focus();

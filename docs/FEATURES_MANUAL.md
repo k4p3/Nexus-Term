@@ -77,7 +77,37 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 - Barra de búsqueda interactiva con búsqueda por expresiones regulares (`RegEx`), coincidencia de palabras completas y navegación bidireccional de resultados con resaltado.
 
 ### 4.5. Enlaces Inteligentes y Detección de IPs
-- Detección y clic interactivo en URLs (`https://`), rutas locales (`src/main.rs:10`) y direcciones IP (con menú contextual para conectar directamente vía SSH).
+- Las URLs (`https://`) se abren con un clic.
+- Las **rutas** (`ruta`, `ruta:línea` y `ruta:línea:columna`, p. ej. `src/main.rs:10:5`) y las **direcciones IP** (IPv4 e IPv6 válidas) se activan con `Ctrl`+clic (`Cmd`+clic en macOS); un clic normal solo selecciona texto.
+  - Ruta en sesión SSH: **Copiar ruta** y **Mostrar en SFTP** (abre el panel SFTP en el directorio que la contiene).
+  - Ruta en sesión local: **Copiar ruta**.
+  - IP: **Conectar por SSH** (abre la Conexión Rápida con la IP rellenada) y **Copiar IP**.
+
+### 4.6. Quick Select (`Ctrl+Shift+Space`)
+- Resalta en pantalla URLs, rutas, hashes de git (7–40 hex), IPv4/IPv6, UUID, correos y números largos, y asigna una etiqueta de teclado a cada valor distinto (los más cercanos al prompt reciben las primeras letras).
+- Escribe la etiqueta en **minúscula** para copiar el valor al portapapeles o en **mayúscula** para pegarlo en el prompt sin ejecutarlo. `Escape` cancela. Mientras el modo está activo, ninguna tecla llega al shell.
+
+### 4.7. Paleta de Comandos de la Terminal (`Ctrl+Shift+P`)
+- Búsqueda difusa de acciones del panel activo (buscar, dividir, saltar de prompt, Quick Select, historial de pegado…), Broadcast, Conexión Rápida, cambio de tema y snippets habilitados (con su formulario de parámetros).
+- Muestra el atajo de cada acción. Las acciones de terminal no aparecen en paneles de escritorio remoto (RDP/VNC).
+- `↑`/`↓` navegan, `Enter` ejecuta y `Escape` cierra.
+
+### 4.8. Pegado Seguro e Historial de Pegado (`Ctrl+Alt+V`)
+- Antes de pegar se pide confirmación, con vista previa, si el texto: tiene varias líneas (o termina en salto de línea, porque se ejecutaría al pegar), contiene comandos peligrosos (`sudo`, `rm -rf`, `dd if=`, `mkfs`, `chmod -R 777`, `curl … | sh`, *fork bomb*), incluye caracteres de control o de ancho cero (posible *paste-jacking*; se muestran como `␛`, `⟦200B⟧`…) o supera 64 KiB.
+- Opciones: **Pegar**, **Pegar como una línea** o **Cancelar**. El foco inicial está en *Cancelar*.
+- Los pegados simples de una línea no se interrumpen. Se puede desactivar en *Ajustes → Productividad de la terminal*.
+- **Historial de pegado**: los últimos N textos pegados (20 por defecto, máximo 100) se guardan **solo en memoria**, nunca en disco, y se descartan al bloquear la bóveda o cerrar la aplicación. Las entradas con aspecto de secreto se muestran enmascaradas. Al volver a pegar una entrada se aplican las mismas comprobaciones.
+
+### 4.9. Notificaciones de Comandos Largos
+- Requiere la integración de shell (§4.1). Si un comando dura al menos el umbral configurado (10 s por defecto):
+  - ventana sin foco → notificación de escritorio (✓/✗, host y duración);
+  - ventana con foco pero pestaña oculta → aviso dentro de la aplicación con un botón **Ir**;
+  - panel visible → sin aviso.
+- Al volver a la ventana tras una notificación, se activa la pestaña y el panel que la originó.
+- **Privacidad**: el texto del comando no se incluye salvo que se active en *Ajustes*. Si el sistema no permite notificaciones, se usa el aviso interno.
+
+### 4.10. Hoja de Atajos (`Ctrl+Shift+/`)
+- Lista todos los atajos agrupados por contexto. Procede de un registro único que también usan el manejador de teclado y la paleta, por lo que siempre está actualizada. Ver la tabla del §6.
 
 ---
 
@@ -105,5 +135,9 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 | `Ctrl + Shift + ↓` | Saltar al Prompt del Comando Siguiente | Shell Integration |
 | `Ctrl + Shift + B` | Alternar Modo Broadcast | Multiplexor |
 | `Ctrl + Shift + C` | Copiar Texto Seleccionado | Terminal Activa |
-| `Ctrl + Shift + V` | Pegar Texto del Portapapeles | Terminal Activa |
+| `Ctrl + Shift + V` | Pegar Texto del Portapapeles (con pegado seguro) | Terminal Activa |
+| `Ctrl + Shift + Space` | Quick Select (copiar/pegar con etiquetas) | Terminal Activa |
+| `Ctrl + Shift + P` | Paleta de Comandos de la Terminal | Espacio de Trabajo |
+| `Ctrl + Alt + V` | Historial de Pegado | Terminal Activa |
+| `Ctrl + Shift + /` | Hoja de Atajos de Teclado | Global |
 | `Escape` | Cerrar Modales y Paneles Flotantes | Global |

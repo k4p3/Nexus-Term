@@ -24,6 +24,11 @@ const DEFAULT_SETTINGS: AppSettings = {
   auto_lock_minutes: 0,
   sftp_max_concurrent_transfers: 2,
   remote_desktop_clipboard: true,
+  paste_warning: true,
+  paste_history_size: 20,
+  notify_long_commands: true,
+  notify_threshold_seconds: 10,
+  notify_include_command: false,
 };
 
 export const useSettingsStore = defineStore('settings', {

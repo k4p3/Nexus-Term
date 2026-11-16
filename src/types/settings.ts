@@ -11,4 +11,9 @@ export interface AppSettings {
   auto_lock_minutes: number;
   sftp_max_concurrent_transfers: number;
   remote_desktop_clipboard: boolean;
+  paste_warning: boolean;
+  paste_history_size: number;
+  notify_long_commands: boolean;
+  notify_threshold_seconds: number;
+  notify_include_command: boolean;
 }

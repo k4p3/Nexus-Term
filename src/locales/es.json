@@ -143,7 +143,16 @@
     "sftpConcurrent5": "5 (Máximo concurrente)",
     "remoteDesktopSection": "Escritorio remoto (RDP / VNC)",
     "remoteClipboard": "Sincronizar portapapeles de texto",
-    "remoteClipboardDesc": "Comparte el texto copiado entre tu equipo y las sesiones RDP/VNC."
+    "remoteClipboardDesc": "Comparte el texto copiado entre tu equipo y las sesiones RDP/VNC.",
+    "terminalProductivitySection": "Productividad de la terminal",
+    "pasteWarning": "Avisar al pegar texto multilínea o peligroso",
+    "pasteWarningDesc": "Muestra una vista previa antes de pegar varias líneas, comandos destructivos o caracteres ocultos.",
+    "pasteHistorySize": "Entradas del historial de pegado (solo en memoria)",
+    "notifyLong": "Notificar al terminar comandos largos",
+    "notifyLongDesc": "Aviso de escritorio si la ventana no está a la vista (requiere integración de shell).",
+    "notifyThreshold": "Umbral (segundos)",
+    "notifyIncludeCommand": "Incluir el texto del comando en la notificación",
+    "notifyIncludeCommandDesc": "Desactivado por defecto: el comando podría contener secretos."
   },
   "snippets": {
     "title": "Snippets",
@@ -178,5 +187,82 @@
     "certFingerprint": "Huella SHA-256",
     "certAccept": "Aceptar y conectar",
     "certReject": "Rechazar"
+  },
+  "shortcuts": {
+    "app.quickConnect": "Conexión rápida",
+    "app.toggleSidebar": "Mostrar/ocultar barra lateral",
+    "app.settings": "Ajustes",
+    "app.shortcuts": "Hoja de atajos de teclado",
+    "terminal.search": "Buscar en el búfer",
+    "terminal.splitH": "Dividir horizontalmente",
+    "terminal.splitHAlt": "Dividir horizontalmente (alternativo)",
+    "terminal.splitV": "Dividir verticalmente",
+    "terminal.closePane": "Cerrar panel activo",
+    "workspace.broadcast": "Activar/desactivar modo Broadcast",
+    "terminal.prevPrompt": "Ir al prompt anterior",
+    "terminal.nextPrompt": "Ir al prompt siguiente",
+    "terminal.copy": "Copiar selección",
+    "terminal.paste": "Pegar",
+    "terminal.quickSelect": "Quick Select (copiar con etiquetas)",
+    "terminal.palette": "Paleta de comandos de la terminal",
+    "terminal.pasteHistory": "Historial de pegado"
+  },
+  "shortcutsModal": {
+    "title": "Atajos de teclado",
+    "groups": {
+      "navigation": "Navegación",
+      "panes": "Paneles y pestañas",
+      "selection": "Selección",
+      "clipboard": "Portapapeles",
+      "tools": "Herramientas"
+    }
+  },
+  "palette": {
+    "placeholder": "Escribe una acción, tema o snippet…",
+    "empty": "Sin resultados",
+    "theme": "Tema: {name}",
+    "themeCategory": "Cambiar tema",
+    "snippetCategory": "Snippet",
+    "actions": {
+      "search": "Buscar en el búfer",
+      "quickSelect": "Quick Select",
+      "pasteHistory": "Historial de pegado",
+      "prevPrompt": "Ir al prompt anterior",
+      "nextPrompt": "Ir al prompt siguiente",
+      "copyLastOutput": "Copiar salida del último comando",
+      "splitH": "Dividir horizontalmente",
+      "splitV": "Dividir verticalmente",
+      "closePane": "Cerrar panel",
+      "broadcast": "Activar/desactivar Broadcast",
+      "quickConnect": "Conexión rápida",
+      "shortcuts": "Ver atajos de teclado"
+    }
+  },
+  "paste": {
+    "title": "Confirmar pegado",
+    "summary": "{lines} línea(s) · {bytes} bytes",
+    "dangerous": "Contiene comandos potencialmente peligrosos (resaltados).",
+    "control": "Contiene caracteres de control u ocultos: podría ser un ataque de paste-jacking.",
+    "secret": "Parece contener un secreto (clave o token).",
+    "confirm": "Pegar",
+    "oneLine": "Pegar como una línea",
+    "cancel": "Cancelar",
+    "historyPlaceholder": "Buscar en el historial de pegado…",
+    "historyEmpty": "El historial de pegado está vacío"
+  },
+  "quickSelect": {
+    "hint": "Escribe la etiqueta para copiar · Mayúscula para pegar · Esc cancela",
+    "none": "No hay nada que seleccionar en pantalla",
+    "copied": "Copiado: {text}",
+    "copyFailed": "No se pudo copiar al portapapeles"
+  },
+  "links": {
+    "copyPath": "Copiar ruta",
+    "showInSftp": "Mostrar en SFTP",
+    "connectSsh": "Conectar por SSH a {ip}",
+    "copyIp": "Copiar IP"
+  },
+  "toast": {
+    "go": "Ir"
   }
 }

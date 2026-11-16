@@ -51,7 +51,12 @@ Diseñado de manera nativa sobre **Tauri v2** y **Rust**, elimina el alto consum
 - **Modo Broadcast / Multi-Exec (`Ctrl+Shift+B`)**: Escribe una sola vez y replica tus pulsaciones en todos los paneles divididos activos de la pestaña de forma simultánea.
 - **Biblioteca de Snippets con Parámetros**: Guarda comandos frecuentes de Docker, Kubernetes, Git y administración con variables `{{parametro}}` que solicitan valores antes de ejecutarse.
 - **Búsqueda en el Buffer (`Ctrl+F`)**: Búsqueda rápida con soporte para expresiones regulares (RegEx) y resaltado interactivo.
-- **Enlaces Inteligentes**: Detección interactiva de URLs (`https://`), rutas de código (`src/main.rs:10`) y direcciones IP con menú contextual para conexión SSH en 1 clic.
+- **Enlaces Inteligentes**: Las URLs (`https://`) se abren con un clic; las rutas de código (`src/main.rs:10:5`) y las direcciones IP abren un menú contextual con `Ctrl`+clic (copiar, mostrar en SFTP, conectar por SSH).
+- **Quick Select (`Ctrl+Shift+Space`)**: Resalta URLs, rutas, hashes de git, IPs, UUID y correos visibles con etiquetas de teclado. Escribe la etiqueta para copiar; con `Shift` pega en el prompt.
+- **Paleta de Comandos de la Terminal (`Ctrl+Shift+P`)**: Búsqueda difusa de acciones, temas y snippets, mostrando su atajo.
+- **Pegado Seguro e Historial de Pegado (`Ctrl+Alt+V`)**: Los pegados multilínea, los comandos peligrosos (`sudo`, `rm -rf`, `curl | sh`…) y los caracteres de control ocultos piden confirmación con vista previa. El historial de pegado vive solo en memoria y se borra al bloquear la bóveda.
+- **Notificaciones de Comandos Largos**: Aviso de escritorio (o *toast* interno) cuando un comando detectado por la integración de shell termina tras un umbral configurable y no lo estás mirando. El texto del comando nunca se incluye salvo que lo actives.
+- **Hoja de Atajos (`Ctrl+Shift+/`)**: Todos los atajos agrupados por contexto, generada desde un registro único.
 
 ### 🎨 Tematización Unificada de toda la Aplicación
 - **Sincronización Total de Color**: Cambiar de tema actualiza tanto la terminal `xterm.js` como la interfaz completa de la ventana (barra superior, panel de servidores, pestañas, modales y bordes de división).
@@ -99,7 +104,11 @@ Diseñado de manera nativa sobre **Tauri v2** y **Rust**, elimina el alto consum
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↑</kbd> | Saltar al Prompt del Comando Anterior | Shell Integration |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↓</kbd> | Saltar al Prompt del Comando Siguiente | Shell Integration |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> | Copiar Texto Seleccionado | Terminal Activa |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> | Pegar Texto del Portapapeles | Terminal Activa |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> | Pegar Texto del Portapapeles (con comprobación de pegado seguro) | Terminal Activa |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd> | Quick Select (copiar elementos de la pantalla con etiquetas) | Terminal Activa |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> | Paleta de Comandos de la Terminal | Espacio de Trabajo |
+| <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd> | Historial de Pegado | Terminal Activa |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd> | Hoja de Atajos de Teclado | Global |
 | <kbd>Escape</kbd> | Cerrar Modales y Paneles Emergentes | Global |
 
 ---
@@ -199,6 +208,7 @@ pnpm tauri build
 
 - **[Guía de Arquitectura y Referencia Técnica (ARCHITECTURE.md)](ARCHITECTURE.md)**: Explicación a fondo de la arquitectura por capas y dominios, streaming binario por Tauri IPC, criptografía zero-knowledge y guía para extender el sistema.
 - **[Manual de Funcionalidades y Atajos (docs/FEATURES_MANUAL.md)](docs/FEATURES_MANUAL.md)**: Manual de usuario detallando el uso de split panes, atajos de teclado, prompts semánticos y temas.
+- **[Hoja de Ruta (docs/ROADMAP.md)](docs/ROADMAP.md)**: Trabajo planificado e ideas tentativas (no son compromisos).
 - **[Guía de Publicación y Distribución Linux (docs/DISTRIBUTION_AND_RELEASE_GUIDE.md)](docs/DISTRIBUTION_AND_RELEASE_GUIDE.md)**: Configuración y publicación para AUR, Flathub, Snap Store y automatización en GitHub Actions.
 - **[Flujo de Desarrollo SDD para Agentes (AGENTS.md)](AGENTS.md)**: Metodología con OpenSpec, cumplimiento estricto de licencias FOSS y política de testing obligatorio.
 

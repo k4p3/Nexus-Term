@@ -10,6 +10,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Terminal Quick Select** (`Ctrl+Shift+Space`): keyboard hints for URLs, paths, git hashes, IPs, UUIDs and e-mails; lowercase copies, uppercase pastes.
+- **Terminal Command Palette** (`Ctrl+Shift+P`): fuzzy search over terminal actions, themes and snippets, with shortcuts shown.
+- **Safe Paste**: confirmation with preview for multi-line text, dangerous commands and hidden control characters; in-memory **Paste History** (`Ctrl+Alt+V`) wiped on vault lock.
+- **Smart Links** for file paths (`path:line:col`) and IP addresses with `Ctrl`+click context menus (copy, show in SFTP, connect via SSH). The manual previously described this but only URLs were detected.
+- **Long-Command Notifications**: desktop notification or in-app toast when a command finishes after a configurable threshold (`tauri-plugin-notification`, Apache-2.0 OR MIT). The command text is excluded by default.
+- **Keyboard Shortcut Cheat Sheet** (`Ctrl+Shift+/`) and a single shortcut registry shared by the key handler, the palette and the documentation (a test fails if a shortcut is undocumented).
+- **VNC & RDP graphical access**: remote desktop sessions (VNC complete; RDP video, keyboard, mouse and certificate TOFU) integrated as tabs. RDP text clipboard and dynamic resize are still pending.
+- New settings: `paste_warning`, `paste_history_size`, `notify_long_commands`, `notify_threshold_seconds`, `notify_include_command`, `remote_desktop_clipboard`.
+- `docs/ROADMAP.md` with planned work and tentative ideas.
 - **Default Community Snippets**: Built-in curated catalog of 15 essential sysadmin/DevOps snippets (Docker, Systemd, Network, Storage & Kernel diagnostics).
 - **Snippet State Management**: Toggle snippets enabled/disabled individually without deleting them from the database.
 - **Origin Filtering & Cloning**: Filter snippets by "All", "Community", or "Custom" in the drawer, and 1-click duplicate built-in snippets to customize them.

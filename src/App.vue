@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVaultStore } from "./stores/vault.store";
 import { useSessionsStore } from "./stores/sessions.store";
@@ -15,6 +15,11 @@ import PortForwardManager from "./components/tunnels/PortForwardManager.vue";
 import SftpSidebar from "./components/sftp/SftpSidebar.vue";
 import TransferQueue from "./components/sftp/TransferQueue.vue";
 import TerminalWorkspace from "./components/terminal/TerminalWorkspace.vue";
+import TerminalCommandPalette from "./components/terminal/TerminalCommandPalette.vue";
+import ShortcutsModal from "./components/terminal/ShortcutsModal.vue";
+import ToastHost from "./components/common/ToastHost.vue";
+import { useUiStore } from "./stores/ui.store";
+import { matchShortcut } from "./utils/shortcuts";
 import type { HostSummary } from "./types/inventory";
 import { sessionService } from "./services/session.service";
 import { Lock, Terminal, RefreshCw, Search, Settings, Code, ArrowRightLeft, FolderSync } from "lucide-vue-next";
@@ -25,6 +30,7 @@ const sessionsStore = useSessionsStore();
 const settingsStore = useSettingsStore();
 const tunnelsStore = useTunnelsStore();
 const sftpStore = useSftpStore();
+const uiStore = useUiStore();
 
 const isQuickConnectOpen = ref(false);
 const isSettingsOpen = ref(false);
@@ -36,28 +42,54 @@ onMounted(async () => {
   await settingsStore.loadSettings();
   await vaultStore.checkStatus();
   window.addEventListener("keydown", handleGlobalKeyDown);
+  window.addEventListener("focus", handleWindowFocus);
 });
 
 onUnmounted(() => {
   window.removeEventListener("keydown", handleGlobalKeyDown);
+  window.removeEventListener("focus", handleWindowFocus);
 });
 
+// Abrir el Quick Connect desde otras partes de la aplicación (p. ej. una IP en la terminal).
+watch(
+  () => uiStore.quickConnectRequest,
+  () => {
+    if (vaultStore.isUnlocked) isQuickConnectOpen.value = true;
+  },
+);
+
+// Al volver desde una notificación del sistema, se activa el panel que la originó.
+function handleWindowFocus() {
+  const target = uiStore.consumeNotified();
+  if (!target) return;
+  sessionsStore.activeTabId = target.tabId;
+  sessionsStore.setActivePane(target.tabId, target.paneId);
+}
+
+// Atajos globales y de workspace desde el registro único (src/utils/shortcuts.ts).
 function handleGlobalKeyDown(e: KeyboardEvent) {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
-    e.preventDefault();
-    if (vaultStore.isUnlocked) {
-      isQuickConnectOpen.value = !isQuickConnectOpen.value;
-    }
-  } else if ((e.ctrlKey || e.metaKey) && e.key === ",") {
-    e.preventDefault();
-    isSettingsOpen.value = !isSettingsOpen.value;
-  } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b") {
-    e.preventDefault();
-    if (e.shiftKey) {
+  const def = matchShortcut(e, ["global", "workspace"]);
+  if (!def) return;
+  e.preventDefault();
+  switch (def.id) {
+    case "app.quickConnect":
+      if (vaultStore.isUnlocked) isQuickConnectOpen.value = !isQuickConnectOpen.value;
+      break;
+    case "app.settings":
+      isSettingsOpen.value = !isSettingsOpen.value;
+      break;
+    case "app.toggleSidebar":
+      if (vaultStore.isUnlocked) isSidebarVisible.value = !isSidebarVisible.value;
+      break;
+    case "workspace.broadcast":
       sessionsStore.toggleBroadcastMode();
-    } else if (vaultStore.isUnlocked) {
-      isSidebarVisible.value = !isSidebarVisible.value;
-    }
+      break;
+    case "app.shortcuts":
+      uiStore.shortcutsOpen = !uiStore.shortcutsOpen;
+      break;
+    case "terminal.palette":
+      if (vaultStore.isUnlocked) uiStore.paletteOpen = !uiStore.paletteOpen;
+      break;
   }
 }
 
@@ -220,6 +252,7 @@ function handleInsertCommand(command: string) {
         <!-- Quick Connect Palette Modal -->
         <QuickConnectModal
           :is-open="isQuickConnectOpen"
+          :prefill="uiStore.quickConnectPrefill"
           @close="isQuickConnectOpen = false"
           @connect-host="handleConnectHost"
           @connect-sftp="handleConnectSftp"
@@ -253,6 +286,10 @@ function handleInsertCommand(command: string) {
 
       <!-- SFTP Transfer Queue Drawer -->
       <TransferQueue />
+
+      <TerminalCommandPalette v-if="uiStore.paletteOpen" @close="uiStore.paletteOpen = false" />
+      <ShortcutsModal v-if="uiStore.shortcutsOpen" @close="uiStore.shortcutsOpen = false" />
     </main>
+    <ToastHost />
   </div>
 </template>

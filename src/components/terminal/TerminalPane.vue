@@ -12,6 +12,18 @@ import { useSettingsStore } from "../../stores/settings.store";
 import { useVaultStore } from "../../stores/vault.store";
 import { useTelemetryStore } from "../../stores/telemetry.store";
 import TerminalSearchBar, { type SearchOptions } from "./TerminalSearchBar.vue";
+import PasteConfirmModal from "./PasteConfirmModal.vue";
+import PasteHistoryPicker from "./PasteHistoryPicker.vue";
+import QuickSelectOverlay from "./QuickSelectOverlay.vue";
+import TerminalLinkMenu, { type LinkMenuItem } from "./TerminalLinkMenu.vue";
+import { useUiStore } from "../../stores/ui.store";
+import { usePasteHistoryStore } from "../../stores/paste-history.store";
+import { useSftpStore } from "../../stores/sftp.store";
+import { useQuickSelect } from "../../composables/useQuickSelect";
+import { matchShortcut } from "../../utils/shortcuts";
+import { analyzePaste, toSingleLine, type PasteAnalysis } from "../../utils/paste-guard";
+import { findIpLinks, findPathLinks, dirname } from "../../utils/link-detect";
+import { buildNotificationBody, shouldNotify } from "../../utils/notify";
 import TelemetryBar from "./TelemetryBar.vue";
 import type { LeafPane } from "../../types/session";
 import type { HostSummary } from "../../types/inventory";
@@ -46,6 +58,150 @@ const sessionsStore = useSessionsStore();
 const settingsStore = useSettingsStore();
 const vaultStore = useVaultStore();
 const telemetryStore = useTelemetryStore();
+const uiStore = useUiStore();
+const pasteHistory = usePasteHistoryStore();
+const sftpStore = useSftpStore();
+
+// Pegado seguro, historial de pegado y menú de enlaces
+const pendingPaste = ref<{ text: string; analysis: PasteAnalysis } | null>(null);
+const isPasteHistoryOpen = ref(false);
+const linkMenu = ref<{ x: number; y: number; kind: "path" | "ip"; value: string } | null>(null);
+
+const quickSelect = useQuickSelect(
+  () => term,
+  () => terminalContainer.value?.parentElement ?? null,
+  async (r) => {
+    if (r.paste) {
+      term?.paste(r.text);
+      term?.focus();
+    } else {
+      await copyToClipboard(r.text);
+    }
+  },
+  () => uiStore.pushToast(t("quickSelect.none")),
+);
+
+async function copyToClipboard(text: string) {
+  try {
+    await navigator.clipboard.writeText(text);
+    uiStore.pushToast(t("quickSelect.copied", { text: text.length > 40 ? text.slice(0, 37) + "…" : text }), { kind: "success" });
+  } catch {
+    uiStore.pushToast(t("quickSelect.copyFailed"), { kind: "warning" });
+  }
+}
+
+function doPaste(text: string) {
+  pasteHistory.add(text, settingsStore.settings.paste_history_size);
+  term?.paste(text);
+  term?.focus();
+}
+
+/** Todo pegado pasa por aquí: avisa si es multilínea, peligroso o contiene caracteres ocultos. */
+function requestPaste(text: string) {
+  if (!text) return;
+  const analysis = analyzePaste(text);
+  if (settingsStore.settings.paste_warning && analysis.needsConfirm) {
+    pendingPaste.value = { text, analysis };
+    return;
+  }
+  doPaste(text);
+}
+
+function onPasteEvent(e: ClipboardEvent) {
+  const text = e.clipboardData?.getData("text/plain") ?? "";
+  if (!text) return;
+  e.preventDefault();
+  e.stopPropagation();
+  requestPaste(text);
+}
+
+function confirmPaste(singleLine = false) {
+  const p = pendingPaste.value;
+  pendingPaste.value = null;
+  if (p) doPaste(singleLine ? toSingleLine(p.text) : p.text);
+}
+
+function cancelPaste() {
+  pendingPaste.value = null;
+  term?.focus();
+}
+
+function onPasteFromHistory(text: string) {
+  isPasteHistoryOpen.value = false;
+  requestPaste(text);
+}
+
+const linkMenuItems = computed<LinkMenuItem[]>(() => {
+  const m = linkMenu.value;
+  if (!m) return [];
+  if (m.kind === "ip") {
+    return [
+      { id: "connect", label: t("links.connectSsh", { ip: m.value }) },
+      { id: "copy", label: t("links.copyIp") },
+    ];
+  }
+  const items: LinkMenuItem[] = [{ id: "copy", label: t("links.copyPath") }];
+  if (props.pane.hostId) items.push({ id: "sftp", label: t("links.showInSftp") });
+  return items;
+});
+
+async function onLinkAction(id: string) {
+  const m = linkMenu.value;
+  linkMenu.value = null;
+  if (!m) return;
+  if (id === "copy") await copyToClipboard(m.value);
+  else if (id === "connect") uiStore.openQuickConnect(m.value);
+  else if (id === "sftp" && props.pane.hostId) {
+    try {
+      await sftpStore.openSftp(props.pane.hostId);
+      await sftpStore.navigateTo(dirname(m.value));
+    } catch (e) {
+      uiStore.pushToast(String(e), { kind: "warning" });
+    }
+  }
+}
+
+function openLinkMenu(ev: MouseEvent, kind: "path" | "ip", value: string) {
+  if (!(ev.ctrlKey || ev.metaKey)) return; // sin modificador: solo seleccionar texto
+  linkMenu.value = { x: ev.clientX, y: ev.clientY, kind, value };
+}
+
+async function notifyCommandFinished(code: number, durationMs: number) {
+  const channel = shouldNotify({
+    enabled: settingsStore.settings.notify_long_commands,
+    thresholdSeconds: settingsStore.settings.notify_threshold_seconds,
+    durationMs,
+    windowFocused: document.hasFocus(),
+    paneVisible: props.isActive && sessionsStore.activeTabId === props.tabId,
+  });
+  if (channel === "none") return;
+  const { title, body } = buildNotificationBody({
+    ok: code === 0,
+    hostLabel: props.pane.title,
+    durationMs,
+    command: undefined, // el texto del comando solo estará disponible con el historial (cambio avanzado)
+    includeCommand: settingsStore.settings.notify_include_command,
+  });
+  if (channel === "desktop") {
+    try {
+      const n = await import("@tauri-apps/plugin-notification");
+      let granted = await n.isPermissionGranted();
+      if (!granted) granted = (await n.requestPermission()) === "granted";
+      if (granted) {
+        n.sendNotification({ title, body });
+        uiStore.markNotified(props.tabId, props.pane.id);
+        return;
+      }
+    } catch {
+      /* sin servicio de notificaciones: se degrada al aviso interno */
+    }
+  }
+  uiStore.pushToast(`${title}\n${body}`, {
+    kind: code === 0 ? "success" : "warning",
+    tabId: props.tabId,
+    paneId: props.pane.id,
+  });
+}
 
 const terminalContainer = ref<HTMLDivElement | null>(null);
 const isConnecting = ref(true);
@@ -223,31 +379,6 @@ function copyLastOutput() {
   }
 }
 
-function handleKeyDown(e: KeyboardEvent) {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
-    e.preventDefault();
-    isSearchOpen.value = !isSearchOpen.value;
-  } else if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-    const k = e.key.toLowerCase();
-    if (k === 'arrowup') {
-      e.preventDefault();
-      jumpToPreviousPrompt();
-    } else if (k === 'arrowdown') {
-      e.preventDefault();
-      jumpToNextPrompt();
-    } else if (k === 'o' || k === 'd') {
-      e.preventDefault();
-      sessionsStore.splitPane(props.tabId, props.pane.id, 'horizontal', props.pane.host);
-    } else if (k === 'e') {
-      e.preventDefault();
-      sessionsStore.splitPane(props.tabId, props.pane.id, 'vertical', props.pane.host);
-    } else if (k === 'w') {
-      e.preventDefault();
-      handleClose();
-    }
-  }
-}
-
 onMounted(async () => {
   if (!terminalContainer.value) return;
 
@@ -306,6 +437,7 @@ onMounted(async () => {
       lastExitCode.value = code;
       if (last?.durationMs) {
         lastDuration.value = (last.durationMs / 1000).toFixed(1) + 's';
+        notifyCommandFinished(code, last.durationMs);
       }
     }
     return true;
@@ -313,45 +445,52 @@ onMounted(async () => {
 
   term.open(terminalContainer.value);
 
-  // Keyboard shortcuts intercepted before sending to shell
+  // Atajos del registro único (src/utils/shortcuts.ts). Los de contexto global/workspace los
+  // procesa App.vue; aquí solo se evita que lleguen al shell.
   term.attachCustomKeyEventHandler((e: KeyboardEvent) => {
-    if (e.type === 'keydown') {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'f') {
-        isSearchOpen.value = !isSearchOpen.value;
-        return false;
-      }
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && e.key.toLowerCase() === 'b') {
-        return false;
-      }
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-        const k = e.key.toLowerCase();
-        if (k === 'arrowup') {
-          jumpToPreviousPrompt();
-          return false;
-        }
-        if (k === 'arrowdown') {
-          jumpToNextPrompt();
-          return false;
-        }
-        if (k === 'o' || k === 'd') {
-          sessionsStore.splitPane(props.tabId, props.pane.id, 'horizontal', props.pane.host);
-          return false;
-        }
-        if (k === 'e') {
-          sessionsStore.splitPane(props.tabId, props.pane.id, 'vertical', props.pane.host);
-          return false;
-        }
-        if (k === 'w') {
-          handleClose();
-          return false;
-        }
-        if (k === 'b') {
-          sessionsStore.toggleBroadcastMode();
-          return false;
-        }
-      }
+    if (quickSelect.active.value) {
+      quickSelect.handleKey(e);
+      return false;
     }
-    return true;
+    if (e.type !== 'keydown') return true;
+    const def = matchShortcut(e);
+    if (!def) return true;
+    if (def.context !== 'terminal') return false;
+    e.preventDefault();
+    const action: Record<string, () => void> = {
+      'terminal.search': () => (isSearchOpen.value = !isSearchOpen.value),
+      'terminal.splitH': handleSplitHorizontal,
+      'terminal.splitHAlt': handleSplitHorizontal,
+      'terminal.splitV': handleSplitVertical,
+      'terminal.closePane': handleClose,
+      'terminal.prevPrompt': jumpToPreviousPrompt,
+      'terminal.nextPrompt': jumpToNextPrompt,
+      'terminal.quickSelect': () => quickSelect.start(),
+      'terminal.pasteHistory': () => (isPasteHistoryOpen.value = true),
+    };
+    action[def.id]?.();
+    return false;
+  });
+
+  // Enlaces inteligentes: rutas (ruta:línea:col) e IPs. Solo se activan con Ctrl/Cmd+clic.
+  term.registerLinkProvider({
+    provideLinks(y, callback) {
+      const text = term?.buffer.active.getLine(y - 1)?.translateToString(true);
+      if (!text) return callback(undefined);
+      const links = [
+        ...findPathLinks(text).map((l) => ({
+          range: { start: { x: l.start + 1, y }, end: { x: l.end, y } },
+          text: l.text,
+          activate: (ev: MouseEvent) => openLinkMenu(ev, 'path', l.path),
+        })),
+        ...findIpLinks(text).map((l) => ({
+          range: { start: { x: l.start + 1, y }, end: { x: l.end, y } },
+          text: l.ip,
+          activate: (ev: MouseEvent) => openLinkMenu(ev, 'ip', l.ip),
+        })),
+      ];
+      callback(links.length ? links : undefined);
+    },
   });
 
   // Try loading WebGL addon with canvas fallback
@@ -419,14 +558,26 @@ onMounted(async () => {
   });
   resizeObserver.observe(terminalContainer.value);
 
-  terminalContainer.value.addEventListener('keydown', handleKeyDown);
+  terminalContainer.value.addEventListener('paste', onPasteEvent, true);
+  uiStore.registerPaneActions(props.pane.id, {
+    search: () => (isSearchOpen.value = !isSearchOpen.value),
+    quickSelect: () => quickSelect.start(),
+    pasteHistory: () => (isPasteHistoryOpen.value = true),
+    prevPrompt: jumpToPreviousPrompt,
+    nextPrompt: jumpToNextPrompt,
+    splitH: handleSplitHorizontal,
+    splitV: handleSplitVertical,
+    closePane: handleClose,
+    copyLastOutput,
+  });
   term.focus();
 });
 
 onBeforeUnmount(async () => {
   if (terminalContainer.value) {
-    terminalContainer.value.removeEventListener('keydown', handleKeyDown);
+    terminalContainer.value.removeEventListener('paste', onPasteEvent, true);
   }
+  uiStore.unregisterPaneActions(props.pane.id);
   if (resizeObserver) {
     resizeObserver.disconnect();
     resizeObserver = null;
@@ -703,6 +854,16 @@ function handleClose() {
         @search="handleSearch"
       />
 
+      <QuickSelectOverlay
+        v-if="quickSelect.active.value"
+        :hints="quickSelect.hints.value"
+        :typed="quickSelect.typed.value"
+        :cell-w="quickSelect.metrics.value.cellW"
+        :cell-h="quickSelect.metrics.value.cellH"
+        :origin-x="quickSelect.metrics.value.originX"
+        :origin-y="quickSelect.metrics.value.originY"
+      />
+
       <!-- Connecting Spinner -->
       <div v-if="isConnecting" class="absolute inset-0 bg-slate-950/80 flex items-center justify-center space-x-2 text-xs text-slate-400">
         <Loader2 class="w-4 h-4 animate-spin text-cyan-400" />
@@ -723,4 +884,22 @@ function handleClose() {
       </div>
     </div>
   </div>
+
+  <PasteConfirmModal
+    v-if="pendingPaste"
+    :text="pendingPaste.text"
+    :analysis="pendingPaste.analysis"
+    @confirm="confirmPaste(false)"
+    @single-line="confirmPaste(true)"
+    @cancel="cancelPaste"
+  />
+  <PasteHistoryPicker v-if="isPasteHistoryOpen" @paste="onPasteFromHistory" @close="isPasteHistoryOpen = false; term?.focus()" />
+  <TerminalLinkMenu
+    v-if="linkMenu"
+    :x="linkMenu.x"
+    :y="linkMenu.y"
+    :items="linkMenuItems"
+    @select="onLinkAction"
+    @close="linkMenu = null"
+  />
 </template>

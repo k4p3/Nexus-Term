@@ -40,6 +40,18 @@ pub struct AppSettings {
     #[serde(default = "default_sftp_max_concurrent_transfers")]
     pub sftp_max_concurrent_transfers: u32,
 
+    // Terminal productivity
+    #[serde(default = "default_true")]
+    pub paste_warning: bool,
+    #[serde(default = "default_paste_history_size")]
+    pub paste_history_size: u32,
+    #[serde(default = "default_true")]
+    pub notify_long_commands: bool,
+    #[serde(default = "default_notify_threshold_seconds")]
+    pub notify_threshold_seconds: u32,
+    #[serde(default)]
+    pub notify_include_command: bool,
+
     // Remote Desktop (RDP / VNC)
     #[serde(default = "default_remote_desktop_clipboard")]
     pub remote_desktop_clipboard: bool,
@@ -47,6 +59,27 @@ pub struct AppSettings {
 
 fn default_remote_desktop_clipboard() -> bool {
     true
+}
+
+fn default_true() -> bool {
+    true
+}
+
+fn default_paste_history_size() -> u32 {
+    20
+}
+
+fn default_notify_threshold_seconds() -> u32 {
+    10
+}
+
+impl AppSettings {
+    /// Acota los valores numéricos a rangos válidos (se aplica siempre antes de guardar).
+    pub fn sanitized(mut self) -> Self {
+        self.paste_history_size = self.paste_history_size.min(100);
+        self.notify_threshold_seconds = self.notify_threshold_seconds.clamp(1, 3600);
+        self
+    }
 }
 
 fn default_sftp_max_concurrent_transfers() -> u32 {
@@ -104,6 +137,11 @@ impl Default for AppSettings {
             auto_lock_minutes: default_auto_lock(),
             sftp_max_concurrent_transfers: default_sftp_max_concurrent_transfers(),
             remote_desktop_clipboard: default_remote_desktop_clipboard(),
+            paste_warning: default_true(),
+            paste_history_size: default_paste_history_size(),
+            notify_long_commands: default_true(),
+            notify_threshold_seconds: default_notify_threshold_seconds(),
+            notify_include_command: false,
         }
     }
 }
@@ -120,7 +158,7 @@ pub fn get_settings_internal(conn: &Connection) -> Result<AppSettings, VaultErro
     match row {
         Some(json_str) => {
             let settings: AppSettings = serde_json::from_str(&json_str).unwrap_or_default();
-            Ok(settings)
+            Ok(settings.sanitized())
         }
         None => Ok(AppSettings::default()),
     }
@@ -130,6 +168,7 @@ pub fn save_settings_internal(
     conn: &Connection,
     settings: &AppSettings,
 ) -> Result<AppSettings, VaultError> {
+    let settings = &settings.clone().sanitized();
     let json_str = serde_json::to_string(settings)
         .map_err(|e| VaultError::DbError(rusqlite::Error::ToSqlConversionFailure(Box::new(e))))?;
     let now = Utc::now().to_rfc3339();
@@ -219,5 +258,39 @@ mod tests {
         let s = get_settings_internal(&conn).unwrap();
         assert_eq!(s.locale, "es");
         assert!(s.remote_desktop_clipboard);
+    }
+
+    #[test]
+    fn test_productivity_defaults_for_legacy_json() {
+        let conn = Connection::open_in_memory().unwrap();
+        VaultManager::run_migrations(&conn).unwrap();
+        conn.execute(
+            "INSERT INTO app_settings (id, settings_json, updated_at) VALUES (1, '{\"locale\":\"en\"}', 'now')",
+            [],
+        )
+        .unwrap();
+        let s = get_settings_internal(&conn).unwrap();
+        assert!(s.paste_warning);
+        assert_eq!(s.paste_history_size, 20);
+        assert!(s.notify_long_commands);
+        assert_eq!(s.notify_threshold_seconds, 10);
+        assert!(!s.notify_include_command);
+    }
+
+    #[test]
+    fn test_productivity_values_are_clamped_on_save_and_load() {
+        let conn = Connection::open_in_memory().unwrap();
+        VaultManager::run_migrations(&conn).unwrap();
+        let mut s = AppSettings::default();
+        s.notify_threshold_seconds = 0;
+        s.paste_history_size = 5000;
+        let saved = save_settings_internal(&conn, &s).unwrap();
+        assert_eq!(saved.notify_threshold_seconds, 1);
+        assert_eq!(saved.paste_history_size, 100);
+
+        s.notify_threshold_seconds = 99_999;
+        let saved = save_settings_internal(&conn, &s).unwrap();
+        assert_eq!(saved.notify_threshold_seconds, 3600);
+        assert_eq!(get_settings_internal(&conn).unwrap().notify_threshold_seconds, 3600);
     }
 }

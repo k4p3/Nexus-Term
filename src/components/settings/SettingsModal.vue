@@ -370,6 +370,46 @@ async function handleResetDefaults() {
               </div>
             </div>
 
+            <div class="pt-4 border-t border-theme space-y-3">
+              <h4 class="text-sm font-semibold text-theme-main">{{ t('settings.terminalProductivitySection') }}</h4>
+              <label class="flex items-start space-x-2 cursor-pointer max-w-md">
+                <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.paste_warning"
+                  @change="settingsStore.updateSettings({ paste_warning: ($event.target as HTMLInputElement).checked })" />
+                <span>
+                  <span class="block text-xs font-medium text-theme-main">{{ t('settings.pasteWarning') }}</span>
+                  <span class="block text-xs text-neutral-400">{{ t('settings.pasteWarningDesc') }}</span>
+                </span>
+              </label>
+              <label class="flex items-center space-x-2 max-w-md">
+                <span class="text-xs font-medium text-theme-main flex-1">{{ t('settings.pasteHistorySize') }}</span>
+                <input type="number" min="0" max="100" class="w-20 px-2 py-1 bg-theme-input border border-theme rounded-lg text-xs"
+                  :value="settingsStore.settings.paste_history_size"
+                  @change="settingsStore.updateSettings({ paste_history_size: Math.min(100, Math.max(0, Number(($event.target as HTMLInputElement).value) || 0)) })" />
+              </label>
+              <label class="flex items-start space-x-2 cursor-pointer max-w-md">
+                <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.notify_long_commands"
+                  @change="settingsStore.updateSettings({ notify_long_commands: ($event.target as HTMLInputElement).checked })" />
+                <span>
+                  <span class="block text-xs font-medium text-theme-main">{{ t('settings.notifyLong') }}</span>
+                  <span class="block text-xs text-neutral-400">{{ t('settings.notifyLongDesc') }}</span>
+                </span>
+              </label>
+              <label class="flex items-center space-x-2 max-w-md">
+                <span class="text-xs font-medium text-theme-main flex-1">{{ t('settings.notifyThreshold') }}</span>
+                <input type="number" min="1" max="3600" class="w-20 px-2 py-1 bg-theme-input border border-theme rounded-lg text-xs"
+                  :value="settingsStore.settings.notify_threshold_seconds"
+                  @change="settingsStore.updateSettings({ notify_threshold_seconds: Math.min(3600, Math.max(1, Number(($event.target as HTMLInputElement).value) || 10)) })" />
+              </label>
+              <label class="flex items-start space-x-2 cursor-pointer max-w-md">
+                <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.notify_include_command"
+                  @change="settingsStore.updateSettings({ notify_include_command: ($event.target as HTMLInputElement).checked })" />
+                <span>
+                  <span class="block text-xs font-medium text-theme-main">{{ t('settings.notifyIncludeCommand') }}</span>
+                  <span class="block text-xs text-neutral-400">{{ t('settings.notifyIncludeCommandDesc') }}</span>
+                </span>
+              </label>
+            </div>
+
             <div class="pt-4 border-t border-theme">
               <h4 class="text-sm font-semibold text-theme-main mb-1">{{ t('settings.remoteDesktopSection') }}</h4>
               <label class="flex items-start space-x-2 cursor-pointer max-w-md">

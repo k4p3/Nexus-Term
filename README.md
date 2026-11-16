@@ -51,7 +51,12 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 - **Broadcast / Multi-Exec Mode (`Ctrl+Shift+B`)**: Type once and stream keystrokes across all split panes simultaneously—ideal for clustered server updates.
 - **Parameterized Snippet Library**: Store common Docker, Kubernetes, Git, and administration commands with `{{placeholders}}` that prompt for inputs on execution.
 - **Buffer Search (`Ctrl+F`)**: High-speed buffer searching with regex matching and result highlighting.
-- **Interactive Smart Links**: Clickable URLs (`https://`), file paths (`src/main.rs:10`), and IP addresses with one-click SSH context menus.
+- **Interactive Smart Links**: URLs (`https://`) open on click; file paths (`src/main.rs:10:5`) and IP addresses open a context menu with `Ctrl`+click (copy, show in SFTP, connect via SSH).
+- **Quick Select (`Ctrl+Shift+Space`)**: Highlights URLs, paths, git hashes, IPs, UUIDs and e-mails on screen with keyboard labels. Type the label to copy it; hold `Shift` to paste it into the prompt.
+- **Terminal Command Palette (`Ctrl+Shift+P`)**: Fuzzy-search every terminal action, theme and snippet, with its shortcut shown next to it.
+- **Safe Paste & Paste History (`Ctrl+Alt+V`)**: Multi-line pastes, dangerous commands (`sudo`, `rm -rf`, `curl | sh`…) and hidden control characters ask for confirmation with a preview. The paste history lives in memory only and is wiped when the vault locks.
+- **Long-Command Notifications**: A desktop notification (or in-app toast) when a command detected through shell integration finishes after a configurable threshold and you are not looking at it. The command text is never included unless you enable it.
+- **Shortcut Cheat Sheet (`Ctrl+Shift+/`)**: Every keyboard shortcut grouped by context, generated from a single registry.
 
 ### 🎨 Full-App Theming & Personalization
 - **Synchronized Global Theming**: Switching color schemes applies not only to the terminal buffer, but seamlessly across all application UI elements (title bar, sidebar, tabs, modals, and split borders).
@@ -99,7 +104,11 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↑</kbd> | Jump to Previous Command Prompt | Shell Integration |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>↓</kbd> | Jump to Next Command Prompt | Shell Integration |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> | Copy Selected Text | Active Terminal |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> | Paste from Clipboard | Active Terminal |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> | Paste from Clipboard (with safe-paste check) | Active Terminal |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd> | Quick Select (copy on-screen tokens with labels) | Active Terminal |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> | Terminal Command Palette | Workspace |
+| <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd> | Paste History | Active Terminal |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd> | Keyboard Shortcuts Cheat Sheet | Global |
 | <kbd>Escape</kbd> | Dismiss Active Modals / Dropdowns | Global |
 
 ---
@@ -199,6 +208,7 @@ pnpm tauri build
 
 - **[Architecture & Technical Blueprint (ARCHITECTURE.md)](ARCHITECTURE.md)**: Deep dive into the layered domain architecture, Tauri IPC binary streaming, zero-knowledge encryption, and extension guidelines.
 - **[Features & Shortcuts Manual (docs/FEATURES_MANUAL.md)](docs/FEATURES_MANUAL.md)**: User manual covering split panes, keybindings, semantic prompts, and themes.
+- **[Roadmap (docs/ROADMAP.md)](docs/ROADMAP.md)**: Planned work and tentative ideas (not commitments).
 - **[Linux Distribution & Release Guide (docs/DISTRIBUTION_AND_RELEASE_GUIDE.md)](docs/DISTRIBUTION_AND_RELEASE_GUIDE.md)**: Setup and publishing guide for AUR, Flathub, Snap Store, and automated CI/CD releases.
 - **[AI Agent & SDD Workflow (AGENTS.md)](AGENTS.md)**: Specification-Driven Development (OpenSpec) rules, license compliance, and testing policy.
 
