@@ -24,6 +24,23 @@ export default defineConfig({
     strictPort: true,
     host: false,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor_terminal: [
+            "@xterm/xterm",
+            "@xterm/addon-fit",
+            "@xterm/addon-search",
+            "@xterm/addon-web-links",
+            "@xterm/addon-webgl",
+          ],
+          vendor_icons: ["lucide-vue-next"],
+          vendor_core: ["vue", "pinia", "vue-i18n"],
+        },
+      },
+    },
+  },
   // To make use of `TAURI_DEBUG` and other env variables
   // https://tauri.app/v1/api/config#buildconfig.beforedevcommand
   clearScreen: false,
