@@ -130,7 +130,15 @@
     "rotatePassword": "Cambiar Contraseña",
     "passwordChanged": "¡Contraseña maestra actualizada correctamente!",
     "savedSuccessfully": "Configuración guardada correctamente",
-    "resetDefaults": "Restablecer Valores Predeterminados"
+    "resetDefaults": "Restablecer Valores Predeterminados",
+    "sftpSection": "Transferencias de Archivos SFTP",
+    "sftpConcurrentTransfers": "Transferencias Concurrentes Máximas",
+    "sftpConcurrentDesc": "Número de archivos que se suben o descargan en paralelo (recomendado: 2).",
+    "sftpConcurrent1": "1 (Secuencial estricto)",
+    "sftpConcurrent2": "2 (Recomendado - Balance óptimo)",
+    "sftpConcurrent3": "3 (Conexiones de alta velocidad)",
+    "sftpConcurrent4": "4 (Alto rendimiento)",
+    "sftpConcurrent5": "5 (Máximo concurrente)"
   },
   "snippets": {
     "title": "Snippets",

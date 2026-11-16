@@ -22,6 +22,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   default_shell: null,
   close_to_tray: true,
   auto_lock_minutes: 0,
+  sftp_max_concurrent_transfers: 2,
 };
 
 export const useSettingsStore = defineStore('settings', {

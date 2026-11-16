@@ -2,8 +2,11 @@ import { defineStore } from "pinia";
 import { ref, computed } from "vue";
 import type { SftpEntry, TransferProgress } from "../types/sftp";
 import { sftpService } from "../services/sftp.service";
+import { useSettingsStore } from "./settings.store";
 
 export const useSftpStore = defineStore("sftp", () => {
+  const settingsStore = useSettingsStore();
+
   const isOpen = ref(false);
   const isTransferQueueOpen = ref(false);
   const currentSessionId = ref<string | null>(null);
@@ -20,6 +23,44 @@ export const useSftpStore = defineStore("sftp", () => {
 
   const activeTransfersCount = computed(() => {
     return transfers.value.filter((t) => t.status === "in_progress").length;
+  });
+
+  const queuedTransfersCount = computed(() => {
+    return transfers.value.filter((t) => t.status === "queued").length;
+  });
+
+  const activeTransfersMap = computed<Map<string, TransferProgress>>(() => {
+    const map = new Map<string, TransferProgress>();
+    for (const t of transfers.value) {
+      if (!map.has(t.filename) || t.status === "in_progress" || t.status === "queued") {
+        map.set(t.filename, t);
+      }
+    }
+    return map;
+  });
+
+  const overallProgress = computed(() => {
+    const activeOrQueued = transfers.value.filter(
+      (t) => t.status === "in_progress" || t.status === "queued"
+    );
+    if (activeOrQueued.length === 0) {
+      return { active: false, total: 0, completed: 0, percentage: 100 };
+    }
+    const totalCount = transfers.value.length;
+    const completedCount = transfers.value.filter((t) => t.status === "completed").length;
+    const totalBytes = transfers.value.reduce((acc, t) => acc + (t.total_bytes || 0), 0);
+    const transferredBytes = transfers.value.reduce((acc, t) => acc + (t.bytes_transferred || 0), 0);
+
+    const percentage = totalBytes > 0
+      ? Math.round((transferredBytes / totalBytes) * 100)
+      : Math.round((completedCount / totalCount) * 100);
+
+    return {
+      active: true,
+      total: totalCount,
+      completed: completedCount,
+      percentage: Math.min(100, Math.max(0, percentage)),
+    };
   });
 
   const pathBreadcrumbs = computed(() => {
@@ -156,55 +197,199 @@ export const useSftpStore = defineStore("sftp", () => {
     }
   }
 
-  async function downloadFile(remotePath: string, localPath: string) {
+  // --- WORKER QUEUE & CONCURRENCY ---
+
+  function processQueue() {
     if (!currentSessionId.value) return;
 
-    isTransferQueueOpen.value = true;
-    try {
-      await sftpService.download(
-        currentSessionId.value,
-        remotePath,
-        localPath,
-        (progress) => {
-          updateTransferProgress(progress);
-        }
-      );
-    } catch (e: any) {
-      error.value = e?.toString() || "Error en la descarga";
+    const maxConcurrent = Math.max(1, settingsStore.settings.sftp_max_concurrent_transfers || 2);
+    const inProgressCount = transfers.value.filter((t) => t.status === "in_progress").length;
+    const availableSlots = maxConcurrent - inProgressCount;
+
+    if (availableSlots <= 0) return;
+
+    const queuedTasks = transfers.value
+      .filter((t) => t.status === "queued")
+      .slice(0, availableSlots);
+
+    for (const task of queuedTasks) {
+      task.status = "in_progress";
+      task.started_at = Date.now();
+      executeTransfer(task);
     }
+  }
+
+  async function executeTransfer(task: TransferProgress) {
+    if (!currentSessionId.value) return;
+
+    try {
+      if (task.direction === "upload" && task.local_path && task.remote_path) {
+        await sftpService.upload(
+          currentSessionId.value,
+          task.local_path,
+          task.remote_path,
+          (progress) => {
+            updateTransferProgress(progress, task.local_path, task.remote_path);
+          }
+        );
+        task.status = "completed";
+        task.percentage = 100;
+        await refresh();
+      } else if (task.direction === "download" && task.local_path && task.remote_path) {
+        await sftpService.download(
+          currentSessionId.value,
+          task.remote_path,
+          task.local_path,
+          (progress) => {
+            updateTransferProgress(progress, task.local_path, task.remote_path);
+          }
+        );
+        task.status = "completed";
+        task.percentage = 100;
+      }
+    } catch (e: any) {
+      task.status = "error";
+      task.error_message = e?.toString() || "Error en la transferencia";
+    } finally {
+      processQueue();
+    }
+  }
+
+  function updateTransferProgress(progress: TransferProgress, localPath?: string, remotePath?: string) {
+    const idx = transfers.value.findIndex((t) => t.transfer_id === progress.transfer_id);
+    if (idx >= 0) {
+      const prev = transfers.value[idx];
+      const now = Date.now();
+      const elapsed = (now - (prev.started_at || now)) / 1000;
+      const speed = elapsed > 0 ? Math.round(progress.bytes_transferred / elapsed) : 0;
+
+      transfers.value[idx] = {
+        ...prev,
+        ...progress,
+        local_path: prev.local_path || localPath,
+        remote_path: prev.remote_path || remotePath,
+        speed_bytes_sec: speed,
+      };
+    } else {
+      transfers.value.unshift({
+        ...progress,
+        local_path: localPath,
+        remote_path: remotePath,
+        started_at: Date.now(),
+      });
+    }
+  }
+
+  async function uploadFiles(localPaths: string[]) {
+    if (!currentSessionId.value || localPaths.length === 0) return;
+
+    isTransferQueueOpen.value = true;
+    for (const localPath of localPaths) {
+      const filename = localPath.replace(/\\/g, "/").split("/").pop() || localPath;
+      const remotePath =
+        currentPath.value === "/"
+          ? `/${filename}`
+          : `${currentPath.value}/${filename}`;
+
+      const transferId = `up-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      transfers.value.unshift({
+        transfer_id: transferId,
+        direction: "upload",
+        filename,
+        bytes_transferred: 0,
+        total_bytes: 0,
+        percentage: 0,
+        status: "queued",
+        local_path: localPath,
+        remote_path: remotePath,
+      });
+    }
+
+    processQueue();
   }
 
   async function uploadFile(localPath: string, remoteFilename: string) {
-    if (!currentSessionId.value) return;
+    return uploadFiles([localPath]);
+  }
 
-    const remotePath =
-      currentPath.value === "/"
-        ? `/${remoteFilename}`
-        : `${currentPath.value}/${remoteFilename}`;
+  async function downloadFiles(entriesToDownload: SftpEntry[], customTargetDir?: string) {
+    if (!currentSessionId.value || entriesToDownload.length === 0) return;
+
+    let targetDir = customTargetDir;
+    if (!targetDir) {
+      try {
+        targetDir = await sftpService.getDownloadDirectory();
+      } catch {
+        targetDir = "/tmp";
+      }
+    }
 
     isTransferQueueOpen.value = true;
-    try {
-      await sftpService.upload(
-        currentSessionId.value,
-        localPath,
-        remotePath,
-        (progress) => {
-          updateTransferProgress(progress);
-        }
-      );
-      await refresh();
-    } catch (e: any) {
-      error.value = e?.toString() || "Error en la subida";
+    for (const entry of entriesToDownload) {
+      if (entry.is_dir) continue;
+
+      const localPath = `${targetDir}/${entry.name}`;
+      const transferId = `down-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      transfers.value.unshift({
+        transfer_id: transferId,
+        direction: "download",
+        filename: entry.name,
+        bytes_transferred: 0,
+        total_bytes: entry.size || 0,
+        percentage: 0,
+        status: "queued",
+        local_path: localPath,
+        remote_path: entry.path,
+      });
+    }
+
+    processQueue();
+  }
+
+  async function downloadFile(remotePath: string, localPath: string) {
+    if (!currentSessionId.value) return;
+
+    const filename = remotePath.split("/").pop() || remotePath;
+    const transferId = `down-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+    transfers.value.unshift({
+      transfer_id: transferId,
+      direction: "download",
+      filename,
+      bytes_transferred: 0,
+      total_bytes: 0,
+      percentage: 0,
+      status: "queued",
+      local_path: localPath,
+      remote_path: remotePath,
+    });
+
+    isTransferQueueOpen.value = true;
+    processQueue();
+  }
+
+  async function downloadSelected(customTargetDir?: string) {
+    const selectedEntries = entries.value.filter(
+      (e) => selectedPaths.value.includes(e.path) && !e.is_dir
+    );
+    if (selectedEntries.length > 0) {
+      await downloadFiles(selectedEntries, customTargetDir);
+      clearSelection();
     }
   }
 
-  function updateTransferProgress(progress: TransferProgress) {
-    const idx = transfers.value.findIndex((t) => t.transfer_id === progress.transfer_id);
-    if (idx >= 0) {
-      transfers.value[idx] = progress;
-    } else {
-      transfers.value.unshift(progress);
+  function retryTransfer(transferId: string) {
+    const item = transfers.value.find((t) => t.transfer_id === transferId);
+    if (item && item.status === "error") {
+      item.status = "queued";
+      item.bytes_transferred = 0;
+      item.percentage = 0;
+      item.error_message = null;
+      processQueue();
     }
+  }
+
+  function clearCompleted() {
+    transfers.value = transfers.value.filter((t) => t.status !== "completed");
   }
 
   function toggleSelect(path: string) {
@@ -247,6 +432,9 @@ export const useSftpStore = defineStore("sftp", () => {
     error,
     transfers,
     activeTransfersCount,
+    queuedTransfersCount,
+    activeTransfersMap,
+    overallProgress,
     pathBreadcrumbs,
     openSftp,
     navigateTo,
@@ -256,7 +444,13 @@ export const useSftpStore = defineStore("sftp", () => {
     renameItem,
     deleteItem,
     downloadFile,
+    downloadFiles,
+    downloadSelected,
     uploadFile,
+    uploadFiles,
+    retryTransfer,
+    clearCompleted,
+    processQueue,
     toggleSelect,
     selectAll,
     clearSelection,

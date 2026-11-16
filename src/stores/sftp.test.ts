@@ -147,4 +147,102 @@ describe("sftp store", () => {
 
     expect(store.activeTransfersCount).toBe(1);
   });
+
+  it("should process multi-file upload with concurrency limit", async () => {
+    const store = useSftpStore();
+    store.currentSessionId = "sess-sftp";
+    store.currentPath = "/remote/dir";
+
+    let resolveUpload1: () => void = () => {};
+    let resolveUpload2: () => void = () => {};
+
+    const upload1Promise = new Promise<void>((r) => { resolveUpload1 = r; });
+    const upload2Promise = new Promise<void>((r) => { resolveUpload2 = r; });
+
+    vi.mocked(sftpService.upload)
+      .mockImplementationOnce(() => upload1Promise)
+      .mockImplementationOnce(() => upload2Promise)
+      .mockResolvedValue();
+
+    // Default concurrency is 2. Uploading 3 files should start 2, queue 1
+    await store.uploadFiles(["/local/file1.txt", "/local/file2.txt", "/local/file3.txt"]);
+
+    expect(store.transfers.length).toBe(3);
+    expect(store.activeTransfersCount).toBe(2);
+    expect(store.queuedTransfersCount).toBe(1);
+    expect(sftpService.upload).toHaveBeenCalledTimes(2);
+
+    // Resolving upload 1 should trigger upload 3
+    resolveUpload1();
+    await new Promise((r) => setTimeout(r, 10));
+
+    expect(sftpService.upload).toHaveBeenCalledTimes(3);
+    resolveUpload2();
+  });
+
+  it("should compute overall progress and activeTransfersMap correctly", () => {
+    const store = useSftpStore();
+    store.transfers = [
+      {
+        transfer_id: "t-1",
+        direction: "upload",
+        filename: "data.bin",
+        bytes_transferred: 250,
+        total_bytes: 1000,
+        percentage: 25,
+        status: "in_progress",
+      },
+      {
+        transfer_id: "t-2",
+        direction: "upload",
+        filename: "notes.txt",
+        bytes_transferred: 0,
+        total_bytes: 1000,
+        percentage: 0,
+        status: "queued",
+      },
+    ];
+
+    expect(store.overallProgress.active).toBe(true);
+    expect(store.overallProgress.total).toBe(2);
+    expect(store.overallProgress.completed).toBe(0);
+    expect(store.overallProgress.percentage).toBe(13); // 250 / 2000 = 12.5% -> 13%
+
+    const map = store.activeTransfersMap;
+    expect(map.get("data.bin")?.status).toBe("in_progress");
+    expect(map.get("notes.txt")?.status).toBe("queued");
+  });
+
+  it("should clear completed transfers and allow retrying errors", () => {
+    const store = useSftpStore();
+    store.currentSessionId = "sess-1";
+    store.transfers = [
+      {
+        transfer_id: "t-1",
+        direction: "upload",
+        filename: "file1.txt",
+        bytes_transferred: 100,
+        total_bytes: 100,
+        percentage: 100,
+        status: "completed",
+      },
+      {
+        transfer_id: "t-2",
+        direction: "upload",
+        filename: "file2.txt",
+        bytes_transferred: 0,
+        total_bytes: 100,
+        percentage: 0,
+        status: "error",
+        error_message: "Network lost",
+      },
+    ];
+
+    store.clearCompleted();
+    expect(store.transfers.length).toBe(1);
+    expect(store.transfers[0].transfer_id).toBe("t-2");
+
+    store.retryTransfer("t-2");
+    expect(store.transfers[0].status).toBe("in_progress");
+  });
 });

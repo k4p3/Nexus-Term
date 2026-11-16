@@ -130,7 +130,15 @@
     "rotatePassword": "Change Password",
     "passwordChanged": "Master password changed successfully!",
     "savedSuccessfully": "Settings saved successfully",
-    "resetDefaults": "Reset to Defaults"
+    "resetDefaults": "Reset to Defaults",
+    "sftpSection": "SFTP File Transfers",
+    "sftpConcurrentTransfers": "Maximum Concurrent Transfers",
+    "sftpConcurrentDesc": "Number of files uploaded or downloaded simultaneously (recommended: 2).",
+    "sftpConcurrent1": "1 (Strict sequential)",
+    "sftpConcurrent2": "2 (Recommended - Optimal balance)",
+    "sftpConcurrent3": "3 (High-speed connections)",
+    "sftpConcurrent4": "4 (High throughput)",
+    "sftpConcurrent5": "5 (Maximum concurrent)"
   },
   "snippets": {
     "title": "Snippets",

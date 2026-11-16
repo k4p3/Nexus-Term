@@ -35,6 +35,14 @@ pub struct AppSettings {
     // Security
     #[serde(default = "default_auto_lock")]
     pub auto_lock_minutes: u32,
+
+    // SFTP Transfers
+    #[serde(default = "default_sftp_max_concurrent_transfers")]
+    pub sftp_max_concurrent_transfers: u32,
+}
+
+fn default_sftp_max_concurrent_transfers() -> u32 {
+    2
 }
 
 fn default_close_to_tray() -> bool {
@@ -86,6 +94,7 @@ impl Default for AppSettings {
             default_shell: None,
             close_to_tray: default_close_to_tray(),
             auto_lock_minutes: default_auto_lock(),
+            sftp_max_concurrent_transfers: default_sftp_max_concurrent_transfers(),
         }
     }
 }
@@ -168,6 +177,7 @@ mod tests {
         assert_eq!(initial.font_size, 13);
         assert_eq!(initial.cursor_style, "block");
         assert_eq!(initial.close_to_tray, true);
+        assert_eq!(initial.sftp_max_concurrent_transfers, 2);
 
         // Save customized settings
         let mut customized = initial.clone();
@@ -176,6 +186,7 @@ mod tests {
         customized.font_size = 15;
         customized.cursor_style = "underline".to_string();
         customized.default_shell = Some("/bin/zsh".to_string());
+        customized.sftp_max_concurrent_transfers = 4;
 
         let saved = save_settings_internal(&conn, &customized).unwrap();
         assert_eq!(saved, customized);
@@ -183,5 +194,6 @@ mod tests {
         // Fetch again and verify persistence
         let fetched = get_settings_internal(&conn).unwrap();
         assert_eq!(fetched, customized);
+        assert_eq!(fetched.sftp_max_concurrent_transfers, 4);
     }
 }

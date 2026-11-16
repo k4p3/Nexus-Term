@@ -9,4 +9,5 @@ export interface AppSettings {
   default_shell: string | null;
   close_to_tray: boolean;
   auto_lock_minutes: number;
+  sftp_max_concurrent_transfers: number;
 }

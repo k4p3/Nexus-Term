@@ -45,6 +45,14 @@ const customLocaleCode = ref('');
 const importLocaleError = ref('');
 const importLocaleSuccess = ref(false);
 
+const sftpConcurrentOptions = computed<SelectOption[]>(() => [
+  { value: 1, label: t('settings.sftpConcurrent1') },
+  { value: 2, label: t('settings.sftpConcurrent2') },
+  { value: 3, label: t('settings.sftpConcurrent3') },
+  { value: 4, label: t('settings.sftpConcurrent4') },
+  { value: 5, label: t('settings.sftpConcurrent5') },
+]);
+
 const nerdFontPresets = [
   { label: 'MesloLGS NF (Default)', value: "'MesloLGS NF', 'Hack Nerd Font Mono', monospace" },
   { label: 'Hack Nerd Font', value: "'Hack Nerd Font Mono', 'Hack Nerd Font', monospace" },
@@ -339,6 +347,27 @@ async function handleResetDefaults() {
                   Minimizar a la bandeja del sistema al presionar el botón de cerrar (X)
                 </span>
               </label>
+            </div>
+
+            <!-- SFTP Transfers Settings -->
+            <div class="pt-4 border-t border-theme">
+              <h4 class="text-xs font-semibold text-neutral-300 uppercase tracking-wider mb-1">
+                {{ t('settings.sftpSection') }}
+              </h4>
+              <p class="text-xs text-neutral-400 mb-3">
+                {{ t('settings.sftpConcurrentDesc') }}
+              </p>
+
+              <div class="max-w-md">
+                <label class="block text-xs font-medium text-theme-muted mb-1.5">
+                  {{ t('settings.sftpConcurrentTransfers') }}
+                </label>
+                <CustomSelect
+                  :model-value="settingsStore.settings.sftp_max_concurrent_transfers || 2"
+                  :options="sftpConcurrentOptions"
+                  @update:model-value="settingsStore.updateSettings({ sftp_max_concurrent_transfers: Number($event) })"
+                />
+              </div>
             </div>
           </div>
 

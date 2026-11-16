@@ -64,4 +64,16 @@ export const sftpService = {
   async disconnect(sessionId: string): Promise<void> {
     return await invoke<void>("sftp_disconnect", { sessionId });
   },
+
+  async pickUploadFiles(title?: string): Promise<string[]> {
+    return await invoke<string[]>("sftp_pick_upload_files", { title: title ?? null });
+  },
+
+  async getDownloadDirectory(): Promise<string> {
+    return await invoke<string>("sftp_get_download_directory");
+  },
+
+  async pickDownloadDirectory(title?: string): Promise<string | null> {
+    return await invoke<string | null>("sftp_pick_download_directory", { title: title ?? null });
+  },
 };

@@ -1,10 +1,51 @@
 use std::sync::Arc;
 use tauri::ipc::Channel;
-use tauri::State;
+use tauri::{AppHandle, Manager, State};
 
 use crate::vault::db::VaultManager;
 use super::client::SftpSessionManager;
 use super::models::{SftpEntry, TransferProgress};
+
+#[tauri::command]
+pub async fn sftp_pick_upload_files(title: Option<String>) -> Result<Vec<String>, String> {
+    let mut dialog = rfd::AsyncFileDialog::new();
+    if let Some(ref t) = title {
+        dialog = dialog.set_title(t);
+    } else {
+        dialog = dialog.set_title("Seleccionar archivos para subir vía SFTP");
+    }
+
+    let files = dialog.pick_files().await;
+    match files {
+        Some(handles) => Ok(handles
+            .into_iter()
+            .map(|h| h.path().to_string_lossy().to_string())
+            .collect()),
+        None => Ok(vec![]),
+    }
+}
+
+#[tauri::command]
+pub async fn sftp_get_download_directory(app_handle: AppHandle) -> Result<String, String> {
+    app_handle
+        .path()
+        .download_dir()
+        .map(|p| p.to_string_lossy().to_string())
+        .map_err(|e| format!("Error al resolver la carpeta de descargas: {}", e))
+}
+
+#[tauri::command]
+pub async fn sftp_pick_download_directory(title: Option<String>) -> Result<Option<String>, String> {
+    let mut dialog = rfd::AsyncFileDialog::new();
+    if let Some(ref t) = title {
+        dialog = dialog.set_title(t);
+    } else {
+        dialog = dialog.set_title("Seleccionar carpeta de destino");
+    }
+
+    let folder = dialog.pick_folder().await;
+    Ok(folder.map(|h| h.path().to_string_lossy().to_string()))
+}
 
 #[tauri::command]
 pub async fn sftp_connect(

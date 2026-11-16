@@ -6,6 +6,8 @@ import {
   Download,
   CheckCircle2,
   AlertCircle,
+  Clock,
+  RotateCcw,
   Trash2,
   FolderSync,
 } from "lucide-vue-next";
@@ -21,7 +23,7 @@ function formatBytes(bytes: number): string {
 }
 
 function clearCompleted() {
-  sftpStore.transfers = sftpStore.transfers.filter((t) => t.status === "in_progress");
+  sftpStore.clearCompleted();
 }
 </script>
 
@@ -84,21 +86,38 @@ function clearCompleted() {
             <span class="font-medium text-neutral-200 truncate">{{ transfer.filename }}</span>
           </div>
 
-          <div class="shrink-0">
+          <div class="shrink-0 flex items-center space-x-1.5">
             <span
-              v-if="transfer.status === 'completed'"
+              v-if="transfer.status === 'queued'"
+              class="text-amber-400/90 flex items-center space-x-1 text-[10px]"
+            >
+              <Clock class="w-3 h-3" />
+              <span>En cola</span>
+            </span>
+            <span
+              v-else-if="transfer.status === 'completed'"
               class="text-emerald-400 flex items-center space-x-1 text-[10px]"
             >
               <CheckCircle2 class="w-3 h-3" />
               <span>Listo</span>
             </span>
-            <span
+            <div
               v-else-if="transfer.status === 'error'"
-              class="text-red-400 flex items-center space-x-1 text-[10px]"
+              class="flex items-center space-x-1.5"
             >
-              <AlertCircle class="w-3 h-3" />
-              <span>Error</span>
-            </span>
+              <span class="text-red-400 flex items-center space-x-1 text-[10px]">
+                <AlertCircle class="w-3 h-3" />
+                <span>Error</span>
+              </span>
+              <button
+                v-if="transfer.local_path && transfer.remote_path"
+                @click="sftpStore.retryTransfer(transfer.transfer_id)"
+                class="p-0.5 text-neutral-400 hover:text-cyan-400 rounded transition cursor-pointer"
+                title="Reintentar transferencia"
+              >
+                <RotateCcw class="w-3 h-3" />
+              </button>
+            </div>
             <span v-else class="text-cyan-400 font-mono text-[10px]">
               {{ transfer.percentage.toFixed(0) }}%
             </span>
@@ -110,22 +129,35 @@ function clearCompleted() {
           <div
             class="h-full transition-all duration-200"
             :class="{
+              'bg-amber-500/40': transfer.status === 'queued',
               'bg-cyan-500': transfer.status === 'in_progress',
               'bg-emerald-500': transfer.status === 'completed',
               'bg-red-500': transfer.status === 'error',
             }"
-            :style="{ width: `${Math.min(100, Math.max(0, transfer.percentage))}%` }"
+            :style="{ width: transfer.status === 'queued' ? '100%' : `${Math.min(100, Math.max(0, transfer.percentage))}%` }"
           ></div>
         </div>
 
         <!-- Stats -->
         <div class="flex items-center justify-between text-[10px] text-neutral-500 font-mono">
-          <span>
+          <span v-if="transfer.status === 'queued'">
+            En espera de ranura libre...
+          </span>
+          <span v-else>
             {{ formatBytes(transfer.bytes_transferred) }} / {{ formatBytes(transfer.total_bytes) }}
           </span>
-          <span v-if="transfer.error_message" class="text-red-400 truncate max-w-[150px]">
-            {{ transfer.error_message }}
-          </span>
+
+          <div class="flex items-center space-x-2">
+            <span
+              v-if="transfer.status === 'in_progress' && transfer.speed_bytes_sec && transfer.speed_bytes_sec > 0"
+              class="text-neutral-400"
+            >
+              {{ formatBytes(transfer.speed_bytes_sec) }}/s
+            </span>
+            <span v-if="transfer.error_message" class="text-red-400 truncate max-w-[150px]">
+              {{ transfer.error_message }}
+            </span>
+          </div>
         </div>
       </div>
     </div>

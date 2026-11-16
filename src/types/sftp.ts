@@ -1,5 +1,5 @@
 export type TransferDirection = 'upload' | 'download';
-export type TransferStatus = 'in_progress' | 'completed' | 'error' | 'cancelled';
+export type TransferStatus = 'queued' | 'in_progress' | 'completed' | 'error' | 'cancelled';
 
 export interface SftpEntry {
   name: string;
@@ -21,4 +21,8 @@ export interface TransferProgress {
   percentage: number;
   status: TransferStatus;
   error_message?: string | null;
+  local_path?: string;
+  remote_path?: string;
+  started_at?: number;
+  speed_bytes_sec?: number;
 }

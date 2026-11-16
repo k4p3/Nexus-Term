@@ -19,8 +19,9 @@ use crate::pty::{open_local_pty, PtySessionManager};
 use crate::session::{close_session, extract_public_key, generate_ssh_key, resize_session, write_session};
 use crate::settings::{get_app_settings, reset_app_settings, save_app_settings};
 use crate::sftp::commands::{
-    sftp_connect, sftp_disconnect, sftp_download, sftp_list_dir, sftp_mkdir, sftp_remove,
-    sftp_rename, sftp_resolve_home, sftp_upload,
+    sftp_connect, sftp_disconnect, sftp_download, sftp_get_download_directory, sftp_list_dir,
+    sftp_mkdir, sftp_pick_download_directory, sftp_pick_upload_files, sftp_remove, sftp_rename,
+    sftp_resolve_home, sftp_upload,
 };
 use crate::sftp::SftpSessionManager;
 use crate::snippets::{delete_snippet, get_snippets, save_snippet, toggle_snippet_enabled};
@@ -181,6 +182,9 @@ pub fn run() {
             sftp_download,
             sftp_upload,
             sftp_disconnect,
+            sftp_pick_upload_files,
+            sftp_get_download_directory,
+            sftp_pick_download_directory,
             fetch_telemetry_snapshot,
             start_telemetry_stream,
             stop_telemetry_stream,

@@ -167,6 +167,50 @@ impl SftpSessionManager {
         local_path: &str,
         progress_channel: Option<Channel<TransferProgress>>,
     ) -> Result<(), String> {
+        let transfer_id = Uuid::now_v7().to_string();
+        let filename = Path::new(remote_path)
+            .file_name()
+            .map(|f| f.to_string_lossy().to_string())
+            .unwrap_or_else(|| remote_path.to_string());
+
+        let res = self
+            .download_file_internal(
+                session_id,
+                remote_path,
+                local_path,
+                &transfer_id,
+                &filename,
+                &progress_channel,
+            )
+            .await;
+
+        if let Err(ref err) = res {
+            if let Some(ref ch) = progress_channel {
+                let _ = ch.send(TransferProgress {
+                    transfer_id,
+                    direction: TransferDirection::Download,
+                    filename,
+                    bytes_transferred: 0,
+                    total_bytes: 0,
+                    percentage: 0.0,
+                    status: "error".to_string(),
+                    error_message: Some(err.clone()),
+                });
+            }
+        }
+
+        res
+    }
+
+    async fn download_file_internal(
+        &self,
+        session_id: &str,
+        remote_path: &str,
+        local_path: &str,
+        transfer_id: &str,
+        filename: &str,
+        progress_channel: &Option<Channel<TransferProgress>>,
+    ) -> Result<(), String> {
         let sftp = self.get_session(session_id).await?;
         let meta = sftp
             .metadata(remote_path)
@@ -174,11 +218,6 @@ impl SftpSessionManager {
             .map_err(|e| format!("No se pudo leer metadatos de {}: {}", remote_path, e))?;
 
         let total_bytes = meta.size.unwrap_or(0);
-        let transfer_id = Uuid::now_v7().to_string();
-        let filename = Path::new(remote_path)
-            .file_name()
-            .map(|f| f.to_string_lossy().to_string())
-            .unwrap_or_else(|| remote_path.to_string());
 
         let mut remote_file = sftp
             .open(remote_path)
@@ -209,16 +248,16 @@ impl SftpSessionManager {
 
             transferred += n as u64;
 
-            if let Some(ref ch) = progress_channel {
+            if let Some(ch) = progress_channel {
                 let percentage = if total_bytes > 0 {
                     (transferred as f64 / total_bytes as f64) * 100.0
                 } else {
                     100.0
                 };
                 let _ = ch.send(TransferProgress {
-                    transfer_id: transfer_id.clone(),
+                    transfer_id: transfer_id.to_string(),
                     direction: TransferDirection::Download,
-                    filename: filename.clone(),
+                    filename: filename.to_string(),
                     bytes_transferred: transferred,
                     total_bytes,
                     percentage,
@@ -233,11 +272,11 @@ impl SftpSessionManager {
             .await
             .map_err(|e| format!("Error cerrando archivo local: {}", e))?;
 
-        if let Some(ref ch) = progress_channel {
+        if let Some(ch) = progress_channel {
             let _ = ch.send(TransferProgress {
-                transfer_id,
+                transfer_id: transfer_id.to_string(),
                 direction: TransferDirection::Download,
-                filename,
+                filename: filename.to_string(),
                 bytes_transferred: transferred,
                 total_bytes,
                 percentage: 100.0,
@@ -256,6 +295,50 @@ impl SftpSessionManager {
         remote_path: &str,
         progress_channel: Option<Channel<TransferProgress>>,
     ) -> Result<(), String> {
+        let transfer_id = Uuid::now_v7().to_string();
+        let filename = Path::new(local_path)
+            .file_name()
+            .map(|f| f.to_string_lossy().to_string())
+            .unwrap_or_else(|| local_path.to_string());
+
+        let res = self
+            .upload_file_internal(
+                session_id,
+                local_path,
+                remote_path,
+                &transfer_id,
+                &filename,
+                &progress_channel,
+            )
+            .await;
+
+        if let Err(ref err) = res {
+            if let Some(ref ch) = progress_channel {
+                let _ = ch.send(TransferProgress {
+                    transfer_id,
+                    direction: TransferDirection::Upload,
+                    filename,
+                    bytes_transferred: 0,
+                    total_bytes: 0,
+                    percentage: 0.0,
+                    status: "error".to_string(),
+                    error_message: Some(err.clone()),
+                });
+            }
+        }
+
+        res
+    }
+
+    async fn upload_file_internal(
+        &self,
+        session_id: &str,
+        local_path: &str,
+        remote_path: &str,
+        transfer_id: &str,
+        filename: &str,
+        progress_channel: &Option<Channel<TransferProgress>>,
+    ) -> Result<(), String> {
         let sftp = self.get_session(session_id).await?;
 
         let mut local_file = tokio::fs::File::open(local_path)
@@ -267,12 +350,6 @@ impl SftpSessionManager {
             .await
             .map_err(|e| format!("Error obteniendo tamaño de archivo local: {}", e))?;
         let total_bytes = local_meta.len();
-
-        let transfer_id = Uuid::now_v7().to_string();
-        let filename = Path::new(local_path)
-            .file_name()
-            .map(|f| f.to_string_lossy().to_string())
-            .unwrap_or_else(|| local_path.to_string());
 
         let mut remote_file = sftp
             .create(remote_path)
@@ -299,16 +376,16 @@ impl SftpSessionManager {
 
             transferred += n as u64;
 
-            if let Some(ref ch) = progress_channel {
+            if let Some(ch) = progress_channel {
                 let percentage = if total_bytes > 0 {
                     (transferred as f64 / total_bytes as f64) * 100.0
                 } else {
                     100.0
                 };
                 let _ = ch.send(TransferProgress {
-                    transfer_id: transfer_id.clone(),
+                    transfer_id: transfer_id.to_string(),
                     direction: TransferDirection::Upload,
-                    filename: filename.clone(),
+                    filename: filename.to_string(),
                     bytes_transferred: transferred,
                     total_bytes,
                     percentage,
@@ -323,11 +400,11 @@ impl SftpSessionManager {
             .await
             .map_err(|e| format!("Error cerrando archivo remoto: {}", e))?;
 
-        if let Some(ref ch) = progress_channel {
+        if let Some(ch) = progress_channel {
             let _ = ch.send(TransferProgress {
-                transfer_id,
+                transfer_id: transfer_id.to_string(),
                 direction: TransferDirection::Upload,
-                filename,
+                filename: filename.to_string(),
                 bytes_transferred: transferred,
                 total_bytes,
                 percentage: 100.0,

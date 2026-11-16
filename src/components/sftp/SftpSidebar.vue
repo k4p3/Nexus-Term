@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { useSftpStore } from "../../stores/sftp.store";
 import { useVaultStore } from "../../stores/vault.store";
+import { sftpService } from "../../services/sftp.service";
 import type { SftpEntry } from "../../types/sftp";
 import {
   Folder,
@@ -22,6 +24,9 @@ import {
   HardDrive,
   ChevronRight,
   Search,
+  CheckCircle2,
+  Clock,
+  Layers,
 } from "lucide-vue-next";
 
 const sftpStore = useSftpStore();
@@ -34,6 +39,34 @@ const isRenameModalOpen = ref(false);
 const itemToRename = ref<SftpEntry | null>(null);
 const renameValue = ref("");
 const fileInput = ref<HTMLInputElement | null>(null);
+const isDraggingOver = ref(false);
+
+let unlistenTauriDragDrop: (() => void) | null = null;
+
+onMounted(async () => {
+  try {
+    const webview = getCurrentWebview();
+    unlistenTauriDragDrop = await webview.onDragDropEvent((event) => {
+      if (event.payload.type === "drop" && sftpStore.isOpen && sftpStore.currentSessionId) {
+        const paths = event.payload.paths;
+        if (paths && paths.length > 0) {
+          sftpStore.uploadFiles(paths);
+        }
+        isDraggingOver.value = false;
+      } else if (event.payload.type === "over") {
+        isDraggingOver.value = true;
+      } else if (event.payload.type === "leave") {
+        isDraggingOver.value = false;
+      }
+    });
+  } catch {}
+});
+
+onUnmounted(() => {
+  if (unlistenTauriDragDrop) {
+    unlistenTauriDragDrop();
+  }
+});
 
 const currentHost = computed(() => {
   return vaultStore.hosts.find((h) => h.id === sftpStore.currentHostId);
@@ -72,24 +105,50 @@ function handleEntryDblClick(entry: SftpEntry) {
 }
 
 function handleDownload(entry: SftpEntry) {
-  // En Linux/Tauri usamos ruta local típica de descargas
-  const localTarget = `/home/jonathan/Descargas/${entry.name}`;
-  sftpStore.downloadFile(entry.path, localTarget);
+  sftpStore.downloadFiles([entry]);
 }
 
-function triggerFileUpload() {
+async function triggerFileUpload() {
+  try {
+    const paths = await sftpService.pickUploadFiles("Seleccionar archivos para subir");
+    if (paths && paths.length > 0) {
+      await sftpStore.uploadFiles(paths);
+      return;
+    }
+  } catch {
+    // Si falla el diálogo nativo, fallback al input web
+  }
   fileInput.value?.click();
 }
 
 function onFileSelected(e: Event) {
   const target = e.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    const file = target.files[0];
-    // En navegadores el path completo no siempre está accesible por seguridad web estándar,
-    // pero en Tauri podemos recibirlo o usar el archivo seleccionado
-    const localPath = (file as any).path || file.name;
-    sftpStore.uploadFile(localPath, file.name);
+    const paths: string[] = [];
+    for (let i = 0; i < target.files.length; i++) {
+      const file = target.files[i];
+      const localPath = (file as any).path;
+      if (localPath) paths.push(localPath);
+    }
+    if (paths.length > 0) {
+      sftpStore.uploadFiles(paths);
+    }
     target.value = "";
+  }
+}
+
+function handleWebDrop(e: DragEvent) {
+  isDraggingOver.value = false;
+  if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
+    const paths: string[] = [];
+    for (let i = 0; i < e.dataTransfer.files.length; i++) {
+      const file = e.dataTransfer.files[i];
+      const localPath = (file as any).path;
+      if (localPath) paths.push(localPath);
+    }
+    if (paths.length > 0) {
+      sftpStore.uploadFiles(paths);
+    }
   }
 }
 
@@ -122,17 +181,32 @@ async function handleDelete(entry: SftpEntry) {
     await sftpStore.deleteItem(entry.path, entry.is_dir);
   }
 }
+
+async function handleDeleteSelected() {
+  const count = sftpStore.selectedPaths.length;
+  if (count === 0) return;
+  if (confirm(`¿Estás seguro de eliminar los ${count} elementos seleccionados del servidor?`)) {
+    for (const path of [...sftpStore.selectedPaths]) {
+      const entry = sftpStore.entries.find((e) => e.path === path);
+      if (entry) {
+        await sftpStore.deleteItem(entry.path, entry.is_dir);
+      }
+    }
+    sftpStore.clearSelection();
+  }
+}
 </script>
 
 <template>
   <aside
     v-if="sftpStore.isOpen"
-    class="w-96 bg-theme-surface border-l border-theme flex flex-col h-full select-none shrink-0 z-30"
+    class="w-96 bg-theme-surface border-l border-theme flex flex-col h-full select-none shrink-0 z-30 relative"
   >
-    <!-- Hidden input for file upload -->
+    <!-- Hidden input for file upload (with multiple enabled) -->
     <input
       ref="fileInput"
       type="file"
+      multiple
       class="hidden"
       @change="onFileSelected"
     />
@@ -207,7 +281,7 @@ async function handleDelete(entry: SftpEntry) {
         <button
           @click="triggerFileUpload()"
           class="p-1.5 text-theme-muted hover:text-indigo-400 hover:bg-theme-active rounded-lg border border-theme transition cursor-pointer"
-          title="Subir Archivo al servidor"
+          title="Subir Archivos al servidor (selección múltiple)"
         >
           <Upload class="w-3.5 h-3.5" />
         </button>
@@ -237,6 +311,23 @@ async function handleDelete(entry: SftpEntry) {
           </button>
         </template>
       </div>
+
+      <!-- Overall Transfer Progress Ticker -->
+      <div
+        v-if="sftpStore.overallProgress.active"
+        @click="sftpStore.isTransferQueueOpen = true"
+        class="px-2.5 py-1.5 bg-cyan-500/10 border border-cyan-500/20 rounded-lg text-[11px] text-cyan-300 flex items-center justify-between cursor-pointer hover:bg-cyan-500/15 transition"
+      >
+        <div class="flex items-center space-x-1.5 truncate">
+          <RefreshCw class="w-3 h-3 text-cyan-400 animate-spin shrink-0" />
+          <span class="truncate">
+            {{ sftpStore.overallProgress.completed }}/{{ sftpStore.overallProgress.total }} archivos transferidos ({{ sftpStore.overallProgress.percentage }}%)
+          </span>
+        </div>
+        <div class="text-[10px] font-mono font-semibold shrink-0 ml-2">
+          Ver cola &rarr;
+        </div>
+      </div>
     </div>
 
     <!-- Error Banner -->
@@ -248,8 +339,28 @@ async function handleDelete(entry: SftpEntry) {
       <span class="truncate">{{ sftpStore.error }}</span>
     </div>
 
-    <!-- File List Body -->
-    <div class="flex-1 overflow-y-auto p-1.5 space-y-0.5">
+    <!-- File List Body with Drag & Drop Zone -->
+    <div
+      class="flex-1 overflow-y-auto p-1.5 space-y-0.5 relative"
+      @dragover.prevent="isDraggingOver = true"
+      @dragenter.prevent="isDraggingOver = true"
+      @dragleave.prevent="isDraggingOver = false"
+      @drop.prevent="handleWebDrop"
+    >
+      <!-- Drag & Drop Visual Overlay -->
+      <div
+        v-if="isDraggingOver"
+        class="absolute inset-0 z-40 bg-cyan-950/80 border-2 border-dashed border-cyan-400 rounded-xl flex flex-col items-center justify-center space-y-2 backdrop-blur-xs p-4 text-center pointer-events-none"
+      >
+        <Upload class="w-8 h-8 text-cyan-400 animate-bounce" />
+        <p class="text-xs font-semibold text-cyan-200">
+          Soltar archivos aquí para subir a:
+        </p>
+        <p class="text-[11px] font-mono text-cyan-400 truncate max-w-full px-2">
+          {{ sftpStore.currentPath }}
+        </p>
+      </div>
+
       <div
         v-if="sftpStore.isLoading && sftpStore.entries.length === 0"
         class="py-12 text-center text-xs text-theme-muted space-y-2"
@@ -304,13 +415,23 @@ async function handleDelete(entry: SftpEntry) {
         {{ searchQuery ? "No se encontraron coincidencias" : "Directorio vacío" }}
       </div>
 
+      <!-- File Rows with Checkboxes and Inline Progress -->
       <div
         v-for="entry in filteredEntries"
         :key="entry.path"
         @dblclick="handleEntryDblClick(entry)"
         class="flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-theme-active border border-transparent hover:border-theme group cursor-pointer text-xs transition"
+        :class="{ 'bg-theme-active/60 border-theme': sftpStore.selectedPaths.includes(entry.path) }"
       >
         <div class="flex items-center space-x-2 truncate min-w-0">
+          <!-- Selection Checkbox -->
+          <input
+            type="checkbox"
+            :checked="sftpStore.selectedPaths.includes(entry.path)"
+            @click.stop="sftpStore.toggleSelect(entry.path)"
+            class="w-3.5 h-3.5 rounded border-theme text-cyan-400 focus:ring-0 focus:ring-offset-0 bg-theme-app cursor-pointer shrink-0"
+          />
+
           <Folder v-if="entry.is_dir" class="w-4 h-4 text-cyan-400 fill-cyan-400/20 shrink-0" />
           <CornerUpRight v-else-if="entry.is_symlink" class="w-4 h-4 text-amber-400 shrink-0" />
           <FileCode
@@ -321,8 +442,48 @@ async function handleDelete(entry: SftpEntry) {
           <File v-else class="w-4 h-4 text-neutral-400 shrink-0" />
 
           <div class="truncate">
-            <div class="font-medium text-theme-main truncate leading-tight">
-              {{ entry.name }}
+            <div class="font-medium text-theme-main truncate leading-tight flex items-center">
+              <span class="truncate">{{ entry.name }}</span>
+
+              <!-- Inline Transfer Progress Badge -->
+              <span
+                v-if="sftpStore.activeTransfersMap.has(entry.name)"
+                class="ml-1.5 inline-flex items-center space-x-1 px-1.5 py-0.2 rounded text-[9px] font-mono shrink-0"
+                :class="{
+                  'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30': sftpStore.activeTransfersMap.get(entry.name)?.status === 'in_progress',
+                  'bg-amber-500/20 text-amber-300 border border-amber-500/30': sftpStore.activeTransfersMap.get(entry.name)?.status === 'queued',
+                  'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30': sftpStore.activeTransfersMap.get(entry.name)?.status === 'completed',
+                  'bg-red-500/20 text-red-300 border border-red-500/30': sftpStore.activeTransfersMap.get(entry.name)?.status === 'error',
+                }"
+              >
+                <RefreshCw
+                  v-if="sftpStore.activeTransfersMap.get(entry.name)?.status === 'in_progress'"
+                  class="w-2.5 h-2.5 animate-spin text-cyan-400"
+                />
+                <Clock
+                  v-else-if="sftpStore.activeTransfersMap.get(entry.name)?.status === 'queued'"
+                  class="w-2.5 h-2.5 text-amber-400"
+                />
+                <CheckCircle2
+                  v-else-if="sftpStore.activeTransfersMap.get(entry.name)?.status === 'completed'"
+                  class="w-2.5 h-2.5 text-emerald-400"
+                />
+                <AlertCircle
+                  v-else-if="sftpStore.activeTransfersMap.get(entry.name)?.status === 'error'"
+                  class="w-2.5 h-2.5 text-red-400"
+                />
+                <span>
+                  {{
+                    sftpStore.activeTransfersMap.get(entry.name)?.status === 'in_progress'
+                      ? `${sftpStore.activeTransfersMap.get(entry.name)?.percentage.toFixed(0)}%`
+                      : sftpStore.activeTransfersMap.get(entry.name)?.status === 'queued'
+                      ? 'En cola'
+                      : sftpStore.activeTransfersMap.get(entry.name)?.status === 'completed'
+                      ? 'Listo'
+                      : 'Error'
+                  }}
+                </span>
+              </span>
             </div>
             <div class="text-[10px] text-theme-muted font-mono space-x-2">
               <span v-if="!entry.is_dir">{{ formatBytes(entry.size) }}</span>
@@ -360,6 +521,45 @@ async function handleDelete(entry: SftpEntry) {
       </div>
     </div>
 
+    <!-- Batch Selection Floating Toolbar -->
+    <div
+      v-if="sftpStore.selectedPaths.length > 0"
+      class="p-2 border-t border-theme bg-theme-app/90 flex items-center justify-between text-xs"
+    >
+      <div class="flex items-center space-x-1.5 text-theme-main font-medium">
+        <Layers class="w-3.5 h-3.5 text-cyan-400" />
+        <span>{{ sftpStore.selectedPaths.length }} seleccionados</span>
+      </div>
+
+      <div class="flex items-center space-x-1">
+        <button
+          @click="sftpStore.downloadSelected()"
+          class="px-2 py-1 rounded-md bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-300 border border-cyan-500/30 flex items-center space-x-1 text-[11px] font-medium transition cursor-pointer"
+          title="Descargar todos los seleccionados"
+        >
+          <Download class="w-3 h-3" />
+          <span>Descargar</span>
+        </button>
+
+        <button
+          @click="handleDeleteSelected()"
+          class="px-2 py-1 rounded-md bg-red-500/20 hover:bg-red-500/30 text-red-300 border border-red-500/30 flex items-center space-x-1 text-[11px] font-medium transition cursor-pointer"
+          title="Eliminar elementos seleccionados"
+        >
+          <Trash2 class="w-3 h-3" />
+          <span>Eliminar</span>
+        </button>
+
+        <button
+          @click="sftpStore.clearSelection()"
+          class="p-1 text-theme-muted hover:text-theme-main rounded transition cursor-pointer"
+          title="Limpiar selección"
+        >
+          <X class="w-3.5 h-3.5" />
+        </button>
+      </div>
+    </div>
+
     <!-- Create Folder Modal Prompt -->
     <div
       v-if="isNewFolderModalOpen"
@@ -378,13 +578,13 @@ async function handleDelete(entry: SftpEntry) {
         <div class="flex justify-end space-x-2 text-xs">
           <button
             @click="isNewFolderModalOpen = false"
-            class="px-2.5 py-1 text-neutral-400 hover:text-white"
+            class="px-3 py-1.5 rounded-lg border border-neutral-700 hover:bg-neutral-800 text-neutral-300 cursor-pointer"
           >
             Cancelar
           </button>
           <button
             @click="confirmCreateFolder"
-            class="px-3 py-1 bg-cyan-600 hover:bg-cyan-500 rounded-lg text-white font-medium"
+            class="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-medium cursor-pointer"
           >
             Crear
           </button>
@@ -392,7 +592,7 @@ async function handleDelete(entry: SftpEntry) {
       </div>
     </div>
 
-    <!-- Rename Modal Prompt -->
+    <!-- Rename Item Modal Prompt -->
     <div
       v-if="isRenameModalOpen"
       @click.self="isRenameModalOpen = false"
@@ -409,15 +609,15 @@ async function handleDelete(entry: SftpEntry) {
         <div class="flex justify-end space-x-2 text-xs">
           <button
             @click="isRenameModalOpen = false"
-            class="px-2.5 py-1 text-neutral-400 hover:text-white"
+            class="px-3 py-1.5 rounded-lg border border-neutral-700 hover:bg-neutral-800 text-neutral-300 cursor-pointer"
           >
             Cancelar
           </button>
           <button
             @click="confirmRename"
-            class="px-3 py-1 bg-cyan-600 hover:bg-cyan-500 rounded-lg text-white font-medium"
+            class="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-medium cursor-pointer"
           >
-            Renombrar
+            Guardar
           </button>
         </div>
       </div>
