@@ -3,6 +3,7 @@ import { ref, watch, computed } from "vue";
 import { useVaultStore } from "../../stores/vault.store";
 import type { TunnelConfig, TunnelConfigPayload, TunnelType } from "../../types/tunnels";
 import { X, Network, Server, ArrowRightLeft, ShieldAlert } from "lucide-vue-next";
+import CustomSelect, { type SelectOption } from "../common/CustomSelect.vue";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -27,6 +28,15 @@ const autoStart = ref(false);
 const error = ref("");
 
 const availableHosts = computed(() => vaultStore.hosts);
+const hostOptions = computed<SelectOption[]>(() => {
+  return vaultStore.hosts.map((h) => ({
+    value: h.id,
+    label: h.label,
+    subtitle: `${h.hostname}:${h.port}`,
+    icon: Server,
+    iconColor: "text-cyan-400",
+  }));
+});
 
 watch(
   () => props.tunnelToEdit,
@@ -152,16 +162,11 @@ function handleSubmit() {
 
           <div>
             <label class="block text-[11px] font-medium text-neutral-300 mb-1">Servidor SSH</label>
-            <select
+            <CustomSelect
               v-model="hostId"
-              class="w-full px-3 py-1.5 bg-neutral-950/60 border border-neutral-700 rounded-lg text-xs text-white focus:outline-hidden focus:border-cyan-400 transition"
-              required
-            >
-              <option disabled value="">Selecciona un servidor...</option>
-              <option v-for="h in availableHosts" :key="h.id" :value="h.id">
-                {{ h.label }} ({{ h.hostname }}:{{ h.port }})
-              </option>
-            </select>
+              :options="hostOptions"
+              placeholder="Selecciona un servidor..."
+            />
           </div>
         </div>
 

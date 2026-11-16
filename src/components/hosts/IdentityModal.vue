@@ -4,6 +4,42 @@ import { useVaultStore } from "../../stores/vault.store";
 import type { IdentitySummary, SaveIdentityPayload, AuthType } from "../../types/inventory";
 import { X, KeyRound, Lock, User, Shield, Upload, Copy, Check, Sparkles } from "lucide-vue-next";
 import { sessionService } from "../../services/session.service";
+import CustomSelect, { type SelectOption } from "../common/CustomSelect.vue";
+
+const authTypeOptions: SelectOption[] = [
+  {
+    value: "password",
+    label: "Contraseña",
+    subtitle: "Usuario y contraseña estándar",
+    icon: Lock,
+    iconColor: "text-blue-400",
+  },
+  {
+    value: "private_key",
+    label: "Llave SSH",
+    subtitle: "Ed25519, RSA, ECDSA",
+    icon: KeyRound,
+    iconColor: "text-amber-400",
+  },
+  {
+    value: "agent",
+    label: "Agente SSH del Sistema",
+    subtitle: "Delegado a SSH_AUTH_SOCK",
+    icon: Shield,
+    iconColor: "text-purple-400",
+  },
+];
+
+const genAlgorithmOptions: SelectOption[] = [
+  {
+    value: "ed25519",
+    label: "Ed25519 (Recomendado)",
+  },
+  {
+    value: "rsa",
+    label: "RSA (4096 bits)",
+  },
+];
 
 const props = defineProps<{
   isOpen: boolean;
@@ -220,14 +256,10 @@ async function handleSave() {
 
           <div>
             <label class="block text-xs font-medium text-theme-muted mb-1">Método de Autenticación</label>
-            <select
+            <CustomSelect
               v-model="authType"
-              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
-            >
-              <option value="password">Contraseña</option>
-              <option value="private_key">Llave SSH (Ed25519 / RSA)</option>
-              <option value="agent">Agente SSH del Sistema (SSH_AUTH_SOCK)</option>
-            </select>
+              :options="authTypeOptions"
+            />
           </div>
         </div>
 
@@ -290,20 +322,18 @@ async function handleSave() {
 
             <!-- Dual generator: ed25519 or rsa -->
             <div class="flex items-center space-x-2 pt-1 border-t border-theme/60">
-              <select
+              <CustomSelect
                 v-model="genAlgorithm"
-                class="px-2 py-1 bg-theme-input border border-theme rounded-lg text-xs text-theme-main focus:outline-none focus:border-theme-accent"
-              >
-                <option value="ed25519">Ed25519 (Recomendado)</option>
-                <option value="rsa">RSA (4096 bits)</option>
-              </select>
+                :options="genAlgorithmOptions"
+                class="w-52"
+              />
               <button
                 type="button"
                 @click="handleGenerateKey"
                 :disabled="isGeneratingKey"
-                class="px-2.5 py-1 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 rounded-lg text-[11px] font-medium flex items-center space-x-1 transition cursor-pointer disabled:opacity-50"
+                class="px-2.5 py-2 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 rounded-xl text-[11px] font-medium flex items-center space-x-1 transition cursor-pointer disabled:opacity-50 shrink-0"
               >
-                <Sparkles class="w-3 h-3" />
+                <Sparkles class="w-3.5 h-3.5" />
                 <span>{{ isGeneratingKey ? 'Generando...' : 'Generar Llave' }}</span>
               </button>
             </div>

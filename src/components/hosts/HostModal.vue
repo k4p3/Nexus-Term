@@ -4,7 +4,20 @@ import { useVaultStore } from "../../stores/vault.store";
 import type { HostSummary, SaveHostPayload } from "../../types/inventory";
 import FolderModal from "./FolderModal.vue";
 import IdentityModal from "./IdentityModal.vue";
-import { X, Server, Globe, Tag, Plus, KeyRound, Route } from "lucide-vue-next";
+import CustomSelect, { type SelectOption } from "../common/CustomSelect.vue";
+import {
+  X,
+  Server,
+  Globe,
+  Tag,
+  Plus,
+  KeyRound,
+  Route,
+  Folder as FolderIcon,
+  Shield,
+  ShieldOff,
+  Lock,
+} from "lucide-vue-next";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -27,6 +40,91 @@ const selectedIdentity = computed(() => vaultStore.identities.find((i) => i.id =
 const availableJumpHosts = computed(() =>
   vaultStore.hosts.filter((h) => !props.hostToEdit || h.id !== props.hostToEdit.id)
 );
+
+const folderOptions = computed<SelectOption[]>(() => {
+  const opts: SelectOption[] = [
+    {
+      value: null,
+      label: "Sin carpeta (Raíz)",
+      icon: FolderIcon,
+      iconColor: "text-theme-muted",
+    },
+  ];
+  for (const folder of vaultStore.folders) {
+    opts.push({
+      value: folder.id,
+      label: folder.name,
+      icon: FolderIcon,
+      iconColor: folder.color || "text-amber-400",
+    });
+  }
+  return opts;
+});
+
+const identityOptions = computed<SelectOption[]>(() => {
+  const opts: SelectOption[] = [
+    {
+      value: null,
+      label: "Sin credencial vinculada",
+      subtitle: "Autenticación anónima o interactiva",
+      icon: ShieldOff,
+      iconColor: "text-theme-muted",
+    },
+  ];
+  for (const ident of vaultStore.identities) {
+    const icon = ident.auth_type === "agent" ? Shield : ident.auth_type === "password" ? Lock : KeyRound;
+    const iconColor =
+      ident.auth_type === "agent"
+        ? "text-purple-400"
+        : ident.auth_type === "password"
+        ? "text-blue-400"
+        : "text-amber-400";
+    const typeLabel =
+      ident.auth_type === "password"
+        ? "Password"
+        : ident.auth_type === "agent"
+        ? "SSH-Agent"
+        : ident.public_key?.startsWith("ssh-ed25519")
+        ? "Ed25519"
+        : ident.public_key?.startsWith("ssh-rsa")
+        ? "RSA"
+        : "Key";
+
+    opts.push({
+      value: ident.id,
+      label: ident.name,
+      subtitle: `${ident.username} • ${typeLabel}`,
+      badge: ident.auth_type.toUpperCase(),
+      icon,
+      iconColor,
+    });
+  }
+  return opts;
+});
+
+const jumpHostOptions = computed<SelectOption[]>(() => {
+  const opts: SelectOption[] = [
+    {
+      value: null,
+      label: "Conexión directa",
+      subtitle: "Sin servidor de salto intermedio",
+      icon: Globe,
+      iconColor: "text-theme-muted",
+    },
+  ];
+  for (const jHost of availableJumpHosts.value) {
+    opts.push({
+      value: jHost.id,
+      label: jHost.label,
+      subtitle: `${jHost.hostname}:${jHost.port}`,
+      badge: jHost.port !== 22 ? `:${jHost.port}` : undefined,
+      icon: Route,
+      iconColor: "text-amber-400",
+    });
+  }
+  return opts;
+});
+
 const usernameOverride = ref("");
 const tagsInput = ref("");
 const notes = ref("");
@@ -184,15 +282,11 @@ async function handleSave() {
                 <span>Nueva</span>
               </button>
             </div>
-            <select
+            <CustomSelect
               v-model="folderId"
-              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
-            >
-              <option :value="null">Sin carpeta (Raíz)</option>
-              <option v-for="folder in vaultStore.folders" :key="folder.id" :value="folder.id">
-                📁 {{ folder.name }}
-              </option>
-            </select>
+              :options="folderOptions"
+              placeholder="Seleccionar carpeta..."
+            />
           </div>
 
           <div>
@@ -207,15 +301,11 @@ async function handleSave() {
                 <span>Nueva</span>
               </button>
             </div>
-            <select
+            <CustomSelect
               v-model="identityId"
-              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
-            >
-              <option :value="null">Sin credencial vinculada</option>
-              <option v-for="id in vaultStore.identities" :key="id.id" :value="id.id">
-                {{ id.auth_type === 'agent' ? '🛡️' : id.auth_type === 'password' ? '🔒' : '🔑' }} {{ id.name }} ({{ id.username }} • {{ id.auth_type === 'password' ? 'Password' : id.auth_type === 'agent' ? 'SSH-Agent' : (id.public_key?.startsWith('ssh-ed25519') ? 'Ed25519' : id.public_key?.startsWith('ssh-rsa') ? 'RSA' : 'Key') }})
-              </option>
-            </select>
+              :options="identityOptions"
+              placeholder="Seleccionar credencial..."
+            />
             <div v-if="selectedIdentity?.public_key" class="mt-1 text-[10px] font-mono text-theme-muted truncate" :title="selectedIdentity.public_key">
               🔑 {{ selectedIdentity.public_key.slice(0, 36) }}...
             </div>
@@ -227,19 +317,11 @@ async function handleSave() {
             <Route class="w-3.5 h-3.5 text-theme-accent" />
             <span>Servidor de Salto / Bastion (Opcional)</span>
           </label>
-          <select
+          <CustomSelect
             v-model="jumpHostId"
-            class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
-          >
-            <option :value="null">Conexión directa (Sin Servidor de Salto)</option>
-            <option
-              v-for="jHost in availableJumpHosts"
-              :key="jHost.id"
-              :value="jHost.id"
-            >
-              🌐 {{ jHost.label }} ({{ jHost.hostname }}:{{ jHost.port }})
-            </option>
-          </select>
+            :options="jumpHostOptions"
+            placeholder="Conexión directa..."
+          />
           <p class="mt-1 text-[11px] text-theme-muted">
             Si se especifica, NexusTerm tunelizará la conexión SSH a través de este Bastion usando direct-tcpip.
           </p>

@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useSettingsStore } from '../../stores/settings.store';
 import { useVaultStore } from '../../stores/vault.store';
 import { SUPPORTED_LOCALES } from '../../locales';
+import CustomSelect, { type SelectOption } from '../common/CustomSelect.vue';
 import {
   X,
   Globe,
@@ -51,6 +52,19 @@ const nerdFontPresets = [
   { label: 'Fira Code NF', value: "'FiraCode Nerd Font', 'Fira Code', monospace" },
   { label: 'Monospace Generic', value: "monospace" },
 ];
+
+const fontOptions = computed<SelectOption[]>(() => {
+  return nerdFontPresets.map((f) => ({
+    value: f.value,
+    label: f.label,
+  }));
+});
+
+const cursorStyleOptions = computed<SelectOption[]>(() => [
+  { value: 'block', label: t('settings.block') },
+  { value: 'bar', label: t('settings.bar') },
+  { value: 'underline', label: t('settings.underline') },
+]);
 
 async function handleRotatePassword() {
   passwordError.value = '';
@@ -335,15 +349,12 @@ async function handleResetDefaults() {
               <label class="block text-xs font-medium text-neutral-300 mb-1.5">
                 {{ t('settings.fontFamily') }}
               </label>
-              <select
-                :value="settingsStore.settings.font_family"
-                @change="(e) => settingsStore.updateSettings({ font_family: (e.target as HTMLSelectElement).value })"
-                class="w-full max-w-lg px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-lg text-xs text-white focus:outline-hidden focus:border-blue-500"
-              >
-                <option v-for="font in nerdFontPresets" :key="font.value" :value="font.value">
-                  {{ font.label }}
-                </option>
-              </select>
+              <CustomSelect
+                :model-value="settingsStore.settings.font_family"
+                @update:model-value="(val) => settingsStore.updateSettings({ font_family: String(val) })"
+                :options="fontOptions"
+                class="max-w-lg"
+              />
             </div>
 
             <!-- Size and Line Height -->
@@ -385,15 +396,11 @@ async function handleResetDefaults() {
                 <label class="block text-xs font-medium text-neutral-300 mb-1.5">
                   {{ t('settings.cursorStyle') }}
                 </label>
-                <select
-                  :value="settingsStore.settings.cursor_style"
-                  @change="(e) => settingsStore.updateSettings({ cursor_style: (e.target as HTMLSelectElement).value as any })"
-                  class="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-lg text-xs text-white focus:outline-hidden focus:border-blue-500"
-                >
-                  <option value="block">{{ t('settings.block') }}</option>
-                  <option value="bar">{{ t('settings.bar') }}</option>
-                  <option value="underline">{{ t('settings.underline') }}</option>
-                </select>
+                <CustomSelect
+                  :model-value="settingsStore.settings.cursor_style"
+                  @update:model-value="(val) => settingsStore.updateSettings({ cursor_style: val as any })"
+                  :options="cursorStyleOptions"
+                />
               </div>
 
               <div class="flex items-center pt-5">
