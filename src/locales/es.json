@@ -33,6 +33,7 @@
   },
   "hosts": {
     "title": "Inventario",
+    "identities": "Identidades",
     "newHost": "Nuevo Servidor",
     "newFolder": "Nueva Carpeta",
     "newIdentity": "Nueva Identidad",

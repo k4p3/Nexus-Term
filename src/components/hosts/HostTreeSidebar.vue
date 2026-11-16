@@ -26,6 +26,8 @@ import {
   FileCode,
   FolderSync,
   Route,
+  FolderPlus,
+  X,
 } from "lucide-vue-next";
 
 const { t } = useI18n();
@@ -183,35 +185,68 @@ async function handleDeleteIdentity(id: string) {
 </script>
 
 <template>
-  <aside class="w-72 bg-theme-surface border-r border-theme flex flex-col h-full select-none shrink-0">
+  <aside class="w-80 bg-theme-surface border-r border-theme flex flex-col h-full select-none shrink-0">
     <!-- Top toolbar & tabs -->
-    <div class="p-3 border-b border-theme space-y-2.5">
-      <div class="flex items-center justify-between">
-        <div class="flex items-center space-x-1 bg-theme-app p-0.5 rounded-lg border border-theme text-xs">
-          <button
-            @click="activeTab = 'hosts'"
-            class="px-2.5 py-1 rounded-md font-medium transition cursor-pointer"
-            :class="activeTab === 'hosts' ? 'bg-theme-active text-theme-accent font-semibold shadow-xs' : 'text-theme-muted hover:text-theme-main'"
-          >
-            {{ t('hosts.title') }} ({{ vaultStore.hosts.length }})
-          </button>
-          <button
-            @click="activeTab = 'identities'"
-            class="px-2.5 py-1 rounded-md font-medium transition cursor-pointer"
-            :class="activeTab === 'identities' ? 'bg-theme-active text-theme-accent font-semibold shadow-xs' : 'text-theme-muted hover:text-theme-main'"
-          >
-            {{ t('hostModal.identity') }} ({{ vaultStore.identities.length }})
-          </button>
+    <div class="p-3 border-b border-theme space-y-2.5 bg-theme-header/30">
+      <!-- Row 1: Section Title & Action Icon Toolbar -->
+      <div class="flex items-center justify-between gap-2 min-w-0">
+        <div class="flex items-center space-x-2 min-w-0 flex-1">
+          <Server v-if="activeTab === 'hosts'" class="w-4 h-4 text-theme-accent shrink-0" />
+          <KeyRound v-else class="w-4 h-4 text-theme-accent shrink-0" />
+          <h2 class="text-xs font-bold uppercase tracking-wider text-theme-main font-mono truncate">
+            {{ activeTab === 'hosts' ? t('hosts.title') : t('hosts.identities') }}
+          </h2>
         </div>
 
-        <div class="flex items-center space-x-1">
+        <div class="flex items-center space-x-0.5 shrink-0">
+          <!-- Add Host or Add Identity button -->
+          <button
+            v-if="activeTab === 'hosts'"
+            @click="openAddHost()"
+            :title="t('hosts.newHost')"
+            class="p-1.5 text-theme-muted hover:text-theme-accent hover:bg-theme-active rounded-lg transition cursor-pointer"
+          >
+            <Plus class="w-4 h-4" />
+          </button>
+          <button
+            v-else
+            @click="openAddIdentity()"
+            :title="t('hosts.newIdentity')"
+            class="p-1.5 text-theme-muted hover:text-theme-accent hover:bg-theme-active rounded-lg transition cursor-pointer"
+          >
+            <Plus class="w-4 h-4" />
+          </button>
+
+          <!-- Add Folder (only in hosts tab) -->
+          <button
+            v-if="activeTab === 'hosts'"
+            @click="openAddFolder()"
+            :title="t('hosts.newFolder')"
+            class="p-1.5 text-theme-muted hover:text-amber-400 hover:bg-theme-active rounded-lg transition cursor-pointer"
+          >
+            <FolderPlus class="w-4 h-4" />
+          </button>
+
+          <!-- Import ~/.ssh/config (only in hosts tab) -->
+          <button
+            v-if="activeTab === 'hosts'"
+            @click="isSshConfigModalOpen = true"
+            title="Importar desde ~/.ssh/config"
+            class="p-1.5 text-theme-muted hover:text-cyan-400 hover:bg-theme-active rounded-lg transition cursor-pointer"
+          >
+            <FileCode class="w-4 h-4" />
+          </button>
+
+          <!-- New Local Terminal -->
           <button
             @click="emit('open-local-pty')"
             :title="t('terminal.newLocal')"
-            class="p-1.5 text-theme-muted hover:text-theme-accent hover:bg-theme-active rounded-lg transition cursor-pointer"
+            class="p-1.5 text-theme-muted hover:text-purple-400 hover:bg-theme-active rounded-lg transition cursor-pointer"
           >
             <Terminal class="w-4 h-4" />
           </button>
+
+          <!-- Collapse Sidebar -->
           <button
             @click="emit('toggle-sidebar')"
             title="Ocultar Barra Lateral (Ctrl+B)"
@@ -222,50 +257,46 @@ async function handleDeleteIdentity(id: string) {
         </div>
       </div>
 
-      <!-- Quick search input -->
+      <!-- Row 2: Full-width Segmented Control -->
+      <div class="grid grid-cols-2 p-0.5 bg-theme-app rounded-xl border border-theme text-xs min-w-0 overflow-hidden">
+        <button
+          @click="activeTab = 'hosts'"
+          class="py-1 px-2 rounded-lg font-medium transition cursor-pointer text-center min-w-0 flex items-center justify-center gap-1.5"
+          :class="activeTab === 'hosts' ? 'bg-theme-active text-theme-accent font-semibold shadow-xs' : 'text-theme-muted hover:text-theme-main'"
+        >
+          <span class="truncate">{{ t('hosts.title') }}</span>
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-theme-surface border border-theme font-mono shrink-0">
+            {{ vaultStore.hosts.length }}
+          </span>
+        </button>
+        <button
+          @click="activeTab = 'identities'"
+          class="py-1 px-2 rounded-lg font-medium transition cursor-pointer text-center min-w-0 flex items-center justify-center gap-1.5"
+          :class="activeTab === 'identities' ? 'bg-theme-active text-theme-accent font-semibold shadow-xs' : 'text-theme-muted hover:text-theme-main'"
+        >
+          <span class="truncate">{{ t('hosts.identities') }}</span>
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-theme-surface border border-theme font-mono shrink-0">
+            {{ vaultStore.identities.length }}
+          </span>
+        </button>
+      </div>
+
+      <!-- Row 3: Quick Search Input with Clear Button -->
       <div class="relative">
-        <Search class="w-3.5 h-3.5 text-theme-muted absolute left-2.5 top-2.5" />
+        <Search class="w-3.5 h-3.5 text-theme-muted absolute left-3 top-2.5 pointer-events-none" />
         <input
           v-model="searchQuery"
           type="text"
-          :placeholder="t('hosts.searchPlaceholder')"
-          class="w-full pl-8 pr-2.5 py-1.5 bg-theme-app border border-theme rounded-lg text-xs text-theme-main placeholder-slate-500 focus:outline-hidden focus:border-theme-accent transition"
+          :placeholder="activeTab === 'hosts' ? t('hosts.searchPlaceholder') : 'Buscar credenciales...'"
+          class="w-full pl-8 pr-7 py-1.5 bg-theme-app border border-theme rounded-xl text-xs text-theme-main placeholder-theme-muted focus:outline-hidden focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
         />
-      </div>
-
-      <!-- Quick add buttons -->
-      <div v-if="activeTab === 'hosts'" class="flex items-center space-x-1.5">
         <button
-          @click="openAddHost()"
-          class="flex-1 py-1 px-2 bg-theme-active hover:brightness-110 border border-theme text-theme-accent rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition cursor-pointer"
+          v-if="searchQuery"
+          @click="searchQuery = ''"
+          class="absolute right-2 top-2 text-theme-muted hover:text-theme-main p-0.5 rounded cursor-pointer"
+          title="Limpiar búsqueda"
         >
-          <Plus class="w-3.5 h-3.5" />
-          <span>{{ t('hosts.newHost') }}</span>
-        </button>
-        <button
-          @click="openAddFolder()"
-          class="py-1 px-2 bg-theme-app hover:bg-theme-active border border-theme text-theme-muted hover:text-theme-main rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition cursor-pointer"
-          :title="t('hosts.newFolder')"
-        >
-          <Plus class="w-3.5 h-3.5" />
-          <span>{{ t('hosts.newFolder') }}</span>
-        </button>
-        <button
-          @click="isSshConfigModalOpen = true"
-          class="p-1 px-1.5 bg-theme-app hover:bg-theme-active border border-theme text-theme-muted hover:text-cyan-400 rounded-lg text-[11px] font-medium flex items-center justify-center transition cursor-pointer"
-          title="Importar desde ~/.ssh/config"
-        >
-          <FileCode class="w-3.5 h-3.5" />
-        </button>
-      </div>
-
-      <div v-else class="flex items-center space-x-1.5">
-        <button
-          @click="openAddIdentity()"
-          class="w-full py-1 px-2 bg-theme-active hover:brightness-110 border border-theme text-theme-accent rounded-lg text-[11px] font-medium flex items-center justify-center space-x-1 transition cursor-pointer"
-        >
-          <Plus class="w-3.5 h-3.5" />
-          <span>{{ t('hosts.newIdentity') }}</span>
+          <X class="w-3 h-3" />
         </button>
       </div>
     </div>
@@ -280,7 +311,7 @@ async function handleDeleteIdentity(id: string) {
             class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-800/60 group cursor-pointer text-xs"
             @click="toggleFolder(folder.id)"
           >
-            <div class="flex items-center space-x-1.5 truncate">
+            <div class="flex items-center space-x-1.5 truncate min-w-0 flex-1">
               <ChevronDown v-if="!collapsedFolders[folder.id]" class="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <ChevronRight v-else class="w-3.5 h-3.5 text-slate-400 shrink-0" />
               <div
@@ -288,10 +319,10 @@ async function handleDeleteIdentity(id: string) {
                 :style="{ backgroundColor: folder.color || '#38bdf8' }"
               ></div>
               <span class="font-medium text-slate-200 truncate">{{ folder.name }}</span>
-              <span class="text-[10px] text-slate-500">({{ getFolderHosts(folder.id).length }})</span>
+              <span class="text-[10px] text-slate-500 shrink-0">({{ getFolderHosts(folder.id).length }})</span>
             </div>
 
-            <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
               <button
                 @click.stop="openEditFolder(folder)"
                 class="p-1 hover:text-cyan-400 text-slate-400 rounded"
@@ -317,10 +348,10 @@ async function handleDeleteIdentity(id: string) {
               @dblclick="emit('connect-host', host)"
               class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-800/80 group cursor-pointer text-xs transition"
             >
-              <div class="flex items-center space-x-2 truncate">
+              <div class="flex items-center space-x-2 truncate min-w-0 flex-1">
                 <Server class="w-3.5 h-3.5 text-cyan-400/80 shrink-0" />
-                <div class="truncate">
-                  <div class="font-medium text-slate-200 truncate leading-tight flex items-center">
+                <div class="truncate min-w-0 flex-1">
+                  <div class="font-medium text-slate-200 truncate leading-tight flex items-center min-w-0">
                     <span class="truncate">{{ host.label }}</span>
                     <span
                       v-if="host.jump_host_id"
@@ -337,7 +368,7 @@ async function handleDeleteIdentity(id: string) {
                 </div>
               </div>
 
-              <div class="flex items-center space-x-1 opacity-60 group-hover:opacity-100 transition-opacity">
+              <div class="flex items-center space-x-1 opacity-60 group-hover:opacity-100 transition-opacity shrink-0">
                 <button
                   @click.stop="emit('connect-host', host)"
                   class="p-1 text-cyan-400 hover:bg-cyan-500/20 rounded cursor-pointer"
@@ -382,10 +413,10 @@ async function handleDeleteIdentity(id: string) {
             @dblclick="emit('connect-host', host)"
             class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-800/80 group cursor-pointer text-xs transition"
           >
-            <div class="flex items-center space-x-2 truncate">
+            <div class="flex items-center space-x-2 truncate min-w-0 flex-1">
               <Server class="w-3.5 h-3.5 text-cyan-400/80 shrink-0" />
-              <div class="truncate">
-                <div class="font-medium text-slate-200 truncate leading-tight flex items-center">
+              <div class="truncate min-w-0 flex-1">
+                <div class="font-medium text-slate-200 truncate leading-tight flex items-center min-w-0">
                   <span class="truncate">{{ host.label }}</span>
                   <span
                     v-if="host.jump_host_id"
@@ -402,7 +433,7 @@ async function handleDeleteIdentity(id: string) {
               </div>
             </div>
 
-            <div class="flex items-center space-x-1 opacity-60 group-hover:opacity-100 transition-opacity">
+            <div class="flex items-center space-x-1 opacity-60 group-hover:opacity-100 transition-opacity shrink-0">
               <button
                 @click.stop="emit('connect-host', host)"
                 class="p-1 text-cyan-400 hover:bg-cyan-500/20 rounded cursor-pointer"

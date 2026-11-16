@@ -33,6 +33,7 @@
   },
   "hosts": {
     "title": "Inventory",
+    "identities": "Identities",
     "newHost": "New Host",
     "newFolder": "New Folder",
     "newIdentity": "New Identity",
