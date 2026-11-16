@@ -66,6 +66,29 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 - **Long-Command Notifications**: A desktop notification (or in-app toast) when a command detected through shell integration finishes after a configurable threshold and you are not looking at it. The command text is never included unless you enable it.
 - **Shortcut Cheat Sheet (`Ctrl+Shift+/`)**: Every keyboard shortcut grouped by context, generated from a single registry.
 
+### 📁 SFTP File Manager & Transfer Queue
+- **Integrated Remote File Explorer**: Browse, create, rename, and delete remote files directly from the collapsible sidebar alongside your active terminal without needing a separate FileZilla or Cyberduck client.
+- **Concurrent Transfer Queue**: Upload and download files in the background with real-time transfer progress bars, speed metrics, pause/cancel, and automatic retry handling.
+- **Smart Terminal to SFTP Link**: Click or context-click detected remote paths (`/var/log/nginx/error.log`) directly in your terminal buffer to immediately navigate and highlight the file in the SFTP panel.
+
+### 🌐 Port Forwarding & Jump Hosts (Bastions)
+- **Visual SSH Tunnel Manager**: Configure and monitor Local (`-L`), Remote (`-R`), and Dynamic SOCKS5 (`-D`) port forwarding with dedicated active/inactive visual status pills.
+- **Transparent Jump Host Chaining**: Effortlessly traverse private corporate networks by chaining multiple bastion servers (`A -> B -> Target`) using native Rust `direct-tcpip` multiplexing without third-party proxies.
+
+### 🖱️ Graphical Remote Desktops (RDP & VNC)
+- **Embedded Desktop Tabs & Split Panes**: Connect to Windows remote desktops via **RDP** (Network Level Authentication / TLS) and Linux/macOS desktops via **VNC** directly inside workspace tabs alongside your command-line shells.
+- **Trust-On-First-Use (TOFU) Cryptography**: SHA-256 TLS certificate fingerprint verification warns you before submitting credentials to unfamiliar remote hosts.
+- **Desktop Controls**: Dedicated toolbar for full-screen toggle, keyboard/pointer capture, and remote `Ctrl+Alt+Del` event dispatch.
+
+### 📊 Real-Time Server Telemetry
+- **Zero-Agent Resource Monitor**: Periodically reads `/proc/stat`, `/proc/meminfo`, `df`, and `/proc/net/dev` over the multiplexed SSH channel without installing background agents on the remote host.
+- **Non-Intrusive Telemetry Bar**: Live CPU load, RAM utilization, root disk percentage, and network bandwidth (RX/TX) displayed right at the bottom border of your terminal pane.
+
+### 🧰 Native Desktop & OpenSSH Integration
+- **System Tray & Background Persistence**: Native StatusNotifierItem (KDE/Linux), Windows System Tray, and macOS menu bar item. "Close to tray" mode keeps long-running SFTP transfers and active tunnels alive in the background.
+- **1-Click OpenSSH Importer**: Instantly import existing server profiles, identities, hostnames, and known hosts from `~/.ssh/config` and `~/.ssh/known_hosts`.
+- **Ultra-Lightweight & Lazy Loaded**: Under 20 MB production binary with LLVM LTO and symbol stripping; secondary components (SFTP, RDP/VNC, tunnels, settings, snippets) are loaded on-demand via `defineAsyncComponent` to keep baseline RAM footprint low.
+
 ### 🎨 Full-App Theming & Personalization
 - **Synchronized Global Theming**: Switching color schemes applies not only to the terminal buffer, but seamlessly across all application UI elements (title bar, sidebar, tabs, modals, and split borders).
 - **Built-in Presets**: *Tokyo Night*, *One Dark*, *Dracula*, *Catppuccin Macchiato*, *Nord*, and *KDE Breeze Dark*, plus automatic dynamic color derivation for imported custom schemes.
