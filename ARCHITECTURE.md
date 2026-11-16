@@ -139,6 +139,11 @@ src/
 - Para evitar la penalización de rendimiento de serializar JSON en cada tecla o salida de comando (`stdout`), el backend envía fragmentos binarios `Vec<u8>` mediante `tauri::ipc::Channel`.
 - El frontend recibe arrays `Uint8Array` e invoca directamente `terminal.write(chunk)`, permitiendo tasas de refresco de 60+ FPS sin saturar el bucle de eventos de JavaScript.
 
+### 4.3. Carga Asíncrona (Lazy Loading) y Eficiencia de Memoria
+- **Regla Estricta**: Toda funcionalidad nueva, modal, drawer, diálogo de confirmación, visor auxiliar (ej. visores gráficos VNC/RDP, exploradores SFTP, editores) o panel que no forme parte del arranque esencial (`VaultUnlockScreen`, `TerminalWorkspace`, `HostTreeSidebar`) debe cargarse asíncronamente mediante `defineAsyncComponent`.
+- Esto asegura la división de código (*code splitting*) en Vite, reduce el bundle inicial y previene la asignación innecesaria de heap en el proceso `WebKitWebProcess` de WebKitGTK al iniciar la aplicación.
+
+
 ### 4.3. Tokens de Diseño Reactivos (Theming System)
 - La aplicación implementa temas completos (Obsidian, Cyberpunk, Nord, Solarized Dark, High Contrast) utilizando tokens de CSS reactivos (`--color-theme-app`, `--color-theme-surface`, `--color-theme-accent`, etc.) mapeados a clases semánticas de Tailwind CSS v4 (`bg-theme-app`, `text-theme-accent`, `border-theme`).
 - Ningún componente debe escribir colores fijos hexadecimales o clases arbitrarias que rompan la coherencia entre temas.
