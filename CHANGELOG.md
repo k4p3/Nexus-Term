@@ -9,7 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.1.0] - 2026-11-16
+
+First full production-ready release of **NexusTerm**, featuring embedded graphical remote desktops (VNC/RDP), advanced terminal productivity tools, concurrent SFTP transfers, SSH Jump Hosts, and deep memory/bundle performance optimizations.
+
 ### Added
+- **Performance & Memory Optimization**:
+  - Implemented lazy loading (`defineAsyncComponent`) across all secondary views, drawers, and modals (`SettingsModal`, `SnippetDrawer`, `PortForwardManager`, `SftpSidebar`, `TransferQueue`, `RemoteDesktopPane`, `ShortcutsModal`, `RestoreSessionsModal`, `TerminalCommandPalette`), significantly reducing initial JavaScriptCore heap and idle RAM footprint.
+  - Configured optimized Rust release profile with Link-Time Optimization (`lto = true`), single codegen unit (`codegen-units = 1`), panic abort (`panic = "abort"`), and symbol stripping (`strip = true`), slashing the production executable size from ~200+ MB down to under 20 MB.
+  - Configured Vite manual Rollup chunks for terminal libraries, Lucide icons, and core dependencies.
 - **Project website** (GitHub Pages, English and Spanish): home page, step-by-step usage guide and shortcut cheat sheet, built as plain static HTML/CSS in `site/` with no third-party resources, published by `.github/workflows/pages.yml` and covered by an automated test (`src/utils/site.docs.test.ts`) that checks language parity, every registered shortcut, links and the absence of external resources.
 - **Command blocks** based on xterm markers (OSC 133): ✓/✗ + duration in the margin, block selection, copy command/output, search within a block and re-run (`Ctrl+Shift+R`). Blocks stay correct when the scrollback is trimmed (the previous model used absolute line numbers).
 - **Per-host command history** (`Ctrl+Shift+H`): stored encrypted with the vault key (AES-256-GCM), fuzzy picker with snippets, `Enter` inserts / `Ctrl+Enter` runs. Commands with a leading space or secret-looking text are never recorded; management from Settings.
@@ -23,13 +33,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Smart Links** for file paths (`path:line:col`) and IP addresses with `Ctrl`+click context menus (copy, show in SFTP, connect via SSH). The manual previously described this but only URLs were detected.
 - **Long-Command Notifications**: desktop notification or in-app toast when a command finishes after a configurable threshold (`tauri-plugin-notification`, Apache-2.0 OR MIT). The command text is excluded by default.
 - **Keyboard Shortcut Cheat Sheet** (`Ctrl+Shift+/`) and a single shortcut registry shared by the key handler, the palette and the documentation (a test fails if a shortcut is undocumented).
-- **VNC & RDP graphical access**: remote desktop sessions (VNC complete; RDP video, keyboard, mouse and certificate TOFU) integrated as tabs. RDP text clipboard and dynamic resize are still pending.
+- **VNC & RDP graphical access**: remote desktop sessions (VNC complete; RDP video, keyboard, mouse and certificate TOFU) integrated as tabs and split panes.
 - New settings: `paste_warning`, `paste_history_size`, `notify_long_commands`, `notify_threshold_seconds`, `notify_include_command`, `remote_desktop_clipboard`.
 - `docs/ROADMAP.md` with planned work and tentative ideas.
+- **SFTP Concurrent Transfers**: Multi-file background transfer queue with real-time progress bars, speed gauges, retry logic, and configurable concurrency pool.
+- **SSH Jump Hosts & Bastion Chaining**: Transparent bastion chaining (`A -> B -> Target`) using native Rust `direct-tcpip` multiplexing without external proxy binaries.
 - **Default Community Snippets**: Built-in curated catalog of 15 essential sysadmin/DevOps snippets (Docker, Systemd, Network, Storage & Kernel diagnostics).
 - **Snippet State Management**: Toggle snippets enabled/disabled individually without deleting them from the database.
 - **Origin Filtering & Cloning**: Filter snippets by "All", "Community", or "Custom" in the drawer, and 1-click duplicate built-in snippets to customize them.
 - **Branding**: Official GitHub Social Preview card (1280x640) added to `public/social-preview.png`.
+- **Comprehensive Documentation**: Complete coverage of SFTP, SSH Tunnels, Jump Hosts, VNC/RDP, Telemetry, and OS Desktop Integration across `README.md`, `README.es.md`, and `docs/FEATURES_MANUAL.md`.
+
 
 ---
 
