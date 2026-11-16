@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NexusTerm — free SSH/SFTP manager and terminal</title>
+<meta name="description" content="NexusTerm is a free (GPLv3), lightweight SSH, SFTP manager and terminal emulator with a zero-knowledge encrypted vault. For Linux, Windows and macOS.">
+<link rel="canonical" href="https://k4p3.github.io/Nexus-Term/en/index.html">
+<link rel="alternate" hreflang="en" href="https://k4p3.github.io/Nexus-Term/en/index.html">
+<link rel="alternate" hreflang="es" href="https://k4p3.github.io/Nexus-Term/es/index.html">
+<link rel="alternate" hreflang="x-default" href="https://k4p3.github.io/Nexus-Term/en/index.html">
+<link rel="icon" href="../assets/img/favicon.ico">
+<link rel="stylesheet" href="../assets/style.css">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="NexusTerm">
+<meta property="og:title" content="NexusTerm — free SSH/SFTP manager and terminal">
+<meta property="og:description" content="NexusTerm is a free (GPLv3), lightweight SSH, SFTP manager and terminal emulator with a zero-knowledge encrypted vault. For Linux, Windows and macOS.">
+<meta property="og:url" content="https://k4p3.github.io/Nexus-Term/en/index.html">
+<meta property="og:image" content="https://k4p3.github.io/Nexus-Term/assets/img/social-preview.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="color-scheme" content="dark light">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="site-header"><div class="wrap">
+<a class="brand" href="index.html"><img src="../assets/img/logo.png" alt="" width="32" height="32"><span>NexusTerm</span></a>
+<nav class="nav" aria-label="Main"><a href="index.html" aria-current="page">Home</a><a href="guide.html">Guide</a><a href="shortcuts.html">Shortcuts</a><a href="https://github.com/k4p3/Nexus-Term">GitHub</a><a class="lang" data-lang="es" lang="es" hreflang="es" href="../es/index.html" title="Leer en español">Español</a></nav>
+</div></header>
+<main id="main">
+<section class="hero"><div class="wrap">
+<img class="logo" src="../assets/img/logo.png" alt="NexusTerm logo" width="96" height="96">
+<h1>NexusTerm</h1>
+<p class="lead">Modern, lightweight, zero-knowledge SSH/SFTP manager and terminal. A 100% free alternative to Termius, Tabby or MobaXterm.</p>
+<div class="cta"><a class="btn primary" href="https://github.com/k4p3/Nexus-Term/releases">Download</a><a class="btn" href="guide.html">How to use it</a></div>
+<ul class="badges"><li>GPLv3</li><li>Linux · Windows · macOS</li><li>Tauri v2 + Rust</li></ul>
+</div></section>
+<section><div class="wrap split">
+<div><h2>Your terminal, with superpowers</h2>
+<p class="sub">Every command is a block that shows whether it succeeded (✓) or failed (✗) and how long it took. Copy its output, re-run it, or search only inside it.</p></div>
+<figure class="shot" data-slot="terminal" role="img" aria-label="Illustration of the terminal with command blocks marked ✓ and ✗"><div class="win"><div class="bar"><i></i><i></i><i></i><b>prod-web-01</b></div><div class="body">
+<div class="ln"><span><span class="p">deploy@web-01</span> <span class="dim">~</span> $ systemctl status nginx</span><span class="ok">✓ 0.2s</span></div>
+<div class="ln"><span class="dim">● nginx.service - active (running)</span><span></span></div>
+<div class="ln"><span><span class="p">deploy@web-01</span> <span class="dim">~</span> $ cat /etc/nginx/missing.conf</span><span class="bad">✗ 0.0s</span></div>
+<div class="ln"><span class="bad">cat: /etc/nginx/missing.conf: No such file or directory</span><span></span></div>
+<div class="ln"><span><span class="p">deploy@web-01</span> <span class="dim">~</span> $ tar czf backup.tgz /var/www</span><span class="ok">✓ 14.8s</span></div>
+<div class="ln"><span><span class="p">deploy@web-01</span> <span class="dim">~</span> $ <span class="sel">&#9608;</span></span><span></span></div>
+</div></div><figcaption>Illustration</figcaption></figure></div></section>
+<section id="features"><div class="wrap"><h2>What is inside</h2>
+<p class="sub">Everything you need to manage servers, in a single application.</p>
+<div class="grid">
+<article class="card"><span class="ico" aria-hidden="true">🔐</span><h3>Zero-knowledge vault</h3><p>Credentials and SSH keys are encrypted per record with AES-256-GCM. The master password is stretched with Argon2id and is never written to disk; keys are wiped from memory on lock.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">🖥️</span><h3>SSH, SFTP and telemetry</h3><p>One authenticated SSH connection serves the interactive shell, the SFTP explorer with a transfer queue, and a live CPU/RAM/network bar.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">🪟</span><h3>Split panes and tabs</h3><p>Split any tab horizontally or vertically, dock tabs into panes, and broadcast your keystrokes to several servers at once.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">🧭</span><h3>Tunnels and jump hosts</h3><p>Local (-L), remote (-R) and dynamic SOCKS5 (-D) port forwarding, and chained bastion hosts.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">🖱️</span><h3>RDP and VNC</h3><p>Open graphical desktops as tabs next to your terminals.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">⚡</span><h3>A smarter terminal</h3><p>Command blocks with ✓/✗ and duration, per-host encrypted history, Instant Replay, Quick Select, safe paste and smart links.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">📋</span><h3>Snippets</h3><p>A library of parameterised commands with {{placeholders}}, plus a catalogue of community snippets for Docker, systemd and networking.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">🎨</span><h3>Themes and languages</h3><p>Tokyo Night, One Dark, Dracula, Catppuccin, Nord and KDE Breeze Dark, with English and Spanish built in.</p></article>
+<article class="card"><span class="ico" aria-hidden="true">🪶</span><h3>Lightweight</h3><p>Built with Tauri v2 and Rust: no Electron, a small memory footprint and a WebGL-accelerated terminal.</p></article>
+</div></div></section>
+<section><div class="wrap split rev">
+<figure class="shot" data-slot="history" role="img" aria-label="Illustration of the per-host history picker"><div class="win"><div class="bar"><i></i><i></i><i></i><b>prod-web-01</b></div><div class="body">
+<div class="picker"><div class="q">› dock</div>
+<div class="it on"><span>docker compose up -d</span><span class="dim">×12</span></div>
+<div class="it"><span>docker logs -f api --tail 100</span><span class="dim">×7</span></div>
+<div class="it"><span>docker ps --format "table …"</span><span class="dim">×3</span></div>
+<div class="it"><span class="dim">snippet: Docker prune</span><span></span></div></div>
+<div class="dim" style="margin-top:8px">Enter ↵ inserts · Ctrl+Enter runs</div>
+</div></div><figcaption>Illustration</figcaption></figure>
+<div><h2>Encrypted per-host history</h2>
+<p class="sub">Press Ctrl+Shift+H to search the commands you already ran on that server, together with your snippets. It is stored encrypted in the vault and never records commands that look like secrets.</p>
+<p class="sub">There is also Instant Replay (Ctrl+Shift+Y) to recover output wiped by a clear, and tab restore when you reopen the app.</p></div>
+</div></section>
+<section id="security"><div class="wrap split">
+<div><h2>Security: zero knowledge</h2>
+<ul>
+<li>Master password stretched with Argon2id (64 MiB, 3 iterations, 4 threads); never stored on disk.</li>
+<li>Every record is encrypted with AES-256-GCM and a unique IV.</li>
+<li>Change the master password without re-encrypting all your servers.</li>
+<li>Keys are wiped from memory when the vault locks.</li>
+<li>No accounts and no cloud service: your data stays on your machine.</li>
+<li data-claim="no-telemetry"><strong>NexusTerm collects no usage data and contacts no service other than the servers you connect to.</strong> No analytics, no crash reporting and no update checks; the code is open and an automated test in the repository guards this.</li></ul></div>
+<figure class="shot" data-slot="vault" role="img" aria-label="Illustration of the encrypted vault unlock screen"><div class="win"><div class="bar"><i></i><i></i><i></i><b>NexusTerm</b></div><div class="body lock">
+<div class="big">🔐</div>
+<div>Encrypted vault</div>
+<div class="field">Master password ••••••••••••</div>
+<div class="dim">Argon2id · AES-256-GCM</div>
+</div></div><figcaption>Illustration</figcaption></figure></div></section>
+<section id="install"><div class="wrap"><h2>Install</h2>
+<p class="sub">Download the installer for your system from the releases page: AppImage, .deb and .rpm for Linux, .msi/.exe for Windows and .dmg for macOS.</p>
+<p><a class="btn primary" href="https://github.com/k4p3/Nexus-Term/releases">Go to releases</a></p>
+<h3 style="margin-top:24px">On Linux (AppImage)</h3>
+<pre data-copy data-copy-label="Copy" data-copied-label="Copied"><code>chmod +x nexus-term_*_amd64.AppImage
+./nexus-term_*_amd64.AppImage</code></pre>
+<h3>From source</h3>
+<pre data-copy data-copy-label="Copy" data-copied-label="Copied"><code>git clone https://github.com/k4p3/Nexus-Term.git
+cd Nexus-Term
+pnpm install
+pnpm tauri dev</code></pre>
+<p class="sub">Requires Node.js 20+, pnpm and stable Rust; on Linux you also need the WebKitGTK dependencies (see the README).</p>
+</div></section>
+<section><div class="wrap"><h2>What next?</h2>
+<div class="cta" style="justify-content:flex-start"><a class="btn primary" href="guide.html">Read the usage guide</a><a class="btn" href="shortcuts.html">See all shortcuts</a><a class="btn" href="https://github.com/k4p3/Nexus-Term">Source code</a></div></div></section>
+</main>
+<footer class="site-footer"><div class="wrap"><span>NexusTerm is free software under the GNU GPLv3.</span><span><a href="https://github.com/k4p3/Nexus-Term">Source code</a> · <a href="https://github.com/k4p3/Nexus-Term/releases">Releases</a> · <a href="https://github.com/k4p3/Nexus-Term/issues">Report an issue</a></span></div></footer>
+<script src="../assets/site.js"></script>
+</body>
+</html>

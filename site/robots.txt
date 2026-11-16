@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://k4p3.github.io/Nexus-Term/sitemap.xml

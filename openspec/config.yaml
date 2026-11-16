@@ -24,6 +24,8 @@ rules:
     - Incluir escenarios de éxito y de manejo de errores (ej. fallo de autenticación SSH, contraseña maestra incorrecta, desconexión de red).
   design:
     - Documentar los contratos IPC entre Tauri (Rust) y Vue (TypeScript), esquemas de tablas SQLite y decisiones de seguridad/criptografía.
+    - Toda nueva funcionalidad visual, modal, drawer o visor auxiliar en el frontend DEBE diseñarse obligatoriamente con `defineAsyncComponent` (Lazy Loading) para mantener baja la huella de memoria en reposo.
+
   tasks:
     - Dividir las tareas en bloques pequeños, verificables y ordenados secuencialmente (Backend Rust -> IPC -> Store Pinia -> Componentes Vue -> Verificación).
 

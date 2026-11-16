@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from "vue";
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
@@ -20,14 +20,17 @@ import { useSettingsStore } from "../../stores/settings.store";
 import { useVaultStore } from "../../stores/vault.store";
 import { useTelemetryStore } from "../../stores/telemetry.store";
 import TerminalSearchBar, { type SearchOptions } from "./TerminalSearchBar.vue";
-import PasteConfirmModal from "./PasteConfirmModal.vue";
-import PasteHistoryPicker from "./PasteHistoryPicker.vue";
-import HistoryPicker from "./HistoryPicker.vue";
-import InstantReplayModal from "./InstantReplayModal.vue";
 import { useReplayStore } from "../../stores/replay.store";
 import { useHistoryStore } from "../../stores/history.store";
 import QuickSelectOverlay from "./QuickSelectOverlay.vue";
-import TerminalLinkMenu, { type LinkMenuItem } from "./TerminalLinkMenu.vue";
+import type { LinkMenuItem } from "./TerminalLinkMenu.vue";
+
+// Carga bajo demanda de modales secundarios
+const PasteConfirmModal = defineAsyncComponent(() => import("./PasteConfirmModal.vue"));
+const PasteHistoryPicker = defineAsyncComponent(() => import("./PasteHistoryPicker.vue"));
+const HistoryPicker = defineAsyncComponent(() => import("./HistoryPicker.vue"));
+const InstantReplayModal = defineAsyncComponent(() => import("./InstantReplayModal.vue"));
+const TerminalLinkMenu = defineAsyncComponent(() => import("./TerminalLinkMenu.vue"));
 import { useUiStore } from "../../stores/ui.store";
 import { usePasteHistoryStore } from "../../stores/paste-history.store";
 import { useSftpStore } from "../../stores/sftp.store";

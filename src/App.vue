@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from "vue";
+import { ref, onMounted, onUnmounted, watch, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVaultStore } from "./stores/vault.store";
 import { useSessionsStore } from "./stores/sessions.store";
@@ -8,23 +8,25 @@ import { useTunnelsStore } from "./stores/tunnels.store";
 import { useSftpStore } from "./stores/sftp.store";
 import VaultUnlockScreen from "./components/vault/VaultUnlockScreen.vue";
 import HostTreeSidebar from "./components/hosts/HostTreeSidebar.vue";
-import QuickConnectModal from "./components/hosts/QuickConnectModal.vue";
-import SettingsModal from "./components/settings/SettingsModal.vue";
-import SnippetDrawer from "./components/snippets/SnippetDrawer.vue";
-import PortForwardManager from "./components/tunnels/PortForwardManager.vue";
-import SftpSidebar from "./components/sftp/SftpSidebar.vue";
-import TransferQueue from "./components/sftp/TransferQueue.vue";
 import TerminalWorkspace from "./components/terminal/TerminalWorkspace.vue";
-import TerminalCommandPalette from "./components/terminal/TerminalCommandPalette.vue";
-import ShortcutsModal from "./components/terminal/ShortcutsModal.vue";
-import RestoreSessionsModal from "./components/terminal/RestoreSessionsModal.vue";
-import { useSessionRestore } from "./composables/useSessionRestore";
 import ToastHost from "./components/common/ToastHost.vue";
+import { useSessionRestore } from "./composables/useSessionRestore";
 import { useUiStore } from "./stores/ui.store";
 import { matchShortcut } from "./utils/shortcuts";
 import type { HostSummary } from "./types/inventory";
 import { sessionService } from "./services/session.service";
-import { Lock, Terminal, RefreshCw, Search, Settings, Code, ArrowRightLeft, FolderSync } from "lucide-vue-next";
+import { Lock, RefreshCw, Search, Settings, Code, ArrowRightLeft, FolderSync } from "lucide-vue-next";
+
+// Modales y paneles secundarios cargados bajo demanda (lazy loading) para reducir memoria inicial
+const QuickConnectModal = defineAsyncComponent(() => import("./components/hosts/QuickConnectModal.vue"));
+const SettingsModal = defineAsyncComponent(() => import("./components/settings/SettingsModal.vue"));
+const SnippetDrawer = defineAsyncComponent(() => import("./components/snippets/SnippetDrawer.vue"));
+const PortForwardManager = defineAsyncComponent(() => import("./components/tunnels/PortForwardManager.vue"));
+const SftpSidebar = defineAsyncComponent(() => import("./components/sftp/SftpSidebar.vue"));
+const TransferQueue = defineAsyncComponent(() => import("./components/sftp/TransferQueue.vue"));
+const TerminalCommandPalette = defineAsyncComponent(() => import("./components/terminal/TerminalCommandPalette.vue"));
+const ShortcutsModal = defineAsyncComponent(() => import("./components/terminal/ShortcutsModal.vue"));
+const RestoreSessionsModal = defineAsyncComponent(() => import("./components/terminal/RestoreSessionsModal.vue"));
 
 const { t } = useI18n();
 const vaultStore = useVaultStore();

@@ -133,6 +133,10 @@ terminal/
    - Todo nuevo crate de Rust, paquete de npm, icono o recurso externo que se incorpore al proyecto DEBE poseer obligatoriamente una licencia de código abierto compatible con **GNU GPLv3** (tales como MIT, Apache-2.0, BSD-2/3-Clause, ISC, BlueOak-1.0.0, MPL-2.0, Unlicense o Dominio Público).
    - Queda terminantemente prohibido incorporar dependencias privativas, de código cerrado, bajo licencias con restricciones de uso comercial (ej. CC-BY-NC, SSPL, Commons Clause, BSL) o incompatibles con GPLv3.
    - En cada propuesta de cambio (`proposal.md` / `design.md`) que introduzca nuevas dependencias, se debe documentar y verificar explícitamente la licencia de cada paquete agregado.
+7. **Lazy Loading Obligatorio en el Frontend (Eficiencia de Memoria RAM)**:
+   - Todo modal, drawer, panel secundario, diálogo de confirmación, visor auxiliar (ej. VNC/RDP, visores de archivos, editores) o nueva funcionalidad que no pertenezca al flujo esencial de arranque (`VaultUnlockScreen`, `TerminalWorkspace`, `HostTreeSidebar`) DEBE implementarse obligatoriamente con **`defineAsyncComponent`**.
+   - Queda terminantemente prohibido importar estáticamente en `App.vue` o en componentes contenedores vistas que solo se renderizan bajo interacción del usuario o eventos condicionales. Esto garantiza minimizar la huella de memoria RAM en reposo en Linux (evitando sobrecargar el heap de `WebKitWebProcess` en WebKitGTK) y asegurar un *code splitting* óptimo en producción.
+
 
 ---
 

@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { defineAsyncComponent } from "vue";
 import type { PaneNode } from "../../types/session";
 import TerminalPane from "./TerminalPane.vue";
-import RemoteDesktopPane from "../remote/RemoteDesktopPane.vue";
+
+const RemoteDesktopPane = defineAsyncComponent(() => import("../remote/RemoteDesktopPane.vue"));
 
 const isGraphical = (host?: { protocol?: string } | null) =>
   host?.protocol === "rdp" || host?.protocol === "vnc";
