@@ -52,6 +52,20 @@ pub struct AppSettings {
     #[serde(default)]
     pub notify_include_command: bool,
 
+    // Advanced terminal productivity
+    #[serde(default = "default_true")]
+    pub history_enabled: bool,
+    #[serde(default = "default_true")]
+    pub instant_replay: bool,
+    #[serde(default = "default_restore_sessions")]
+    pub restore_sessions: String, // "ask" | "auto" | "off"
+    #[serde(default = "default_true")]
+    pub osc52_clipboard: bool,
+    #[serde(default = "default_true")]
+    pub inline_images: bool,
+    #[serde(default)]
+    pub font_ligatures: bool,
+
     // Remote Desktop (RDP / VNC)
     #[serde(default = "default_remote_desktop_clipboard")]
     pub remote_desktop_clipboard: bool,
@@ -59,6 +73,10 @@ pub struct AppSettings {
 
 fn default_remote_desktop_clipboard() -> bool {
     true
+}
+
+fn default_restore_sessions() -> String {
+    "ask".to_string()
 }
 
 fn default_true() -> bool {
@@ -78,6 +96,9 @@ impl AppSettings {
     pub fn sanitized(mut self) -> Self {
         self.paste_history_size = self.paste_history_size.min(100);
         self.notify_threshold_seconds = self.notify_threshold_seconds.clamp(1, 3600);
+        if !matches!(self.restore_sessions.as_str(), "ask" | "auto" | "off") {
+            self.restore_sessions = default_restore_sessions();
+        }
         self
     }
 }
@@ -142,6 +163,12 @@ impl Default for AppSettings {
             notify_long_commands: default_true(),
             notify_threshold_seconds: default_notify_threshold_seconds(),
             notify_include_command: false,
+            history_enabled: default_true(),
+            instant_replay: default_true(),
+            restore_sessions: default_restore_sessions(),
+            osc52_clipboard: default_true(),
+            inline_images: default_true(),
+            font_ligatures: false,
         }
     }
 }
@@ -292,5 +319,42 @@ mod tests {
         let saved = save_settings_internal(&conn, &s).unwrap();
         assert_eq!(saved.notify_threshold_seconds, 3600);
         assert_eq!(get_settings_internal(&conn).unwrap().notify_threshold_seconds, 3600);
+    }
+
+    #[test]
+    fn test_advanced_defaults_for_legacy_json() {
+        let conn = Connection::open_in_memory().unwrap();
+        VaultManager::run_migrations(&conn).unwrap();
+        conn.execute(
+            "INSERT INTO app_settings (id, settings_json, updated_at) VALUES (1, '{\"locale\":\"en\"}', 'now')",
+            [],
+        )
+        .unwrap();
+        let s = get_settings_internal(&conn).unwrap();
+        assert!(s.history_enabled);
+        assert!(s.instant_replay);
+        assert_eq!(s.restore_sessions, "ask");
+        assert!(s.osc52_clipboard);
+        assert!(s.inline_images);
+        assert!(!s.font_ligatures);
+    }
+
+    #[test]
+    fn test_invalid_restore_mode_falls_back_to_ask() {
+        let conn = Connection::open_in_memory().unwrap();
+        VaultManager::run_migrations(&conn).unwrap();
+        let mut s = AppSettings {
+            restore_sessions: "bogus".to_string(),
+            ..AppSettings::default()
+        };
+        assert_eq!(save_settings_internal(&conn, &s).unwrap().restore_sessions, "ask");
+        s.restore_sessions = "auto".to_string();
+        assert_eq!(save_settings_internal(&conn, &s).unwrap().restore_sessions, "auto");
+        conn.execute(
+            "UPDATE app_settings SET settings_json = '{\"restore_sessions\":\"nope\"}' WHERE id = 1",
+            [],
+        )
+        .unwrap();
+        assert_eq!(get_settings_internal(&conn).unwrap().restore_sessions, "ask");
     }
 }

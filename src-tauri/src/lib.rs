@@ -41,6 +41,10 @@ use crate::tunnels::manager::SshTunnelManager;
 use crate::vault::db::{
     VaultManager, vault_change_password, vault_init, vault_lock, vault_status, vault_unlock,
 };
+use crate::vault::history::{
+    history_clear, history_delete, history_record, history_search, session_layout_clear,
+    session_layout_get, session_layout_save,
+};
 use crate::vault::inventory::{
     delete_folder, delete_host, delete_identity, get_inventory, save_folder, save_host,
     save_identity,
@@ -158,6 +162,13 @@ pub fn run() {
             delete_identity,
             save_host,
             delete_host,
+            history_record,
+            history_search,
+            history_delete,
+            history_clear,
+            session_layout_save,
+            session_layout_get,
+            session_layout_clear,
             open_local_pty,
             connect_ssh,
             generate_ssh_key,

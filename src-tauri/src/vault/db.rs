@@ -164,6 +164,30 @@ impl VaultManager {
                 accepted_at TEXT NOT NULL
             );",
         )?;
+        conn.execute_batch(
+            "CREATE TABLE IF NOT EXISTS command_history (
+                id TEXT PRIMARY KEY,
+                host_id TEXT NOT NULL,
+                dedupe_key TEXT NOT NULL,
+                encrypted_command BLOB NOT NULL,
+                use_count INTEGER NOT NULL DEFAULT 1,
+                last_exit_code INTEGER,
+                last_used_at TEXT NOT NULL,
+                UNIQUE(host_id, dedupe_key)
+            );
+            CREATE INDEX IF NOT EXISTS idx_history_host_recent
+                ON command_history(host_id, last_used_at DESC);
+            CREATE TRIGGER IF NOT EXISTS trg_history_host_deleted
+                AFTER DELETE ON hosts
+                BEGIN
+                    DELETE FROM command_history WHERE host_id = OLD.id;
+                END;
+            CREATE TABLE IF NOT EXISTS session_layout (
+                id INTEGER PRIMARY KEY CHECK (id = 1),
+                layout_json TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            );",
+        )?;
         let _ = conn.execute("ALTER TABLE snippets ADD COLUMN is_builtin INTEGER NOT NULL DEFAULT 0", []);
         let _ = conn.execute("ALTER TABLE snippets ADD COLUMN is_enabled INTEGER NOT NULL DEFAULT 1", []);
 
