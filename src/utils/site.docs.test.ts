@@ -145,6 +145,16 @@ describe("site: links and resources", () => {
   });
 });
 
+describe("site: privacy claim", () => {
+  it("states the no-telemetry claim on both home pages (backed by privacy.audit.test.ts)", () => {
+    for (const page of [PAIRS.home[0], PAIRS.home[1]]) {
+      const html = read(page);
+      expect(html, page).toContain('data-claim="no-telemetry"');
+      expect(html, page).toMatch(/data-claim="no-telemetry"><strong>[^<]{40,}<\/strong>/);
+    }
+  });
+});
+
 describe("site: privacy and independence", () => {
   const external = /^(https?:)?\/\//;
 

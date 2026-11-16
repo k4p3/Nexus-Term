@@ -61,6 +61,19 @@ The website MUST NOT load scripts, stylesheets, fonts, images or trackers from t
 
 ---
 
+### Requirement: Backed Privacy Claim
+The website SHALL state that NexusTerm collects no usage data and contacts no service other than the servers the user connects to, and an automated test MUST verify that the application's sources, dependencies and permissions remain consistent with that claim.
+
+#### Scenario: Claim published
+- **WHEN** the home page is rendered in either language
+- **THEN** it contains the no-telemetry statement.
+
+#### Scenario: Network capability introduced
+- **WHEN** the application adds an HTTP client, an analytics or crash-reporting library, a new Tauri plugin or permission, or an external URL
+- **THEN** the privacy audit test fails until the exception is reviewed and the claim is updated.
+
+---
+
 ### Requirement: Valid and Accessible Pages
 Every page SHALL declare its language, a unique title and a description, use semantic landmarks, respect `prefers-color-scheme` and be usable at 375 px width without horizontal scrolling.
 

@@ -25,8 +25,12 @@
 - [x] 5.2 Enlace y *badge* al sitio en `README.md` y `README.es.md`; entrada en `CHANGELOG.md`.
 - [ ] 5.3 Confirmar con el mantenedor los canales de instalación realmente publicados (AUR, Flathub, Releases) y ajustar el contenido.
 
-## 6. Verificación
-- [x] 6.1 `pnpm test`, `vue-tsc --noEmit`, `vite build` y `cargo test` sin errores.
-- [x] 6.2 Vista local (`prepare-site.sh` + servidor estático) revisada en Chrome a 375 px y 1280 px, tema claro y oscuro, en ambos idiomas, con enlaces y botón "copiar".
-- [x] 6.3 `openspec validate`.
-- [ ] 6.4 Tras fusionar en `main` y activar Pages (*Settings → Pages → Source: GitHub Actions*): el workflow termina en verde y el sitio carga con imágenes y `og:image`.
+## 6. Afirmación de Privacidad
+- [x] 6.0a Añadir al inicio de ambos idiomas la frase «no recopila datos de uso ni contacta con servicios salvo los servidores del usuario» (`data-claim="no-telemetry"`).
+- [x] 6.0b Crear `src/utils/privacy.audit.test.ts` (sin APIs de red ni analítica en el frontend, sin crates HTTP, plugins y permisos de Tauri en lista revisada, sin URLs externas) y comprobar que falla ante cada violación.
+
+## 7. Verificación
+- [x] 7.1 `pnpm test`, `vue-tsc --noEmit`, `vite build` y `cargo test` sin errores.
+- [x] 7.2 Vista local (`prepare-site.sh` + servidor estático) revisada en Chrome a 375 px y 1280 px, tema claro y oscuro, en ambos idiomas, con enlaces y botón "copiar".
+- [x] 7.3 `openspec validate`.
+- [ ] 7.4 Tras fusionar en `main` y activar Pages (*Settings → Pages → Source: GitHub Actions*): el workflow termina en verde y el sitio carga con imágenes y `og:image`.
