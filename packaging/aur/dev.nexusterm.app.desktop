@@ -10,5 +10,5 @@ Terminal=false
 Type=Application
 Categories=Network;System;TerminalEmulator;RemoteAccess;
 Keywords=ssh;sftp;terminal;multiplexer;bastion;tunnel;port-forwarding;
-StartupWMClass=dev.nexusterm.app
+StartupWMClass=nexus-term
 X-KDE-SubstituteUID=false
