@@ -821,13 +821,11 @@ function handleClose() {
 <template>
   <div
     @click="handlePaneClick"
-    class="flex-1 flex flex-col h-full w-full bg-theme-app overflow-hidden relative border transition-colors"
+    class="flex-1 flex flex-col h-full w-full bg-theme-app overflow-hidden relative transition-colors"
     :class="[
       sessionsStore.isBroadcastMode
-        ? 'border-amber-500/60 ring-1 ring-amber-500/40'
-        : isActive
-        ? 'border-theme-accent shadow-xs'
-        : 'border-theme',
+        ? 'border border-amber-500/60 ring-1 ring-amber-500/40'
+        : '',
     ]"
   >
     <!-- Pane Mini Header -->
