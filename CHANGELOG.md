@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.1.0] - 2026-11-16
+## [0.1.1] - 2026-11-16
 
 First full production-ready release of **NexusTerm**, featuring embedded graphical remote desktops (VNC/RDP), advanced terminal productivity tools, concurrent SFTP transfers, SSH Jump Hosts, and deep memory/bundle performance optimizations.
 

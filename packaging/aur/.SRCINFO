@@ -1,6 +1,6 @@
 pkgbase = nexus-term-bin
 	pkgdesc = Modern multiplatform SSH, SFTP, and terminal manager built with Tauri v2
-	pkgver = 0.1.0
+	pkgver = 0.1.1
 	pkgrel = 1
 	url = https://github.com/k4p3/Nexus-Term
 	arch = x86_64
@@ -13,7 +13,7 @@ pkgbase = nexus-term-bin
 	optdepends = openssh: For system ssh-agent and ssh-add integration
 	provides = nexus-term
 	conflicts = nexus-term
-	source = https://github.com/k4p3/Nexus-Term/releases/download/v0.1.0/nexus-term_0.1.0_amd64.deb
+	source = https://github.com/k4p3/Nexus-Term/releases/download/v0.1.1/nexus-term_0.1.1_amd64.deb
 	sha256sums = SKIP
 
 pkgname = nexus-term-bin

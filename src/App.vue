@@ -148,7 +148,7 @@ function handleInsertCommand(command: string) {
         <span class="text-sm font-bold tracking-tight text-theme-main flex items-center space-x-1">
           <span>Nexus</span><span class="text-theme-accent">Term</span>
         </span>
-        <span class="text-[10px] px-1.5 py-0.5 rounded-sm bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 font-mono font-medium">v0.1.0</span>
+        <span class="text-[10px] px-1.5 py-0.5 rounded-sm bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 font-mono font-medium">v0.1.1</span>
       </div>
 
       <div class="flex items-center space-x-2">
