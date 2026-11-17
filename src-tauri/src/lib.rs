@@ -79,6 +79,12 @@ pub fn run() {
             app.manage(Arc::new(TelemetryManager::new()));
             app.manage(Arc::new(RemoteDesktopManager::new()));
 
+            // Explicitly set the main window icon for Linux/Wayland/X11 window managers
+            if let Some(window) = app.get_webview_window("main") {
+                let window_icon = tauri::include_image!("icons/128x128.png");
+                let _ = window.set_icon(window_icon);
+            }
+
             // Build Native System Tray (StatusNotifierItem on KDE / Linux)
             let show_item = MenuItem::with_id(app, "show", "Mostrar NexusTerm", true, None::<&str>)?;
             let quit_item = MenuItem::with_id(app, "quit", "Salir", true, None::<&str>)?;
