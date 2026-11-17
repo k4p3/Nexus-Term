@@ -6,6 +6,70 @@ use std::thread;
 use tauri::ipc::Channel;
 use uuid::Uuid;
 
+/// Variables que el runtime de AppImage / linuxdeploy inyecta para que la app
+/// use sus librerías empaquetadas. Si las hereda el shell hijo, los programas
+/// del sistema (node, libaccountsservice...) cargan glib/nghttp2 incompatibles.
+const APPIMAGE_ONLY_VARS: &[&str] = &[
+    "LD_LIBRARY_PATH",
+    "LD_PRELOAD",
+    "APPDIR",
+    "APPIMAGE",
+    "ARGV0",
+    "OWD",
+    "GTK_PATH",
+    "GTK_EXEC_PREFIX",
+    "GTK_DATA_PREFIX",
+    "GTK_IM_MODULE_FILE",
+    "GDK_PIXBUF_MODULE_FILE",
+    "GDK_PIXBUF_MODULEDIR",
+    "GIO_EXTRA_MODULES",
+    "GSETTINGS_SCHEMA_DIR",
+    "PERLLIB",
+    "PYTHONHOME",
+];
+
+/// Variables de lista de rutas de las que solo se descartan las entradas bajo `APPDIR`.
+const APPIMAGE_PATH_LIST_VARS: &[&str] = &["PATH", "XDG_DATA_DIRS", "XDG_CONFIG_DIRS"];
+
+/// Calcula qué variables quitar y cuáles reescribir para un hijo lanzado desde un AppImage.
+/// Devuelve `None` si el proceso no corre dentro de un AppImage.
+fn appimage_env_fixes(
+    env: &[(String, String)],
+) -> Option<(Vec<String>, Vec<(String, String)>)> {
+    let get = |k: &str| env.iter().find(|(n, _)| n == k).map(|(_, v)| v.as_str());
+    if get("APPIMAGE").is_none() && get("APPDIR").is_none() {
+        return None;
+    }
+    let appdir = get("APPDIR").map(|s| s.trim_end_matches('/').to_string());
+
+    let remove = APPIMAGE_ONLY_VARS.iter().map(|s| s.to_string()).collect();
+    let mut set = Vec::new();
+    if let Some(dir) = appdir.filter(|d| !d.is_empty()) {
+        for var in APPIMAGE_PATH_LIST_VARS {
+            if let Some(value) = get(var) {
+                let cleaned: Vec<&str> = value
+                    .split(':')
+                    .filter(|p| !p.is_empty() && *p != dir && !p.starts_with(&format!("{}/", dir)))
+                    .collect();
+                set.push((var.to_string(), cleaned.join(":")));
+            }
+        }
+    }
+    Some((remove, set))
+}
+
+fn apply_appimage_sanitization(cmd: &mut CommandBuilder) {
+    let env: Vec<(String, String)> = std::env::vars().collect();
+    if let Some((remove, set)) = appimage_env_fixes(&env) {
+        for key in remove {
+            cmd.env_remove(key);
+        }
+        for (key, value) in set {
+            cmd.env(key, value);
+        }
+    }
+}
+
 pub struct LocalSession {
     pub writer: Arc<Mutex<Box<dyn Write + Send>>>,
     pub master: Arc<Mutex<Box<dyn MasterPty + Send>>>,
@@ -63,6 +127,7 @@ impl PtySessionManager {
         }
         cmd.env("TERM", "xterm-256color");
         cmd.env("COLORTERM", "truecolor");
+        apply_appimage_sanitization(&mut cmd);
 
         let child = pair
             .slave
@@ -177,4 +242,45 @@ pub fn open_local_pty(
     on_data: Channel<Vec<u8>>,
 ) -> Result<String, String> {
     manager.spawn_local(cols, rows, custom_shell, on_data)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn env(pairs: &[(&str, &str)]) -> Vec<(String, String)> {
+        pairs.iter().map(|(k, v)| (k.to_string(), v.to_string())).collect()
+    }
+
+    #[test]
+    fn no_changes_outside_appimage() {
+        let e = env(&[("PATH", "/usr/bin"), ("LD_LIBRARY_PATH", "/opt/lib")]);
+        assert!(appimage_env_fixes(&e).is_none());
+    }
+
+    #[test]
+    fn removes_appimage_vars_and_cleans_path_lists() {
+        let e = env(&[
+            ("APPIMAGE", "/home/u/app.AppImage"),
+            ("APPDIR", "/tmp/.mount_abc"),
+            ("LD_LIBRARY_PATH", "/tmp/.mount_abc/usr/lib"),
+            ("PATH", "/tmp/.mount_abc/usr/bin:/usr/bin:/bin"),
+            ("XDG_DATA_DIRS", "/tmp/.mount_abc/usr/share:/usr/share"),
+        ]);
+        let (remove, set) = appimage_env_fixes(&e).expect("appimage detected");
+        assert!(remove.contains(&"LD_LIBRARY_PATH".to_string()));
+        assert!(remove.contains(&"APPDIR".to_string()));
+        assert!(set.contains(&("PATH".to_string(), "/usr/bin:/bin".to_string())));
+        assert!(set.contains(&("XDG_DATA_DIRS".to_string(), "/usr/share".to_string())));
+    }
+
+    #[test]
+    fn does_not_strip_similarly_named_dirs() {
+        let e = env(&[
+            ("APPDIR", "/tmp/.mount_abc"),
+            ("PATH", "/tmp/.mount_abcdef/bin:/usr/bin"),
+        ]);
+        let (_, set) = appimage_env_fixes(&e).expect("appimage detected");
+        assert!(set.contains(&("PATH".to_string(), "/tmp/.mount_abcdef/bin:/usr/bin".to_string())));
+    }
 }
