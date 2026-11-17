@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.1.1] - 2026-11-17
+
+### Fixed
+- Local terminal: the shell no longer inherits AppImage environment variables (`LD_LIBRARY_PATH`, `APPDIR`, GTK/GIO paths...), which caused `symbol lookup error` in system programs such as `node` when running from the AppImage.
+
+---
+
 ## [0.1.0] - 2026-11-16
 
 First full production-ready release of **NexusTerm**, featuring embedded graphical remote desktops (VNC/RDP), advanced terminal productivity tools, concurrent SFTP transfers, SSH Jump Hosts, and deep memory/bundle performance optimizations.

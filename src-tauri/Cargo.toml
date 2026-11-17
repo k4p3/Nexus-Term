@@ -1,6 +1,6 @@
 [package]
 name = "nexus-term"
-version = "0.1.0"
+version = "0.1.1"
 description = "NexusTerm - Gestor SSH, SFTP y Terminal Multiplataforma"
 authors = ["Jonathan Bailon Segura <jonn59@gmail.com>"]
 license = "GPL-3.0-or-later"
