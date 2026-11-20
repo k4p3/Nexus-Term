@@ -22,7 +22,8 @@ const RUST = import.meta.glob("../../src-tauri/src/**/*.rs", { query: "?raw", im
 
 // ---- Listas de excepciones revisadas -------------------------------------------------------------
 /** Plugins de Tauri permitidos (y sus paquetes npm). Cualquier otro debe revisarse a propósito. */
-const ALLOWED_TAURI_PLUGINS = ["tauri-plugin-notification"];
+const ALLOWED_TAURI_PLUGINS = ["tauri-plugin-notification", "tauri-plugin-single-instance"];
+// single-instance: solo IPC local entre procesos (D-Bus / socket local) para reenfocar la ventana; sin red.
 const ALLOWED_NPM_PLUGINS = ["@tauri-apps/plugin-notification"];
 /** Permisos de la ventana principal. Añadir `http:*`, `shell:*`, `updater:*`… cambiaría la superficie de red. */
 const ALLOWED_PERMISSIONS = ["core:default", "notification:default"];
@@ -92,7 +93,7 @@ describe("privacy audit: frontend", () => {
 
 describe("privacy audit: backend (Rust)", () => {
   it("has no HTTP client, analytics or error-reporting crates among its direct dependencies", () => {
-    const banned = /^(reqwest|hyper|hyper-util|ureq|isahc|surf|attohttpc|curl|minreq|awc|sentry.*|opentelemetry.*|posthog.*|segment.*|mixpanel.*|tauri-plugin-(http|updater|log|shell|opener|process|os|store|fs|deep-link|autostart|single-instance|upload))$/;
+    const banned = /^(reqwest|hyper|hyper-util|ureq|isahc|surf|attohttpc|curl|minreq|awc|sentry.*|opentelemetry.*|posthog.*|segment.*|mixpanel.*|tauri-plugin-(http|updater|log|shell|opener|process|os|store|fs|deep-link|autostart|upload))$/;
     expect(cargoDeps().filter((d) => banned.test(d))).toEqual([]);
   });
 
@@ -131,7 +132,7 @@ describe("privacy audit: backend (Rust)", () => {
 describe("privacy audit: the website claim stays tied to this audit", () => {
   it("documents how to change the audit lists", () => {
     // Recordatorio ejecutable: la afirmación del sitio (data-claim="no-telemetry") depende de esta prueba.
-    expect(ALLOWED_TAURI_PLUGINS).toEqual(["tauri-plugin-notification"]);
+    expect(ALLOWED_TAURI_PLUGINS).toEqual(["tauri-plugin-notification", "tauri-plugin-single-instance"]);
     expect(ALLOWED_PERMISSIONS).toEqual(["core:default", "notification:default"]);
   });
 });
