@@ -93,6 +93,7 @@
     "empty": "No history for this host yet"
   },
   "terminal": {
+    "connectionLost": "Connection closed (inactivity or network loss). Press Reconnect to connect again.",
     "blockOk": "Succeeded ({time}) — click to select block",
     "blockFailed": "Failed with code {code} ({time}) — click to select block",
     "newLocal": "Local Terminal",

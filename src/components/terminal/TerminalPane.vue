@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
+import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
 import { WebglAddon } from "@xterm/addon-webgl";
@@ -266,6 +267,7 @@ async function notifyCommandFinished(code: number, durationMs: number) {
 const terminalContainer = ref<HTMLDivElement | null>(null);
 const isConnecting = ref(true);
 const errorMessage = ref<string | null>(null);
+const connectionLost = ref(false);
 const isSearchOpen = ref(false);
 
 // Split Menu state
@@ -314,6 +316,7 @@ const lastExitCode = ref<number | null>(null);
 const lastDuration = ref<string | null>(null);
 const isOutputCopied = ref(false);
 
+let unlistenClosed: UnlistenFn | null = null;
 let term: Terminal | null = null;
 let fitAddon: FitAddon | null = null;
 let searchAddon: SearchAddon | null = null;
@@ -589,6 +592,55 @@ watch(
   applyAddonPrefs,
 );
 
+async function connectSession() {
+  if (!term) return;
+  try {
+    isConnecting.value = true;
+    errorMessage.value = null;
+    connectionLost.value = false;
+
+    if (props.pane.hostId) {
+      sessionId = await sessionService.connectSsh(
+        props.pane.hostId,
+        term.cols,
+        term.rows,
+        (chunk) => {
+          term?.write(chunk);
+          recordOutput(chunk);
+        }
+      );
+    } else {
+      sessionId = await sessionService.openLocalPty(
+        term.cols,
+        term.rows,
+        (chunk) => {
+          term?.write(chunk);
+          recordOutput(chunk);
+        },
+        settingsStore.settings.default_shell
+      );
+    }
+    if (sessionId) {
+      sessionsStore.registerPaneSession(props.pane.id, sessionId);
+      if (props.pane.hostId) {
+        const watchedId = sessionId;
+        unlistenClosed?.();
+        unlistenClosed = await listen<string>("ssh-session-closed", (ev) => {
+          if (ev.payload !== watchedId) return;
+          term?.write(`\r\n\x1b[1;31m${t("terminal.connectionLost")}\x1b[0m\r\n`);
+          connectionLost.value = true;
+          sessionsStore.unregisterPaneSession(props.pane.id);
+          sessionId = null;
+        });
+      }
+    }
+    isConnecting.value = false;
+  } catch (err: any) {
+    isConnecting.value = false;
+    errorMessage.value = typeof err === "string" ? err : err?.message || "Error al conectar la sesión.";
+  }
+}
+
 onMounted(async () => {
   if (!terminalContainer.value) return;
 
@@ -707,40 +759,7 @@ onMounted(async () => {
     }
   });
 
-  // Connect to Local PTY or SSH
-  try {
-    isConnecting.value = true;
-    errorMessage.value = null;
-
-    if (props.pane.hostId) {
-      sessionId = await sessionService.connectSsh(
-        props.pane.hostId,
-        term.cols,
-        term.rows,
-        (chunk) => {
-          term?.write(chunk);
-          recordOutput(chunk);
-        }
-      );
-    } else {
-      sessionId = await sessionService.openLocalPty(
-        term.cols,
-        term.rows,
-        (chunk) => {
-          term?.write(chunk);
-          recordOutput(chunk);
-        },
-        settingsStore.settings.default_shell
-      );
-    }
-    if (sessionId) {
-      sessionsStore.registerPaneSession(props.pane.id, sessionId);
-    }
-    isConnecting.value = false;
-  } catch (err: any) {
-    isConnecting.value = false;
-    errorMessage.value = typeof err === "string" ? err : err?.message || "Error al conectar la sesión.";
-  }
+  await connectSession();
 
   // Handle container resizing
   resizeObserver = new ResizeObserver(() => {
@@ -773,6 +792,8 @@ onMounted(async () => {
 });
 
 onBeforeUnmount(async () => {
+  unlistenClosed?.();
+  unlistenClosed = null;
   if (terminalContainer.value) {
     terminalContainer.value.removeEventListener('paste', onPasteEvent, true);
   }
@@ -1070,6 +1091,16 @@ function handleClose() {
       <div v-if="isConnecting" class="absolute inset-0 bg-slate-950/80 flex items-center justify-center space-x-2 text-xs text-slate-400">
         <Loader2 class="w-4 h-4 animate-spin text-cyan-400" />
         <span>Conectando sesión...</span>
+      </div>
+
+      <!-- Connection lost: offer reconnect -->
+      <div v-if="connectionLost" class="absolute bottom-4 left-1/2 -translate-x-1/2">
+        <button
+          @click="connectSession"
+          class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-xs font-medium text-white rounded-lg shadow-lg transition"
+        >
+          {{ t("terminal.reconnect") }}
+        </button>
       </div>
 
       <!-- Error State -->

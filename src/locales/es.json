@@ -93,6 +93,7 @@
     "empty": "Aún no hay historial para este host"
   },
   "terminal": {
+    "connectionLost": "Conexión cerrada (inactividad o pérdida de red). Pulsa «Reconectar» para volver a conectar.",
     "blockOk": "Correcto ({time}) — clic para seleccionar el bloque",
     "blockFailed": "Falló con código {code} ({time}) — clic para seleccionar el bloque",
     "newLocal": "Terminal Local",

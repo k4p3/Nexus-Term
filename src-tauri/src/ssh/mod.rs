@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use std::future::Future;
 use std::sync::Arc;
 use tauri::ipc::Channel;
+use tauri::Emitter;
 use tokio::sync::{mpsc, Mutex};
 use uuid::Uuid;
 
@@ -87,6 +88,17 @@ impl Handler for SshClientHandler {
     }
 }
 
+/// Keep NAT/firewall entries alive and detect dead connections:
+/// ping every 30s, give up after 3 unanswered keepalives (~2 min).
+pub fn ssh_client_config() -> client::Config {
+    client::Config {
+        keepalive_interval: Some(std::time::Duration::from_secs(30)),
+        keepalive_max: 3,
+        inactivity_timeout: None,
+        ..Default::default()
+    }
+}
+
 pub enum SshSessionCommand {
     Write(Vec<u8>),
     Resize { cols: u16, rows: u16 },
@@ -128,7 +140,7 @@ pub async fn create_authenticated_ssh_session(
         .or_else(|| identity.as_ref().map(|i| i.username.as_str()))
         .unwrap_or("root");
 
-    let config = Arc::new(client::Config::default());
+    let config = Arc::new(ssh_client_config());
     let handler = SshClientHandler {
         hostname: host.hostname.clone(),
         port: host.port,
@@ -243,6 +255,7 @@ impl SshSessionManager {
         cols: u16,
         rows: u16,
         on_data: Channel<Vec<u8>>,
+        app: tauri::AppHandle,
     ) -> Result<String, String> {
         let session = create_authenticated_ssh_session(vault_mgr, host_id).await?;
 
@@ -278,6 +291,9 @@ impl SshSessionManager {
         let sessions_map = self.sessions.clone();
 
         tokio::spawn(async move {
+            // Keep the SSH handle alive for the lifetime of the session
+            let _session = session;
+            let mut closed_by_user = false;
             loop {
                 tokio::select! {
                     cmd = cmd_rx.recv() => {
@@ -289,6 +305,7 @@ impl SshSessionManager {
                                 let _ = channel.window_change(cols as u32, rows as u32, 0, 0).await;
                             }
                             Some(SshSessionCommand::Close) | None => {
+                                closed_by_user = true;
                                 let _ = channel.eof().await;
                                 break;
                             }
@@ -315,6 +332,9 @@ impl SshSessionManager {
                 }
             }
             sessions_map.lock().await.remove(&sess_id_clone);
+            if !closed_by_user {
+                let _ = app.emit("ssh-session-closed", sess_id_clone.clone());
+            }
         });
 
         self.sessions
@@ -367,8 +387,22 @@ pub async fn connect_ssh(
     cols: u16,
     rows: u16,
     on_data: Channel<Vec<u8>>,
+    app: tauri::AppHandle,
 ) -> Result<String, String> {
     ssh_mgr
-        .connect(vault_mgr.inner().clone(), &host_id, cols, rows, on_data)
+        .connect(vault_mgr.inner().clone(), &host_id, cols, rows, on_data, app)
         .await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn client_config_enables_keepalive_without_inactivity_timeout() {
+        let cfg = ssh_client_config();
+        assert_eq!(cfg.keepalive_interval, Some(std::time::Duration::from_secs(30)));
+        assert_eq!(cfg.keepalive_max, 3);
+        assert!(cfg.inactivity_timeout.is_none());
+    }
 }
