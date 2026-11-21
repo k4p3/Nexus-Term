@@ -198,7 +198,18 @@
     "fontLigaturesOk": "Se usa «{font}», que admite ligaduras.",
     "fontLigaturesNoSupport": "La fuente en uso («{font}») no se sabe que tenga ligaduras, por lo que no se verá ningún cambio.",
     "fontLigaturesNoFont": "No se encontró ninguna fuente instalada de tu lista de fuentes.",
-    "fontLigaturesMissing": "No instaladas: {fonts}. Instala una fuente con ligaduras (p. ej. JetBrains Mono, Fira Code, Cascadia Code), reinicia la aplicación y ponla la primera de la lista."
+    "fontLigaturesMissing": "No instaladas: {fonts}. Instala una fuente con ligaduras (p. ej. JetBrains Mono, Fira Code, Cascadia Code), reinicia la aplicación y ponla la primera de la lista.",
+    "appearanceMode": "Apariencia",
+    "modeManual": "Usar un solo tema",
+    "modeSystem": "Seguir al sistema",
+    "lightTheme": "Tema en modo claro",
+    "darkTheme": "Tema en modo oscuro",
+    "uiDensity": "Densidad de la interfaz",
+    "densityComfortable": "Cómoda",
+    "densityCompact": "Compacta",
+    "removeTheme": "Eliminar tema",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro"
   },
   "snippets": {
     "title": "Snippets",

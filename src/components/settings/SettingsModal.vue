@@ -7,6 +7,7 @@ import { useHistoryStore } from '../../stores/history.store';
 import { useUiStore } from '../../stores/ui.store';
 import { createCanvasInstalledChecker, ligatureStatus } from '../../utils/font-check';
 import { SUPPORTED_LOCALES } from '../../locales';
+import { themeModeById } from '../../types/themes';
 import CustomSelect, { type SelectOption } from '../common/CustomSelect.vue';
 import {
   X,
@@ -17,6 +18,7 @@ import {
   Info,
   RotateCcw,
   Upload,
+  Trash2,
   Check,
   AlertCircle,
 } from 'lucide-vue-next';
@@ -89,6 +91,22 @@ const fontOptions = computed<SelectOption[]>(() => {
     label: f.label,
   }));
 });
+
+const appearanceModeOptions = computed<SelectOption[]>(() => [
+  { value: 'manual', label: t('settings.modeManual') },
+  { value: 'system', label: t('settings.modeSystem') },
+]);
+const densityOptions = computed<SelectOption[]>(() => [
+  { value: 'comfortable', label: t('settings.densityComfortable') },
+  { value: 'compact', label: t('settings.densityCompact') },
+]);
+const themeOptionsFor = (mode: 'light' | 'dark') =>
+  settingsStore.allThemes
+    .filter((th) => themeModeById(th.id, settingsStore.customThemes) === mode)
+    .map((th) => ({ value: th.id, label: th.name }));
+const lightThemeOptions = computed<SelectOption[]>(() => themeOptionsFor('light'));
+const darkThemeOptions = computed<SelectOption[]>(() => themeOptionsFor('dark'));
+const isSystemMode = computed(() => settingsStore.settings.appearance_mode === 'system');
 
 const cursorStyleOptions = computed<SelectOption[]>(() => [
   { value: 'block', label: t('settings.block') },
@@ -601,8 +619,46 @@ async function handleResetDefaults() {
               </div>
             </div>
 
+            <!-- Appearance mode and density -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl">
+              <div>
+                <label class="block text-xs font-medium text-fg mb-1.5">{{ t('settings.appearanceMode') }}</label>
+                <CustomSelect
+                  :model-value="settingsStore.settings.appearance_mode"
+                  @update:model-value="(val) => settingsStore.updateSettings({ appearance_mode: val as any })"
+                  :options="appearanceModeOptions"
+                />
+              </div>
+              <div>
+                <label class="block text-xs font-medium text-fg mb-1.5">{{ t('settings.uiDensity') }}</label>
+                <CustomSelect
+                  :model-value="settingsStore.settings.ui_density"
+                  @update:model-value="(val) => settingsStore.updateSettings({ ui_density: val as any })"
+                  :options="densityOptions"
+                />
+              </div>
+              <template v-if="isSystemMode">
+                <div>
+                  <label class="block text-xs font-medium text-fg mb-1.5">{{ t('settings.lightTheme') }}</label>
+                  <CustomSelect
+                    :model-value="settingsStore.settings.theme_light_id"
+                    @update:model-value="(val) => settingsStore.updateSettings({ theme_light_id: val })"
+                    :options="lightThemeOptions"
+                  />
+                </div>
+                <div>
+                  <label class="block text-xs font-medium text-fg mb-1.5">{{ t('settings.darkTheme') }}</label>
+                  <CustomSelect
+                    :model-value="settingsStore.settings.theme_dark_id"
+                    @update:model-value="(val) => settingsStore.updateSettings({ theme_dark_id: val })"
+                    :options="darkThemeOptions"
+                  />
+                </div>
+              </template>
+            </div>
+
             <!-- Color Themes Grid -->
-            <div>
+            <div v-if="!isSystemMode">
               <div class="flex items-center justify-between max-w-2xl mb-3">
                 <label class="block text-xs font-medium text-fg">
                   {{ t('settings.colorTheme') }}
@@ -636,10 +692,24 @@ async function handleResetDefaults() {
                 >
                   <div class="flex items-center justify-between mb-2">
                     <span class="text-xs font-semibold text-fg truncate">{{ item.name }}</span>
-                    <Check
-                      v-if="settingsStore.settings.theme_id === item.id"
-                      class="w-3.5 h-3.5 text-accent"
-                    />
+                    <span class="flex items-center gap-1.5">
+                      <span
+                        v-if="item.id.startsWith('custom-')"
+                        role="button"
+                        tabindex="0"
+                        :title="t('settings.removeTheme')"
+                        :aria-label="t('settings.removeTheme')"
+                        class="text-fg-muted hover:text-danger"
+                        @click.stop="settingsStore.removeCustomTheme(item.id)"
+                        @keydown.enter.stop="settingsStore.removeCustomTheme(item.id)"
+                      >
+                        <Trash2 class="w-3.5 h-3.5" />
+                      </span>
+                      <Check
+                        v-if="settingsStore.settings.theme_id === item.id"
+                        class="w-3.5 h-3.5 text-accent"
+                      />
+                    </span>
                   </div>
 
                   <!-- Theme Color Palette Bar Preview -->

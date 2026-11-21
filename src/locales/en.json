@@ -198,7 +198,18 @@
     "fontLigaturesOk": "Using “{font}”, which supports ligatures.",
     "fontLigaturesNoSupport": "The font in use (“{font}”) is not known to have ligatures, so nothing will change.",
     "fontLigaturesNoFont": "No installed font from your font list was found.",
-    "fontLigaturesMissing": "Not installed: {fonts}. Install a ligature font (e.g. JetBrains Mono, Fira Code, Cascadia Code), restart the app and put it first in the font list."
+    "fontLigaturesMissing": "Not installed: {fonts}. Install a ligature font (e.g. JetBrains Mono, Fira Code, Cascadia Code), restart the app and put it first in the font list.",
+    "appearanceMode": "Appearance",
+    "modeManual": "Use one theme",
+    "modeSystem": "Follow system",
+    "lightTheme": "Theme in light mode",
+    "darkTheme": "Theme in dark mode",
+    "uiDensity": "Interface density",
+    "densityComfortable": "Comfortable",
+    "densityCompact": "Compact",
+    "removeTheme": "Remove theme",
+    "themeLight": "Light",
+    "themeDark": "Dark"
   },
   "snippets": {
     "title": "Snippets",
