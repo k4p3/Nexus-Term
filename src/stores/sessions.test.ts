@@ -65,4 +65,37 @@ describe('sessions store multiplexer', () => {
     expect(store.tabs.length).toBe(0);
     expect(store.activeTabId).toBeNull();
   });
+
+  it('focusNeighborPane moves the active pane and reports whether it moved', () => {
+    const store = useSessionsStore();
+    const tabId = store.createTab('Main Tab');
+    const tab = store.tabs[0];
+    const first = tab.activePaneId;
+    store.splitPane(tabId, first, 'horizontal');
+    const leaves = store.getLeafPanesInTab(tabId);
+    expect(leaves).toHaveLength(2);
+    const second = leaves.find((l) => l.id !== first)!.id;
+
+    store.setActivePane(tabId, first);
+    expect(store.focusNeighborPane(tabId, 'right')).toBe(true);
+    expect(tab.activePaneId).toBe(second);
+    expect(store.focusNeighborPane(tabId, 'left')).toBe(true);
+    expect(tab.activePaneId).toBe(first);
+  });
+
+  it('focusNeighborPane leaves the state untouched when there is no neighbour', () => {
+    const store = useSessionsStore();
+    const tabId = store.createTab('Main Tab');
+    const tab = store.tabs[0];
+    const only = tab.activePaneId;
+    expect(store.focusNeighborPane(tabId, 'right')).toBe(false);
+    expect(store.focusNeighborPane('missing-tab', 'left')).toBe(false);
+    expect(tab.activePaneId).toBe(only);
+
+    store.splitPane(tabId, only, 'horizontal');
+    store.setActivePane(tabId, only);
+    expect(store.focusNeighborPane(tabId, 'left')).toBe(false);
+    expect(store.focusNeighborPane(tabId, 'up')).toBe(false);
+    expect(tab.activePaneId).toBe(only);
+  });
 });

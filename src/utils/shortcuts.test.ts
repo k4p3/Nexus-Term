@@ -55,6 +55,25 @@ describe("shortcut registry", () => {
     expect(comboMatches({ key: "arrowup", ctrl: true, shift: true }, ev({ key: "ArrowUp", ctrlKey: true, shiftKey: true }))).toBe(true);
   });
 
+  it("resolves Alt+arrows to pane focus without touching the Ctrl+Shift+arrows prompt shortcuts", () => {
+    const alt = (key: string) => ev({ key, altKey: true });
+    expect(matchShortcut(alt("ArrowLeft"), ["terminal"])?.id).toBe("terminal.focusLeft");
+    expect(matchShortcut(alt("ArrowRight"), ["terminal"])?.id).toBe("terminal.focusRight");
+    expect(matchShortcut(alt("ArrowUp"), ["terminal"])?.id).toBe("terminal.focusUp");
+    expect(matchShortcut(alt("ArrowDown"), ["terminal"])?.id).toBe("terminal.focusDown");
+    expect(matchShortcut(ev({ key: "ArrowUp", ctrlKey: true, shiftKey: true }), ["terminal"])?.id).toBe("terminal.prevPrompt");
+    // arrows alone and Alt+Shift+arrows are left to the shell
+    expect(matchShortcut(ev({ key: "ArrowLeft" }), ["terminal"])).toBeNull();
+    expect(matchShortcut(ev({ key: "ArrowLeft", altKey: true, shiftKey: true }), ["terminal"])).toBeNull();
+  });
+
+  it("formats the pane focus shortcuts for docs", () => {
+    const f = (id: string) => formatShortcut(SHORTCUTS.find((s) => s.id === id)!, "other");
+    expect([f("terminal.focusLeft"), f("terminal.focusRight"), f("terminal.focusUp"), f("terminal.focusDown")]).toEqual([
+      "Alt+←", "Alt+→", "Alt+↑", "Alt+↓",
+    ]);
+  });
+
   it("formats for Linux/Windows and macOS", () => {
     const p = SHORTCUTS.find((s) => s.id === "terminal.palette")!;
     expect(formatShortcut(p, "other")).toBe("Ctrl+Shift+P");

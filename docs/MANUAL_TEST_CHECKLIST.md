@@ -139,6 +139,15 @@ Cambios cubiertos: `terminal-productivity-quick-wins` (sección A), `vnc-rdp-gra
 - [ ] Primer uso con una base de datos sin bóveda: el modal ofrece crearla con confirmación de contraseña.
 - [ ] Cerrar el servidor o cortar la red con una sesión SSH abierta (o dejarla inactiva unos minutos): la terminal muestra el aviso de conexión cerrada y el botón **Reconectar** abre una sesión nueva.
 
+### Navegación entre paneles (Alt+flechas)
+- [ ] Divide una pestaña en 2 paneles (lado a lado): `Alt+→` y `Alt+←` cambian de panel y el teclado escribe en el nuevo panel activo; la cabecera activa se resalta.
+- [ ] Con 2 paneles apilados: `Alt+↓` y `Alt+↑`.
+- [ ] Layout 2×2 y layout asimétrico (uno a la izquierda y dos apilados a la derecha): cada flecha va al panel esperado.
+- [ ] En el panel del borde, `Alt+flecha` hacia fuera no hace nada visible en la app y llega al shell (p. ej. en `bash`/`zsh` con salto de palabra por `Alt+←/→`, o dentro de `vim`/`tmux`).
+- [ ] Con una pestaña sin dividir, `Alt+flecha` llega al shell sin cambios.
+- [ ] Llegar a un panel RDP/VNC con `Alt+flecha` desde una terminal funciona; desde el panel gráfico no se espera que funcione.
+- [ ] macOS: `⌥`+flecha cambia de panel (comprobar con tu distribución de teclado).
+
 ### Restauración de sesiones
 - [ ] Abre 3 pestañas (SSH, shell local y un panel dividido) y espera ~1 s; cierra la app, ábrela y desbloquea: aparece el diálogo "Restaurar (3 pestañas)".
 - [ ] **Restaurar** recrea pestañas y divisiones; solo la pestaña activa conecta al instante y las demás conectan **al abrirlas por primera vez**.

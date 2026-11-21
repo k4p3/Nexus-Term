@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Keyboard pane navigation**: `Alt+←` `Alt+→` `Alt+↑` `Alt+↓` move focus to the neighbouring split pane. The key is only intercepted when there is a pane in that direction; otherwise it reaches the shell. The active pane now also shows a tinted header and its title in the accent colour, and inactive panes draw a hollow cursor.
 - **Lazy vault unlock**: the app no longer asks for the master password at launch. It opens a local terminal right away and asks for the password only when you use something that needs stored credentials (saved hosts, identities, SFTP, tunnels, remote desktop, importing `~/.ssh/config`). After unlocking, the action you started continues on its own. The old behaviour is available with the new setting *Ask for the master password at startup*.
 - **Auto-lock on inactivity** (*Settings → Security*): enabled by default after 10 minutes, configurable from 1 to 1440 minutes or off. Inactivity is measured by your keyboard, mouse and focus, never by terminal output.
 - **Locking keeps your sessions**: locking the vault (manually or automatically) no longer closes open terminals; it only blocks opening new connections that use credentials until you unlock again.

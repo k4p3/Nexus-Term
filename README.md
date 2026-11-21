@@ -55,6 +55,7 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 ### ⚡ Advanced Power Tools
 - **Shell Integration (OSC 133)**: Semantic prompt detection for Zsh, Bash, and Fish. Visual indicators show command exit codes (`0` vs. errors), execution runtime (e.g., `⏱ 2.1s`), and enable instant prompt navigation (`Ctrl+Shift+↑/↓`). Each command is a **block** tracked with xterm markers (so it stays correct when the scrollback is trimmed): click its ✓/✗ marker to select it, copy its command or output, search only inside it, or re-run it (`Ctrl+Shift+R`).
 - **Broadcast / Multi-Exec Mode (`Ctrl+Shift+B`)**: Type once and stream keystrokes across all split panes simultaneously—ideal for clustered server updates.
+- **Keyboard Pane Navigation (`Alt+←` `Alt+→` `Alt+↑` `Alt+↓`)**: Jump to the neighbouring split pane in that direction without touching the mouse. If there is no pane that way, the key goes to your shell untouched.
 - **Parameterized Snippet Library**: Store common Docker, Kubernetes, Git, and administration commands with `{{placeholders}}` that prompt for inputs on execution.
 - **Buffer Search (`Ctrl+F`)**: High-speed buffer searching with regex matching and result highlighting.
 - **Interactive Smart Links**: URLs (`https://`) open on click; file paths (`src/main.rs:10:5`) and IP addresses open a context menu with `Ctrl`+click (copy, show in SFTP, connect via SSH).

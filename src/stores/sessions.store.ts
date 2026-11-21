@@ -4,6 +4,7 @@ import type { HostSummary } from "../types/inventory";
 import type { SessionTab, PaneNode, LeafPane, SplitDirection } from "../types/session";
 import { sessionService } from "../services/session.service";
 import { buildRestoredTabs, type SessionLayout } from "../utils/session-layout";
+import { findNeighborPane, type FocusDirection } from "../utils/pane-navigation";
 
 function generateId(): string {
   return "pane-" + Math.random().toString(36).substring(2, 9);
@@ -251,6 +252,16 @@ export const useSessionsStore = defineStore("sessions", () => {
     }
   }
 
+  /** Mueve el panel activo al contiguo en `dir`. Devuelve `false` (sin cambios) si no hay ninguno. */
+  function focusNeighborPane(tabId: string, dir: FocusDirection): boolean {
+    const tab = tabs.value.find((t) => t.id === tabId);
+    if (!tab) return false;
+    const target = findNeighborPane(tab.rootPane, tab.activePaneId, dir);
+    if (!target) return false;
+    tab.activePaneId = target;
+    return true;
+  }
+
   return {
     tabs,
     activeTabId,
@@ -268,5 +279,6 @@ export const useSessionsStore = defineStore("sessions", () => {
     dockTabIntoPane,
     closePane,
     setActivePane,
+    focusNeighborPane,
   };
 });

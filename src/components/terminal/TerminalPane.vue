@@ -38,6 +38,7 @@ import { usePasteHistoryStore } from "../../stores/paste-history.store";
 import { useSftpStore } from "../../stores/sftp.store";
 import { useQuickSelect } from "../../composables/useQuickSelect";
 import { matchShortcut } from "../../utils/shortcuts";
+import type { FocusDirection } from "../../utils/pane-navigation";
 import { analyzePaste, toSingleLine, type PasteAnalysis } from "../../utils/paste-guard";
 import { findIpLinks, findPathLinks, dirname } from "../../utils/link-detect";
 import { BlockTracker, searchInRange, formatDuration, type CommandBlock, type SearchMatch } from "../../utils/command-blocks";
@@ -595,6 +596,13 @@ watch(
 
 const { runWithUnlock } = useEnsureUnlocked();
 
+const FOCUS_SHORTCUTS: Record<string, FocusDirection | undefined> = {
+  "terminal.focusLeft": "left",
+  "terminal.focusRight": "right",
+  "terminal.focusUp": "up",
+  "terminal.focusDown": "down",
+};
+
 // Indica qué panel está activo cuando la pestaña está dividida (en broadcast ya hay un borde ámbar):
 // cabecera con tinte y título en color de acento. Los cursores de los paneles inactivos se dibujan huecos.
 const showActiveIndicator = computed(
@@ -721,6 +729,14 @@ onMounted(async () => {
     const def = matchShortcut(e);
     if (!def) return true;
     if (def.context !== 'terminal') return false;
+    // Cambio de panel con Alt+flechas: solo se intercepta si hay un panel en esa dirección;
+    // si no, la tecla llega al shell (readline, vim, tmux...).
+    const focusDir = FOCUS_SHORTCUTS[def.id];
+    if (focusDir) {
+      if (!sessionsStore.focusNeighborPane(props.tabId, focusDir)) return true;
+      e.preventDefault();
+      return false;
+    }
     e.preventDefault();
     const action: Record<string, () => void> = {
       'terminal.search': () => (isSearchOpen.value = !isSearchOpen.value),

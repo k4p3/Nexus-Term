@@ -59,6 +59,7 @@ Motor de terminal de ultra-baja latencia optimizado tanto para entornos locales 
   - `Ctrl + Shift + O` o `Ctrl + Shift + D`: División Horizontal duplicando la sesión o host del panel activo.
   - `Ctrl + Shift + E`: División Vertical duplicando la sesión o host del panel activo.
   - `Ctrl + Shift + W`: Cerrar el panel activo enfocado.
+  - `Alt + ←` `Alt + →` `Alt + ↑` `Alt + ↓`: Ir al panel contiguo en esa dirección. El panel activo se reconoce por su cabecera resaltada. Si no hay panel en esa dirección (o la pestaña no está dividida), la tecla no se intercepta y llega al shell, por lo que `Alt`+flechas sigue funcionando en `readline`, `vim` o `tmux` en esos casos.
 - **Soporte Completo de Nerd Fonts & Oh My Zsh**: Compatibilidad total con fuentes tipográficas populares (`MesloLGS NF`, `Hack Nerd Font`, `JetBrains Mono NF`, `Fira Code`) e iconos Powerline/Unicode.
 - **Streaming Binario Directo**: Comunicación mediante canales de streaming binario `Vec<u8>` en Tauri v2, evitando la sobrecarga de serialización JSON.
 
@@ -224,6 +225,10 @@ NexusTerm multiplexa un canal SFTP sobre la misma conexión SSH autenticada de l
 | `Ctrl + Shift + O` / `Ctrl + Shift + D` | Dividir Horizontalmente (Duplica sesión actual) | Terminal Activa |
 | `Ctrl + Shift + E` | Dividir Verticalmente (Duplica sesión actual) | Terminal Activa |
 | `Ctrl + Shift + W` | Cerrar Panel Activo | Terminal Activa |
+| `Alt + ←` | Ir al Panel de la Izquierda | Terminal Activa |
+| `Alt + →` | Ir al Panel de la Derecha | Terminal Activa |
+| `Alt + ↑` | Ir al Panel Superior | Terminal Activa |
+| `Alt + ↓` | Ir al Panel Inferior | Terminal Activa |
 | `Ctrl + Shift + ↑` | Saltar al Prompt del Comando Anterior | Shell Integration |
 | `Ctrl + Shift + ↓` | Saltar al Prompt del Comando Siguiente | Shell Integration |
 | `Ctrl + Shift + B` | Alternar Modo Broadcast | Multiplexor |
