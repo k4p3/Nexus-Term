@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.2.0] - 2026-11-20
+
+On-demand vault unlock, auto-lock, keyboard navigation between split panes and more reliable SSH sessions.
+
 ### Added
 - **Keyboard pane navigation**: `Alt+←` `Alt+→` `Alt+↑` `Alt+↓` move focus to the neighbouring split pane. The key is only intercepted when there is a pane in that direction; otherwise it reaches the shell. The active pane now also shows a tinted header and its title in the accent colour, and inactive panes draw a hollow cursor.
 - **Lazy vault unlock**: the app no longer asks for the master password at launch. It opens a local terminal right away and asks for the password only when you use something that needs stored credentials (saved hosts, identities, SFTP, tunnels, remote desktop, importing `~/.ssh/config`). After unlocking, the action you started continues on its own. The old behaviour is available with the new setting *Ask for the master password at startup*.
@@ -20,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - SSH sessions no longer freeze after a period of inactivity: a keepalive is sent every 30 s and a dead connection is detected after about 2 minutes. When a session closes unexpectedly, the terminal shows a notice and offers to reconnect.
+- Terminal sizing: the terminal now refits when the font finishes loading and right after the session opens, and its container takes the theme background, so no mismatched strip is left below the last row.
 - Privacy audit test updated for `tauri-plugin-single-instance` (local IPC only, no network access).
 
 ---
