@@ -21,7 +21,7 @@ pub enum VaultError {
     AlreadyInitialized,
     #[error("Vault is not initialized yet")]
     NotInitialized,
-    #[error("Vault is currently locked. Unlock with master password first.")]
+    #[error("VAULT_LOCKED: Vault is currently locked. Unlock with master password first.")]
     Locked,
     #[error("Current master password is incorrect")]
     InvalidCurrentPassword,
@@ -396,6 +396,25 @@ pub fn vault_change_password(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_locked_error_has_stable_code_and_serializes_as_string() {
+        let msg = VaultError::Locked.to_string();
+        assert!(msg.starts_with("VAULT_LOCKED:"));
+        let json = serde_json::to_string(&VaultError::Locked).unwrap();
+        assert!(json.contains("VAULT_LOCKED:"));
+        // Otros errores no llevan el código
+        assert!(!VaultError::NotInitialized.to_string().contains("VAULT_LOCKED"));
+    }
+
+    #[test]
+    fn test_locked_vault_rejects_credentials_access() {
+        let conn = Connection::open_in_memory().unwrap();
+        let manager = VaultManager::new(conn).unwrap();
+        manager.init("MasterPassword2026!").unwrap();
+        manager.lock();
+        assert!(matches!(manager.get_inventory(), Err(VaultError::Locked)));
+    }
 
     #[test]
     fn test_vault_lifecycle_in_memory() {

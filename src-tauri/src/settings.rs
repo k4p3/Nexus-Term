@@ -33,6 +33,11 @@ pub struct AppSettings {
     pub close_to_tray: bool,
 
     // Security
+    /// Pide la contraseña maestra al iniciar (si es false, arranca con terminal local y desbloqueo bajo demanda).
+    #[serde(default)]
+    pub ask_password_on_startup: bool,
+    #[serde(default = "default_true")]
+    pub auto_lock_enabled: bool,
     #[serde(default = "default_auto_lock")]
     pub auto_lock_minutes: u32,
 
@@ -94,6 +99,11 @@ fn default_notify_threshold_seconds() -> u32 {
 impl AppSettings {
     /// Acota los valores numéricos a rangos válidos (se aplica siempre antes de guardar).
     pub fn sanitized(mut self) -> Self {
+        // 0 era el antiguo valor "desactivado" (sin interfaz); ahora se activa con `auto_lock_enabled`.
+        self.auto_lock_minutes = match self.auto_lock_minutes {
+            0 => default_auto_lock(),
+            m => m.min(MAX_AUTO_LOCK_MINUTES),
+        };
         self.paste_history_size = self.paste_history_size.min(100);
         self.notify_threshold_seconds = self.notify_threshold_seconds.clamp(1, 3600);
         if !matches!(self.restore_sessions.as_str(), "ask" | "auto" | "off") {
@@ -140,8 +150,10 @@ fn default_theme_id() -> String {
 }
 
 fn default_auto_lock() -> u32 {
-    0 // disabled
+    10
 }
+
+const MAX_AUTO_LOCK_MINUTES: u32 = 1440;
 
 impl Default for AppSettings {
     fn default() -> Self {
@@ -155,6 +167,8 @@ impl Default for AppSettings {
             theme_id: default_theme_id(),
             default_shell: None,
             close_to_tray: default_close_to_tray(),
+            ask_password_on_startup: false,
+            auto_lock_enabled: true,
             auto_lock_minutes: default_auto_lock(),
             sftp_max_concurrent_transfers: default_sftp_max_concurrent_transfers(),
             remote_desktop_clipboard: default_remote_desktop_clipboard(),
@@ -356,5 +370,48 @@ mod tests {
         )
         .unwrap();
         assert_eq!(get_settings_internal(&conn).unwrap().restore_sessions, "ask");
+    }
+
+    #[test]
+    fn test_lock_settings_defaults() {
+        let d = AppSettings::default();
+        assert!(!d.ask_password_on_startup);
+        assert!(d.auto_lock_enabled);
+        assert_eq!(d.auto_lock_minutes, 10);
+    }
+
+    #[test]
+    fn test_legacy_json_without_lock_fields_gets_new_defaults() {
+        // JSON guardado antes de este cambio: `auto_lock_minutes: 0` y sin los campos nuevos.
+        let legacy: AppSettings =
+            serde_json::from_str(r#"{"locale":"es","auto_lock_minutes":0}"#).unwrap();
+        let s = legacy.sanitized();
+        assert_eq!(s.locale, "es");
+        assert!(!s.ask_password_on_startup);
+        assert!(s.auto_lock_enabled);
+        assert_eq!(s.auto_lock_minutes, 10);
+    }
+
+    #[test]
+    fn test_auto_lock_minutes_validation() {
+        let mut s = AppSettings::default();
+        s.auto_lock_minutes = 0;
+        assert_eq!(s.clone().sanitized().auto_lock_minutes, 10);
+        s.auto_lock_minutes = 1;
+        assert_eq!(s.clone().sanitized().auto_lock_minutes, 1);
+        s.auto_lock_minutes = 5000;
+        assert_eq!(s.sanitized().auto_lock_minutes, 1440);
+    }
+
+    #[test]
+    fn test_lock_settings_persist() {
+        let conn = Connection::open_in_memory().unwrap();
+        VaultManager::run_migrations(&conn).unwrap();
+        let mut s = AppSettings::default();
+        s.ask_password_on_startup = true;
+        s.auto_lock_enabled = false;
+        s.auto_lock_minutes = 30;
+        save_settings_internal(&conn, &s).unwrap();
+        assert_eq!(get_settings_internal(&conn).unwrap(), s);
     }
 }
