@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { Component } from "vue";
 import BaseButton from "../common/BaseButton.vue";
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
@@ -152,19 +153,19 @@ async function copyIdentityPublicKey(identity: IdentitySummary) {
   }
 }
 
-function getIdentityBadge(identity: IdentitySummary): { label: string; class: string; icon: string } {
+function getIdentityBadge(identity: IdentitySummary): { label: string; class: string; icon: Component } {
   if (identity.auth_type === 'password') {
     return {
       label: 'Password',
       class: 'bg-warning/10 text-warning border-warning/20',
-      icon: '🔒',
+      icon: Lock,
     };
   }
   if (identity.auth_type === 'agent') {
     return {
       label: 'Agent',
       class: 'bg-success/10 text-success border-success/20',
-      icon: '🛡️',
+      icon: Shield,
     };
   }
   const pub = identity.public_key?.toLowerCase() || '';
@@ -172,20 +173,20 @@ function getIdentityBadge(identity: IdentitySummary): { label: string; class: st
     return {
       label: 'Ed25519',
       class: 'bg-accent/10 text-accent border-accent/20',
-      icon: '🔑',
+      icon: KeyRound,
     };
   }
   if (pub.startsWith('ssh-rsa')) {
     return {
       label: 'RSA 4096',
       class: 'bg-accent/10 text-accent border-accent/20',
-      icon: '🔑',
+      icon: KeyRound,
     };
   }
   return {
     label: 'Key',
     class: 'bg-accent/10 text-accent border-accent/20',
-    icon: '🔑',
+    icon: KeyRound,
   };
 }
 
@@ -527,9 +528,10 @@ async function handleDeleteIdentity(id: string) {
               <div class="flex items-center space-x-1.5 truncate">
                 <span class="font-medium text-fg truncate">{{ identity.name }}</span>
                 <span
-                  :class="['text-[9px] px-1.5 py-0.2 rounded border font-mono shrink-0', getIdentityBadge(identity).class]"
+                  :class="['inline-flex items-center gap-1 h-4 px-1.5 rounded-control border text-[10px] leading-none font-medium shrink-0', getIdentityBadge(identity).class]"
                 >
-                  {{ getIdentityBadge(identity).icon }} {{ getIdentityBadge(identity).label }}
+                  <component :is="getIdentityBadge(identity).icon" class="w-2.5 h-2.5 shrink-0" aria-hidden="true" />
+                  <span>{{ getIdentityBadge(identity).label }}</span>
                 </span>
               </div>
               <div class="text-[10px] text-fg-muted font-mono truncate">
