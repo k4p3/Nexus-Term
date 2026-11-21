@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSnippetText } from "../../composables/useSnippetText";
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSnippetsStore, type SnippetOriginFilter } from '../../stores/snippets.store';
@@ -32,6 +33,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { snippetTitle, snippetDescription } = useSnippetText();
 const snippetsStore = useSnippetsStore();
 
 const isModalOpen = ref(false);
@@ -285,11 +287,11 @@ function handleCopy(item: CommandSnippet) {
                   {{ t('ui.snip.disabled') }}
                 </span>
 
-                <h4 class="text-xs font-semibold text-fg truncate">{{ item.title }}</h4>
+                <h4 class="text-xs font-semibold text-fg truncate">{{ snippetTitle(item) }}</h4>
               </div>
 
               <p v-if="item.description" class="text-[11px] text-fg-muted line-clamp-1">
-                {{ item.description }}
+                {{ snippetDescription(item) }}
               </p>
             </div>
 

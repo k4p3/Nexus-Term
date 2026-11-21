@@ -535,7 +535,8 @@
       "noMatches": "No se encontraron coincidencias",
       "emptyDir": "Directorio vacío",
       "progress": "{done}/{total} archivos transferidos ({pct}%)",
-      "selected": "{n} seleccionados"
+      "selected": "{n} seleccionados",
+      "pickUpload": "Seleccionar archivos para subir"
     },
     "queue": {
       "title": "Cola de Transferencias SFTP",
@@ -577,7 +578,8 @@
       "send": "Enviar a Terminal",
       "titleRequired": "El título es obligatorio.",
       "commandRequired": "El comando es obligatorio.",
-      "supports": "Soporta {token}"
+      "supports": "Soporta {token}",
+      "valueFor": "Valor para {param}"
     },
     "telemetry": {
       "connecting": "Conectando canal de telemetría remota...",
@@ -637,7 +639,8 @@
       "confirmDelete": "¿Estás seguro de eliminar este túnel?",
       "connectFailed": "Error al conectar el túnel",
       "active": "{n} activo(s)",
-      "connections": "{n} conex. activas"
+      "connections": "{n} conex. activas",
+      "unknownHost": "Servidor desconocido"
     },
     "tunnelForm": {
       "name": "Nombre de la Regla",
@@ -670,6 +673,99 @@
     },
     "vault": {
       "minLength": "La contraseña debe tener al menos 8 caracteres."
+    },
+    "err": {
+      "tunnels": {
+        "loadFailed": "Error al cargar los túneles",
+        "saveFailed": "Error al guardar el túnel",
+        "deleteFailed": "Error al eliminar el túnel",
+        "startFailed": "Error al iniciar el túnel",
+        "stopFailed": "Error al detener el túnel"
+      },
+      "vault": {
+        "statusFailed": "Error al verificar estado de la bóveda",
+        "initFailed": "Error al inicializar la bóveda",
+        "wrongPassword": "Contraseña maestra incorrecta",
+        "lockFailed": "Error al bloquear la bóveda",
+        "rotateFailed": "Error al cambiar la contraseña maestra"
+      },
+      "sftp": {
+        "connectFailed": "Error al conectar SFTP",
+        "navigateFailed": "Error al navegar a {path}",
+        "mkdirFailed": "Error al crear la carpeta",
+        "renameFailed": "Error al renombrar",
+        "deleteFailed": "Error al eliminar",
+        "transferFailed": "Error en la transferencia"
+      },
+      "saveHost": "Error al guardar el servidor.",
+      "saveIdentity": "Error al guardar la credencial.",
+      "readConfig": "Error al leer ~/.ssh/config"
+    },
+    "notify": {
+      "done": "Comando finalizado",
+      "failed": "Comando fallido"
+    },
+    "builtin": {
+      "docker-logs": {
+        "title": "Docker: Seguir Logs",
+        "description": "Muestra y sigue los logs recientes del contenedor en tiempo real."
+      },
+      "docker-exec": {
+        "title": "Docker: Shell Interactiva",
+        "description": "Abre una terminal interactiva dentro del contenedor en ejecución."
+      },
+      "docker-ps": {
+        "title": "Docker: Lista con Puertos",
+        "description": "Muestra todos los contenedores con formato limpio de columnas y puertos mapeados."
+      },
+      "docker-prune": {
+        "title": "Docker: Limpieza Total",
+        "description": "Elimina contenedores detenidos, redes sin uso, imágenes huérfanas y volúmenes."
+      },
+      "sys-journal": {
+        "title": "Systemd: Logs en Vivo",
+        "description": "Sigue los logs del servicio del sistema en tiempo real con marcas de tiempo."
+      },
+      "sys-status": {
+        "title": "Systemd: Estado de Servicio",
+        "description": "Verifica el estado de ejecución, PID y últimas líneas de log de un servicio."
+      },
+      "sys-restart": {
+        "title": "Systemd: Reiniciar Servicio",
+        "description": "Reinicia limpiamente el demonio o servicio especificado."
+      },
+      "net-listen": {
+        "title": "Red: Puertos Escuchando",
+        "description": "Muestra todos los sockets TCP/UDP abiertos a la escucha con el nombre y PID del proceso."
+      },
+      "net-ips": {
+        "title": "Red: Resumen de IPs",
+        "description": "Muestra las interfaces de red con sus direcciones IPv4/IPv6 asignadas y colores."
+      },
+      "net-curl-hdr": {
+        "title": "Red: Cabeceras HTTP",
+        "description": "Realiza una petición HEAD para inspeccionar cabeceras, códigos HTTP y certificados."
+      },
+      "net-ufw": {
+        "title": "Red: Estado Firewall UFW",
+        "description": "Muestra las reglas activas del cortafuegos UFW y puertos permitidos."
+      },
+      "fs-large-files": {
+        "title": "Disco: 10 Archivos Más Pesados",
+        "description": "Busca y lista los 10 archivos de mayor tamaño en el sistema de archivos."
+      },
+      "fs-space": {
+        "title": "Disco: Particiones Reales",
+        "description": "Muestra el espacio libre en particiones físicas sin el ruido de sistemas temporales."
+      },
+      "sys-mem": {
+        "title": "Memoria: Uso de RAM y Swap",
+        "description": "Muestra la memoria física, usada, en caché y swap en unidades legibles."
+      },
+      "sys-dmesg": {
+        "title": "Kernel: Mensajes Recientes",
+        "description": "Muestra los últimos 50 eventos del kernel con marcas de tiempo legibles."
+      }
     }
   }
 }

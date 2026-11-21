@@ -90,7 +90,7 @@ async function loadPreview() {
     }
     selectedAliases.value = initialSelection;
   } catch (err: any) {
-    error.value = typeof err === "string" ? err : err?.message || "Error al leer ~/.ssh/config";
+    error.value = typeof err === "string" ? err : err?.message || t('ui.err.readConfig');
   } finally {
     isLoading.value = false;
   }

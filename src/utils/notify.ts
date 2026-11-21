@@ -1,3 +1,4 @@
+import { i18n } from "../locales";
 export type NotifyChannel = "desktop" | "toast" | "none";
 
 export interface NotifyContext {
@@ -40,5 +41,5 @@ export function buildNotificationBody(i: NotificationInput): { title: string; bo
     const cmd = i.command.length > 80 ? i.command.slice(0, 77) + "…" : i.command;
     body += `\n${cmd}`;
   }
-  return { title: i.ok ? "Comando finalizado" : "Comando fallido", body };
+  return { title: i.ok ? i18n.global.t('ui.notify.done') : i18n.global.t('ui.notify.failed'), body };
 }

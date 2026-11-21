@@ -64,7 +64,7 @@ struct NoNetwork;
 
 impl NetworkClient for NoNetwork {
     async fn send(&mut self, _req: &connector::sspi::NetworkRequest) -> connector::ConnectorResult<Vec<u8>> {
-        Err(connector::general_err!("Kerberos no está soportado; se usa NTLM"))
+        Err(connector::general_err!("Kerberos is not supported; using NTLM"))
     }
 }
 
@@ -232,7 +232,7 @@ async fn run_inner(
         ironrdp_tls::CertificateValidation::DangerouslyAcceptInvalidCertificate,
     )
     .await
-    .map_err(|e| RemoteDesktopError::Protocol(format!("Fallo TLS: {}", e)))?;
+    .map_err(|e| RemoteDesktopError::Protocol(format!("TLS failure: {}", e)))?;
 
     let der = cert.to_der().map_err(|e| RemoteDesktopError::Protocol(format!("Certificado ilegible: {}", e)))?;
     let fp = fingerprint_hex(&der);
@@ -248,7 +248,7 @@ async fn run_inner(
     }
 
     let server_public_key = ironrdp_tls::extract_tls_server_public_key(&cert)
-        .ok_or_else(|| RemoteDesktopError::Protocol("Certificado sin clave pública".into()))?
+        .ok_or_else(|| RemoteDesktopError::Protocol("Certificate has no public key".into()))?
         .to_owned();
 
     let upgraded = mark_as_upgraded(should_upgrade, &mut connector);
@@ -266,7 +266,7 @@ async fn run_inner(
     .map_err(map_connect_error)?;
     let connection = match outcome {
         connector::ConnectionOutcome::Connected(c) => c,
-        _ => return Err(RemoteDesktopError::Protocol("El servidor solicitó una redirección (no soportada)".into())),
+        _ => return Err(RemoteDesktopError::Protocol("The server requested a redirect (unsupported)".into())),
     };
 
     let (w, h) = (connection.desktop_size.width, connection.desktop_size.height);

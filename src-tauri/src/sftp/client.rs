@@ -39,7 +39,7 @@ impl SftpSessionManager {
         let channel = ssh_session
             .channel_open_session()
             .await
-            .map_err(|e| format!("Error al abrir canal SSH para SFTP: {}", e))?;
+            .map_err(|e| format!("Could not open an SSH channel for SFTP: {}", e))?;
 
         channel
             .request_subsystem(false, "sftp")
@@ -49,7 +49,7 @@ impl SftpSessionManager {
         let stream = channel.into_stream();
         let sftp = SftpSession::new(stream)
             .await
-            .map_err(|e| format!("Error al inicializar sesión SFTP: {}", e))?;
+            .map_err(|e| format!("Could not initialize the SFTP session: {}", e))?;
 
         let session_id = Uuid::now_v7().to_string();
         let mut map = self.sessions.lock().await;
@@ -68,14 +68,14 @@ impl SftpSessionManager {
         let map = self.sessions.lock().await;
         map.get(session_id)
             .map(|item| item.session.clone())
-            .ok_or_else(|| "Sesión SFTP no encontrada o desconectada".to_string())
+            .ok_or_else(|| "SFTP session not found or disconnected".to_string())
     }
 
     pub async fn resolve_home(&self, session_id: &str) -> Result<String, String> {
         let sftp = self.get_session(session_id).await?;
         sftp.canonicalize(".")
             .await
-            .map_err(|e| format!("No se pudo resolver el directorio inicial: {}", e))
+            .map_err(|e| format!("Could not resolve the initial directory: {}", e))
     }
 
     pub async fn list_dir(
@@ -89,13 +89,13 @@ impl SftpSessionManager {
             _ => sftp
                 .canonicalize(".")
                 .await
-                .map_err(|e| format!("Error resolviendo directorio raíz: {}", e))?,
+                .map_err(|e| format!("Could not resolve the root directory: {}", e))?,
         };
 
         let mut read_dir = sftp
             .read_dir(&target_path)
             .await
-            .map_err(|e| format!("Error al listar directorio {}: {}", target_path, e))?;
+            .map_err(|e| format!("Could not list directory {}: {}", target_path, e))?;
 
         let mut entries = Vec::new();
         while let Some(entry) = read_dir.next() {
@@ -137,14 +137,14 @@ impl SftpSessionManager {
         let sftp = self.get_session(session_id).await?;
         sftp.create_dir(path)
             .await
-            .map_err(|e| format!("Error al crear carpeta {}: {}", path, e))
+            .map_err(|e| format!("Could not create folder {}: {}", path, e))
     }
 
     pub async fn rename(&self, session_id: &str, old_path: &str, new_path: &str) -> Result<(), String> {
         let sftp = self.get_session(session_id).await?;
         sftp.rename(old_path, new_path)
             .await
-            .map_err(|e| format!("Error al renombrar de {} a {}: {}", old_path, new_path, e))
+            .map_err(|e| format!("Could not rename {} to {}: {}", old_path, new_path, e))
     }
 
     pub async fn remove(&self, session_id: &str, path: &str, is_dir: bool) -> Result<(), String> {
@@ -152,11 +152,11 @@ impl SftpSessionManager {
         if is_dir {
             sftp.remove_dir(path)
                 .await
-                .map_err(|e| format!("Error al eliminar carpeta {}: {}", path, e))
+                .map_err(|e| format!("Could not delete folder {}: {}", path, e))
         } else {
             sftp.remove_file(path)
                 .await
-                .map_err(|e| format!("Error al eliminar archivo {}: {}", path, e))
+                .map_err(|e| format!("Could not delete file {}: {}", path, e))
         }
     }
 
@@ -215,18 +215,18 @@ impl SftpSessionManager {
         let meta = sftp
             .metadata(remote_path)
             .await
-            .map_err(|e| format!("No se pudo leer metadatos de {}: {}", remote_path, e))?;
+            .map_err(|e| format!("Could not read metadata of {}: {}", remote_path, e))?;
 
         let total_bytes = meta.size.unwrap_or(0);
 
         let mut remote_file = sftp
             .open(remote_path)
             .await
-            .map_err(|e| format!("Error abriendo archivo remoto {}: {}", remote_path, e))?;
+            .map_err(|e| format!("Could not open remote file {}: {}", remote_path, e))?;
 
         let mut local_file = tokio::fs::File::create(local_path)
             .await
-            .map_err(|e| format!("Error creando archivo local {}: {}", local_path, e))?;
+            .map_err(|e| format!("Could not create local file {}: {}", local_path, e))?;
 
         let mut buffer = [0u8; 64 * 1024]; // Bloques de 64 KB
         let mut transferred: u64 = 0;
@@ -235,7 +235,7 @@ impl SftpSessionManager {
             let n = remote_file
                 .read(&mut buffer)
                 .await
-                .map_err(|e| format!("Error leyendo archivo remoto: {}", e))?;
+                .map_err(|e| format!("Could not read remote file: {}", e))?;
 
             if n == 0 {
                 break;
@@ -244,7 +244,7 @@ impl SftpSessionManager {
             local_file
                 .write_all(&buffer[..n])
                 .await
-                .map_err(|e| format!("Error escribiendo archivo local: {}", e))?;
+                .map_err(|e| format!("Could not write local file: {}", e))?;
 
             transferred += n as u64;
 
@@ -270,7 +270,7 @@ impl SftpSessionManager {
         local_file
             .flush()
             .await
-            .map_err(|e| format!("Error cerrando archivo local: {}", e))?;
+            .map_err(|e| format!("Could not close local file: {}", e))?;
 
         if let Some(ch) = progress_channel {
             let _ = ch.send(TransferProgress {
@@ -343,18 +343,18 @@ impl SftpSessionManager {
 
         let mut local_file = tokio::fs::File::open(local_path)
             .await
-            .map_err(|e| format!("Error abriendo archivo local {}: {}", local_path, e))?;
+            .map_err(|e| format!("Could not open local file {}: {}", local_path, e))?;
 
         let local_meta = local_file
             .metadata()
             .await
-            .map_err(|e| format!("Error obteniendo tamaño de archivo local: {}", e))?;
+            .map_err(|e| format!("Could not get local file size: {}", e))?;
         let total_bytes = local_meta.len();
 
         let mut remote_file = sftp
             .create(remote_path)
             .await
-            .map_err(|e| format!("Error creando archivo remoto {}: {}", remote_path, e))?;
+            .map_err(|e| format!("Could not create remote file {}: {}", remote_path, e))?;
 
         let mut buffer = [0u8; 64 * 1024]; // 64 KB
         let mut transferred: u64 = 0;
@@ -363,7 +363,7 @@ impl SftpSessionManager {
             let n = local_file
                 .read(&mut buffer)
                 .await
-                .map_err(|e| format!("Error leyendo archivo local: {}", e))?;
+                .map_err(|e| format!("Could not read local file: {}", e))?;
 
             if n == 0 {
                 break;
@@ -372,7 +372,7 @@ impl SftpSessionManager {
             remote_file
                 .write_all(&buffer[..n])
                 .await
-                .map_err(|e| format!("Error escribiendo en archivo remoto: {}", e))?;
+                .map_err(|e| format!("Could not write to remote file: {}", e))?;
 
             transferred += n as u64;
 
@@ -398,7 +398,7 @@ impl SftpSessionManager {
         remote_file
             .flush()
             .await
-            .map_err(|e| format!("Error cerrando archivo remoto: {}", e))?;
+            .map_err(|e| format!("Could not close remote file: {}", e))?;
 
         if let Some(ch) = progress_channel {
             let _ = ch.send(TransferProgress {

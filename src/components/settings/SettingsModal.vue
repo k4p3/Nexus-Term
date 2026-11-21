@@ -836,7 +836,7 @@ async function handleResetDefaults() {
               </div>
               <div>
                 <h3 class="text-base font-semibold text-fg">NexusTerm</h3>
-                <p class="text-xs text-fg-muted">v0.1.0 (Alpha)</p>
+                <p class="text-xs text-fg-muted">v0.2.0</p>
               </div>
             </div>
 

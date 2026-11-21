@@ -77,6 +77,11 @@ pub fn run() {
             fs::create_dir_all(&app_data_dir).ok();
             let db_path = app_data_dir.join("vault.db");
             let conn = Connection::open(db_path).expect("Failed to open vault.db SQLite database");
+            // Tray labels follow the saved UI language (read before the connection moves into the vault).
+            let tray_locale = crate::settings::get_settings_internal(&conn)
+                .map(|s| s.locale)
+                .unwrap_or_else(|_| "en".to_string());
+            let tray = crate::settings::tray_labels(&tray_locale);
             let vault_mgr = Arc::new(VaultManager::new(conn).expect("Failed to initialize vault schema migrations"));
             
             app.manage(vault_mgr.clone());
@@ -94,13 +99,13 @@ pub fn run() {
             }
 
             // Build Native System Tray (StatusNotifierItem on KDE / Linux)
-            let show_item = MenuItem::with_id(app, "show", "Mostrar NexusTerm", true, None::<&str>)?;
-            let quit_item = MenuItem::with_id(app, "quit", "Salir", true, None::<&str>)?;
+            let show_item = MenuItem::with_id(app, "show", tray.show, true, None::<&str>)?;
+            let quit_item = MenuItem::with_id(app, "quit", tray.quit, true, None::<&str>)?;
             let tray_menu = Menu::with_items(app, &[&show_item, &quit_item])?;
 
             let mut tray_builder = TrayIconBuilder::new()
                 .menu(&tray_menu)
-                .tooltip("NexusTerm - Gestor SSH y Terminal")
+                .tooltip(tray.tooltip)
                 .show_menu_on_left_click(false)
                 .icon_as_template(true)
                 .on_menu_event(|app, event| match event.id.as_ref() {

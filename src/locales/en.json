@@ -535,7 +535,8 @@
       "noMatches": "No matches found",
       "emptyDir": "Empty directory",
       "progress": "{done}/{total} files transferred ({pct}%)",
-      "selected": "{n} selected"
+      "selected": "{n} selected",
+      "pickUpload": "Select files to upload"
     },
     "queue": {
       "title": "SFTP transfer queue",
@@ -577,7 +578,8 @@
       "send": "Send to terminal",
       "titleRequired": "The title is required.",
       "commandRequired": "The command template is required.",
-      "supports": "Supports {token}"
+      "supports": "Supports {token}",
+      "valueFor": "Value for {param}"
     },
     "telemetry": {
       "connecting": "Connecting remote telemetry channel...",
@@ -637,7 +639,8 @@
       "confirmDelete": "Delete this tunnel?",
       "connectFailed": "Could not connect the tunnel",
       "active": "{n} active",
-      "connections": "{n} active connections"
+      "connections": "{n} active connections",
+      "unknownHost": "Unknown server"
     },
     "tunnelForm": {
       "name": "Rule name",
@@ -670,6 +673,99 @@
     },
     "vault": {
       "minLength": "The password must be at least 8 characters."
+    },
+    "err": {
+      "tunnels": {
+        "loadFailed": "Could not load tunnels",
+        "saveFailed": "Could not save the tunnel",
+        "deleteFailed": "Could not delete the tunnel",
+        "startFailed": "Could not start the tunnel",
+        "stopFailed": "Could not stop the tunnel"
+      },
+      "vault": {
+        "statusFailed": "Could not check the vault status",
+        "initFailed": "Could not create the vault",
+        "wrongPassword": "Incorrect master password",
+        "lockFailed": "Could not lock the vault",
+        "rotateFailed": "Could not change the master password"
+      },
+      "sftp": {
+        "connectFailed": "Could not connect SFTP",
+        "navigateFailed": "Could not open {path}",
+        "mkdirFailed": "Could not create the folder",
+        "renameFailed": "Could not rename",
+        "deleteFailed": "Could not delete",
+        "transferFailed": "Transfer failed"
+      },
+      "saveHost": "Could not save the server.",
+      "saveIdentity": "Could not save the credential.",
+      "readConfig": "Could not read ~/.ssh/config"
+    },
+    "notify": {
+      "done": "Command finished",
+      "failed": "Command failed"
+    },
+    "builtin": {
+      "docker-logs": {
+        "title": "Docker: Follow Logs",
+        "description": "Shows and follows the container's recent logs in real time."
+      },
+      "docker-exec": {
+        "title": "Docker: Interactive Shell",
+        "description": "Opens an interactive shell inside the running container."
+      },
+      "docker-ps": {
+        "title": "Docker: List with Ports",
+        "description": "Lists all containers in a clean column layout with mapped ports."
+      },
+      "docker-prune": {
+        "title": "Docker: Full Cleanup",
+        "description": "Removes stopped containers, unused networks, dangling images and volumes."
+      },
+      "sys-journal": {
+        "title": "Systemd: Live Logs",
+        "description": "Follows a system service's logs in real time with timestamps."
+      },
+      "sys-status": {
+        "title": "Systemd: Service Status",
+        "description": "Checks a service's run state, PID and latest log lines."
+      },
+      "sys-restart": {
+        "title": "Systemd: Restart Service",
+        "description": "Cleanly restarts the specified daemon or service."
+      },
+      "net-listen": {
+        "title": "Network: Listening Ports",
+        "description": "Lists all listening TCP/UDP sockets with the process name and PID."
+      },
+      "net-ips": {
+        "title": "Network: IP Summary",
+        "description": "Shows network interfaces with their assigned IPv4/IPv6 addresses, in color."
+      },
+      "net-curl-hdr": {
+        "title": "Network: HTTP Headers",
+        "description": "Sends a HEAD request to inspect headers, HTTP status codes and certificates."
+      },
+      "net-ufw": {
+        "title": "Network: UFW Firewall Status",
+        "description": "Shows the active UFW firewall rules and allowed ports."
+      },
+      "fs-large-files": {
+        "title": "Disk: 10 Largest Files",
+        "description": "Finds and lists the 10 largest files on the file system."
+      },
+      "fs-space": {
+        "title": "Disk: Real Partitions",
+        "description": "Shows free space on physical partitions without temporary file systems."
+      },
+      "sys-mem": {
+        "title": "Memory: RAM and Swap Usage",
+        "description": "Shows physical, used, cached and swap memory in readable units."
+      },
+      "sys-dmesg": {
+        "title": "Kernel: Recent Messages",
+        "description": "Shows the last 50 kernel events with readable timestamps."
+      }
     }
   }
 }

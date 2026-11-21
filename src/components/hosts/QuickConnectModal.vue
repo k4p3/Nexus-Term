@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSnippetText } from "../../composables/useSnippetText";
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVaultStore } from "../../stores/vault.store";
@@ -27,6 +28,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { snippetTitle, snippetDescription } = useSnippetText();
 const vaultStore = useVaultStore();
 const { ensureUnlocked } = useEnsureUnlocked();
 const snippetsStore = useSnippetsStore();
@@ -131,7 +133,7 @@ const items = computed<SearchItem[]>(() => {
       result.push({
         type: "snippet",
         id: "snip-" + snip.id,
-        label: snip.title,
+        label: snippetTitle(snip),
         subtitle: snip.command_template,
         tags: snip.tags,
         snippet: snip,

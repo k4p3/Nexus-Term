@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSnippetText } from "../../composables/useSnippetText";
 import { computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import ListPicker, { type PickerItem } from "../common/ListPicker.vue";
@@ -13,6 +14,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { snippetTitle, snippetDescription } = useSnippetText();
 const history = useHistoryStore();
 const snippets = useSnippetsStore();
 
@@ -45,7 +47,7 @@ const items = computed<PickerItem[]>(() => [
   ...snippets.enabledSnippets.map((s) => ({
     id: `s:${s.id}`,
     title: s.command_template.replace(/\s+/g, " "),
-    subtitle: `${t("history.snippet")}: ${s.title}`,
+    subtitle: `${t("history.snippet")}: ${snippetTitle(s)}`,
   })),
 ]);
 

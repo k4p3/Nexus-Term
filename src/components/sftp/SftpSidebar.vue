@@ -112,7 +112,7 @@ function handleDownload(entry: SftpEntry) {
 
 async function triggerFileUpload() {
   try {
-    const paths = await sftpService.pickUploadFiles("Seleccionar archivos para subir");
+    const paths = await sftpService.pickUploadFiles(t('ui.sftp.pickUpload'));
     if (paths && paths.length > 0) {
       await sftpStore.uploadFiles(paths);
       return;

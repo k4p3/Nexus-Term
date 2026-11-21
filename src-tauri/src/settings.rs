@@ -229,6 +229,21 @@ impl Default for AppSettings {
     }
 }
 
+/// Native tray menu texts for the saved UI language (Spanish or English; anything else falls back to English).
+pub struct TrayLabels {
+    pub show: &'static str,
+    pub quit: &'static str,
+    pub tooltip: &'static str,
+}
+
+pub fn tray_labels(locale: &str) -> TrayLabels {
+    if locale.eq_ignore_ascii_case("es") || locale.to_ascii_lowercase().starts_with("es-") {
+        TrayLabels { show: "Mostrar NexusTerm", quit: "Salir", tooltip: "NexusTerm - Gestor SSH y Terminal" }
+    } else {
+        TrayLabels { show: "Show NexusTerm", quit: "Quit", tooltip: "NexusTerm - SSH Manager and Terminal" }
+    }
+}
+
 pub fn get_settings_internal(conn: &Connection) -> Result<AppSettings, VaultError> {
     let row: Option<String> = conn
         .query_row(
@@ -295,6 +310,14 @@ pub fn reset_app_settings(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_tray_labels_follow_locale() {
+        assert_eq!(tray_labels("es").quit, "Salir");
+        assert_eq!(tray_labels("es-MX").show, "Mostrar NexusTerm");
+        assert_eq!(tray_labels("en").quit, "Quit");
+        assert_eq!(tray_labels("fr").show, "Show NexusTerm");
+    }
 
     #[test]
     fn test_default_settings_and_persistence() {

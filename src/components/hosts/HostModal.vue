@@ -227,7 +227,7 @@ async function handleSave() {
     await vaultStore.saveHost(payload);
     emit("close");
   } catch (err: any) {
-    error.value = typeof err === "string" ? err : err?.message || "Error al guardar el servidor.";
+    error.value = typeof err === "string" ? err : err?.message || t('ui.err.saveHost');
   } finally {
     isSubmitting.value = false;
   }

@@ -207,7 +207,7 @@ async function handleSave() {
     emit("saved", newId);
     emit("close");
   } catch (err: any) {
-    error.value = typeof err === "string" ? err : err?.message || "Error al guardar la credencial.";
+    error.value = typeof err === "string" ? err : err?.message || t('ui.err.saveIdentity');
   } finally {
     isSubmitting.value = false;
   }

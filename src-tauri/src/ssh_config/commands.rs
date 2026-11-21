@@ -188,7 +188,7 @@ pub fn import_ssh_config(
             username_override: entry.user,
             identity_id,
             tags,
-            notes: Some("Importado automáticamente desde ~/.ssh/config".to_string()),
+            notes: Some("Imported automatically from ~/.ssh/config".to_string()),
         };
 
         let saved_id = vault_mgr

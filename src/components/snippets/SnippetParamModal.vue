@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSnippetText } from "../../composables/useSnippetText";
 import BaseModal from "../common/BaseModal.vue";
 import BaseButton from "../common/BaseButton.vue";
 import { ref, watch } from 'vue';
@@ -18,6 +19,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { snippetTitle, snippetDescription } = useSnippetText();
 const snippetsStore = useSnippetsStore();
 
 const paramValues = ref<Record<string, string>>({});
@@ -53,7 +55,7 @@ function handleExecute() {
 </script>
 
 <template>
-  <BaseModal v-if="isOpen && snippet" :title="snippet.title" size="sm" @close="emit('close')">
+  <BaseModal v-if="isOpen && snippet" :title="snippetTitle(snippet)" size="sm" @close="emit('close')">
     <template #icon><Sparkles class="w-4 h-4" /></template>
 
     <form id="snippet-param-form" @submit.prevent="handleExecute" class="space-y-4">
@@ -70,7 +72,7 @@ function handleExecute() {
             <input
               v-model="paramValues[param]"
               type="text"
-              :placeholder="`Valor para ${param}`"
+              :placeholder="t('ui.snipForm.valueFor', { param })"
               class="w-full px-3 py-1.5 bg-app border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
               autofocus
             />

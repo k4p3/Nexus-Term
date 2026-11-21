@@ -50,7 +50,7 @@ onUnmounted(() => {
 
 function getHostLabel(hostId: string): string {
   const host = vaultStore.hosts.find((h) => h.id === hostId);
-  return host ? `${host.label} (${host.hostname})` : "Servidor desconocido";
+  return host ? `${host.label} (${host.hostname})` : t('ui.tunnels.unknownHost');
 }
 
 function formatBytes(bytes: number): string {

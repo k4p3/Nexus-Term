@@ -31,7 +31,7 @@ describe("notification content", () => {
     expect(buildNotificationBody(i).body).toBe("✓ web-1 · 12s");
     expect(buildNotificationBody(i).body).not.toContain("SECRET");
     expect(buildNotificationBody({ ...i, includeCommand: true }).body).toContain("mysql");
-    expect(buildNotificationBody({ ...i, ok: false }).title).toBe("Comando fallido");
+    expect(buildNotificationBody({ ...i, ok: false }).title).toBe("Command failed");
   });
   it("truncates long commands", () => {
     const b = buildNotificationBody({ ok: true, hostLabel: "h", durationMs: 1000, command: "x".repeat(200), includeCommand: true });
