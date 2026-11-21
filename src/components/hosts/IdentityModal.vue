@@ -1,45 +1,49 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
+import BaseModal from "../common/BaseModal.vue";
+import BaseButton from "../common/BaseButton.vue";
+import { ref, watch, computed } from "vue";
 import { useVaultStore } from "../../stores/vault.store";
 import type { IdentitySummary, SaveIdentityPayload, AuthType } from "../../types/inventory";
 import { X, KeyRound, Lock, User, Shield, Upload, Copy, Check, Sparkles } from "lucide-vue-next";
 import { sessionService } from "../../services/session.service";
 import CustomSelect, { type SelectOption } from "../common/CustomSelect.vue";
 
-const authTypeOptions: SelectOption[] = [
+const { t } = useI18n();
+const authTypeOptions = computed<SelectOption[]>(() => [
   {
     value: "password",
-    label: "Contraseña",
-    subtitle: "Usuario y contraseña estándar",
+    label: t('ui.identity.password'),
+    subtitle: t('ui.identity.passwordSub'),
     icon: Lock,
-    iconColor: "text-blue-400",
+    iconColor: "text-accent",
   },
   {
     value: "private_key",
-    label: "Llave SSH",
+    label: t('ui.identity.sshKey'),
     subtitle: "Ed25519, RSA, ECDSA",
     icon: KeyRound,
-    iconColor: "text-amber-400",
+    iconColor: "text-warning",
   },
   {
     value: "agent",
-    label: "Agente SSH del Sistema",
-    subtitle: "Delegado a SSH_AUTH_SOCK",
+    label: t('ui.identity.agent'),
+    subtitle: t('ui.identity.agentSub'),
     icon: Shield,
-    iconColor: "text-purple-400",
+    iconColor: "text-info",
   },
-];
+]);
 
-const genAlgorithmOptions: SelectOption[] = [
+const genAlgorithmOptions = computed<SelectOption[]>(() => [
   {
     value: "ed25519",
-    label: "Ed25519 (Recomendado)",
+    label: t('ui.identity.ed25519'),
   },
   {
     value: "rsa",
-    label: "RSA (4096 bits)",
+    label: t('ui.identity.rsa'),
   },
-];
+]);
 
 const props = defineProps<{
   isOpen: boolean;
@@ -86,7 +90,7 @@ async function handleGenerateKey() {
       name.value = `Llave ${algLabel} (${username.value || "root"})`;
     }
   } catch (err: any) {
-    error.value = "Error al generar la llave SSH: " + (err?.message || err);
+    error.value = t('ui.identity.genError', { error: err?.message || err });
   } finally {
     isGeneratingKey.value = false;
   }
@@ -181,7 +185,7 @@ watch(
 
 async function handleSave() {
   if (!name.value.trim() || !username.value.trim()) {
-    error.value = "Nombre y usuario son obligatorios.";
+    error.value = t('ui.identity.required');
     return;
   }
 
@@ -203,7 +207,7 @@ async function handleSave() {
     emit("saved", newId);
     emit("close");
   } catch (err: any) {
-    error.value = typeof err === "string" ? err : err?.message || "Error al guardar la credencial.";
+    error.value = typeof err === "string" ? err : err?.message || t('ui.err.saveIdentity');
   } finally {
     isSubmitting.value = false;
   }
@@ -211,51 +215,38 @@ async function handleSave() {
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-    <div class="w-full max-w-lg bg-theme-surface border border-theme rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-      <!-- Header -->
-      <div class="px-5 py-3.5 border-b border-theme flex items-center justify-between bg-theme-app/50">
-        <div class="flex items-center space-x-2">
-          <Shield class="w-5 h-5 text-theme-accent" />
-          <h3 class="text-sm font-bold text-theme-main">
-            {{ identityToEdit ? 'Editar Credencial' : 'Nueva Credencial SSH' }}
-          </h3>
-        </div>
-        <button @click="emit('close')" class="text-theme-muted hover:text-theme-main p-1 rounded-lg hover:bg-theme-active transition cursor-pointer">
-          <X class="w-4 h-4" />
-        </button>
-      </div>
+  <BaseModal v-if="isOpen" :title="identityToEdit ? t('ui.sidebar.editIdentity') : t('ui.identity.new')" size="md" @close="emit('close')">
+    <template #icon><Shield class="w-4 h-4" /></template>
 
-      <!-- Form -->
-      <form @submit.prevent="handleSave" class="p-5 space-y-4 overflow-y-auto flex-1">
+    <form id="identity-form" @submit.prevent="handleSave" class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-theme-muted mb-1">Nombre Descriptivo</label>
+          <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('ui.identity.name') }}</label>
           <input
             v-model="name"
             type="text"
             required
-            placeholder="ej. Servidores Prod - Llave Primaria"
-            class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+            :placeholder="t('ui.identity.namePlaceholder')"
+            class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
           />
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-theme-muted mb-1">Usuario SSH</label>
+            <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('ui.identity.username') }}</label>
             <div class="relative">
-              <User class="w-4 h-4 text-theme-muted absolute left-3 top-2.5" />
+              <User class="w-4 h-4 text-fg-muted absolute left-3 top-2.5" />
               <input
                 v-model="username"
                 type="text"
                 required
-                placeholder="root / ubuntu / admin"
-                class="w-full pl-9 pr-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+                :placeholder="t('ui.identity.usernamePlaceholder')"
+                class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-theme-muted mb-1">Método de Autenticación</label>
+            <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('ui.identity.authMethod') }}</label>
             <CustomSelect
               v-model="authType"
               :options="authTypeOptions"
@@ -265,40 +256,40 @@ async function handleSave() {
 
         <!-- Password input -->
         <div v-if="authType === 'password'">
-          <label class="block text-xs font-medium text-theme-muted mb-1">
-            Contraseña
-            <span v-if="identityToEdit?.has_secret" class="text-xs text-theme-muted font-normal">
-              (Dejar en blanco para conservar la existente)
+          <label class="block text-xs font-medium text-fg-muted mb-1">
+            {{ t('ui.identity.password') }}
+            <span v-if="identityToEdit?.has_secret" class="text-xs text-fg-muted font-normal">
+              {{ t('ui.identity.keepExisting') }}
             </span>
           </label>
           <div class="relative">
-            <Lock class="w-4 h-4 text-theme-muted absolute left-3 top-2.5" />
+            <Lock class="w-4 h-4 text-fg-muted absolute left-3 top-2.5" />
             <input
               v-model="secret"
               type="password"
-              :placeholder="identityToEdit?.has_secret ? '••••••••••••' : 'Ingrese contraseña del servidor'"
-              class="w-full pl-9 pr-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+              :placeholder="identityToEdit?.has_secret ? '••••••••••••' : t('ui.identity.passwordPlaceholder')"
+              class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
             />
           </div>
         </div>
 
         <!-- System Agent notice -->
-        <div v-else-if="authType === 'agent'" class="p-3 bg-cyan-950/30 border border-cyan-800/40 rounded-xl space-y-1.5 text-xs text-cyan-200">
+        <div v-else-if="authType === 'agent'" class="p-3 bg-accent/15 border border-accent/30 rounded-xl space-y-1.5 text-xs text-accent">
           <div class="font-semibold flex items-center space-x-1.5">
-            <Shield class="w-4 h-4 text-theme-accent" />
-            <span>Autenticación por Agente del Sistema</span>
+            <Shield class="w-4 h-4 text-accent" />
+            <span>{{ t('ui.identity.agentTitle') }}</span>
           </div>
-          <p class="text-theme-muted text-[11px] leading-relaxed">
-            NexusTerm delegará la firma criptográfica al socket local de su agente SSH (<code>SSH_AUTH_SOCK</code> en Linux/macOS o Pageant/OpenSSH en Windows). Compatible con YubiKey, llaves de hardware FIDO2 y 1Password.
+          <p class="text-fg-muted text-[11px] leading-relaxed">
+            {{ t('ui.identity.agentHelp') }}
           </p>
         </div>
 
         <!-- Private key input -->
         <div v-else-if="authType === 'private_key'" class="space-y-3">
           <!-- Toolbar: Import File & Generate Key -->
-          <div class="p-2.5 bg-theme-app/50 border border-theme rounded-xl space-y-2">
+          <div class="p-2.5 bg-app/50 border border-line rounded-xl space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-medium text-theme-main">Herramientas de Llaves</span>
+              <span class="text-xs font-medium text-fg">{{ t('ui.identity.keyTools') }}</span>
               <div class="flex items-center space-x-1.5">
                 <!-- Hidden file input -->
                 <input
@@ -311,17 +302,17 @@ async function handleSave() {
                 <button
                   type="button"
                   @click="fileInputRef?.click()"
-                  class="px-2.5 py-1 bg-theme-surface hover:bg-theme-active border border-theme text-theme-main rounded-lg text-[11px] font-medium flex items-center space-x-1 transition cursor-pointer"
-                  title="Importar archivo id_ed25519, id_rsa, .pem o .pub"
+                  class="px-2.5 py-1 bg-surface hover:bg-active border border-line text-fg rounded-lg text-[11px] font-medium flex items-center space-x-1 transition cursor-pointer"
+                  :title="t('ui.identity.importTitle')"
                 >
-                  <Upload class="w-3.5 h-3.5 text-theme-accent" />
-                  <span>Importar Archivo</span>
+                  <Upload class="w-3.5 h-3.5 text-accent" />
+                  <span>{{ t('ui.identity.importFile') }}</span>
                 </button>
               </div>
             </div>
 
             <!-- Dual generator: ed25519 or rsa -->
-            <div class="flex items-center space-x-2 pt-1 border-t border-theme/60">
+            <div class="flex items-center space-x-2 pt-1 border-t border-line/60">
               <CustomSelect
                 v-model="genAlgorithm"
                 :options="genAlgorithmOptions"
@@ -331,7 +322,7 @@ async function handleSave() {
                 type="button"
                 @click="handleGenerateKey"
                 :disabled="isGeneratingKey"
-                class="px-2.5 py-2 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 rounded-xl text-[11px] font-medium flex items-center space-x-1 transition cursor-pointer disabled:opacity-50 shrink-0"
+                class="px-2.5 py-2 bg-accent/15 hover:bg-accent/25 border border-accent/30 text-accent rounded-xl text-[11px] font-medium flex items-center space-x-1 transition cursor-pointer disabled:opacity-50 shrink-0"
               >
                 <Sparkles class="w-3.5 h-3.5" />
                 <span>{{ isGeneratingKey ? 'Generando...' : 'Generar Llave' }}</span>
@@ -340,93 +331,82 @@ async function handleSave() {
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-theme-muted mb-1">
-              Contenido de la Llave Privada
-              <span v-if="identityToEdit?.has_secret" class="text-xs text-theme-muted font-normal">
-                (Dejar en blanco para conservar la existente)
+            <label class="block text-xs font-medium text-fg-muted mb-1">
+              {{ t('ui.identity.privateKey') }}
+              <span v-if="identityToEdit?.has_secret" class="text-xs text-fg-muted font-normal">
+                {{ t('ui.identity.keepExisting') }}
               </span>
             </label>
             <textarea
               v-model="secret"
               rows="4"
               @blur="tryExtractPublicKey"
-              :placeholder="identityToEdit?.has_secret ? '-----BEGIN OPENSSH PRIVATE KEY-----\n[Cifrada en bóveda local con AES-256-GCM]\n-----END OPENSSH PRIVATE KEY-----' : 'Pegue el contenido de id_ed25519 o id_rsa, o use Importar / Generar'"
-              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-xs font-mono text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+              :placeholder="identityToEdit?.has_secret ? '-----BEGIN OPENSSH PRIVATE KEY-----\n[Encrypted in the local vault with AES-256-GCM]\n-----END OPENSSH PRIVATE KEY-----' : 'Pegue el contenido de id_ed25519 o id_rsa, o use Importar / Generar'"
+              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-xs font-mono text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
             ></textarea>
           </div>
 
           <!-- Passphrase Notice Alert -->
-          <div v-if="passphraseNotice" class="p-2.5 bg-amber-950/40 border border-amber-700/50 rounded-xl text-xs text-amber-200">
-            ⚠️ Esta llave privada está protegida por frase de paso. Ingrese la <strong>Passphrase</strong> abajo para descifrarla y derivar su clave pública.
+          <div v-if="passphraseNotice" class="p-2.5 bg-warning/15 border border-warning/30 rounded-xl text-xs text-warning">
+            {{ t('ui.identity.passphraseNotice') }}
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-theme-muted mb-1">
-              Passphrase de la Llave (Opcional)
+            <label class="block text-xs font-medium text-fg-muted mb-1">
+              {{ t('ui.identity.passphrase') }}
             </label>
             <div class="relative">
-              <KeyRound class="w-4 h-4 text-theme-muted absolute left-3 top-2.5" />
+              <KeyRound class="w-4 h-4 text-fg-muted absolute left-3 top-2.5" />
               <input
                 v-model="passphrase"
                 type="password"
                 @blur="tryExtractPublicKey"
-                placeholder="Si la llave está protegida con contraseña"
-                class="w-full pl-9 pr-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+                :placeholder="t('ui.identity.passphrasePlaceholder')"
+                class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
               />
             </div>
           </div>
 
           <!-- Permanent Public Key Display with 1-click copy -->
-          <div v-if="publicKey" class="p-3 bg-theme-app/60 border border-theme rounded-xl space-y-2">
-            <div class="flex items-center justify-between text-xs text-theme-main font-medium">
+          <div v-if="publicKey" class="p-3 bg-app/60 border border-line rounded-xl space-y-2">
+            <div class="flex items-center justify-between text-xs text-fg font-medium">
               <span class="flex items-center space-x-1.5">
-                <span class="text-theme-accent font-semibold">Clave Pública OpenSSH</span>
-                <span v-if="keyType" class="text-[10px] px-1.5 py-0.2 bg-theme-active border border-theme rounded text-theme-muted">
+                <span class="text-accent font-semibold">{{ t('ui.identity.publicKey') }}</span>
+                <span v-if="keyType" class="text-[10px] px-1.5 py-0.2 bg-active border border-line rounded text-fg-muted">
                   {{ keyType }}
                 </span>
               </span>
               <button
                 type="button"
                 @click="copyPublicKey"
-                class="px-2.5 py-1 rounded-lg bg-theme-active hover:bg-theme-input border border-theme text-xs font-semibold text-theme-accent flex items-center space-x-1 transition cursor-pointer"
-                title="Copiar para ~/.ssh/authorized_keys"
+                class="px-2.5 py-1 rounded-lg bg-active hover:bg-app border border-line text-xs font-semibold text-accent flex items-center space-x-1 transition cursor-pointer"
+                :title="t('ui.identity.copyTitle')"
               >
-                <Check v-if="copySuccess" class="w-3.5 h-3.5 text-emerald-400" />
+                <Check v-if="copySuccess" class="w-3.5 h-3.5 text-success" />
                 <Copy v-else class="w-3.5 h-3.5" />
-                <span>{{ copySuccess ? '¡Copiada!' : 'Copiar Clave' }}</span>
+                <span>{{ copySuccess ? t('ui.identity.copied') : t('ui.identity.copy') }}</span>
               </button>
             </div>
-            <div class="p-2 bg-theme-input border border-theme/60 rounded-lg font-mono text-[11px] text-theme-main break-all select-all">
+            <div class="p-2 bg-app border border-line/60 rounded-lg font-mono text-[11px] text-fg break-all select-all">
               {{ publicKey }}
             </div>
-            <div v-if="keyFingerprint" class="text-[10px] font-mono text-theme-muted">
+            <div v-if="keyFingerprint" class="text-[10px] font-mono text-fg-muted">
               Fingerprint: {{ keyFingerprint }}
             </div>
           </div>
         </div>
 
-        <div v-if="error" class="p-3 bg-red-950/40 border border-red-800/60 rounded-xl text-xs text-red-300">
+        <div v-if="error" class="p-3 bg-danger/15 border border-danger/30 rounded-xl text-xs text-danger">
           {{ error }}
         </div>
 
-        <!-- Actions -->
-        <div class="pt-3 border-t border-theme flex items-center justify-end space-x-2">
-          <button
-            type="button"
-            @click="emit('close')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-theme-muted hover:text-theme-main hover:bg-theme-active transition cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            :disabled="isSubmitting"
-            class="px-4 py-1.5 bg-theme-accent hover:opacity-90 text-slate-950 font-semibold rounded-xl text-xs shadow-md transition cursor-pointer disabled:opacity-50"
-          >
-            Guardar Credencial
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+        </form>
+
+    <template #footer>
+      <BaseButton variant="ghost" @click="emit('close')">{{ t('common.cancel') }}</BaseButton>
+      <BaseButton type="submit" variant="primary" :loading="isSubmitting" form="identity-form">
+        {{ t('ui.identity.save') }}
+      </BaseButton>
+    </template>
+  </BaseModal>
 </template>

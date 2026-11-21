@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { Component } from "vue";
+import BaseButton from "../common/BaseButton.vue";
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVaultStore } from "../../stores/vault.store";
@@ -106,7 +108,7 @@ function openEditHost(host: HostSummary) {
 }
 
 async function handleDeleteHost(id: string) {
-  if (confirm("¿Estás seguro de eliminar este servidor?")) {
+  if (confirm(t('ui.confirm.deleteHost'))) {
     await vaultStore.deleteHost(id);
   }
 }
@@ -123,7 +125,7 @@ function openEditFolder(folder: Folder) {
 }
 
 async function handleDeleteFolder(id: string) {
-  if (confirm("¿Estás seguro de eliminar esta carpeta?")) {
+  if (confirm(t('ui.confirm.deleteFolder'))) {
     await vaultStore.deleteFolder(id);
   }
 }
@@ -151,60 +153,60 @@ async function copyIdentityPublicKey(identity: IdentitySummary) {
   }
 }
 
-function getIdentityBadge(identity: IdentitySummary): { label: string; class: string; icon: string } {
+function getIdentityBadge(identity: IdentitySummary): { label: string; class: string; icon: Component } {
   if (identity.auth_type === 'password') {
     return {
       label: 'Password',
-      class: 'bg-amber-500/10 text-amber-300 border-amber-500/20',
-      icon: '🔒',
+      class: 'bg-warning/10 text-warning border-warning/20',
+      icon: Lock,
     };
   }
   if (identity.auth_type === 'agent') {
     return {
       label: 'Agent',
-      class: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20',
-      icon: '🛡️',
+      class: 'bg-success/10 text-success border-success/20',
+      icon: Shield,
     };
   }
   const pub = identity.public_key?.toLowerCase() || '';
   if (pub.startsWith('ssh-ed25519')) {
     return {
       label: 'Ed25519',
-      class: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20',
-      icon: '🔑',
+      class: 'bg-accent/10 text-accent border-accent/20',
+      icon: KeyRound,
     };
   }
   if (pub.startsWith('ssh-rsa')) {
     return {
       label: 'RSA 4096',
-      class: 'bg-indigo-500/10 text-indigo-300 border-indigo-500/20',
-      icon: '🔑',
+      class: 'bg-accent/10 text-accent border-accent/20',
+      icon: KeyRound,
     };
   }
   return {
     label: 'Key',
-    class: 'bg-cyan-500/10 text-cyan-300 border-cyan-500/20',
-    icon: '🔑',
+    class: 'bg-accent/10 text-accent border-accent/20',
+    icon: KeyRound,
   };
 }
 
 async function handleDeleteIdentity(id: string) {
-  if (confirm("¿Estás seguro de eliminar esta credencial?")) {
+  if (confirm(t('ui.confirm.deleteIdentity'))) {
     await vaultStore.deleteIdentity(id);
   }
 }
 </script>
 
 <template>
-  <aside class="w-80 bg-theme-surface border-r border-theme flex flex-col h-full select-none shrink-0">
+  <aside class="w-80 bg-surface border-r border-line flex flex-col h-full select-none shrink-0">
     <!-- Top toolbar & tabs -->
-    <div class="p-3 border-b border-theme space-y-2.5 bg-theme-header/30">
+    <div class="p-3 border-b border-line space-y-2.5 bg-header/30">
       <!-- Row 1: Section Title & Action Icon Toolbar -->
       <div class="flex items-center justify-between gap-2 min-w-0">
         <div class="flex items-center space-x-2 min-w-0 flex-1">
-          <Server v-if="activeTab === 'hosts'" class="w-4 h-4 text-theme-accent shrink-0" />
-          <KeyRound v-else class="w-4 h-4 text-theme-accent shrink-0" />
-          <h2 class="text-xs font-bold uppercase tracking-wider text-theme-main font-mono truncate">
+          <Server v-if="activeTab === 'hosts'" class="w-4 h-4 text-accent shrink-0" />
+          <KeyRound v-else class="w-4 h-4 text-accent shrink-0" />
+          <h2 class="text-sm font-semibold text-fg truncate">
             {{ activeTab === 'hosts' ? t('hosts.title') : t('hosts.identities') }}
           </h2>
         </div>
@@ -215,7 +217,7 @@ async function handleDeleteIdentity(id: string) {
             v-if="activeTab === 'hosts'"
             @click="openAddHost()"
             :title="t('hosts.newHost')"
-            class="p-1.5 text-theme-muted hover:text-theme-accent hover:bg-theme-active rounded-lg transition cursor-pointer"
+            class="w-7 h-7 inline-flex items-center justify-center text-fg-muted hover:text-fg hover:bg-active rounded-control transition-colors cursor-pointer"
           >
             <Plus class="w-4 h-4" />
           </button>
@@ -223,7 +225,7 @@ async function handleDeleteIdentity(id: string) {
             v-else
             @click="openAddIdentity()"
             :title="t('hosts.newIdentity')"
-            class="p-1.5 text-theme-muted hover:text-theme-accent hover:bg-theme-active rounded-lg transition cursor-pointer"
+            class="w-7 h-7 inline-flex items-center justify-center text-fg-muted hover:text-fg hover:bg-active rounded-control transition-colors cursor-pointer"
           >
             <Plus class="w-4 h-4" />
           </button>
@@ -233,7 +235,7 @@ async function handleDeleteIdentity(id: string) {
             v-if="activeTab === 'hosts'"
             @click="openAddFolder()"
             :title="t('hosts.newFolder')"
-            class="p-1.5 text-theme-muted hover:text-amber-400 hover:bg-theme-active rounded-lg transition cursor-pointer"
+            class="w-7 h-7 inline-flex items-center justify-center text-fg-muted hover:text-fg hover:bg-active rounded-control transition-colors cursor-pointer"
           >
             <FolderPlus class="w-4 h-4" />
           </button>
@@ -242,8 +244,8 @@ async function handleDeleteIdentity(id: string) {
           <button
             v-if="activeTab === 'hosts'"
             @click="openSshConfigImport()"
-            title="Importar desde ~/.ssh/config"
-            class="p-1.5 text-theme-muted hover:text-cyan-400 hover:bg-theme-active rounded-lg transition cursor-pointer"
+            :title="t('ui.sidebar.importConfig')" :aria-label="t('ui.sidebar.importConfig')"
+            class="w-7 h-7 inline-flex items-center justify-center text-fg-muted hover:text-fg hover:bg-active rounded-control transition-colors cursor-pointer"
           >
             <FileCode class="w-4 h-4" />
           </button>
@@ -252,7 +254,7 @@ async function handleDeleteIdentity(id: string) {
           <button
             @click="emit('open-local-pty')"
             :title="t('terminal.newLocal')"
-            class="p-1.5 text-theme-muted hover:text-purple-400 hover:bg-theme-active rounded-lg transition cursor-pointer"
+            class="w-7 h-7 inline-flex items-center justify-center text-fg-muted hover:text-fg hover:bg-active rounded-control transition-colors cursor-pointer"
           >
             <Terminal class="w-4 h-4" />
           </button>
@@ -260,8 +262,8 @@ async function handleDeleteIdentity(id: string) {
           <!-- Collapse Sidebar -->
           <button
             @click="emit('toggle-sidebar')"
-            title="Ocultar Barra Lateral (Ctrl+B)"
-            class="p-1.5 text-theme-muted hover:text-theme-main hover:bg-theme-active rounded-lg transition cursor-pointer"
+            :title="t('ui.sidebar.hide')"
+            class="w-7 h-7 inline-flex items-center justify-center text-fg-muted hover:text-fg hover:bg-active rounded-control transition-colors cursor-pointer"
           >
             <PanelLeftClose class="w-4 h-4" />
           </button>
@@ -269,24 +271,24 @@ async function handleDeleteIdentity(id: string) {
       </div>
 
       <!-- Row 2: Full-width Segmented Control -->
-      <div class="grid grid-cols-2 p-0.5 bg-theme-app rounded-xl border border-theme text-xs min-w-0 overflow-hidden">
+      <div class="grid grid-cols-2 p-0.5 bg-app rounded-panel border border-line text-xs min-w-0 overflow-hidden">
         <button
           @click="activeTab = 'hosts'"
-          class="py-1 px-2 rounded-lg font-medium transition cursor-pointer text-center min-w-0 flex items-center justify-center gap-1.5"
-          :class="activeTab === 'hosts' ? 'bg-theme-active text-theme-accent font-semibold shadow-xs' : 'text-theme-muted hover:text-theme-main'"
+          class="h-7 px-2 rounded-control font-medium transition-colors cursor-pointer text-center min-w-0 flex items-center justify-center gap-1.5"
+          :class="activeTab === 'hosts' ? 'bg-active text-fg shadow-xs' : 'text-fg-muted hover:text-fg'"
         >
           <span class="truncate">{{ t('hosts.title') }}</span>
-          <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-theme-surface border border-theme font-mono shrink-0">
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-surface border border-line font-mono shrink-0">
             {{ vaultStore.hosts.length }}
           </span>
         </button>
         <button
           @click="activeTab = 'identities'"
-          class="py-1 px-2 rounded-lg font-medium transition cursor-pointer text-center min-w-0 flex items-center justify-center gap-1.5"
-          :class="activeTab === 'identities' ? 'bg-theme-active text-theme-accent font-semibold shadow-xs' : 'text-theme-muted hover:text-theme-main'"
+          class="h-7 px-2 rounded-control font-medium transition-colors cursor-pointer text-center min-w-0 flex items-center justify-center gap-1.5"
+          :class="activeTab === 'identities' ? 'bg-active text-fg shadow-xs' : 'text-fg-muted hover:text-fg'"
         >
           <span class="truncate">{{ t('hosts.identities') }}</span>
-          <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-theme-surface border border-theme font-mono shrink-0">
+          <span class="text-[10px] px-1.5 py-0.2 rounded-full bg-surface border border-line font-mono shrink-0">
             {{ vaultStore.identities.length }}
           </span>
         </button>
@@ -294,18 +296,19 @@ async function handleDeleteIdentity(id: string) {
 
       <!-- Row 3: Quick Search Input with Clear Button -->
       <div class="relative">
-        <Search class="w-3.5 h-3.5 text-theme-muted absolute left-3 top-2.5 pointer-events-none" />
+        <Search class="w-3.5 h-3.5 text-fg-muted absolute left-2.5 top-2.5 pointer-events-none" aria-hidden="true" />
         <input
           v-model="searchQuery"
           type="text"
-          :placeholder="activeTab === 'hosts' ? t('hosts.searchPlaceholder') : 'Buscar credenciales...'"
-          class="w-full pl-8 pr-7 py-1.5 bg-theme-app border border-theme rounded-xl text-xs text-theme-main placeholder-theme-muted focus:outline-hidden focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+          :placeholder="activeTab === 'hosts' ? t('hosts.searchPlaceholder') : t('ui.sidebar.searchIdentities')"
+          class="w-full h-8 pl-8 pr-7 bg-app border border-line rounded-control text-xs text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition"
         />
         <button
           v-if="searchQuery"
           @click="searchQuery = ''"
-          class="absolute right-2 top-2 text-theme-muted hover:text-theme-main p-0.5 rounded cursor-pointer"
-          title="Limpiar búsqueda"
+          class="absolute right-1.5 top-2 text-fg-muted hover:text-fg p-0.5 rounded cursor-pointer"
+          :title="t('ui.sidebar.clearSearch')"
+          :aria-label="t('ui.sidebar.clearSearch')"
         >
           <X class="w-3 h-3" />
         </button>
@@ -314,16 +317,13 @@ async function handleDeleteIdentity(id: string) {
 
     <!-- Bóveda bloqueada / sin crear: los hosts e identidades requieren la contraseña maestra -->
     <div v-if="!vaultStore.isUnlocked" class="flex-1 flex flex-col items-center justify-center p-4 text-center space-y-3">
-      <Lock class="w-8 h-8 text-slate-500" />
-      <p class="text-xs text-slate-400 max-w-[14rem]">
+      <Lock class="w-8 h-8 text-fg-muted" />
+      <p class="text-xs text-fg-muted max-w-[14rem]">
         {{ vaultStore.isInitialized ? t('vault.sidebarLocked') : t('vault.sidebarNotCreated') }}
       </p>
-      <button
-        @click="ensureUnlocked()"
-        class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-xs font-medium text-white rounded-lg transition cursor-pointer"
-      >
+      <BaseButton variant="primary" @click="ensureUnlocked()">
         {{ vaultStore.isInitialized ? t('vault.unlock') : t('vault.createVault') }}
-      </button>
+      </BaseButton>
     </div>
 
     <!-- Tree Body -->
@@ -333,32 +333,32 @@ async function handleDeleteIdentity(id: string) {
         <!-- Folders -->
         <div v-for="folder in vaultStore.folders" :key="folder.id" class="mb-1">
           <div
-            class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-800/60 group cursor-pointer text-xs"
+            class="flex items-center justify-between px-2 py-1.5 rounded-control hover:bg-active/60 group cursor-pointer text-xs"
             @click="toggleFolder(folder.id)"
           >
             <div class="flex items-center space-x-1.5 truncate min-w-0 flex-1">
-              <ChevronDown v-if="!collapsedFolders[folder.id]" class="w-3.5 h-3.5 text-slate-400 shrink-0" />
-              <ChevronRight v-else class="w-3.5 h-3.5 text-slate-400 shrink-0" />
+              <ChevronDown v-if="!collapsedFolders[folder.id]" class="w-3.5 h-3.5 text-fg-muted shrink-0" />
+              <ChevronRight v-else class="w-3.5 h-3.5 text-fg-muted shrink-0" />
               <div
                 class="w-2 h-2 rounded-full shrink-0"
                 :style="{ backgroundColor: folder.color || '#38bdf8' }"
               ></div>
-              <span class="font-medium text-slate-200 truncate">{{ folder.name }}</span>
-              <span class="text-[10px] text-slate-500 shrink-0">({{ getFolderHosts(folder.id).length }})</span>
+              <span class="font-medium text-fg truncate">{{ folder.name }}</span>
+              <span class="text-[10px] text-fg-muted shrink-0">({{ getFolderHosts(folder.id).length }})</span>
             </div>
 
-            <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+            <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity shrink-0">
               <button
                 @click.stop="openEditFolder(folder)"
-                class="p-1 hover:text-cyan-400 text-slate-400 rounded"
-                title="Editar Carpeta"
+                class="p-1 hover:text-accent text-fg-muted rounded"
+                :title="t('ui.folder.edit')" :aria-label="t('ui.folder.edit')"
               >
                 <Edit2 class="w-3 h-3" />
               </button>
               <button
                 @click.stop="handleDeleteFolder(folder.id)"
-                class="p-1 hover:text-red-400 text-slate-400 rounded"
-                title="Eliminar Carpeta"
+                class="p-1 hover:text-danger text-fg-muted rounded"
+                :title="t('ui.sidebar.deleteFolder')" :aria-label="t('ui.sidebar.deleteFolder')"
               >
                 <Trash2 class="w-3 h-3" />
               </button>
@@ -371,58 +371,60 @@ async function handleDeleteIdentity(id: string) {
               v-for="host in getFolderHosts(folder.id)"
               :key="host.id"
               @dblclick="emit('connect-host', host)"
-              class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-800/80 group cursor-pointer text-xs transition"
+              tabindex="0"
+              @keydown.enter.self="emit('connect-host', host)"
+              class="flex items-center justify-between px-2 py-1.5 rounded-control hover:bg-active/80 focus-visible:bg-active/80 group cursor-pointer text-xs transition-colors"
             >
               <div class="flex items-center space-x-2 truncate min-w-0 flex-1">
-                <Server class="w-3.5 h-3.5 text-cyan-400/80 shrink-0" />
+                <Server class="w-3.5 h-3.5 text-fg-muted shrink-0" />
                 <div class="truncate min-w-0 flex-1">
-                  <div class="font-medium text-slate-200 truncate leading-tight flex items-center min-w-0">
+                  <div class="font-medium text-fg truncate leading-tight flex items-center min-w-0">
                     <span class="truncate">{{ host.label }}</span>
                     <span
                       v-if="host.protocol && host.protocol !== 'ssh'"
-                      class="text-[9px] font-semibold uppercase bg-sky-500/15 text-sky-300 border border-sky-500/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
+                      class="text-[9px] font-semibold uppercase bg-accent/15 text-accent border border-accent/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
                     >{{ host.protocol }}</span>
                     <span
                       v-if="host.jump_host_id"
-                      class="inline-flex items-center space-x-0.5 text-[9px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
-                      :title="'Conectado vía Bastion: ' + (getJumpHostLabel(host.jump_host_id) || host.jump_host_id)"
+                      class="inline-flex items-center space-x-0.5 text-[9px] font-medium bg-warning/15 text-warning border border-warning/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
+                      :title="t('ui.sidebar.viaBastion') + (getJumpHostLabel(host.jump_host_id) || host.jump_host_id)"
                     >
-                      <Route class="w-2.5 h-2.5 text-amber-400" />
-                      <span>via {{ getJumpHostLabel(host.jump_host_id) || 'bastion' }}</span>
+                      <Route class="w-2.5 h-2.5 text-warning" />
+                      <span>{{ t('ui.sidebar.via') }} {{ getJumpHostLabel(host.jump_host_id) || 'bastion' }}</span>
                     </span>
                   </div>
-                  <div class="text-[10px] text-slate-500 font-mono truncate leading-tight">
+                  <div class="text-[10px] text-fg-muted font-mono truncate leading-tight">
                     {{ host.hostname }}:{{ host.port }}
                   </div>
                 </div>
               </div>
 
-              <div class="flex items-center space-x-1 opacity-60 group-hover:opacity-100 transition-opacity shrink-0">
+              <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 group-focus-visible:opacity-100 transition-opacity shrink-0">
                 <button
                   @click.stop="emit('connect-host', host)"
-                  class="p-1 text-cyan-400 hover:bg-cyan-500/20 rounded cursor-pointer"
-                  title="Conectar Terminal SSH"
+                  class="p-1 text-accent hover:bg-accent/15 rounded-control cursor-pointer"
+                  :title="t('ui.sidebar.connectSsh')" :aria-label="t('ui.sidebar.connectSsh')"
                 >
                   <Terminal class="w-3.5 h-3.5" />
                 </button>
                 <button
                   @click.stop="sftpStore.openSftp(host.id)"
-                  class="p-1 text-amber-400 hover:bg-amber-500/20 rounded cursor-pointer"
-                  title="Explorador SFTP (Archivos)"
+                  class="p-1 text-fg-muted hover:text-fg hover:bg-active rounded-control cursor-pointer"
+                  :title="t('ui.sidebar.sftp')" :aria-label="t('ui.sidebar.sftp')"
                 >
                   <FolderSync class="w-3.5 h-3.5" />
                 </button>
                 <button
                   @click.stop="openEditHost(host)"
-                  class="p-1 text-slate-400 hover:text-white rounded cursor-pointer"
-                  title="Editar"
+                  class="p-1 text-fg-muted hover:text-fg rounded cursor-pointer"
+                  :title="t('common.edit')" :aria-label="t('common.edit')"
                 >
                   <Edit2 class="w-3 h-3" />
                 </button>
                 <button
                   @click.stop="handleDeleteHost(host.id)"
-                  class="p-1 text-slate-400 hover:text-red-400 rounded cursor-pointer"
-                  title="Eliminar"
+                  class="p-1 text-fg-muted hover:text-danger rounded cursor-pointer"
+                  :title="t('common.delete')" :aria-label="t('common.delete')"
                 >
                   <Trash2 class="w-3 h-3" />
                 </button>
@@ -433,65 +435,67 @@ async function handleDeleteIdentity(id: string) {
 
         <!-- Root hosts (outside folders) -->
         <div v-if="rootHosts.length > 0" class="mt-2 space-y-0.5">
-          <div class="px-2 py-1 text-[10px] font-semibold text-slate-500 uppercase tracking-wider">
-            Sin Carpeta
+          <div class="px-2 py-1 text-[11px] font-medium text-fg-muted">
+            {{ t('ui.sidebar.noFolder') }}
           </div>
           <div
             v-for="host in rootHosts"
             :key="host.id"
             @dblclick="emit('connect-host', host)"
-            class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-slate-800/80 group cursor-pointer text-xs transition"
+              tabindex="0"
+              @keydown.enter.self="emit('connect-host', host)"
+            class="flex items-center justify-between px-2 py-1.5 rounded-control hover:bg-active/80 focus-visible:bg-active/80 group cursor-pointer text-xs transition-colors"
           >
             <div class="flex items-center space-x-2 truncate min-w-0 flex-1">
-              <Server class="w-3.5 h-3.5 text-cyan-400/80 shrink-0" />
+              <Server class="w-3.5 h-3.5 text-fg-muted shrink-0" />
               <div class="truncate min-w-0 flex-1">
-                <div class="font-medium text-slate-200 truncate leading-tight flex items-center min-w-0">
+                <div class="font-medium text-fg truncate leading-tight flex items-center min-w-0">
                   <span class="truncate">{{ host.label }}</span>
                   <span
                     v-if="host.protocol && host.protocol !== 'ssh'"
-                    class="text-[9px] font-semibold uppercase bg-sky-500/15 text-sky-300 border border-sky-500/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
+                    class="text-[9px] font-semibold uppercase bg-accent/15 text-accent border border-accent/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
                   >{{ host.protocol }}</span>
                   <span
                     v-if="host.jump_host_id"
-                    class="inline-flex items-center space-x-0.5 text-[9px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
-                    :title="'Conectado vía Bastion: ' + (getJumpHostLabel(host.jump_host_id) || host.jump_host_id)"
+                    class="inline-flex items-center space-x-0.5 text-[9px] font-medium bg-warning/15 text-warning border border-warning/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
+                    :title="t('ui.sidebar.viaBastion') + (getJumpHostLabel(host.jump_host_id) || host.jump_host_id)"
                   >
-                    <Route class="w-2.5 h-2.5 text-amber-400" />
-                    <span>via {{ getJumpHostLabel(host.jump_host_id) || 'bastion' }}</span>
+                    <Route class="w-2.5 h-2.5 text-warning" />
+                    <span>{{ t('ui.sidebar.via') }} {{ getJumpHostLabel(host.jump_host_id) || 'bastion' }}</span>
                   </span>
                 </div>
-                <div class="text-[10px] text-slate-500 font-mono truncate leading-tight">
+                <div class="text-[10px] text-fg-muted font-mono truncate leading-tight">
                   {{ host.hostname }}:{{ host.port }}
                 </div>
               </div>
             </div>
 
-            <div class="flex items-center space-x-1 opacity-60 group-hover:opacity-100 transition-opacity shrink-0">
+            <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 group-focus-visible:opacity-100 transition-opacity shrink-0">
               <button
                 @click.stop="emit('connect-host', host)"
-                class="p-1 text-cyan-400 hover:bg-cyan-500/20 rounded cursor-pointer"
-                title="Conectar Terminal SSH"
+                class="p-1 text-accent hover:bg-accent/15 rounded-control cursor-pointer"
+                :title="t('ui.sidebar.connectSsh')" :aria-label="t('ui.sidebar.connectSsh')"
               >
                 <Terminal class="w-3.5 h-3.5" />
               </button>
               <button
                 @click.stop="sftpStore.openSftp(host.id)"
-                class="p-1 text-amber-400 hover:bg-amber-500/20 rounded cursor-pointer"
-                title="Explorador SFTP (Archivos)"
+                class="p-1 text-fg-muted hover:text-fg hover:bg-active rounded-control cursor-pointer"
+                :title="t('ui.sidebar.sftp')" :aria-label="t('ui.sidebar.sftp')"
               >
                 <FolderSync class="w-3.5 h-3.5" />
               </button>
               <button
                 @click.stop="openEditHost(host)"
-                class="p-1 text-slate-400 hover:text-white rounded cursor-pointer"
-                title="Editar"
+                class="p-1 text-fg-muted hover:text-fg rounded cursor-pointer"
+                :title="t('common.edit')" :aria-label="t('common.edit')"
               >
                 <Edit2 class="w-3 h-3" />
               </button>
               <button
                 @click.stop="handleDeleteHost(host.id)"
-                class="p-1 text-slate-400 hover:text-red-400 rounded cursor-pointer"
-                title="Eliminar"
+                class="p-1 text-fg-muted hover:text-danger rounded cursor-pointer"
+                :title="t('common.delete')" :aria-label="t('common.delete')"
               >
                 <Trash2 class="w-3 h-3" />
               </button>
@@ -499,14 +503,14 @@ async function handleDeleteIdentity(id: string) {
           </div>
         </div>
 
-        <div v-if="vaultStore.hosts.length === 0" class="p-4 text-center text-xs text-slate-500 space-y-3">
-          <p>No hay servidores guardados. Haz clic en <strong>+ Servidor</strong> para agregar el primero.</p>
+        <div v-if="vaultStore.hosts.length === 0" class="p-4 text-center text-xs text-fg-muted space-y-3">
+          <p>{{ t('ui.sidebar.noHosts') }}</p>
           <button
             @click="openSshConfigImport()"
-            class="px-3 py-1.5 bg-theme-surface hover:bg-theme-active border border-theme rounded-lg text-theme-accent text-xs font-medium inline-flex items-center space-x-1.5 transition cursor-pointer"
+            class="px-3 py-1.5 bg-surface hover:bg-active border border-line rounded-lg text-accent text-xs font-medium inline-flex items-center space-x-1.5 transition cursor-pointer"
           >
             <FileCode class="w-3.5 h-3.5" />
-            <span>Importar ~/.ssh/config</span>
+            <span>{{ t('ui.sidebar.importConfigShort') }}</span>
           </button>
         </div>
       </div>
@@ -516,54 +520,55 @@ async function handleDeleteIdentity(id: string) {
         <div
           v-for="identity in vaultStore.identities"
           :key="identity.id"
-          class="flex items-center justify-between px-2.5 py-2 rounded-lg bg-theme-surface hover:bg-theme-active border border-theme group text-xs transition"
+          class="flex items-center justify-between px-2.5 py-2 rounded-lg bg-surface hover:bg-active border border-line group text-xs transition"
         >
           <div class="flex items-center space-x-2 truncate min-w-0">
-            <KeyRound class="w-4 h-4 text-theme-accent shrink-0" />
+            <KeyRound class="w-4 h-4 text-accent shrink-0" />
             <div class="truncate">
               <div class="flex items-center space-x-1.5 truncate">
-                <span class="font-medium text-theme-main truncate">{{ identity.name }}</span>
+                <span class="font-medium text-fg truncate">{{ identity.name }}</span>
                 <span
-                  :class="['text-[9px] px-1.5 py-0.2 rounded border font-mono shrink-0', getIdentityBadge(identity).class]"
+                  :class="['inline-flex items-center gap-1 h-4 px-1.5 rounded-control border text-[10px] leading-none font-medium shrink-0', getIdentityBadge(identity).class]"
                 >
-                  {{ getIdentityBadge(identity).icon }} {{ getIdentityBadge(identity).label }}
+                  <component :is="getIdentityBadge(identity).icon" class="w-2.5 h-2.5 shrink-0" aria-hidden="true" />
+                  <span>{{ getIdentityBadge(identity).label }}</span>
                 </span>
               </div>
-              <div class="text-[10px] text-theme-muted font-mono truncate">
+              <div class="text-[10px] text-fg-muted font-mono truncate">
                 {{ identity.username }}
               </div>
             </div>
           </div>
 
-          <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
+          <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity shrink-0">
             <button
               v-if="identity.public_key"
               @click.stop="copyIdentityPublicKey(identity)"
-              class="p-1 text-theme-muted hover:text-theme-accent rounded transition cursor-pointer"
-              :title="copiedIdentityId === identity.id ? '¡Clave copiada!' : 'Copiar clave pública'"
+              class="p-1 text-fg-muted hover:text-accent rounded transition cursor-pointer"
+              :title="copiedIdentityId === identity.id ? t('ui.sidebar.keyCopied') : t('ui.sidebar.copyKey')"
             >
-              <Check v-if="copiedIdentityId === identity.id" class="w-3 h-3 text-emerald-400" />
+              <Check v-if="copiedIdentityId === identity.id" class="w-3 h-3 text-success" />
               <Copy v-else class="w-3 h-3" />
             </button>
             <button
               @click="openEditIdentity(identity)"
-              class="p-1 text-theme-muted hover:text-theme-main rounded transition cursor-pointer"
-              title="Editar Credencial"
+              class="p-1 text-fg-muted hover:text-fg rounded transition cursor-pointer"
+              :title="t('ui.sidebar.editIdentity')" :aria-label="t('ui.sidebar.editIdentity')"
             >
               <Edit2 class="w-3 h-3" />
             </button>
             <button
               @click="handleDeleteIdentity(identity.id)"
-              class="p-1 text-theme-muted hover:text-red-400 rounded transition cursor-pointer"
-              title="Eliminar Credencial"
+              class="p-1 text-fg-muted hover:text-danger rounded transition cursor-pointer"
+              :title="t('ui.sidebar.deleteIdentity')" :aria-label="t('ui.sidebar.deleteIdentity')"
             >
               <Trash2 class="w-3 h-3" />
             </button>
           </div>
         </div>
 
-        <div v-if="vaultStore.identities.length === 0" class="p-4 text-center text-xs text-slate-500">
-          No hay credenciales guardadas. Agrega una para reutilizar usuario, contraseña o llave SSH.
+        <div v-if="vaultStore.identities.length === 0" class="p-4 text-center text-xs text-fg-muted">
+          {{ t('ui.sidebar.noIdentities') }}
         </div>
       </div>
     </div>

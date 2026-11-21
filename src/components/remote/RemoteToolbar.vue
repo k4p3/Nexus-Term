@@ -11,14 +11,14 @@ const emit = defineEmits<{
   (e: "close"): void;
 }>();
 const { t } = useI18n();
-const btn = "p-1.5 rounded-lg text-theme-muted hover:text-theme-main hover:bg-theme-hover transition cursor-pointer disabled:opacity-40 disabled:cursor-default";
+const btn = "p-1.5 rounded-lg text-fg-muted hover:text-fg hover:bg-active transition cursor-pointer disabled:opacity-40 disabled:cursor-default";
 </script>
 
 <template>
-  <div class="flex items-center justify-between px-3 py-1.5 border-b border-theme bg-theme-panel shrink-0">
+  <div class="flex items-center justify-between px-3 py-1.5 border-b border-line bg-surface shrink-0">
     <div class="flex items-center space-x-2 min-w-0">
-      <span class="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-theme-accent/20 text-theme-accent">{{ protocol }}</span>
-      <span class="text-xs text-theme-main truncate">{{ title }}</span>
+      <span class="text-[10px] font-semibold uppercase tracking-wide px-1.5 py-0.5 rounded bg-accent/20 text-accent">{{ protocol }}</span>
+      <span class="text-xs text-fg truncate">{{ title }}</span>
     </div>
     <div class="flex items-center space-x-0.5">
       <button :class="btn" :disabled="!connected" :title="t('remote.ctrlAltDel')" @click="emit('cad')"><Keyboard class="w-4 h-4" /></button>

@@ -4,25 +4,25 @@ use thiserror::Error;
 /// Nunca incluyen credenciales.
 #[derive(Error, Debug)]
 pub enum RemoteDesktopError {
-    #[error("Bóveda: {0}")]
+    #[error("Vault: {0}")]
     Vault(String),
-    #[error("Host no encontrado")]
+    #[error("Host not found")]
     HostNotFound,
-    #[error("El host no usa un protocolo gráfico (rdp/vnc)")]
+    #[error("The host does not use a graphical protocol (rdp/vnc)")]
     UnsupportedProtocol,
-    #[error("No se pudo conectar a {target}: {reason}")]
+    #[error("Could not connect to {target}: {reason}")]
     Connection { target: String, reason: String },
-    #[error("Fallo de autenticación: {0}")]
+    #[error("Authentication failed: {0}")]
     Authentication(String),
-    #[error("Error de protocolo: {0}")]
+    #[error("Protocol error: {0}")]
     Protocol(String),
-    #[error("Certificado del servidor no confiable (huella {0})")]
+    #[error("Untrusted server certificate (fingerprint {0})")]
     CertificateRejected(String),
-    #[error("Sesión no encontrada")]
+    #[error("Session not found")]
     SessionNotFound,
-    #[error("La sesión ya está cerrada")]
+    #[error("The session is already closed")]
     SessionClosed,
-    #[error("Entrada inválida: {0}")]
+    #[error("Invalid input: {0}")]
     InvalidInput(String),
 }
 
@@ -41,10 +41,10 @@ mod tests {
 
     #[test]
     fn test_error_serializes_as_plain_string() {
-        let e = RemoteDesktopError::Authentication("credenciales rechazadas".into());
+        let e = RemoteDesktopError::Authentication("credentials rejected".into());
         assert_eq!(
             serde_json::to_string(&e).unwrap(),
-            "\"Fallo de autenticación: credenciales rechazadas\""
+            "\"Authentication failed: credentials rejected\""
         );
     }
 

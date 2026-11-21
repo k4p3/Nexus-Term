@@ -12,7 +12,7 @@ pub async fn sftp_pick_upload_files(title: Option<String>) -> Result<Vec<String>
     if let Some(ref t) = title {
         dialog = dialog.set_title(t);
     } else {
-        dialog = dialog.set_title("Seleccionar archivos para subir vía SFTP");
+        dialog = dialog.set_title("Select files to upload via SFTP");
     }
 
     let files = dialog.pick_files().await;
@@ -31,7 +31,7 @@ pub async fn sftp_get_download_directory(app_handle: AppHandle) -> Result<String
         .path()
         .download_dir()
         .map(|p| p.to_string_lossy().to_string())
-        .map_err(|e| format!("Error al resolver la carpeta de descargas: {}", e))
+        .map_err(|e| format!("Could not resolve the downloads folder: {}", e))
 }
 
 #[tauri::command]
@@ -40,7 +40,7 @@ pub async fn sftp_pick_download_directory(title: Option<String>) -> Result<Optio
     if let Some(ref t) = title {
         dialog = dialog.set_title(t);
     } else {
-        dialog = dialog.set_title("Seleccionar carpeta de destino");
+        dialog = dialog.set_title("Select destination folder");
     }
 
     let folder = dialog.pick_folder().await;

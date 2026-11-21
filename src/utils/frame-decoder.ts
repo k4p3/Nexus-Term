@@ -9,7 +9,7 @@ export const FRAME_HEADER_LEN = 9;
  */
 export function decodeFrame(buf: ArrayBuffer | Uint8Array): DecodedFrame {
   const bytes = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
-  if (bytes.byteLength < FRAME_HEADER_LEN) throw new Error("Frame truncado");
+  if (bytes.byteLength < FRAME_HEADER_LEN) throw new Error("Truncated frame");
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   const kind = view.getUint8(0);
   const x = view.getUint16(1, true);
@@ -19,11 +19,11 @@ export function decodeFrame(buf: ArrayBuffer | Uint8Array): DecodedFrame {
   const payload = bytes.subarray(FRAME_HEADER_LEN);
 
   if (kind === FRAME_KIND_RECT || kind === FRAME_KIND_CURSOR) {
-    if (payload.byteLength !== w * h * 4) throw new Error("Payload inconsistente");
+    if (payload.byteLength !== w * h * 4) throw new Error("Inconsistent payload");
   } else if (kind === FRAME_KIND_RESIZE) {
-    if (payload.byteLength !== 0) throw new Error("Resize no admite payload");
+    if (payload.byteLength !== 0) throw new Error("Resize does not accept a payload");
   } else {
-    throw new Error(`Tipo de frame desconocido: ${kind}`);
+    throw new Error(`Unknown frame type: ${kind}`);
   }
   return { kind, x, y, w, h, payload };
 }

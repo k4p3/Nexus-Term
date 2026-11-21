@@ -150,14 +150,14 @@ pub async fn create_authenticated_ssh_session(
     let mut session = if let Some(ref jump_id) = host.jump_host_id {
         let jump_session = Box::pin(create_authenticated_ssh_session(vault_mgr.clone(), jump_id))
             .await
-            .map_err(|e| format!("Servidor de Salto (Bastion) falló al conectar: {}", e))?;
+            .map_err(|e| format!("Jump host (bastion) failed to connect: {}", e))?;
 
         let channel = jump_session
             .channel_open_direct_tcpip(&host.hostname, host.port as u32, "127.0.0.1", 0)
             .await
             .map_err(|e| {
                 format!(
-                    "Fallo al abrir canal direct-tcpip hacia {}:{} a través del Bastion: {}",
+                    "Failed to open a direct-tcpip channel to {}:{} through the bastion: {}",
                     host.hostname, host.port, e
                 )
             })?;
@@ -172,7 +172,7 @@ pub async fn create_authenticated_ssh_session(
 
         client::connect_stream(config, stream, handler)
             .await
-            .map_err(|e| format!("Fallo de negociación SSH a través del canal Bastion: {}", e))?
+            .map_err(|e| format!("SSH negotiation through the bastion channel failed: {}", e))?
     } else {
         let addr = format!("{}:{}", host.hostname, host.port);
         client::connect(config, addr, handler)

@@ -35,7 +35,7 @@ impl InputEvent {
                     return Err(RemoteDesktopError::InvalidInput("coordenadas fuera de rango".into()));
                 }
                 if *buttons > 0b111 {
-                    return Err(RemoteDesktopError::InvalidInput("máscara de botones inválida".into()));
+                    return Err(RemoteDesktopError::InvalidInput("invalid button mask".into()));
                 }
                 Ok(())
             }

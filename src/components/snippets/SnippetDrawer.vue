@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSnippetText } from "../../composables/useSnippetText";
 import { ref, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSnippetsStore, type SnippetOriginFilter } from '../../stores/snippets.store';
@@ -32,6 +33,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const { snippetTitle, snippetDescription } = useSnippetText();
 const snippetsStore = useSnippetsStore();
 
 const isModalOpen = ref(false);
@@ -58,11 +60,11 @@ function handleEdit(item: CommandSnippet) {
 
 async function handleDelete(item: CommandSnippet) {
   if (item.is_builtin) {
-    if (confirm(`¿Deseas deshabilitar el snippet comunitario "${item.title}"? Podrás reactivarlo cuando quieras.`)) {
+    if (confirm(t('ui.snip.confirmDisable', { title: item.title }))) {
       await snippetsStore.toggleSnippetEnabled(item.id, false);
     }
   } else {
-    if (confirm(`¿Eliminar permanentemente el snippet "${item.title}"?`)) {
+    if (confirm(t('ui.snip.confirmDelete', { title: item.title }))) {
       await snippetsStore.deleteSnippet(item.id);
     }
   }
@@ -112,40 +114,40 @@ function handleCopy(item: CommandSnippet) {
     <div
       v-if="isOpen"
       @click="emit('close')"
-      class="fixed inset-0 z-40 bg-black/50 backdrop-blur-xs transition-opacity"
+      class="fixed inset-0 z-40 bg-overlay backdrop-blur-xs transition-opacity"
     ></div>
 
     <!-- Drawer Panel (Right slide-in) -->
     <aside
       :class="[
-        'fixed top-0 right-0 z-40 h-full w-84 sm:w-[420px] bg-theme-surface border-l border-theme shadow-2xl flex flex-col transition-transform duration-200 ease-in-out text-theme-main',
+        'fixed top-0 right-0 z-40 h-full w-84 sm:w-[420px] bg-surface border-l border-line shadow-2xl flex flex-col transition-transform duration-200 ease-in-out text-fg',
         isOpen ? 'translate-x-0' : 'translate-x-full',
       ]"
     >
       <!-- Drawer Header -->
-      <div class="p-4 border-b border-theme flex items-center justify-between bg-theme-header shrink-0">
+      <div class="p-4 border-b border-line flex items-center justify-between bg-header shrink-0">
         <div class="flex items-center gap-2">
-          <div class="p-1.5 bg-theme-app text-theme-accent rounded-lg border border-theme">
+          <div class="p-1.5 bg-app text-accent rounded-lg border border-line">
             <Code class="w-4 h-4" />
           </div>
           <div>
-            <h2 class="text-sm font-semibold text-theme-main leading-tight">Biblioteca de Snippets</h2>
-            <p class="text-[10px] text-theme-muted">Comunitarios y personalizados</p>
+            <h2 class="text-sm font-semibold text-fg leading-tight">{{ t('ui.app.snippetsTitle') }}</h2>
+            <p class="text-[10px] text-fg-muted">{{ t('ui.snip.subtitle') }}</p>
           </div>
         </div>
 
         <div class="flex items-center gap-1.5">
           <button
             @click="handleOpenNew"
-            class="px-2 py-1 text-xs font-semibold text-slate-950 bg-theme-accent hover:brightness-110 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
-            title="Nuevo Snippet"
+            class="px-2 py-1 text-xs font-semibold text-on-accent bg-accent hover:brightness-110 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
+            :title="t('ui.snip.new')"
           >
             <Plus class="w-3.5 h-3.5" />
-            <span>Crear</span>
+            <span>{{ t('ui.sftp.create') }}</span>
           </button>
           <button
             @click="emit('close')"
-            class="p-1.5 text-theme-muted hover:text-theme-main rounded-lg hover:bg-theme-active transition-colors cursor-pointer"
+            class="p-1.5 text-fg-muted hover:text-fg rounded-lg hover:bg-active transition-colors cursor-pointer"
           >
             <X class="w-4 h-4" />
           </button>
@@ -153,20 +155,20 @@ function handleCopy(item: CommandSnippet) {
       </div>
 
       <!-- Filters & Tabs -->
-      <div class="px-3 pt-3 pb-2 border-b border-theme bg-theme-app/30 shrink-0 space-y-2.5">
+      <div class="px-3 pt-3 pb-2 border-b border-line bg-app/30 shrink-0 space-y-2.5">
         <!-- Origin Tabs -->
-        <div class="flex p-0.5 bg-theme-app rounded-lg border border-theme text-xs font-medium">
+        <div class="flex p-0.5 bg-app rounded-lg border border-line text-xs font-medium">
           <button
             @click="snippetsStore.originFilter = 'all'"
             :class="[
               'flex-1 py-1 px-2 rounded-md transition-all text-center flex items-center justify-center gap-1 cursor-pointer',
               snippetsStore.originFilter === 'all'
-                ? 'bg-theme-surface text-theme-accent shadow-xs'
-                : 'text-theme-muted hover:text-theme-main',
+                ? 'bg-surface text-accent shadow-xs'
+                : 'text-fg-muted hover:text-fg',
             ]"
           >
-            <span>Todos</span>
-            <span class="text-[10px] px-1 py-0.2 rounded-full bg-theme-active opacity-80">
+            <span>{{ t('ui.snip.all') }}</span>
+            <span class="text-[10px] px-1 py-0.2 rounded-full bg-active opacity-80">
               {{ snippetsStore.snippets.length }}
             </span>
           </button>
@@ -176,13 +178,13 @@ function handleCopy(item: CommandSnippet) {
             :class="[
               'flex-1 py-1 px-2 rounded-md transition-all text-center flex items-center justify-center gap-1 cursor-pointer',
               snippetsStore.originFilter === 'community'
-                ? 'bg-theme-surface text-theme-accent shadow-xs'
-                : 'text-theme-muted hover:text-theme-main',
+                ? 'bg-surface text-accent shadow-xs'
+                : 'text-fg-muted hover:text-fg',
             ]"
           >
-            <Globe class="w-3 h-3 text-cyan-400" />
-            <span>Comunidad</span>
-            <span class="text-[10px] px-1 py-0.2 rounded-full bg-theme-active opacity-80">
+            <Globe class="w-3 h-3 text-accent" />
+            <span>{{ t('ui.snip.community') }}</span>
+            <span class="text-[10px] px-1 py-0.2 rounded-full bg-active opacity-80">
               {{ snippetsStore.communitySnippets.length }}
             </span>
           </button>
@@ -192,13 +194,13 @@ function handleCopy(item: CommandSnippet) {
             :class="[
               'flex-1 py-1 px-2 rounded-md transition-all text-center flex items-center justify-center gap-1 cursor-pointer',
               snippetsStore.originFilter === 'custom'
-                ? 'bg-theme-surface text-theme-accent shadow-xs'
-                : 'text-theme-muted hover:text-theme-main',
+                ? 'bg-surface text-accent shadow-xs'
+                : 'text-fg-muted hover:text-fg',
             ]"
           >
-            <User class="w-3 h-3 text-purple-400" />
-            <span>Mis Snippets</span>
-            <span class="text-[10px] px-1 py-0.2 rounded-full bg-theme-active opacity-80">
+            <User class="w-3 h-3 text-info" />
+            <span>{{ t('ui.snip.mine') }}</span>
+            <span class="text-[10px] px-1 py-0.2 rounded-full bg-active opacity-80">
               {{ snippetsStore.customSnippets.length }}
             </span>
           </button>
@@ -206,27 +208,27 @@ function handleCopy(item: CommandSnippet) {
 
         <!-- Search Input -->
         <div class="relative">
-          <Search class="w-3.5 h-3.5 text-theme-muted absolute left-2.5 top-2.5" />
+          <Search class="w-3.5 h-3.5 text-fg-muted absolute left-2.5 top-2.5" />
           <input
             v-model="snippetsStore.searchQuery"
             type="text"
-            placeholder="Buscar por comando, título o etiqueta..."
-            class="w-full pl-8 pr-3 py-1.5 bg-theme-app border border-theme rounded-lg text-xs text-theme-main placeholder-slate-500 focus:outline-hidden focus:border-theme-accent"
+            :placeholder="t('ui.snip.search')"
+            class="w-full pl-8 pr-3 py-1.5 bg-app border border-line rounded-lg text-xs text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent"
           />
         </div>
 
         <!-- Show Disabled Checkbox -->
-        <div class="flex items-center justify-between text-[11px] text-theme-muted px-0.5">
-          <label class="flex items-center gap-1.5 cursor-pointer hover:text-theme-main select-none">
+        <div class="flex items-center justify-between text-[11px] text-fg-muted px-0.5">
+          <label class="flex items-center gap-1.5 cursor-pointer hover:text-fg select-none">
             <input
               type="checkbox"
               v-model="snippetsStore.showDisabled"
-              class="rounded border-theme bg-theme-app text-theme-accent focus:ring-0 cursor-pointer w-3.5 h-3.5"
+              class="rounded border-line bg-app text-accent focus:ring-0 cursor-pointer w-3.5 h-3.5"
             />
-            <span>Mostrar snippets deshabilitados</span>
+            <span>{{ t('ui.snip.showDisabled') }}</span>
           </label>
           <span class="text-[10px] opacity-75">
-            {{ snippetsStore.filteredSnippets.length }} visibles
+            {{ t('ui.snip.visible', { n: snippetsStore.filteredSnippets.length }) }}
           </span>
         </div>
       </div>
@@ -237,13 +239,13 @@ function handleCopy(item: CommandSnippet) {
           v-if="snippetsStore.filteredSnippets.length === 0"
           class="h-48 flex flex-col items-center justify-center text-center p-4"
         >
-          <Code class="w-8 h-8 text-neutral-600 mb-2" />
-          <p class="text-xs text-neutral-400">No se encontraron snippets con el filtro seleccionado.</p>
+          <Code class="w-8 h-8 text-fg-muted mb-2" />
+          <p class="text-xs text-fg-muted">{{ t('ui.snip.none') }}</p>
           <button
             @click="handleOpenNew"
-            class="mt-3 px-3 py-1 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs rounded-lg transition-colors cursor-pointer"
+            class="mt-3 px-3 py-1 bg-active hover:bg-active text-fg text-xs rounded-lg transition-colors cursor-pointer"
           >
-            + Crear nuevo snippet
+            {{ t('ui.snip.createNew') }}
           </button>
         </div>
 
@@ -251,10 +253,10 @@ function handleCopy(item: CommandSnippet) {
           v-for="item in snippetsStore.filteredSnippets"
           :key="item.id"
           :class="[
-            'group p-3 bg-neutral-950/70 border rounded-xl transition-all space-y-2 relative',
+            'group p-3 bg-app/70 border rounded-xl transition-all space-y-2 relative',
             item.is_enabled
-              ? 'border-neutral-800 hover:border-neutral-700'
-              : 'border-neutral-800/40 opacity-60 bg-neutral-950/40',
+              ? 'border-line hover:border-line'
+              : 'border-line/40 opacity-60 bg-app/40',
           ]"
         >
           <!-- Top Row: Badge, Title & Actions -->
@@ -264,32 +266,32 @@ function handleCopy(item: CommandSnippet) {
                 <!-- Origin Badge -->
                 <span
                   v-if="item.is_builtin"
-                  class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-cyan-950/80 text-cyan-300 border border-cyan-800/60"
-                  title="Snippet estándar de la comunidad"
+                  class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-accent/15 text-accent border border-accent/30"
+                  :title="t('ui.snip.communityTitle')"
                 >
                   <Globe class="w-2.5 h-2.5" />
-                  Comunidad
+                  {{ t('ui.snip.community') }}
                 </span>
                 <span
                   v-else
-                  class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-purple-950/80 text-purple-300 border border-purple-800/60"
+                  class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-info/15 text-info border border-info/30"
                 >
                   <User class="w-2.5 h-2.5" />
-                  Personal
+                  {{ t('ui.snip.personal') }}
                 </span>
 
                 <span
                   v-if="!item.is_enabled"
-                  class="px-1.5 py-0.2 rounded text-[9px] font-medium bg-neutral-800 text-neutral-400"
+                  class="px-1.5 py-0.2 rounded text-[9px] font-medium bg-active text-fg-muted"
                 >
-                  Deshabilitado
+                  {{ t('ui.snip.disabled') }}
                 </span>
 
-                <h4 class="text-xs font-semibold text-neutral-200 truncate">{{ item.title }}</h4>
+                <h4 class="text-xs font-semibold text-fg truncate">{{ snippetTitle(item) }}</h4>
               </div>
 
-              <p v-if="item.description" class="text-[11px] text-neutral-400 line-clamp-1">
-                {{ item.description }}
+              <p v-if="item.description" class="text-[11px] text-fg-muted line-clamp-1">
+                {{ snippetDescription(item) }}
               </p>
             </div>
 
@@ -301,8 +303,8 @@ function handleCopy(item: CommandSnippet) {
                 :class="[
                   'p-1 rounded transition-colors cursor-pointer',
                   item.is_enabled
-                    ? 'text-emerald-400 hover:bg-emerald-950/40'
-                    : 'text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800',
+                    ? 'text-success hover:bg-success/15'
+                    : 'text-fg-muted hover:text-fg hover:bg-active',
                 ]"
                 :title="item.is_enabled ? 'Deshabilitar snippet' : 'Habilitar snippet'"
               >
@@ -312,8 +314,8 @@ function handleCopy(item: CommandSnippet) {
               <!-- Duplicate Button -->
               <button
                 @click="handleDuplicate(item)"
-                class="p-1 text-neutral-400 hover:text-cyan-300 rounded hover:bg-neutral-800 transition-colors cursor-pointer"
-                title="Duplicar como snippet personal"
+                class="p-1 text-fg-muted hover:text-accent rounded hover:bg-active transition-colors cursor-pointer"
+                :title="t('ui.snip.duplicate')"
               >
                 <CopyPlus class="w-3.5 h-3.5" />
               </button>
@@ -321,10 +323,10 @@ function handleCopy(item: CommandSnippet) {
               <!-- Copy Command -->
               <button
                 @click="handleCopy(item)"
-                class="p-1 text-neutral-400 hover:text-white rounded hover:bg-neutral-800 transition-colors cursor-pointer"
-                :title="copiedSnippetId === item.id ? '¡Copiado!' : 'Copiar comando'"
+                class="p-1 text-fg-muted hover:text-fg rounded hover:bg-active transition-colors cursor-pointer"
+                :title="copiedSnippetId === item.id ? t('common.copied') : t('snippets.copyCommand')"
               >
-                <Check v-if="copiedSnippetId === item.id" class="w-3.5 h-3.5 text-emerald-400" />
+                <Check v-if="copiedSnippetId === item.id" class="w-3.5 h-3.5 text-success" />
                 <Copy v-else class="w-3.5 h-3.5" />
               </button>
 
@@ -332,8 +334,8 @@ function handleCopy(item: CommandSnippet) {
               <button
                 v-if="!item.is_builtin"
                 @click="handleEdit(item)"
-                class="p-1 text-neutral-400 hover:text-white rounded hover:bg-neutral-800 transition-colors cursor-pointer"
-                title="Editar"
+                class="p-1 text-fg-muted hover:text-fg rounded hover:bg-active transition-colors cursor-pointer"
+                :title="t('common.edit')"
               >
                 <Edit2 class="w-3.5 h-3.5" />
               </button>
@@ -341,7 +343,7 @@ function handleCopy(item: CommandSnippet) {
               <!-- Delete / Disable -->
               <button
                 @click="handleDelete(item)"
-                class="p-1 text-neutral-400 hover:text-rose-400 rounded hover:bg-neutral-800 transition-colors cursor-pointer"
+                class="p-1 text-fg-muted hover:text-danger rounded hover:bg-active transition-colors cursor-pointer"
                 :title="item.is_builtin ? 'Deshabilitar snippet comunitario' : 'Eliminar snippet personal'"
               >
                 <Trash2 class="w-3.5 h-3.5" />
@@ -353,17 +355,17 @@ function handleCopy(item: CommandSnippet) {
           <div
             @click="handleInsertSnippet(item)"
             :class="[
-              'p-2 bg-neutral-900 border rounded-lg font-mono text-[11px] break-all flex items-center justify-between gap-2 transition-all',
+              'p-2 bg-surface border rounded-lg font-mono text-[11px] break-all flex items-center justify-between gap-2 transition-all',
               item.is_enabled
-                ? 'text-cyan-300 border-neutral-800/80 cursor-pointer hover:border-cyan-500/50 hover:bg-neutral-900/90 group/code'
-                : 'text-neutral-500 border-neutral-800/40 cursor-not-allowed opacity-75',
+                ? 'text-accent border-line/80 cursor-pointer hover:border-accent/30 hover:bg-surface/90 group/code'
+                : 'text-fg-muted border-line/40 cursor-not-allowed opacity-75',
             ]"
-            :title="item.is_enabled ? 'Hacer clic para insertar en la terminal' : 'Snippet deshabilitado (actívalo para usarlo)'"
+            :title="item.is_enabled ? t('ui.snip.insertHint') : t('ui.snip.disabledHint')"
           >
             <span class="truncate">{{ item.command_template }}</span>
             <div
               v-if="item.is_enabled"
-              class="p-1 rounded bg-neutral-800 group-hover/code:bg-cyan-500 group-hover/code:text-slate-950 text-neutral-400 shrink-0 transition-colors"
+              class="p-1 rounded bg-active group-hover/code:bg-accent group-hover/code:text-on-accent text-fg-muted shrink-0 transition-colors"
             >
               <Play class="w-3 h-3 fill-current" />
             </div>
@@ -374,7 +376,7 @@ function handleCopy(item: CommandSnippet) {
             <span
               v-for="t in item.tags"
               :key="t"
-              class="px-1.5 py-0.2 bg-neutral-900 border border-neutral-800 rounded text-[10px] text-neutral-400"
+              class="px-1.5 py-0.2 bg-surface border border-line rounded text-[10px] text-fg-muted"
             >
               #{{ t }}
             </span>

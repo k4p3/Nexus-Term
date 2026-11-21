@@ -75,7 +75,7 @@ impl SshTunnelManager {
                 let session = match create_authenticated_ssh_session(vault_mgr, &tunnel.host_id).await {
                     Ok(s) => Arc::new(Mutex::new(s)),
                     Err(e) => {
-                        let err_msg = format!("Fallo de autenticación SSH al iniciar túnel: {}", e);
+                        let err_msg = format!("SSH authentication failed while starting the tunnel: {}", e);
                         *status.write().await = "error".to_string();
                         *error_message.write().await = Some(err_msg.clone());
                         return Err(err_msg);
@@ -147,7 +147,7 @@ impl SshTunnelManager {
                 let session = match create_authenticated_ssh_session(vault_mgr, &tunnel.host_id).await {
                     Ok(s) => Arc::new(Mutex::new(s)),
                     Err(e) => {
-                        let err_msg = format!("Fallo de autenticación SSH al iniciar SOCKS5: {}", e);
+                        let err_msg = format!("SSH authentication failed while starting SOCKS5: {}", e);
                         *status.write().await = "error".to_string();
                         *error_message.write().await = Some(err_msg.clone());
                         return Err(err_msg);
@@ -218,7 +218,7 @@ impl SshTunnelManager {
                 let mut session = match create_authenticated_ssh_session(vault_mgr, &tunnel.host_id).await {
                     Ok(s) => s,
                     Err(e) => {
-                        let err_msg = format!("Fallo de autenticación SSH al iniciar túnel remoto: {}", e);
+                        let err_msg = format!("SSH authentication failed while starting the remote tunnel: {}", e);
                         *status.write().await = "error".to_string();
                         *error_message.write().await = Some(err_msg.clone());
                         return Err(err_msg);
@@ -231,7 +231,7 @@ impl SshTunnelManager {
                 match session.tcpip_forward(rem_host, rem_port).await {
                     Ok(_) => {}
                     Err(e) => {
-                        let err_msg = format!("El servidor SSH remoto rechazó el enlace del puerto {}: {}", rem_port, e);
+                        let err_msg = format!("The remote SSH server rejected binding port {}: {}", rem_port, e);
                         *status.write().await = "error".to_string();
                         *error_message.write().await = Some(err_msg.clone());
                         return Err(err_msg);

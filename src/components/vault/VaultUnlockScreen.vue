@@ -2,13 +2,15 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVaultStore } from "../../stores/vault.store";
-import { Lock, KeyRound, ShieldCheck, AlertCircle, Loader2 } from "lucide-vue-next";
+import { Lock, KeyRound, ShieldCheck, AlertCircle, Eye, EyeOff } from "lucide-vue-next";
+import BaseButton from "../common/BaseButton.vue";
 
 const emit = defineEmits<{ (e: "done"): void }>();
 const { t } = useI18n();
 const vaultStore = useVaultStore();
 
 const password = ref("");
+const showPassword = ref(false);
 const confirmPassword = ref("");
 const localError = ref<string | null>(null);
 
@@ -22,7 +24,7 @@ async function handleAction() {
 
   if (!vaultStore.isInitialized) {
     if (password.value.length < 8) {
-      localError.value = "La contraseña debe tener al menos 8 caracteres / Password must be at least 8 characters.";
+      localError.value = t('ui.vault.minLength');
       return;
     }
     if (password.value !== confirmPassword.value) {
@@ -50,74 +52,81 @@ async function handleAction() {
 </script>
 
 <template>
-  <div class="h-full w-full flex items-center justify-center bg-slate-950 p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
-      <!-- Decorative background glow -->
-      <div class="absolute -top-16 -right-16 w-44 h-44 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-16 -left-16 w-44 h-44 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
-
-      <div class="text-center mb-6">
-        <div class="inline-flex p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 mb-3 shadow-inner">
-          <KeyRound v-if="!vaultStore.isInitialized" class="w-8 h-8" />
-          <Lock v-else class="w-8 h-8" />
+  <div class="h-full w-full flex items-center justify-center bg-app p-4">
+    <main class="w-full max-w-sm bg-surface border border-line rounded-modal p-7 shadow-2xl">
+      <header class="flex items-start gap-3 mb-6">
+        <div class="w-10 h-10 shrink-0 rounded-panel bg-accent text-on-accent flex items-center justify-center" aria-hidden="true">
+          <KeyRound v-if="!vaultStore.isInitialized" class="w-5 h-5" />
+          <Lock v-else class="w-5 h-5" />
         </div>
-        <h2 class="text-2xl font-bold tracking-tight text-white">
-          {{ !vaultStore.isInitialized ? t('vault.createTitle') : t('vault.unlockTitle') }}
-        </h2>
-        <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
-          {{ !vaultStore.isInitialized ? t('vault.initPrompt') : t('vault.unlockPrompt') }}
-        </p>
-      </div>
+        <div class="min-w-0">
+          <h1 class="text-lg font-semibold text-fg leading-tight">
+            {{ !vaultStore.isInitialized ? t('vault.createTitle') : t('vault.unlockTitle') }}
+          </h1>
+          <p class="text-xs text-fg-muted mt-1 leading-relaxed">
+            {{ !vaultStore.isInitialized ? t('vault.initPrompt') : t('vault.unlockPrompt') }}
+          </p>
+        </div>
+      </header>
 
       <form @submit.prevent="handleAction" class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1.5">
+          <label for="vault-password" class="block text-xs font-medium text-fg mb-1.5">
             {{ t('vault.masterPassword') }}
           </label>
-          <input
-            v-model="password"
-            type="password"
-            autocomplete="current-password"
-            autofocus
-            placeholder="••••••••••••"
-            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-hidden focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition shadow-xs"
-          />
+          <div class="relative">
+            <input
+              id="vault-password"
+              v-model="password"
+              :type="showPassword ? 'text' : 'password'"
+              :autocomplete="vaultStore.isInitialized ? 'current-password' : 'new-password'"
+              autofocus
+              class="w-full h-10 pl-3 pr-10 bg-app border border-line rounded-control text-sm text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition"
+            />
+            <button
+              type="button"
+              class="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-control text-fg-muted hover:text-fg cursor-pointer"
+              :aria-label="showPassword ? t('vault.hidePassword') : t('vault.showPassword')"
+              :title="showPassword ? t('vault.hidePassword') : t('vault.showPassword')"
+              @click="showPassword = !showPassword"
+            >
+              <EyeOff v-if="showPassword" class="w-4 h-4" />
+              <Eye v-else class="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         <div v-if="!vaultStore.isInitialized">
-          <label class="block text-xs font-medium text-slate-300 mb-1.5">
+          <label for="vault-confirm" class="block text-xs font-medium text-fg mb-1.5">
             {{ t('vault.confirmPassword') }}
           </label>
           <input
+            id="vault-confirm"
             v-model="confirmPassword"
-            type="password"
+            :type="showPassword ? 'text' : 'password'"
             autocomplete="new-password"
-            placeholder="••••••••••••"
-            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-hidden focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition shadow-xs"
+            class="w-full h-10 px-3 bg-app border border-line rounded-control text-sm text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition"
           />
         </div>
 
-        <div v-if="localError || vaultStore.error" class="p-3 bg-red-950/40 border border-red-800/60 rounded-xl flex items-start space-x-2 text-xs text-red-300">
-          <AlertCircle class="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
+        <div
+          v-if="localError || vaultStore.error"
+          role="alert"
+          class="p-3 bg-danger/10 border border-danger/30 rounded-control flex items-start gap-2 text-xs text-danger"
+        >
+          <AlertCircle class="w-4 h-4 shrink-0 mt-px" />
           <span>{{ localError || vaultStore.error }}</span>
         </div>
 
-        <button
-          type="submit"
-          :disabled="vaultStore.isLoading"
-          class="w-full py-2.5 px-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-semibold rounded-xl text-sm shadow-lg shadow-cyan-500/20 transition flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-        >
-          <Loader2 v-if="vaultStore.isLoading" class="w-4 h-4 animate-spin text-slate-950" />
-          <span>
-            {{ !vaultStore.isInitialized ? t('vault.createVault') : t('vault.unlock') }}
-          </span>
-        </button>
+        <BaseButton type="submit" variant="primary" :loading="vaultStore.isLoading" class="w-full h-10 text-sm">
+          {{ !vaultStore.isInitialized ? t('vault.createVault') : t('vault.unlock') }}
+        </BaseButton>
 
-        <div class="pt-2 flex items-center justify-center space-x-1.5 text-[11px] text-slate-500">
-          <ShieldCheck class="w-3.5 h-3.5 text-cyan-400/80" />
-          <span>Argon2id + AES-256-GCM Zero-Knowledge</span>
-        </div>
+        <p class="flex items-center gap-1.5 text-[11px] text-fg-muted">
+          <ShieldCheck class="w-3.5 h-3.5 text-success shrink-0" aria-hidden="true" />
+          <span>{{ t('vault.encryptionNote') }}</span>
+        </p>
       </form>
-    </div>
+    </main>
   </div>
 </template>

@@ -61,14 +61,14 @@ onMounted(() => input.value?.focus());
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-start justify-center pt-[14vh] bg-black/50 backdrop-blur-xs p-4" @mousedown.self="emit('close')">
-    <div class="w-full max-w-xl bg-theme-surface border border-theme rounded-2xl shadow-2xl overflow-hidden text-theme-main">
+  <div class="fixed inset-0 z-50 flex items-start justify-center pt-[14vh] bg-overlay backdrop-blur-xs p-4" @mousedown.self="emit('close')">
+    <div class="w-full max-w-xl bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden text-fg">
       <input
         ref="input"
         v-model="query"
         type="text"
         :placeholder="placeholder"
-        class="w-full px-4 py-3 bg-transparent border-b border-theme text-sm focus:outline-none placeholder-theme-muted"
+        class="w-full px-4 py-3 bg-transparent border-b border-line text-sm focus:outline-none placeholder-fg-muted"
         @keydown="onKey"
       />
       <div ref="list" class="max-h-80 overflow-y-auto py-1">
@@ -78,17 +78,17 @@ onMounted(() => input.value?.focus());
           type="button"
           :data-active="i === index"
           class="w-full flex items-center justify-between px-4 py-2 text-left text-sm transition-colors cursor-pointer"
-          :class="i === index ? 'bg-theme-active text-theme-main' : 'text-theme-muted hover:bg-theme-hover'"
+          :class="i === index ? 'bg-active text-fg' : 'text-fg-muted hover:bg-active'"
           @mousemove="index = i"
           @click="emit('select', item.id, false)"
         >
           <span class="min-w-0">
             <span class="block truncate">{{ item.title }}</span>
-            <span v-if="item.subtitle" class="block truncate text-[11px] text-theme-muted">{{ item.subtitle }}</span>
+            <span v-if="item.subtitle" class="block truncate text-[11px] text-fg-muted">{{ item.subtitle }}</span>
           </span>
-          <kbd v-if="item.hint" class="ml-3 shrink-0 text-[10px] px-1.5 py-0.5 rounded border border-theme text-theme-muted">{{ item.hint }}</kbd>
+          <kbd v-if="item.hint" class="ml-3 shrink-0 text-[10px] px-1.5 py-0.5 rounded border border-line text-fg-muted">{{ item.hint }}</kbd>
         </button>
-        <div v-if="filtered.length === 0" class="px-4 py-6 text-center text-xs text-theme-muted">{{ emptyText }}</div>
+        <div v-if="filtered.length === 0" class="px-4 py-6 text-center text-xs text-fg-muted">{{ emptyText }}</div>
       </div>
     </div>
   </div>

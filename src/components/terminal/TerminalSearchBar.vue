@@ -69,10 +69,10 @@ function handleKeyDown(e: KeyboardEvent) {
 <template>
   <div
     v-if="isOpen"
-    class="absolute top-8 right-3 z-30 flex items-center gap-1.5 p-1.5 bg-theme-surface border border-theme rounded-xl shadow-2xl backdrop-blur-md text-xs select-none text-theme-main transition-colors"
+    class="absolute top-8 right-3 z-30 flex items-center gap-1.5 p-1.5 bg-surface border border-line rounded-xl shadow-2xl backdrop-blur-md text-xs select-none text-fg transition-colors"
   >
-    <div class="flex items-center gap-1.5 pl-1.5 pr-2 py-1 bg-theme-app border border-theme rounded-lg">
-      <Search class="w-3.5 h-3.5 text-theme-accent shrink-0" />
+    <div class="flex items-center gap-1.5 pl-1.5 pr-2 py-1 bg-app border border-line rounded-lg">
+      <Search class="w-3.5 h-3.5 text-accent shrink-0" />
       <input
         ref="searchInput"
         v-model="query"
@@ -80,20 +80,20 @@ function handleKeyDown(e: KeyboardEvent) {
         :placeholder="t('terminal.searchPrompt')"
         @input="triggerSearch('next')"
         @keydown="handleKeyDown"
-        class="w-40 sm:w-56 bg-transparent text-theme-main text-xs placeholder-slate-500 focus:outline-hidden"
+        class="w-40 sm:w-56 bg-transparent text-fg text-xs placeholder-fg-muted focus:outline-hidden"
       />
     </div>
 
     <!-- Options: Case, Word, RegEx -->
-    <div class="flex items-center gap-0.5 bg-theme-app p-0.5 rounded-lg border border-theme text-[11px] font-mono">
+    <div class="flex items-center gap-0.5 bg-app p-0.5 rounded-lg border border-line text-[11px] font-mono">
       <button
         type="button"
         @click="matchCase = !matchCase; triggerSearch('next')"
         :class="[
           'px-1.5 py-0.5 rounded transition-colors cursor-pointer',
-          matchCase ? 'bg-theme-active text-theme-accent font-bold' : 'text-theme-muted hover:text-theme-main',
+          matchCase ? 'bg-active text-accent font-bold' : 'text-fg-muted hover:text-fg',
         ]"
-        title="Match Case (Mayúsculas/Minúsculas)"
+        :title="t('ui.search.matchCase')"
       >
         Aa
       </button>
@@ -103,9 +103,9 @@ function handleKeyDown(e: KeyboardEvent) {
         @click="wholeWord = !wholeWord; triggerSearch('next')"
         :class="[
           'px-1.5 py-0.5 rounded transition-colors cursor-pointer',
-          wholeWord ? 'bg-theme-active text-theme-accent font-bold' : 'text-theme-muted hover:text-theme-main',
+          wholeWord ? 'bg-active text-accent font-bold' : 'text-fg-muted hover:text-fg',
         ]"
-        title="Match Whole Word (Palabra Completa)"
+        :title="t('ui.search.wholeWord')"
       >
         \b
       </button>
@@ -115,9 +115,9 @@ function handleKeyDown(e: KeyboardEvent) {
         @click="regex = !regex; triggerSearch('next')"
         :class="[
           'px-1.5 py-0.5 rounded transition-colors cursor-pointer',
-          regex ? 'bg-theme-active text-theme-accent font-bold' : 'text-theme-muted hover:text-theme-main',
+          regex ? 'bg-active text-accent font-bold' : 'text-fg-muted hover:text-fg',
         ]"
-        title="Use Regular Expression"
+        :title="t('ui.search.regex')"
       >
         .*
       </button>
@@ -127,8 +127,8 @@ function handleKeyDown(e: KeyboardEvent) {
     <button
       type="button"
       @click="triggerSearch('previous')"
-      class="p-1 text-theme-muted hover:text-theme-main rounded-md hover:bg-theme-active transition-colors cursor-pointer"
-      title="Previous Match (Shift+Enter)"
+      class="p-1 text-fg-muted hover:text-fg rounded-md hover:bg-active transition-colors cursor-pointer"
+      :title="t('ui.search.prev')"
     >
       <ChevronUp class="w-3.5 h-3.5" />
     </button>
@@ -136,8 +136,8 @@ function handleKeyDown(e: KeyboardEvent) {
     <button
       type="button"
       @click="triggerSearch('next')"
-      class="p-1 text-theme-muted hover:text-theme-main rounded-md hover:bg-theme-active transition-colors cursor-pointer"
-      title="Next Match (Enter)"
+      class="p-1 text-fg-muted hover:text-fg rounded-md hover:bg-active transition-colors cursor-pointer"
+      :title="t('ui.search.next')"
     >
       <ChevronDown class="w-3.5 h-3.5" />
     </button>
@@ -145,8 +145,8 @@ function handleKeyDown(e: KeyboardEvent) {
     <button
       type="button"
       @click="emit('close')"
-      class="p-1 text-theme-muted hover:text-red-400 rounded-md hover:bg-theme-active transition-colors ml-1 cursor-pointer"
-      title="Close (Esc)"
+      class="p-1 text-fg-muted hover:text-danger rounded-md hover:bg-active transition-colors ml-1 cursor-pointer"
+      :title="t('ui.search.close')"
     >
       <X class="w-3.5 h-3.5" />
     </button>

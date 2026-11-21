@@ -1,10 +1,14 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+import BaseModal from "../common/BaseModal.vue";
+import BaseButton from "../common/BaseButton.vue";
 import { ref, watch, computed } from "vue";
 import { useVaultStore } from "../../stores/vault.store";
 import type { TunnelConfig, TunnelConfigPayload, TunnelType } from "../../types/tunnels";
 import { X, Network, Server, ArrowRightLeft, ShieldAlert } from "lucide-vue-next";
 import CustomSelect, { type SelectOption } from "../common/CustomSelect.vue";
 
+const { t } = useI18n();
 const props = defineProps<{
   isOpen: boolean;
   tunnelToEdit?: TunnelConfig | null;
@@ -34,7 +38,7 @@ const hostOptions = computed<SelectOption[]>(() => {
     label: h.label,
     subtitle: `${h.hostname}:${h.port}`,
     icon: Server,
-    iconColor: "text-cyan-400",
+    iconColor: "text-accent",
   }));
 });
 
@@ -67,24 +71,24 @@ watch(
 
 function handleSubmit() {
   if (!name.value.trim()) {
-    error.value = "El nombre del túnel es obligatorio";
+    error.value = t('ui.tunnelForm.nameRequired');
     return;
   }
   if (!hostId.value) {
-    error.value = "Debes seleccionar un servidor SSH";
+    error.value = t('ui.tunnelForm.hostRequired');
     return;
   }
   if (!localPort.value || localPort.value < 1 || localPort.value > 65535) {
-    error.value = "El puerto local debe estar entre 1 y 65535";
+    error.value = t('ui.tunnelForm.localPortRange');
     return;
   }
   if (tunnelType.value !== "dynamic") {
     if (!remoteHost.value.trim()) {
-      error.value = "El host remoto de destino es obligatorio";
+      error.value = t('ui.tunnelForm.remoteHostRequired');
       return;
     }
     if (!remotePort.value || remotePort.value < 1 || remotePort.value > 65535) {
-      error.value = "El puerto remoto debe estar entre 1 y 65535";
+      error.value = t('ui.tunnelForm.remotePortRange');
       return;
     }
   }
@@ -105,43 +109,14 @@ function handleSubmit() {
 </script>
 
 <template>
-  <div
-    v-if="isOpen"
-    @click.self="emit('close')"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
-  >
-    <div
-      class="bg-neutral-900 border border-neutral-700/80 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col text-neutral-100"
-    >
-      <!-- Header -->
-      <div class="flex items-center justify-between px-5 py-3.5 border-b border-neutral-800 bg-neutral-950/40">
-        <div class="flex items-center space-x-2.5">
-          <div class="p-1.5 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
-            <ArrowRightLeft class="w-4 h-4" />
-          </div>
-          <div>
-            <h2 class="text-sm font-semibold text-white">
-              {{ tunnelToEdit ? "Editar Túnel SSH" : "Nuevo Túnel SSH" }}
-            </h2>
-            <p class="text-[11px] text-neutral-400">
-              Configura reenvío de puertos (Local, Remoto o SOCKS5)
-            </p>
-          </div>
-        </div>
-        <button
-          @click="emit('close')"
-          class="text-neutral-400 hover:text-white p-1 rounded-lg hover:bg-neutral-800 transition"
-        >
-          <X class="w-4 h-4" />
-        </button>
-      </div>
+  <BaseModal v-if="isOpen" :title="tunnelToEdit ? t('ui.tunnelForm.edit') : t('ui.tunnelForm.newTitle')" size="md" @close="emit('close')">
+    <template #icon><ArrowRightLeft class="w-4 h-4" /></template>
 
-      <!-- Body Form -->
-      <form @submit.prevent="handleSubmit" class="p-5 space-y-4">
+    <form id="tunnel-form" @submit.prevent="handleSubmit" class="space-y-4">
         <!-- Error Banner -->
         <div
           v-if="error"
-          class="flex items-center space-x-2 p-2.5 rounded-lg bg-red-500/10 border border-red-500/20 text-red-300 text-xs"
+          class="flex items-center space-x-2 p-2.5 rounded-lg bg-danger/10 border border-danger/20 text-danger text-xs"
         >
           <ShieldAlert class="w-4 h-4 shrink-0" />
           <span>{{ error }}</span>
@@ -150,29 +125,29 @@ function handleSubmit() {
         <!-- Name & Host -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-[11px] font-medium text-neutral-300 mb-1">Nombre de la Regla</label>
+            <label class="block text-[11px] font-medium text-fg mb-1">{{ t('ui.tunnelForm.name') }}</label>
             <input
               v-model="name"
               type="text"
-              placeholder="ej. Postgres Prod"
-              class="w-full px-3 py-1.5 bg-neutral-950/60 border border-neutral-700 rounded-lg text-xs text-white focus:outline-hidden focus:border-cyan-400 transition"
+              :placeholder="t('ui.tunnelForm.namePlaceholder')"
+              class="w-full px-3 py-1.5 bg-app/60 border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent transition"
               required
             />
           </div>
 
           <div>
-            <label class="block text-[11px] font-medium text-neutral-300 mb-1">Servidor SSH</label>
+            <label class="block text-[11px] font-medium text-fg mb-1">{{ t('ui.tunnelForm.host') }}</label>
             <CustomSelect
               v-model="hostId"
               :options="hostOptions"
-              placeholder="Selecciona un servidor..."
+              :placeholder="t('ui.tunnelForm.hostPlaceholder')"
             />
           </div>
         </div>
 
         <!-- Tunnel Type Selector -->
         <div>
-          <label class="block text-[11px] font-medium text-neutral-300 mb-1.5">Tipo de Reenvío</label>
+          <label class="block text-[11px] font-medium text-fg mb-1.5">{{ t('ui.tunnelForm.type') }}</label>
           <div class="grid grid-cols-3 gap-2">
             <button
               type="button"
@@ -180,12 +155,12 @@ function handleSubmit() {
               class="px-3 py-2 rounded-lg border text-left transition cursor-pointer"
               :class="
                 tunnelType === 'local'
-                  ? 'bg-cyan-500/15 border-cyan-500/40 text-cyan-300 shadow-xs'
-                  : 'bg-neutral-950/40 border-neutral-800 text-neutral-400 hover:text-neutral-200'
+                  ? 'bg-accent/15 border-accent/40 text-accent shadow-xs'
+                  : 'bg-app/40 border-line text-fg-muted hover:text-fg'
               "
             >
               <div class="font-medium text-xs">Local (-L)</div>
-              <div class="text-[10px] opacity-75">Local a Remoto</div>
+              <div class="text-[10px] opacity-75">{{ t('ui.tunnelForm.localToRemote') }}</div>
             </button>
 
             <button
@@ -194,12 +169,12 @@ function handleSubmit() {
               class="px-3 py-2 rounded-lg border text-left transition cursor-pointer"
               :class="
                 tunnelType === 'remote'
-                  ? 'bg-indigo-500/15 border-indigo-500/40 text-indigo-300 shadow-xs'
-                  : 'bg-neutral-950/40 border-neutral-800 text-neutral-400 hover:text-neutral-200'
+                  ? 'bg-accent/15 border-accent/40 text-accent shadow-xs'
+                  : 'bg-app/40 border-line text-fg-muted hover:text-fg'
               "
             >
               <div class="font-medium text-xs">Remoto (-R)</div>
-              <div class="text-[10px] opacity-75">Remoto a Local</div>
+              <div class="text-[10px] opacity-75">{{ t('ui.tunnelForm.remoteToLocal') }}</div>
             </button>
 
             <button
@@ -208,97 +183,87 @@ function handleSubmit() {
               class="px-3 py-2 rounded-lg border text-left transition cursor-pointer"
               :class="
                 tunnelType === 'dynamic'
-                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300 shadow-xs'
-                  : 'bg-neutral-950/40 border-neutral-800 text-neutral-400 hover:text-neutral-200'
+                  ? 'bg-success/15 border-success/40 text-success shadow-xs'
+                  : 'bg-app/40 border-line text-fg-muted hover:text-fg'
               "
             >
               <div class="font-medium text-xs">SOCKS5 (-D)</div>
-              <div class="text-[10px] opacity-75">Proxy Dinámico</div>
+              <div class="text-[10px] opacity-75">{{ t('ui.tunnelForm.dynamic') }}</div>
             </button>
           </div>
         </div>
 
         <!-- Port Configurations -->
-        <div class="p-3.5 rounded-xl bg-neutral-950/40 border border-neutral-800/80 space-y-3">
+        <div class="p-3.5 rounded-xl bg-app/40 border border-line/80 space-y-3">
           <!-- Local Bind -->
           <div class="grid grid-cols-3 gap-2">
             <div class="col-span-2">
-              <label class="block text-[10px] font-medium text-neutral-400 mb-1">
+              <label class="block text-[10px] font-medium text-fg-muted mb-1">
                 {{ tunnelType === 'remote' ? 'Destino Local' : 'Host en Escucha Local' }}
               </label>
               <input
                 v-model="localHost"
                 type="text"
                 placeholder="127.0.0.1"
-                class="w-full px-2.5 py-1.5 bg-neutral-900 border border-neutral-700/80 rounded-lg text-xs text-white focus:outline-hidden focus:border-cyan-400 font-mono transition"
+                class="w-full px-2.5 py-1.5 bg-surface border border-line/80 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent font-mono transition"
                 required
               />
             </div>
             <div>
-              <label class="block text-[10px] font-medium text-neutral-400 mb-1">Puerto Local</label>
+              <label class="block text-[10px] font-medium text-fg-muted mb-1">{{ t('ui.tunnelForm.localPort') }}</label>
               <input
                 v-model.number="localPort"
                 type="number"
                 min="1"
                 max="65535"
                 placeholder="ej. 5433"
-                class="w-full px-2.5 py-1.5 bg-neutral-900 border border-neutral-700/80 rounded-lg text-xs text-white focus:outline-hidden focus:border-cyan-400 font-mono transition"
+                class="w-full px-2.5 py-1.5 bg-surface border border-line/80 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent font-mono transition"
                 required
               />
             </div>
           </div>
 
           <!-- Remote Destination (if not dynamic) -->
-          <div v-if="tunnelType !== 'dynamic'" class="grid grid-cols-3 gap-2 pt-1 border-t border-neutral-800/60">
+          <div v-if="tunnelType !== 'dynamic'" class="grid grid-cols-3 gap-2 pt-1 border-t border-line/60">
             <div class="col-span-2">
-              <label class="block text-[10px] font-medium text-neutral-400 mb-1">
+              <label class="block text-[10px] font-medium text-fg-muted mb-1">
                 {{ tunnelType === 'remote' ? 'Host Remoto en Escucha' : 'Destino Remoto' }}
               </label>
               <input
                 v-model="remoteHost"
                 type="text"
-                placeholder="127.0.0.1 o host interno"
-                class="w-full px-2.5 py-1.5 bg-neutral-900 border border-neutral-700/80 rounded-lg text-xs text-white focus:outline-hidden focus:border-cyan-400 font-mono transition"
+                :placeholder="t('ui.tunnelForm.remoteHostPlaceholder')"
+                class="w-full px-2.5 py-1.5 bg-surface border border-line/80 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent font-mono transition"
                 required
               />
             </div>
             <div>
-              <label class="block text-[10px] font-medium text-neutral-400 mb-1">Puerto Remoto</label>
+              <label class="block text-[10px] font-medium text-fg-muted mb-1">{{ t('ui.tunnelForm.remotePort') }}</label>
               <input
                 v-model.number="remotePort"
                 type="number"
                 min="1"
                 max="65535"
                 placeholder="ej. 5432"
-                class="w-full px-2.5 py-1.5 bg-neutral-900 border border-neutral-700/80 rounded-lg text-xs text-white focus:outline-hidden focus:border-cyan-400 font-mono transition"
+                class="w-full px-2.5 py-1.5 bg-surface border border-line/80 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent font-mono transition"
                 required
               />
             </div>
           </div>
 
-          <div v-else class="text-[11px] text-emerald-400/90 flex items-center space-x-1.5 pt-1">
+          <div v-else class="text-[11px] text-success/90 flex items-center space-x-1.5 pt-1">
             <Network class="w-3.5 h-3.5 shrink-0" />
-            <span>Proxy SOCKS5 dinámico listo para navegadores o herramientas en 127.0.0.1:{{ localPort || 'XXXX' }}</span>
+            <span>{{ t('ui.tunnelForm.socksReady', { port: localPort || 'XXXX' }) }}</span>
           </div>
         </div>
 
-        <!-- Footer Actions -->
-        <div class="flex items-center justify-end space-x-2 pt-2 border-t border-neutral-800">
-          <button
-            type="button"
-            @click="emit('close')"
-            class="px-3.5 py-1.5 text-xs text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-lg transition cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            class="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium rounded-lg shadow-sm transition cursor-pointer"
-          >
-            {{ tunnelToEdit ? "Actualizar Túnel" : "Guardar Túnel" }}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+        </form>
+
+    <template #footer>
+      <BaseButton variant="ghost" @click="emit('close')">{{ t('common.cancel') }}</BaseButton>
+      <BaseButton type="submit" variant="primary" form="tunnel-form">
+        {{ tunnelToEdit ? t('ui.tunnelForm.update') : t('ui.tunnelForm.save') }}
+      </BaseButton>
+    </template>
+  </BaseModal>
 </template>

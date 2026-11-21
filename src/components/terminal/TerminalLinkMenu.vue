@@ -25,7 +25,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    class="fixed z-50 min-w-44 py-1 rounded-xl border border-theme bg-theme-surface shadow-2xl text-xs text-theme-main"
+    class="fixed z-50 min-w-44 py-1 rounded-xl border border-line bg-surface shadow-2xl text-xs text-fg"
     :style="{ left: x + 'px', top: y + 'px' }"
     @mousedown.stop
   >
@@ -33,7 +33,7 @@ onUnmounted(() => {
       v-for="it in items"
       :key="it.id"
       type="button"
-      class="w-full text-left px-3 py-1.5 hover:bg-theme-hover cursor-pointer"
+      class="w-full text-left px-3 py-1.5 hover:bg-active cursor-pointer"
       @click="emit('select', it.id)"
     >{{ it.label }}</button>
   </div>
