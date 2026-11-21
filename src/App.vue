@@ -159,92 +159,86 @@ function handleInsertCommand(command: string) {
 <template>
   <div class="h-full w-full flex flex-col bg-app text-fg select-none">
     <!-- Top Application Bar -->
-    <header class="h-10 bg-header border-b border-line flex items-center px-3.5 justify-between select-none shrink-0 z-20">
-      <div class="flex items-center space-x-2.5">
-        <img src="/icon.png" class="w-6 h-6 rounded-lg shadow-xs object-cover border border-line" alt="NexusTerm Logo" />
-        <span class="text-sm font-bold tracking-tight text-fg flex items-center space-x-1">
-          <span>Nexus</span><span class="text-accent">Term</span>
-        </span>
-        <span class="text-[10px] px-1.5 py-0.5 rounded-sm bg-accent/10 border border-accent/20 text-accent font-mono font-medium">v0.2.0</span>
+    <header class="h-11 bg-header border-b border-line flex items-center px-3 justify-between select-none shrink-0 z-20">
+      <div class="flex items-center gap-2.5">
+        <img src="/icon.png" class="w-6 h-6 rounded-control object-cover" alt="" />
+        <span class="text-sm font-semibold tracking-tight text-fg">NexusTerm</span>
+        <span class="text-[10px] px-1.5 py-0.5 rounded-control bg-active text-fg-muted font-mono">v0.2.0</span>
       </div>
 
-      <div class="flex items-center space-x-2">
+      <div class="flex items-center gap-1">
         <button
           @click="isQuickConnectOpen = true"
           :title="t('hosts.quickConnect')"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer"
+          class="inline-flex items-center gap-2 h-7 pl-2.5 pr-1.5 mr-2 min-w-48 text-xs text-fg-muted hover:text-fg bg-app hover:border-accent/50 border border-line rounded-control transition-colors cursor-pointer"
         >
-          <Search class="w-3.5 h-3.5 text-accent" />
-          <span>{{ t('common.search') }}</span>
-          <kbd class="ml-1 text-[10px] font-mono bg-header px-1 py-0.2 rounded-sm border border-line text-fg-muted">
-            Ctrl+K
-          </kbd>
+          <Search class="w-3.5 h-3.5" />
+          <span class="flex-1 text-left">{{ t('common.search') }}</span>
+          <kbd class="text-[10px] font-mono bg-header px-1.5 rounded-control border border-line">Ctrl+K</kbd>
         </button>
 
         <button
           @click="isSnippetsOpen = !isSnippetsOpen"
           title="Biblioteca de Snippets"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer"
+          :aria-pressed="isSnippetsOpen"
+          class="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs rounded-control transition-colors cursor-pointer"
+          :class="isSnippetsOpen ? 'bg-accent/15 text-accent' : 'text-fg-muted hover:text-fg hover:bg-active'"
         >
-          <Code class="w-3.5 h-3.5 text-accent" />
+          <Code class="w-3.5 h-3.5" />
           <span>Snippets</span>
         </button>
 
         <button
           @click="isTunnelsOpen = !isTunnelsOpen"
           title="Gestor de Túneles SSH"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer relative"
+          :aria-pressed="isTunnelsOpen"
+          class="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs rounded-control transition-colors cursor-pointer"
+          :class="isTunnelsOpen ? 'bg-accent/15 text-accent' : 'text-fg-muted hover:text-fg hover:bg-active'"
         >
-          <ArrowRightLeft class="w-3.5 h-3.5 text-accent" />
+          <ArrowRightLeft class="w-3.5 h-3.5" />
           <span>Túneles</span>
-          <span
-            v-if="tunnelsStore.activeTunnelsCount > 0"
-            class="w-1.5 h-1.5 rounded-full bg-success animate-pulse ml-0.5"
-          ></span>
+          <span v-if="tunnelsStore.activeTunnelsCount > 0" class="w-1.5 h-1.5 rounded-full bg-success" aria-hidden="true"></span>
         </button>
 
         <button
           @click="handleToggleSftp"
           title="Explorador SFTP (Archivos Remotos)"
-          :class="[
-            'flex items-center space-x-1.5 px-2.5 py-1 text-xs rounded-lg border transition-colors cursor-pointer',
-            sftpStore.isOpen
-              ? 'bg-warning/20 text-warning border-warning/60 shadow-xs'
-              : 'text-fg-muted hover:text-fg bg-surface hover:bg-active border-line'
-          ]"
+          :aria-pressed="sftpStore.isOpen"
+          class="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs rounded-control transition-colors cursor-pointer"
+          :class="sftpStore.isOpen ? 'bg-accent/15 text-accent' : 'text-fg-muted hover:text-fg hover:bg-active'"
         >
-          <FolderSync class="w-3.5 h-3.5 text-warning" />
+          <FolderSync class="w-3.5 h-3.5" />
           <span>SFTP</span>
-          <span
-            v-if="sftpStore.currentSessionId"
-            class="w-1.5 h-1.5 rounded-full bg-warning animate-pulse ml-0.5"
-          ></span>
+          <span v-if="sftpStore.currentSessionId" class="w-1.5 h-1.5 rounded-full bg-success" aria-hidden="true"></span>
         </button>
+
+        <span class="w-px h-5 bg-line mx-1.5" aria-hidden="true"></span>
 
         <button
           @click="isSettingsOpen = true"
           :title="t('settings.title')"
-          class="p-1.5 text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer"
+          :aria-label="t('settings.title')"
+          class="w-7 h-7 inline-flex items-center justify-center text-fg-muted hover:text-fg hover:bg-active rounded-control transition-colors cursor-pointer"
         >
-          <Settings class="w-3.5 h-3.5 text-fg-muted" />
+          <Settings class="w-4 h-4" />
         </button>
 
         <button
           v-if="vaultStore.isUnlocked"
           @click="vaultStore.lock()"
           :title="t('vault.lockVault')"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer"
+          class="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs rounded-control transition-colors cursor-pointer text-fg-muted hover:text-fg hover:bg-active"
         >
-          <Lock class="w-3.5 h-3.5 text-warning" />
+          <Lock class="w-3.5 h-3.5 text-success" />
           <span>{{ t('vault.lockVault') }}</span>
         </button>
         <button
           v-else
           @click="ensureUnlocked()"
           :title="t('vault.unlock')"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer"
+          class="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs rounded-control transition-colors cursor-pointer text-warning bg-warning/10 hover:bg-warning/20"
         >
-          <Lock class="w-3.5 h-3.5 text-fg-muted" />
+          <Lock class="w-3.5 h-3.5" />
           <span>{{ t('vault.unlock') }}</span>
         </button>
       </div>

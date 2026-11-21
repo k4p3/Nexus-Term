@@ -68,7 +68,7 @@ onMounted(() => input.value?.focus());
         v-model="query"
         type="text"
         :placeholder="placeholder"
-        class="w-full px-4 py-3 bg-transparent border-b border-line text-sm focus:outline-none placeholder-theme-muted"
+        class="w-full px-4 py-3 bg-transparent border-b border-line text-sm focus:outline-none placeholder-fg-muted"
         @keydown="onKey"
       />
       <div ref="list" class="max-h-80 overflow-y-auto py-1">

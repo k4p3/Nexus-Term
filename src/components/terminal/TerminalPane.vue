@@ -882,14 +882,14 @@ function handleClose() {
     class="flex-1 flex flex-col h-full w-full bg-app overflow-hidden relative transition-colors"
     :class="[
       sessionsStore.isBroadcastMode
-        ? 'border border-warning/60 ring-1 ring-warning/40'
+        ? 'border border-warning/30 ring-1 ring-warning/40'
         : '',
     ]"
   >
     <!-- Pane Mini Header -->
     <div
       class="h-7 border-b flex items-center justify-between px-2.5 text-xs select-none shrink-0 transition-colors duration-200"
-      :class="sessionsStore.isBroadcastMode ? 'bg-warning/30 border-warning/60' : 'bg-header border-line'"
+      :class="sessionsStore.isBroadcastMode ? 'bg-warning/15 border-warning/30' : 'bg-header border-line'"
       :style="showActiveIndicator ? { backgroundColor: 'color-mix(in srgb, var(--theme-accent) 14%, var(--theme-bg-header))' } : undefined"
     >
       <div class="flex items-center space-x-2 truncate">
@@ -900,7 +900,7 @@ function handleClose() {
         <!-- Broadcast Indicator -->
         <span
           v-if="sessionsStore.isBroadcastMode"
-          class="inline-flex items-center gap-1 px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider bg-warning/20 border border-warning/40 text-warning rounded"
+          class="inline-flex items-center gap-1 px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider bg-warning/20 border border-warning/30 text-warning rounded"
         >
           <Radio class="w-2.5 h-2.5 animate-pulse text-warning" />
           <span>BROADCAST</span>

@@ -350,7 +350,7 @@ async function handleDeleteSelected() {
       <!-- Drag & Drop Visual Overlay -->
       <div
         v-if="isDraggingOver"
-        class="absolute inset-0 z-40 bg-accent/80 border-2 border-dashed border-accent rounded-xl flex flex-col items-center justify-center space-y-2 backdrop-blur-xs p-4 text-center pointer-events-none"
+        class="absolute inset-0 z-40 bg-accent/15 border-2 border-dashed border-accent rounded-xl flex flex-col items-center justify-center space-y-2 backdrop-blur-xs p-4 text-center pointer-events-none"
       >
         <Upload class="w-8 h-8 text-accent animate-bounce" />
         <p class="text-xs font-semibold text-accent">
@@ -534,7 +534,7 @@ async function handleDeleteSelected() {
       <div class="flex items-center space-x-1">
         <button
           @click="sftpStore.downloadSelected()"
-          class="px-2 py-1 rounded-md bg-accent/20 hover:bg-accent/30 text-accent border border-accent/30 flex items-center space-x-1 text-[11px] font-medium transition cursor-pointer"
+          class="px-2 py-1 rounded-md bg-accent/20 hover:bg-accent/15 text-accent border border-accent/30 flex items-center space-x-1 text-[11px] font-medium transition cursor-pointer"
           title="Descargar todos los seleccionados"
         >
           <Download class="w-3 h-3" />
@@ -543,7 +543,7 @@ async function handleDeleteSelected() {
 
         <button
           @click="handleDeleteSelected()"
-          class="px-2 py-1 rounded-md bg-danger/20 hover:bg-danger/30 text-danger border border-danger/30 flex items-center space-x-1 text-[11px] font-medium transition cursor-pointer"
+          class="px-2 py-1 rounded-md bg-danger/20 hover:bg-danger/15 text-danger border border-danger/30 flex items-center space-x-1 text-[11px] font-medium transition cursor-pointer"
           title="Eliminar elementos seleccionados"
         >
           <Trash2 class="w-3 h-3" />

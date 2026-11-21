@@ -34,7 +34,10 @@
     "mismatchPassword": "Passwords do not match",
     "initPrompt": "Set a strong master password to encrypt your credentials and SSH keys with Argon2id + AES-256-GCM.",
     "unlockPrompt": "Enter your master password to decrypt your SSH keys and connections.",
-    "emptyPassword": "Password cannot be empty"
+    "emptyPassword": "Password cannot be empty",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "encryptionNote": "Encrypted locally with Argon2id and AES-256-GCM. Your password never leaves this device."
   },
   "hosts": {
     "title": "Inventory",
@@ -110,7 +113,9 @@
     "activeSessions": "Active Sessions",
     "searchPrompt": "Find in terminal...",
     "osc52Copied": "Copied to clipboard by the remote program (OSC 52)",
-    "osc52TooLarge": "OSC 52 copy ignored: larger than 1 MiB"
+    "osc52TooLarge": "OSC 52 copy ignored: larger than 1 MiB",
+    "hideSidebar": "Hide sidebar (Ctrl+B)",
+    "showSidebar": "Show sidebar (Ctrl+B)"
   },
   "settings": {
     "title": "Settings",

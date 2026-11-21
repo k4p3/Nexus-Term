@@ -34,7 +34,10 @@
     "mismatchPassword": "Las contraseñas no coinciden",
     "initPrompt": "Define una contraseña maestra robusta para proteger tus credenciales y llaves SSH con Argon2id + AES-256-GCM.",
     "unlockPrompt": "Introduce tu contraseña maestra para descifrar tus llaves SSH y conexiones.",
-    "emptyPassword": "La contraseña no puede estar vacía"
+    "emptyPassword": "La contraseña no puede estar vacía",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
+    "encryptionNote": "Cifrado local con Argon2id y AES-256-GCM. Tu contraseña nunca sale de este equipo."
   },
   "hosts": {
     "title": "Inventario",
@@ -110,7 +113,9 @@
     "activeSessions": "Sesiones Activas",
     "searchPrompt": "Buscar en la terminal...",
     "osc52Copied": "Copiado al portapapeles por el programa remoto (OSC 52)",
-    "osc52TooLarge": "Copia OSC 52 ignorada: supera 1 MiB"
+    "osc52TooLarge": "Copia OSC 52 ignorada: supera 1 MiB",
+    "hideSidebar": "Ocultar barra lateral (Ctrl+B)",
+    "showSidebar": "Mostrar barra lateral (Ctrl+B)"
   },
   "settings": {
     "title": "Configuración",

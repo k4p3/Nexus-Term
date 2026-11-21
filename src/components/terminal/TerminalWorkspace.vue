@@ -4,7 +4,10 @@ import { useI18n } from "vue-i18n";
 import { useSessionsStore } from "../../stores/sessions.store";
 import { useSftpStore } from "../../stores/sftp.store";
 import SplitPaneNode from "./SplitPaneNode.vue";
-import { Plus, X, Terminal, Server, Sparkles, Radio, AlertTriangle, PanelLeft, FolderSync } from "lucide-vue-next";
+import { Plus, X, Terminal, Sparkles, Radio, AlertTriangle, PanelLeft, FolderSync } from "lucide-vue-next";
+import EmptyState from "../common/EmptyState.vue";
+import BaseButton from "../common/BaseButton.vue";
+import IconButton from "../common/IconButton.vue";
 
 const { t } = useI18n();
 const sessionsStore = useSessionsStore();
@@ -34,6 +37,11 @@ const activeHost = computed(() => {
   return activePane?.host || null;
 });
 
+/** Remote tabs (any pane bound to a host) get a live-connection dot; local shells stay muted. */
+function isRemoteTab(tabId: string): boolean {
+  return sessionsStore.getLeafPanesInTab(tabId).some((l) => !!l.host);
+}
+
 function handleNewTab() {
   sessionsStore.createTab(t('terminal.newLocal'));
 }
@@ -42,72 +50,85 @@ function handleNewTab() {
 <template>
   <div class="flex-1 flex flex-col h-full w-full bg-app overflow-hidden select-none">
     <!-- Tab Bar -->
-    <div class="h-9 bg-header border-b border-line flex items-center justify-between px-2 overflow-x-auto shrink-0 select-none">
-      <div class="flex items-center space-x-1">
-        <!-- Sidebar Toggle Button (Integrated in Tab Bar) -->
-        <button
-          @click="emit('toggle-sidebar')"
-          :title="props.isSidebarVisible ? 'Ocultar Barra Lateral (Ctrl+B)' : 'Mostrar Barra Lateral (Ctrl+B)'"
-          class="p-1.5 rounded-md transition-colors cursor-pointer mr-0.5 flex items-center justify-center shrink-0"
-          :class="!props.isSidebarVisible ? 'text-accent bg-active border border-line hover:brightness-110' : 'text-fg-muted hover:text-fg hover:bg-active'"
-        >
-          <PanelLeft class="w-3.5 h-3.5" />
-        </button>
+    <div class="h-10 bg-header border-b border-line flex items-end justify-between px-2 shrink-0 select-none">
+      <div class="flex items-end gap-0.5 min-w-0 overflow-x-auto h-full" role="tablist" :aria-label="t('terminal.activeSessions')">
+        <div class="self-center mr-1">
+          <IconButton
+            :label="props.isSidebarVisible ? t('terminal.hideSidebar') : t('terminal.showSidebar')"
+            :active="!props.isSidebarVisible"
+            @click="emit('toggle-sidebar')"
+          >
+            <PanelLeft class="w-4 h-4" />
+          </IconButton>
+        </div>
 
         <div
           v-for="tab in sessionsStore.tabs"
           :key="tab.id"
+          role="tab"
+          tabindex="0"
+          :aria-selected="sessionsStore.activeTabId === tab.id"
           @click="sessionsStore.activeTabId = tab.id"
-          class="group flex items-center space-x-2 px-3 py-1.5 rounded-t-lg text-xs font-medium cursor-pointer transition border-b-2"
+          @keydown.enter.prevent="sessionsStore.activeTabId = tab.id"
+          @keydown.space.prevent="sessionsStore.activeTabId = tab.id"
+          class="group relative h-[34px] flex items-center gap-2 pl-3 pr-1.5 rounded-t-panel text-xs cursor-pointer border-t-2 transition-colors"
           :class="
             sessionsStore.activeTabId === tab.id
-              ? 'bg-app text-accent border-accent font-semibold'
+              ? 'bg-app text-fg font-medium border-accent'
               : 'text-fg-muted hover:text-fg hover:bg-active/60 border-transparent'
           "
         >
-          <Terminal class="w-3.5 h-3.5 shrink-0" />
-          <span class="max-w-[140px] truncate">{{ tab.title }}</span>
+          <span
+            class="w-1.5 h-1.5 rounded-full shrink-0"
+            :class="isRemoteTab(tab.id) ? 'bg-success' : 'bg-fg-muted/50'"
+            aria-hidden="true"
+          ></span>
+          <span class="max-w-[150px] truncate">{{ tab.title }}</span>
           <button
+            type="button"
             @click.stop="sessionsStore.closeTab(tab.id)"
-            class="p-0.5 rounded text-fg-muted hover:text-danger opacity-60 group-hover:opacity-100 transition cursor-pointer"
+            class="w-5 h-5 flex items-center justify-center rounded-control text-fg-muted hover:text-danger hover:bg-active opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition cursor-pointer"
+            :class="sessionsStore.activeTabId === tab.id && 'opacity-70'"
             :title="t('terminal.closePane')"
+            :aria-label="t('terminal.closePane')"
           >
             <X class="w-3 h-3" />
           </button>
         </div>
 
-        <button
-          @click="handleNewTab"
-          :title="t('terminal.newLocal')"
-          class="p-1.5 text-fg-muted hover:text-accent hover:bg-active rounded-lg transition cursor-pointer"
-        >
-          <Plus class="w-4 h-4" />
-        </button>
+        <div class="self-center ml-1">
+          <IconButton :label="t('terminal.newLocal')" @click="handleNewTab">
+            <Plus class="w-4 h-4" />
+          </IconButton>
+        </div>
       </div>
 
-      <!-- Right Tab Toolbar: SFTP & Broadcast Toggle -->
-      <div v-if="sessionsStore.tabs.length > 0" class="flex items-center space-x-2 pl-2">
-        <button
+      <!-- Right toolbar: SFTP & Broadcast -->
+      <div v-if="sessionsStore.tabs.length > 0" class="flex items-center gap-1.5 pl-2 self-center shrink-0">
+        <BaseButton
           v-if="activeHost"
+          variant="ghost"
+          size="sm"
+          :title="`SFTP · ${activeHost.label}`"
           @click="sftpStore.openSftp(activeHost.id)"
-          class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border border-warning/40 bg-warning/10 text-warning hover:bg-warning/20 transition cursor-pointer"
-          :title="`Abrir Explorador SFTP para ${activeHost.label}`"
         >
-          <FolderSync class="w-3.5 h-3.5 text-warning" />
+          <FolderSync class="w-3.5 h-3.5" />
           <span>SFTP</span>
-        </button>
+        </BaseButton>
 
         <button
+          type="button"
+          :aria-pressed="sessionsStore.isBroadcastMode"
           @click="sessionsStore.toggleBroadcastMode()"
-          :class="[
-            'flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all cursor-pointer',
+          class="h-7 px-2.5 inline-flex items-center gap-1.5 text-xs rounded-control border transition-colors cursor-pointer"
+          :class="
             sessionsStore.isBroadcastMode
-              ? 'bg-warning/20 text-warning border-warning/60 shadow-xs'
-              : 'text-fg-muted hover:text-fg bg-active/60 border-line/60 hover:bg-active',
-          ]"
+              ? 'bg-warning/15 text-warning border-warning/40'
+              : 'text-fg-muted border-transparent hover:text-fg hover:bg-active'
+          "
           :title="sessionsStore.isBroadcastMode ? 'Desactivar Modo Broadcast' : 'Activar Modo Broadcast (Replicar teclas en todos los paneles)'"
         >
-          <Radio class="w-3.5 h-3.5" :class="sessionsStore.isBroadcastMode ? 'animate-pulse text-warning' : ''" />
+          <Radio class="w-3.5 h-3.5" :class="sessionsStore.isBroadcastMode && 'animate-pulse'" />
           <span>Broadcast</span>
         </button>
       </div>
@@ -147,32 +168,18 @@ function handleNewTab() {
       </div>
 
       <!-- Empty State -->
-      <div
-        v-if="sessionsStore.tabs.length === 0"
-        class="h-full w-full flex flex-col items-center justify-center p-8 text-center"
-      >
-        <div class="p-4 rounded-3xl bg-accent/10 border border-accent/20 text-accent mb-4 shadow-xl">
-          <Terminal class="w-10 h-10" />
-        </div>
-        <h3 class="text-xl font-bold text-fg mb-2">{{ t('terminal.activeSessions') }}</h3>
-        <p class="text-xs text-fg-muted max-w-sm mb-6">
-          {{ t('hosts.noHosts') }}
-        </p>
-
-        <div class="flex items-center space-x-3">
-          <button
-            @click="handleNewTab"
-            class="px-4 py-2 bg-accent hover:bg-accent-hover text-on-accent font-semibold rounded-xl text-xs shadow-lg shadow-accent/20 flex items-center space-x-1.5 transition cursor-pointer"
-          >
+      <div v-if="sessionsStore.tabs.length === 0" class="h-full w-full flex items-center justify-center">
+        <EmptyState :title="t('terminal.activeSessions')" :description="t('hosts.noHosts')">
+          <template #icon><Terminal class="w-5 h-5" /></template>
+          <BaseButton variant="primary" @click="handleNewTab">
             <Plus class="w-4 h-4" />
             <span>{{ t('terminal.newLocal') }}</span>
-          </button>
-        </div>
-
-        <div class="mt-8 flex items-center space-x-2 text-[11px] text-fg-muted">
-          <Sparkles class="w-3.5 h-3.5 text-accent" />
-          <span>{{ t('hosts.quickConnect') }} (Ctrl+K)</span>
-        </div>
+          </BaseButton>
+        </EmptyState>
+        <p class="absolute bottom-6 flex items-center gap-1.5 text-[11px] text-fg-muted">
+          <Sparkles class="w-3.5 h-3.5 text-accent" aria-hidden="true" />
+          <span>{{ t('hosts.quickConnect') }} <kbd class="px-1.5 py-0.5 rounded-control border border-line bg-surface font-mono">Ctrl+K</kbd></span>
+        </p>
       </div>
     </div>
   </div>

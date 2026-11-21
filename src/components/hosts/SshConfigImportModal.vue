@@ -228,7 +228,7 @@ async function handleImport() {
           </div>
 
           <!-- Empty config warning -->
-          <div v-if="preview.hosts.length === 0" class="p-4 bg-warning/30 border border-warning/40 rounded-xl text-xs text-warning">
+          <div v-if="preview.hosts.length === 0" class="p-4 bg-warning/15 border border-warning/30 rounded-xl text-xs text-warning">
             No se encontraron bloques <code>Host</code> utilizables en tu archivo <code>~/.ssh/config</code>.
           </div>
 
@@ -240,7 +240,7 @@ async function handleImport() {
                   type="checkbox"
                   :checked="allSelected"
                   @change="toggleSelectAll"
-                  class="rounded border-line bg-app text-accent focus:ring-theme-accent cursor-pointer"
+                  class="rounded border-line bg-app text-accent focus:ring-accent cursor-pointer"
                 />
                 <span>Seleccionar todos ({{ selectedAliases.size }} seleccionados)</span>
               </label>
@@ -250,7 +250,7 @@ async function handleImport() {
               </span>
             </div>
 
-            <div class="border border-line rounded-xl overflow-hidden max-h-56 overflow-y-auto divide-y divide-theme/60 bg-app/40">
+            <div class="border border-line rounded-xl overflow-hidden max-h-56 overflow-y-auto divide-y divide-line/60 bg-app/40">
               <div
                 v-for="host in preview.hosts"
                 :key="host.alias"
@@ -263,7 +263,7 @@ async function handleImport() {
                     type="checkbox"
                     :checked="selectedAliases.has(host.alias)"
                     @click.stop="toggleHost(host.alias)"
-                    class="rounded border-line bg-app text-accent focus:ring-theme-accent cursor-pointer"
+                    class="rounded border-line bg-app text-accent focus:ring-accent cursor-pointer"
                   />
                   <Server class="w-4 h-4 text-accent shrink-0" />
                   <div class="truncate">
@@ -325,7 +325,7 @@ async function handleImport() {
                 <input
                   v-model="importKnownHosts"
                   type="checkbox"
-                  class="rounded border-line bg-surface text-accent focus:ring-theme-accent cursor-pointer"
+                  class="rounded border-line bg-surface text-accent focus:ring-accent cursor-pointer"
                 />
                 <ShieldCheck class="w-3.5 h-3.5 text-success" />
                 <span>Pre-cargar claves de confianza desde <code>known_hosts</code> (evita alertas TOFU)</span>
@@ -335,7 +335,7 @@ async function handleImport() {
                 <input
                   v-model="overwriteDuplicates"
                   type="checkbox"
-                  class="rounded border-line bg-surface text-accent focus:ring-theme-accent cursor-pointer"
+                  class="rounded border-line bg-surface text-accent focus:ring-accent cursor-pointer"
                 />
                 <AlertTriangle class="w-3.5 h-3.5 text-warning" />
                 <span>Sobrescribir servidores duplicados si ya existen en la bóveda</span>
@@ -344,7 +344,7 @@ async function handleImport() {
           </div>
         </div>
 
-        <div v-if="error" class="p-3 bg-danger/40 border border-danger/60 rounded-xl text-xs text-danger">
+        <div v-if="error" class="p-3 bg-danger/15 border border-danger/30 rounded-xl text-xs text-danger">
           {{ error }}
         </div>
       </div>

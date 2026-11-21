@@ -235,7 +235,7 @@ async function handleSave() {
             type="text"
             required
             placeholder="ej. Servidores Prod - Llave Primaria"
-            class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
+            class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
           />
         </div>
 
@@ -249,7 +249,7 @@ async function handleSave() {
                 type="text"
                 required
                 placeholder="root / ubuntu / admin"
-                class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
+                class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
               />
             </div>
           </div>
@@ -277,13 +277,13 @@ async function handleSave() {
               v-model="secret"
               type="password"
               :placeholder="identityToEdit?.has_secret ? '••••••••••••' : 'Ingrese contraseña del servidor'"
-              class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
+              class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
             />
           </div>
         </div>
 
         <!-- System Agent notice -->
-        <div v-else-if="authType === 'agent'" class="p-3 bg-accent/30 border border-accent/40 rounded-xl space-y-1.5 text-xs text-accent">
+        <div v-else-if="authType === 'agent'" class="p-3 bg-accent/15 border border-accent/30 rounded-xl space-y-1.5 text-xs text-accent">
           <div class="font-semibold flex items-center space-x-1.5">
             <Shield class="w-4 h-4 text-accent" />
             <span>Autenticación por Agente del Sistema</span>
@@ -351,12 +351,12 @@ async function handleSave() {
               rows="4"
               @blur="tryExtractPublicKey"
               :placeholder="identityToEdit?.has_secret ? '-----BEGIN OPENSSH PRIVATE KEY-----\n[Cifrada en bóveda local con AES-256-GCM]\n-----END OPENSSH PRIVATE KEY-----' : 'Pegue el contenido de id_ed25519 o id_rsa, o use Importar / Generar'"
-              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-xs font-mono text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
+              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-xs font-mono text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
             ></textarea>
           </div>
 
           <!-- Passphrase Notice Alert -->
-          <div v-if="passphraseNotice" class="p-2.5 bg-warning/40 border border-warning/50 rounded-xl text-xs text-warning">
+          <div v-if="passphraseNotice" class="p-2.5 bg-warning/15 border border-warning/30 rounded-xl text-xs text-warning">
             ⚠️ Esta llave privada está protegida por frase de paso. Ingrese la <strong>Passphrase</strong> abajo para descifrarla y derivar su clave pública.
           </div>
 
@@ -371,7 +371,7 @@ async function handleSave() {
                 type="password"
                 @blur="tryExtractPublicKey"
                 placeholder="Si la llave está protegida con contraseña"
-                class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
+                class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
               />
             </div>
           </div>
@@ -405,7 +405,7 @@ async function handleSave() {
           </div>
         </div>
 
-        <div v-if="error" class="p-3 bg-danger/40 border border-danger/60 rounded-xl text-xs text-danger">
+        <div v-if="error" class="p-3 bg-danger/15 border border-danger/30 rounded-xl text-xs text-danger">
           {{ error }}
         </div>
 

@@ -10,7 +10,7 @@ const SOURCES = import.meta.glob(["./**/*.vue", "../App.vue"], { query: "?raw", 
 const FIXED_TAILWIND =
   /(?<![\w-])(?:[a-z-]+:)*(?:bg|text|border|ring|divide|outline|from|to|via|fill|stroke|shadow|accent|placeholder)-(?:neutral|slate|zinc|gray|stone|red|rose|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|pink)-\d{2,3}/;
 const FIXED_BW = /(?<![\w-])(?:[a-z-]+:)*(?:bg|text|border|ring)-(?:white|black)(?![\w-])/;
-const LEGACY_ALIAS = /(?<![\w-])(?:bg-theme-|text-theme-|border-theme)/;
+const LEGACY_ALIAS = /(?<![\w-])(?:[a-z-]+:)*(?:bg|text|border|ring|placeholder|divide)-theme(?:-|(?![\w-]))/;
 // Hex permitidos: datos elegidos por el usuario (color de carpeta) y la vista previa de temas (usa el tema real).
 const HEX_ALLOWED = ["hosts/FolderModal.vue", "hosts/HostTreeSidebar.vue", "settings/SettingsModal.vue"];
 const HEX = /#[0-9a-fA-F]{6}\b/;

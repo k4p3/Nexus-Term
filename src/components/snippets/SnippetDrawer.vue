@@ -264,7 +264,7 @@ function handleCopy(item: CommandSnippet) {
                 <!-- Origin Badge -->
                 <span
                   v-if="item.is_builtin"
-                  class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-accent/80 text-accent border border-accent/60"
+                  class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-accent/15 text-accent border border-accent/30"
                   title="Snippet estándar de la comunidad"
                 >
                   <Globe class="w-2.5 h-2.5" />
@@ -272,7 +272,7 @@ function handleCopy(item: CommandSnippet) {
                 </span>
                 <span
                   v-else
-                  class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-info/80 text-info border border-info/60"
+                  class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-info/15 text-info border border-info/30"
                 >
                   <User class="w-2.5 h-2.5" />
                   Personal
@@ -301,7 +301,7 @@ function handleCopy(item: CommandSnippet) {
                 :class="[
                   'p-1 rounded transition-colors cursor-pointer',
                   item.is_enabled
-                    ? 'text-success hover:bg-success/40'
+                    ? 'text-success hover:bg-success/15'
                     : 'text-fg-muted hover:text-fg hover:bg-active',
                 ]"
                 :title="item.is_enabled ? 'Deshabilitar snippet' : 'Habilitar snippet'"
@@ -355,7 +355,7 @@ function handleCopy(item: CommandSnippet) {
             :class="[
               'p-2 bg-surface border rounded-lg font-mono text-[11px] break-all flex items-center justify-between gap-2 transition-all',
               item.is_enabled
-                ? 'text-accent border-line/80 cursor-pointer hover:border-accent/50 hover:bg-surface/90 group/code'
+                ? 'text-accent border-line/80 cursor-pointer hover:border-accent/30 hover:bg-surface/90 group/code'
                 : 'text-fg-muted border-line/40 cursor-not-allowed opacity-75',
             ]"
             :title="item.is_enabled ? 'Hacer clic para insertar en la terminal' : 'Snippet deshabilitado (actívalo para usarlo)'"

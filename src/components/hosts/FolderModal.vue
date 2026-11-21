@@ -117,7 +117,7 @@ async function handleSave() {
           </div>
         </div>
 
-        <div v-if="error" class="p-3 bg-danger/40 border border-danger/60 rounded-xl text-xs text-danger">
+        <div v-if="error" class="p-3 bg-danger/15 border border-danger/30 rounded-xl text-xs text-danger">
           {{ error }}
         </div>
 

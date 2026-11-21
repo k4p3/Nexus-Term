@@ -39,7 +39,7 @@ onMounted(() => cancelBtn.value?.focus());
           <li v-if="analysis.controlChars || analysis.zeroWidth" class="text-danger">⚠ {{ t("paste.control") }}</li>
           <li v-if="analysis.looksSecret" class="text-accent">ℹ {{ t("paste.secret") }}</li>
         </ul>
-        <pre class="max-h-56 overflow-auto rounded-xl bg-app border border-line p-3 text-[11px] font-mono whitespace-pre-wrap break-all select-text"><template v-for="(seg, i) in segments" :key="i"><mark v-if="seg.danger" class="bg-warning/30 text-warning rounded-sm px-0.5">{{ seg.text }}</mark><template v-else>{{ seg.text }}</template></template></pre>
+        <pre class="max-h-56 overflow-auto rounded-xl bg-app border border-line p-3 text-[11px] font-mono whitespace-pre-wrap break-all select-text"><template v-for="(seg, i) in segments" :key="i"><mark v-if="seg.danger" class="bg-warning/15 text-warning rounded-sm px-0.5">{{ seg.text }}</mark><template v-else>{{ seg.text }}</template></template></pre>
       </div>
       <div class="px-5 py-3 border-t border-line flex justify-end space-x-2">
         <button ref="cancelBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs border border-line hover:bg-active cursor-pointer" @click="emit('cancel')">

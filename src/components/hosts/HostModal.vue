@@ -257,7 +257,7 @@ async function handleSave() {
             type="text"
             required
             placeholder="ej. Web Server Producción / VPS Hetzner"
-            class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
+            class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
           />
         </div>
 
@@ -272,7 +272,7 @@ async function handleSave() {
               v-model="rdpDomain"
               type="text"
               placeholder="CORP"
-              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
+              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
             />
           </div>
         </div>
@@ -287,7 +287,7 @@ async function handleSave() {
                 type="text"
                 required
                 placeholder="192.168.1.100 o app.ejemplo.com"
-                class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
+                class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
               />
             </div>
           </div>
@@ -300,7 +300,7 @@ async function handleSave() {
               min="1"
               max="65535"
               required
-              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
+              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
             />
           </div>
         </div>
@@ -371,7 +371,7 @@ async function handleSave() {
             v-model="usernameOverride"
             type="text"
             placeholder="Si difiere del usuario de la credencial"
-            class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
+            class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
           />
         </div>
 
@@ -383,7 +383,7 @@ async function handleSave() {
               v-model="tagsInput"
               type="text"
               placeholder="produccion, linux, nginx, aws"
-              class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
+              class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
             />
           </div>
         </div>
@@ -395,12 +395,12 @@ async function handleSave() {
               v-model="notes"
               rows="2"
               placeholder="Notas protegidas por la bóveda..."
-              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-xs text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
+              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-xs text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
             ></textarea>
           </div>
         </div>
 
-        <div v-if="error" class="p-3 bg-danger/40 border border-danger/60 rounded-xl text-xs text-danger">
+        <div v-if="error" class="p-3 bg-danger/15 border border-danger/30 rounded-xl text-xs text-danger">
           {{ error }}
         </div>
 
