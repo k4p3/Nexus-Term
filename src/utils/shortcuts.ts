@@ -35,6 +35,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   def("app.quickConnect", { key: "k", ctrl: true }, "global", "navigation"),
   def("app.toggleSidebar", { key: "b", ctrl: true }, "global", "navigation"),
   def("app.settings", { key: ",", ctrl: true }, "global", "navigation"),
+  def("terminal.newLocal", { key: "t", ctrl: true, shift: true }, "global", "navigation"),
   def("app.shortcuts", { code: "Slash", ctrl: true, shift: true }, "global", "tools"),
   def("terminal.search", { key: "f", ctrl: true }, "terminal", "tools"),
   def("terminal.splitH", { key: "o", ctrl: true, shift: true }, "terminal", "panes"),

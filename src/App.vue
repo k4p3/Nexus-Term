@@ -106,6 +106,9 @@ function handleGlobalKeyDown(e: KeyboardEvent) {
     case "workspace.broadcast":
       sessionsStore.toggleBroadcastMode();
       break;
+    case "terminal.newLocal":
+      handleOpenLocalPty();
+      break;
     case "app.shortcuts":
       uiStore.shortcutsOpen = !uiStore.shortcutsOpen;
       break;

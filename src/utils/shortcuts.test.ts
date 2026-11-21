@@ -37,6 +37,12 @@ describe("shortcut registry", () => {
     expect(matchShortcut(ev({ key: "R", ctrlKey: true, shiftKey: true }))?.id).toBe("terminal.rerunBlock");
   });
 
+  it("resolves Ctrl+Shift+T to a new local terminal in the global context", () => {
+    expect(matchShortcut(ev({ key: "T", ctrlKey: true, shiftKey: true }), ["global", "workspace"])?.id).toBe("terminal.newLocal");
+    expect(matchShortcut(ev({ key: "t", metaKey: true, shiftKey: true }), ["global"])?.id).toBe("terminal.newLocal");
+    expect(matchShortcut(ev({ key: "t", ctrlKey: true }))).toBeNull();
+  });
+
   it("does not match with extra or missing modifiers", () => {
     expect(matchShortcut(ev({ key: "p", ctrlKey: true }))).toBeNull();
     expect(matchShortcut(ev({ key: "p", ctrlKey: true, shiftKey: true, altKey: true }))).toBeNull();

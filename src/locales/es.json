@@ -256,6 +256,7 @@
     "app.quickConnect": "Conexión rápida",
     "app.toggleSidebar": "Mostrar/ocultar barra lateral",
     "app.settings": "Ajustes",
+    "terminal.newLocal": "Nueva terminal local",
     "app.shortcuts": "Hoja de atajos de teclado",
     "terminal.search": "Buscar en el búfer",
     "terminal.splitH": "Dividir horizontalmente",
