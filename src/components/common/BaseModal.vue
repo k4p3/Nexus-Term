@@ -1,3 +1,8 @@
+<script lang="ts">
+/** Open modals, topmost last: only the topmost one reacts to Escape. */
+const modalStack: symbol[] = [];
+</script>
+
 <script setup lang="ts">
 import { onMounted, onUnmounted, ref } from "vue";
 import { X } from "lucide-vue-next";
@@ -9,22 +14,26 @@ const { t } = useI18n();
 
 const SIZES = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-2xl" } as const;
 const panel = ref<HTMLElement | null>(null);
+const id = Symbol("modal");
 let previouslyFocused: HTMLElement | null = null;
 
 function onKey(e: KeyboardEvent) {
-  if (e.key === "Escape") {
+  if (e.key === "Escape" && modalStack[modalStack.length - 1] === id) {
     e.stopPropagation();
     emit("close");
   }
 }
 
 onMounted(() => {
+  modalStack.push(id);
   previouslyFocused = document.activeElement as HTMLElement | null;
   window.addEventListener("keydown", onKey, true);
   const target = panel.value?.querySelector<HTMLElement>("input, select, textarea, [data-autofocus]") ?? panel.value;
   target?.focus();
 });
 onUnmounted(() => {
+  const i = modalStack.indexOf(id);
+  if (i >= 0) modalStack.splice(i, 1);
   window.removeEventListener("keydown", onKey, true);
   previouslyFocused?.focus?.();
 });

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseModal from "../common/BaseModal.vue";
+import BaseButton from "../common/BaseButton.vue";
 import { ref, watch, computed } from "vue";
 import { useVaultStore } from "../../stores/vault.store";
 import { DEFAULT_PORTS, type HostProtocol, type HostSummary, type SaveHostPayload } from "../../types/inventory";
@@ -233,23 +235,11 @@ async function handleSave() {
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4">
-    <div class="w-full max-w-lg bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-fg transition-colors">
-      <!-- Header -->
-      <div class="px-5 py-3.5 border-b border-line flex items-center justify-between bg-header">
-        <div class="flex items-center space-x-2">
-          <Server class="w-5 h-5 text-accent" />
-          <h3 class="text-sm font-bold text-fg">
-            {{ hostToEdit ? 'Editar Servidor' : 'Nuevo Servidor' }}
-          </h3>
-        </div>
-        <button @click="emit('close')" class="text-fg-muted hover:text-fg p-1 rounded-lg hover:bg-active transition cursor-pointer">
-          <X class="w-4 h-4" />
-        </button>
-      </div>
+  <template v-if="isOpen">
+  <BaseModal :title="hostToEdit ? 'Editar Servidor' : 'Nuevo Servidor'" size="md" @close="emit('close')">
+    <template #icon><Server class="w-4 h-4" /></template>
 
-      <!-- Form -->
-      <form @submit.prevent="handleSave" class="p-5 space-y-4 overflow-y-auto flex-1">
+    <form id="host-form" @submit.prevent="handleSave" class="space-y-4">
         <div>
           <label class="block text-xs font-medium text-fg-muted mb-1">Nombre / Alias del Servidor</label>
           <input
@@ -404,25 +394,15 @@ async function handleSave() {
           {{ error }}
         </div>
 
-        <!-- Actions -->
-        <div class="pt-3 border-t border-line flex items-center justify-end space-x-2">
-          <button
-            type="button"
-            @click="emit('close')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-fg-muted hover:text-fg hover:bg-active transition cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            :disabled="isSubmitting"
-            class="px-4 py-1.5 bg-accent hover:brightness-110 text-on-accent font-semibold rounded-xl text-xs shadow-md transition disabled:opacity-50 cursor-pointer"
-          >
-            Guardar Servidor
-          </button>
-        </div>
-      </form>
-    </div>
+        </form>
+
+    <template #footer>
+      <BaseButton variant="ghost" @click="emit('close')">Cancelar</BaseButton>
+      <BaseButton type="submit" variant="primary" :loading="isSubmitting" form="host-form">
+        Guardar Servidor
+      </BaseButton>
+    </template>
+  </BaseModal>
 
     <!-- Nested Creation Modals -->
     <FolderModal
@@ -436,5 +416,5 @@ async function handleSave() {
       @close="isNewIdentityModalOpen = false"
       @saved="handleIdentityCreated"
     />
-  </div>
+  </template>
 </template>

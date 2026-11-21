@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseModal from "../common/BaseModal.vue";
+import BaseButton from "../common/BaseButton.vue";
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { CommandSnippet, SaveSnippetPayload } from '../../types/snippets';
@@ -68,34 +70,10 @@ function handleSubmit() {
 </script>
 
 <template>
-  <div
-    v-if="isOpen"
-    @click.self="emit('close')"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4"
-  >
-    <div
-      class="bg-surface border border-line/80 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col text-fg"
-    >
-      <!-- Header -->
-      <div class="flex items-center justify-between px-5 py-3.5 border-b border-line bg-app/40">
-        <div class="flex items-center gap-2">
-          <div class="p-1.5 bg-accent/20 text-accent rounded-lg">
-            <Code class="w-4 h-4" />
-          </div>
-          <h3 class="text-sm font-semibold text-fg">
-            {{ snippetToEdit ? 'Editar Snippet' : 'Nuevo Snippet de Comando' }}
-          </h3>
-        </div>
-        <button
-          @click="emit('close')"
-          class="p-1 text-fg-muted hover:text-fg rounded-lg hover:bg-active transition-colors"
-        >
-          <X class="w-4 h-4" />
-        </button>
-      </div>
+  <BaseModal v-if="isOpen" :title="snippetToEdit ? 'Editar Snippet' : 'Nuevo Snippet de Comando'" size="md" @close="emit('close')">
+    <template #icon><Code class="w-4 h-4" /></template>
 
-      <!-- Body Form -->
-      <form @submit.prevent="handleSubmit" class="p-5 space-y-4">
+    <form id="snippet-form" @submit.prevent="handleSubmit" class="space-y-4">
         <div>
           <label class="block text-xs font-medium text-fg mb-1">Título</label>
           <input
@@ -144,23 +122,13 @@ function handleSubmit() {
 
         <div v-if="error" class="text-xs text-danger">{{ error }}</div>
 
-        <!-- Footer -->
-        <div class="pt-3 border-t border-line flex items-center justify-end gap-2">
-          <button
-            type="button"
-            @click="emit('close')"
-            class="px-3 py-1.5 text-xs text-fg-muted hover:text-fg rounded-lg transition-colors"
-          >
-            {{ t('common.cancel') }}
-          </button>
-          <button
-            type="submit"
-            class="px-4 py-1.5 bg-accent hover:bg-accent-hover text-on-accent text-xs font-medium rounded-lg transition-colors"
-          >
-            {{ t('common.save') }}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+        </form>
+
+    <template #footer>
+      <BaseButton variant="ghost" @click="emit('close')">{{ t('common.cancel') }}</BaseButton>
+      <BaseButton type="submit" variant="primary" form="snippet-form">
+        {{ t('common.save') }}
+      </BaseButton>
+    </template>
+  </BaseModal>
 </template>

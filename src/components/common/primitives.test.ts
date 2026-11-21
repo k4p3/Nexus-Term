@@ -30,6 +30,19 @@ describe("shared UI primitives", () => {
     w.unmount();
   });
 
+  it("only the topmost of stacked modals closes on Escape", () => {
+    const opts = { props: { title: "t" }, global: { plugins: [i18n] }, attachTo: document.body };
+    const lower = mount(BaseModal, opts);
+    const upper = mount(BaseModal, opts);
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    expect(upper.emitted("close")).toHaveLength(1);
+    expect(lower.emitted("close")).toBeUndefined();
+    upper.unmount();
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+    expect(lower.emitted("close")).toHaveLength(1);
+    lower.unmount();
+  });
+
   it("BaseButton disables itself and flags busy while loading", () => {
     const w = mount(BaseButton, { props: { loading: true, variant: "primary" }, slots: { default: "Go" } });
     expect(w.attributes("disabled")).toBeDefined();

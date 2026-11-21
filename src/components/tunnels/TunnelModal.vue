@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseModal from "../common/BaseModal.vue";
+import BaseButton from "../common/BaseButton.vue";
 import { ref, watch, computed } from "vue";
 import { useVaultStore } from "../../stores/vault.store";
 import type { TunnelConfig, TunnelConfigPayload, TunnelType } from "../../types/tunnels";
@@ -105,39 +107,10 @@ function handleSubmit() {
 </script>
 
 <template>
-  <div
-    v-if="isOpen"
-    @click.self="emit('close')"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4"
-  >
-    <div
-      class="bg-surface border border-line/80 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col text-fg"
-    >
-      <!-- Header -->
-      <div class="flex items-center justify-between px-5 py-3.5 border-b border-line bg-app/40">
-        <div class="flex items-center space-x-2.5">
-          <div class="p-1.5 rounded-lg bg-accent/10 text-accent border border-accent/20">
-            <ArrowRightLeft class="w-4 h-4" />
-          </div>
-          <div>
-            <h2 class="text-sm font-semibold text-fg">
-              {{ tunnelToEdit ? "Editar Túnel SSH" : "Nuevo Túnel SSH" }}
-            </h2>
-            <p class="text-[11px] text-fg-muted">
-              Configura reenvío de puertos (Local, Remoto o SOCKS5)
-            </p>
-          </div>
-        </div>
-        <button
-          @click="emit('close')"
-          class="text-fg-muted hover:text-fg p-1 rounded-lg hover:bg-active transition"
-        >
-          <X class="w-4 h-4" />
-        </button>
-      </div>
+  <BaseModal v-if="isOpen" :title="tunnelToEdit ? 'Editar Túnel SSH' : 'Nuevo Túnel SSH'" size="md" @close="emit('close')">
+    <template #icon><ArrowRightLeft class="w-4 h-4" /></template>
 
-      <!-- Body Form -->
-      <form @submit.prevent="handleSubmit" class="p-5 space-y-4">
+    <form id="tunnel-form" @submit.prevent="handleSubmit" class="space-y-4">
         <!-- Error Banner -->
         <div
           v-if="error"
@@ -282,23 +255,13 @@ function handleSubmit() {
           </div>
         </div>
 
-        <!-- Footer Actions -->
-        <div class="flex items-center justify-end space-x-2 pt-2 border-t border-line">
-          <button
-            type="button"
-            @click="emit('close')"
-            class="px-3.5 py-1.5 text-xs text-fg-muted hover:text-fg hover:bg-active rounded-lg transition cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            class="px-4 py-1.5 bg-accent hover:bg-accent-hover text-on-accent text-xs font-medium rounded-lg shadow-sm transition cursor-pointer"
-          >
-            {{ tunnelToEdit ? "Actualizar Túnel" : "Guardar Túnel" }}
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+        </form>
+
+    <template #footer>
+      <BaseButton variant="ghost" @click="emit('close')">Cancelar</BaseButton>
+      <BaseButton type="submit" variant="primary" form="tunnel-form">
+        {{ tunnelToEdit ? "Actualizar Túnel" : "Guardar Túnel" }}
+      </BaseButton>
+    </template>
+  </BaseModal>
 </template>

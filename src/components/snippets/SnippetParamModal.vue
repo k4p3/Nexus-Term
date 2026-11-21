@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseModal from "../common/BaseModal.vue";
+import BaseButton from "../common/BaseButton.vue";
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { CommandSnippet } from '../../types/snippets';
@@ -51,34 +53,10 @@ function handleExecute() {
 </script>
 
 <template>
-  <div
-    v-if="isOpen && snippet"
-    @click.self="emit('close')"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4"
-  >
-    <div
-      class="bg-surface border border-line/80 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col text-fg"
-    >
-      <!-- Header -->
-      <div class="flex items-center justify-between px-5 py-3.5 border-b border-line bg-app/40">
-        <div class="flex items-center gap-2 truncate">
-          <div class="p-1.5 bg-accent/20 text-accent rounded-lg shrink-0">
-            <Sparkles class="w-4 h-4" />
-          </div>
-          <h3 class="text-sm font-semibold text-fg truncate">
-            {{ snippet.title }}
-          </h3>
-        </div>
-        <button
-          @click="emit('close')"
-          class="p-1 text-fg-muted hover:text-fg rounded-lg hover:bg-active transition-colors"
-        >
-          <X class="w-4 h-4" />
-        </button>
-      </div>
+  <BaseModal v-if="isOpen && snippet" :title="snippet.title" size="sm" @close="emit('close')">
+    <template #icon><Sparkles class="w-4 h-4" /></template>
 
-      <!-- Parameters inputs -->
-      <form @submit.prevent="handleExecute" class="p-5 space-y-4">
+    <form id="snippet-param-form" @submit.prevent="handleExecute" class="space-y-4">
         <div class="p-3 bg-app border border-line rounded-xl font-mono text-xs text-accent break-all select-all">
           {{ snippet.command_template }}
         </div>
@@ -99,24 +77,14 @@ function handleExecute() {
           </div>
         </div>
 
-        <!-- Footer -->
-        <div class="pt-3 border-t border-line flex items-center justify-end gap-2">
-          <button
-            type="button"
-            @click="emit('close')"
-            class="px-3 py-1.5 text-xs text-fg-muted hover:text-fg rounded-lg transition-colors"
-          >
-            {{ t('common.cancel') }}
-          </button>
-          <button
-            type="submit"
-            class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-accent hover:bg-accent-hover text-on-accent font-semibold text-xs rounded-lg shadow-sm transition-colors cursor-pointer"
-          >
-            <Play class="w-3.5 h-3.5 fill-current" />
+        </form>
+
+    <template #footer>
+      <BaseButton variant="ghost" @click="emit('close')">{{ t('common.cancel') }}</BaseButton>
+      <BaseButton type="submit" variant="primary" form="snippet-param-form">
+        <Play class="w-3.5 h-3.5 fill-current" />
             <span>Enviar a Terminal</span>
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
+      </BaseButton>
+    </template>
+  </BaseModal>
 </template>
