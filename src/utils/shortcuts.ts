@@ -39,6 +39,9 @@ export const SHORTCUTS: ShortcutDef[] = [
   def("app.nextTabAlt", { code: "PageDown", ctrl: true }, "global", "navigation"),
   def("app.prevTab", { code: "Tab", ctrl: true, shift: true }, "global", "navigation"),
   def("app.prevTabAlt", { code: "PageUp", ctrl: true }, "global", "navigation"),
+  ...Array.from({ length: 9 }, (_, i) =>
+    def(`app.goToTab${i + 1}`, { code: `Digit${i + 1}`, alt: true }, "global", "navigation"),
+  ),
   def("terminal.newLocal", { key: "t", ctrl: true, shift: true }, "global", "navigation"),
   def("app.shortcuts", { code: "Slash", ctrl: true, shift: true }, "global", "tools"),
   def("terminal.search", { key: "f", ctrl: true }, "terminal", "tools"),
@@ -105,7 +108,10 @@ export function findConflicts(defs: ShortcutDef[] = SHORTCUTS): [string, string]
 const KEY_LABELS: Record<string, string> = {
   arrowup: "↑", arrowdown: "↓", arrowleft: "←", arrowright: "→",
 };
-const CODE_LABELS: Record<string, string> = { Slash: "/", Space: "Space" };
+const CODE_LABELS: Record<string, string> = {
+  Slash: "/", Space: "Space",
+  ...Object.fromEntries(Array.from({ length: 9 }, (_, i) => [`Digit${i + 1}`, String(i + 1)])),
+};
 
 export function formatShortcut(d: ShortcutDef, platform: "mac" | "other" = "other"): string {
   const c = d.combo;

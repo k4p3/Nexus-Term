@@ -55,6 +55,16 @@ describe("shortcut registry", () => {
     expect(matchShortcut(ev({ key: "ArrowLeft", altKey: true }), ["terminal"])?.id).toBe("terminal.focusLeft");
   });
 
+  it("resolves Alt+1..9 to tab jumps by physical key and not to pane focus", () => {
+    for (let n = 1; n <= 9; n++) {
+      expect(matchShortcut(ev({ key: "¡", code: `Digit${n}`, altKey: true }))?.id).toBe(`app.goToTab${n}`);
+    }
+    expect(matchShortcut(ev({ key: "1", code: "Digit1" }))).toBeNull();
+    expect(matchShortcut(ev({ key: "1", code: "Digit1", altKey: true, shiftKey: true }))).toBeNull();
+    expect(matchShortcut(ev({ key: "ArrowLeft", altKey: true }), ["terminal"])?.id).toBe("terminal.focusLeft");
+    expect(formatShortcut(SHORTCUTS.find((d) => d.id === "app.goToTab3")!)).toBe("Alt+3");
+  });
+
   it("does not match with extra or missing modifiers", () => {
     expect(matchShortcut(ev({ key: "p", ctrlKey: true }))).toBeNull();
     expect(matchShortcut(ev({ key: "p", ctrlKey: true, shiftKey: true, altKey: true }))).toBeNull();

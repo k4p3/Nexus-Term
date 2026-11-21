@@ -35,6 +35,12 @@ export const useSessionsStore = defineStore("sessions", () => {
     activeTabId.value = tabs.value[next].id;
   }
 
+  /** Activa la pestaña en la posición `index` (base 0); fuera de rango no hace nada. */
+  function activateTabByIndex(index: number) {
+    const tab = tabs.value[index];
+    if (tab) activeTabId.value = tab.id;
+  }
+
   /** Reconstruye las pestañas de un layout guardado. Devuelve cuántas se restauraron y los paneles omitidos. */
   function restoreLayout(layout: SessionLayout, hosts: HostSummary[]): { restored: number; skipped: string[] } {
     const r = buildRestoredTabs(layout, hosts, (prefix) =>
@@ -285,6 +291,7 @@ export const useSessionsStore = defineStore("sessions", () => {
     restoreLayout,
     closeTab,
     activateAdjacentTab,
+    activateTabByIndex,
     splitPane,
     dockTabIntoPane,
     closePane,

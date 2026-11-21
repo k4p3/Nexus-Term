@@ -226,6 +226,7 @@ NexusTerm multiplexa un canal SFTP sobre la misma conexión SSH autenticada de l
 | `Ctrl + Shift + E` | Dividir Verticalmente (Duplica sesión actual) | Terminal Activa |
 | `Ctrl + Tab` / `Ctrl + PageDown` | Pestaña Siguiente | Global |
 | `Ctrl + Shift + Tab` / `Ctrl + PageUp` | Pestaña Anterior | Global |
+| `Alt + 1..9` | Saltar a la Pestaña 1-8 (`Alt+9` = última pestaña) | Global |
 | `Ctrl + Shift + T` | Nueva Terminal Local | Global |
 | `Ctrl + Shift + W` | Cerrar Panel Activo | Terminal Activa |
 | `Alt + ←` | Ir al Panel de la Izquierda | Terminal Activa |

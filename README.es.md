@@ -147,6 +147,7 @@ Diseñado de manera nativa sobre **Tauri v2** y **Rust**, elimina el alto consum
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd> | Instant Replay (revisar la salida reciente tras un `clear`) | Terminal Activa |
 | <kbd>Ctrl</kbd> + <kbd>Tab</kbd> / <kbd>Ctrl</kbd> + <kbd>PageDown</kbd> | Pestaña Siguiente | Global |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> / <kbd>Ctrl</kbd> + <kbd>PageUp</kbd> | Pestaña Anterior | Global |
+| <kbd>Alt</kbd> + <kbd>1</kbd>..<kbd>9</kbd> | Saltar a la Pestaña 1-8 (`Alt+9` = última pestaña) | Global |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd> | Nueva Terminal Local | Global |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd> | Hoja de Atajos de Teclado | Global |
 | <kbd>Escape</kbd> | Cerrar Modales y Paneles Emergentes | Global |

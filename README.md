@@ -147,6 +147,7 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd> | Instant Replay (review recent output after a `clear`) | Active Terminal |
 | <kbd>Ctrl</kbd> + <kbd>Tab</kbd> / <kbd>Ctrl</kbd> + <kbd>PageDown</kbd> | Next Tab | Global |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> / <kbd>Ctrl</kbd> + <kbd>PageUp</kbd> | Previous Tab | Global |
+| <kbd>Alt</kbd> + <kbd>1</kbd>..<kbd>9</kbd> | Jump to Tab 1-8 (`Alt+9` = last tab) | Global |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd> | New Local Terminal | Global |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd> | Keyboard Shortcuts Cheat Sheet | Global |
 | <kbd>Escape</kbd> | Dismiss Active Modals / Dropdowns | Global |

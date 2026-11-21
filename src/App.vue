@@ -114,6 +114,14 @@ function handleGlobalKeyDown(e: KeyboardEvent) {
     case "app.prevTabAlt":
       sessionsStore.activateAdjacentTab(-1);
       break;
+    case "app.goToTab1": case "app.goToTab2": case "app.goToTab3":
+    case "app.goToTab4": case "app.goToTab5": case "app.goToTab6":
+    case "app.goToTab7": case "app.goToTab8":
+      sessionsStore.activateTabByIndex(Number(def.id.slice("app.goToTab".length)) - 1);
+      break;
+    case "app.goToTab9": // como los navegadores: Alt+9 salta a la última pestaña
+      sessionsStore.activateTabByIndex(sessionsStore.tabs.length - 1);
+      break;
     case "terminal.newLocal":
       handleOpenLocalPty();
       break;

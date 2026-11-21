@@ -124,4 +124,32 @@ describe('sessions store multiplexer', () => {
       expect(store.activeTabId).toBe(a);
     });
   });
+
+  describe('activateTabByIndex', () => {
+    it('activates the tab at a valid position', () => {
+      const store = useSessionsStore();
+      const a = store.createTab('A');
+      store.createTab('B');
+      store.createTab('C');
+      store.activateTabByIndex(0);
+      expect(store.activeTabId).toBe(a);
+    });
+
+    it('ignores positions that do not exist', () => {
+      const store = useSessionsStore();
+      store.createTab('A');
+      const b = store.createTab('B');
+      store.activateTabByIndex(4);
+      store.activateTabByIndex(-1);
+      expect(store.activeTabId).toBe(b);
+      store.activateTabByIndex(store.tabs.length - 1);
+      expect(store.activeTabId).toBe(b);
+    });
+
+    it('does nothing without tabs', () => {
+      const store = useSessionsStore();
+      store.activateTabByIndex(-1);
+      expect(store.activeTabId).toBeNull();
+    });
+  });
 });
