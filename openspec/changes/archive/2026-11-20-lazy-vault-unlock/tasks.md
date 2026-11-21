@@ -21,5 +21,5 @@
 ## 4. Validación
 - [x] 4.1 `cd src-tauri && cargo test`
 - [x] 4.2 `pnpm test`, `pnpm vue-tsc --noEmit`, `pnpm build`
-- [ ] 4.3 Pruebas manuales (arranque sin prompt, host con modal, bloquear con sesiones abiertas, auto-bloqueo, primer uso)
-- [ ] 4.4 `openspec validate` y sincronizar/archivar al terminar
+- [x] 4.3 Pruebas manuales (arranque sin prompt, host con modal, bloquear con sesiones abiertas, auto-bloqueo, primer uso) (probado a mano por el usuario en Linux)
+- [x] 4.4 `openspec validate` y sincronizar/archivar al terminar
