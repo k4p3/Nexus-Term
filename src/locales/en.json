@@ -330,6 +330,9 @@
     "disabled": "Instant Replay is turned off in Settings"
   },
   "restore": {
+    "bannerBody": "You have a previous session with {n} tab(s). Restore it?",
+    "bannerRestore": "Restore",
+    "bannerDiscard": "Discard",
     "title": "Restore previous session?",
     "body": "Your last session had {n} tab(s). Hosts reconnect when you open each tab.",
     "startEmpty": "Start empty",

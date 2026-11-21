@@ -240,8 +240,32 @@ describe("useSessionRestore: lazy startup (vault locked)", () => {
     vault.isUnlocked = true;
     await flush();
     expect(r.pendingLayout.value?.tabs).toHaveLength(2);
+    expect(r.pendingInline.value).toBe(true); // oferta no modal tras un desbloqueo bajo demanda
     await r.confirmRestore();
+    expect(r.pendingInline.value).toBe(false);
     expect(sessions.tabs).toHaveLength(3); // inicial + 2 restauradas
+  });
+
+  it("keeps the offer pending (and the stored layout intact) while the user ignores it", async () => {
+    const { r, vault, sessions } = setupLazy("ask", stored());
+    await r.startup();
+    vault.isUnlocked = true;
+    await flush();
+    sessions.createTab("worked-meanwhile"); // el usuario sigue trabajando sin responder
+    await flush();
+    await vi.advanceTimersByTimeAsync(LAYOUT_SAVE_DEBOUNCE_MS + 10);
+    expect(r.pendingLayout.value).not.toBeNull();
+    expect(svc.save).not.toHaveBeenCalled();
+    expect(svc.clear).not.toHaveBeenCalled();
+  });
+
+  it("with 'ask password on startup' the offer stays a regular dialog", async () => {
+    const { r, vault } = setupLazy("ask", stored(), true);
+    await r.startup();
+    vault.isUnlocked = true;
+    await flush();
+    expect(r.pendingLayout.value).not.toBeNull();
+    expect(r.pendingInline.value).toBe(false);
   });
 
   it("auto mode restores the deferred layout right after the first unlock", async () => {

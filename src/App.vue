@@ -29,6 +29,7 @@ const TransferQueue = defineAsyncComponent(() => import("./components/sftp/Trans
 const TerminalCommandPalette = defineAsyncComponent(() => import("./components/terminal/TerminalCommandPalette.vue"));
 const ShortcutsModal = defineAsyncComponent(() => import("./components/terminal/ShortcutsModal.vue"));
 const VaultUnlockModal = defineAsyncComponent(() => import("./components/vault/VaultUnlockModal.vue"));
+const RestoreSessionsBanner = defineAsyncComponent(() => import("./components/terminal/RestoreSessionsBanner.vue"));
 const RestoreSessionsModal = defineAsyncComponent(() => import("./components/terminal/RestoreSessionsModal.vue"));
 
 const { t } = useI18n();
@@ -315,7 +316,13 @@ function handleInsertCommand(command: string) {
 
       <TerminalCommandPalette v-if="uiStore.paletteOpen" @close="uiStore.paletteOpen = false" />
       <RestoreSessionsModal
-        v-if="sessionRestore.pendingLayout.value"
+        v-if="sessionRestore.pendingLayout.value && !sessionRestore.pendingInline.value"
+        :tab-count="sessionRestore.pendingTabCount()"
+        @restore="sessionRestore.confirmRestore()"
+        @discard="sessionRestore.discardRestore()"
+      />
+      <RestoreSessionsBanner
+        v-if="sessionRestore.pendingLayout.value && sessionRestore.pendingInline.value"
         :tab-count="sessionRestore.pendingTabCount()"
         @restore="sessionRestore.confirmRestore()"
         @discard="sessionRestore.discardRestore()"

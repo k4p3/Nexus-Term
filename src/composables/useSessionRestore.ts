@@ -23,6 +23,8 @@ export function useSessionRestore() {
   const ui = useUiStore();
 
   const pendingLayout = ref<SessionLayout | null>(null);
+  /** Oferta no modal: se usa cuando el desbloqueo fue bajo demanda, para no apilar un diálogo sobre el de la contraseña. */
+  const pendingInline = ref(false);
   let startupResolved = false;
   /** Arranque con la bóveda bloqueada: se abre una terminal local inicial. */
   let lazyStart = false;
@@ -74,7 +76,8 @@ export function useSessionRestore() {
     const openTabs = sessions.tabs.filter((tab) => tab.id !== initialTabId).length;
     const action = decideRestoreAction(mode(), layout, openTabs);
     if (action === "prompt" && layout) {
-      pendingLayout.value = layout; // el diálogo resuelve el inicio
+      pendingInline.value = lazyStart; // tras un desbloqueo bajo demanda se ofrece sin bloquear la pantalla
+      pendingLayout.value = layout; // la oferta resuelve el inicio
       return;
     }
     if (action === "auto" && layout) await applyRestore(layout);
@@ -124,6 +127,7 @@ export function useSessionRestore() {
   async function confirmRestore() {
     const layout = pendingLayout.value;
     pendingLayout.value = null;
+    pendingInline.value = false;
     if (layout) await applyRestore(layout);
     startupResolved = true;
     openInitialLocalTab();
@@ -132,6 +136,7 @@ export function useSessionRestore() {
 
   function discardRestore() {
     pendingLayout.value = null;
+    pendingInline.value = false;
     startupResolved = true;
     openInitialLocalTab();
     schedule();
@@ -149,5 +154,5 @@ export function useSessionRestore() {
   });
   onUnmounted(() => { if (timer) clearTimeout(timer); });
 
-  return { startup, pendingLayout, pendingTabCount: () => layoutTabCount(pendingLayout.value), confirmRestore, discardRestore };
+  return { startup, pendingLayout, pendingInline, pendingTabCount: () => layoutTabCount(pendingLayout.value), confirmRestore, discardRestore };
 }

@@ -7,7 +7,7 @@
 - `vault.store.ts`: `lock()` ya no limpia ni desmonta paneles; solo llama a `vault_lock` y vacía cachés de inventario/identidades. Las sesiones activas no dependen de `isUnlocked`.
 - `HostTreeSidebar`: estado bloqueado ("Pulsa para desbloquear") y "bóveda no creada".
 - `src/composables/useIdleLock.ts`: escucha `keydown`, `pointerdown`, `pointermove` (con throttle) y `focus`; reinicia un temporizador de `auto_lock_minutes`; al expirar llama a `vault.lock()`. Se activa solo si `auto_lock_enabled`.
-- `useSessionRestore.ts`: restaurar pestañas locales al arrancar; las remotas tras `isUnlocked`. `startupResolved` impide guardar el layout hasta decidir; el guardado automático ignora layouts parciales mientras haya remotas pendientes.
+- `useSessionRestore.ts`: la oferta tras un desbloqueo bajo demanda es un aviso no modal (`RestoreSessionsBanner`, estado `pendingInline`), no un diálogo apilado sobre el de la contraseña; con "pedir contraseña al iniciar" se mantiene el diálogo. Restaurar pestañas locales al arrancar; las remotas tras `isUnlocked`. `startupResolved` impide guardar el layout hasta decidir; el guardado automático ignora layouts parciales mientras haya remotas pendientes.
 
 ## 2. Backend (Rust)
 - `VaultError::Locked` mantiene su mensaje con el código estable `VAULT_LOCKED:` al inicio. Como otras capas lo envuelven (p. ej. `Vault error: …`), el frontend lo detecta con una utilidad `isVaultLockedError` que busca el código como subcadena. Sin `unwrap`/`expect`.

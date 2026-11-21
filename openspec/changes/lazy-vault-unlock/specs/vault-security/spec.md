@@ -64,3 +64,7 @@ El sistema SHALL restaurar al arrancar las pestañas locales sin requerir la bó
 #### Scenario: Layout mixto con bóveda bloqueada
 - **WHEN** existe un layout guardado con pestañas locales y remotas y la aplicación arranca bloqueada
 - **THEN** el sistema restaura las locales, conserva intacto el layout guardado AND ofrece restaurar las remotas tras el desbloqueo
+
+#### Scenario: Oferta de restauración tras un desbloqueo bajo demanda
+- **WHEN** el usuario desbloquea la bóveda bajo demanda y existe un layout guardado con hosts pendiente de restaurar
+- **THEN** el sistema MUST mostrar la oferta de restauración como un aviso no modal que no bloquea la terminal ni apila un diálogo sobre el de la contraseña AND MUST conservar intacto el layout guardado mientras el usuario no responda

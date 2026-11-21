@@ -330,6 +330,9 @@
     "disabled": "Instant Replay está desactivado en Ajustes"
   },
   "restore": {
+    "bannerBody": "Tienes una sesión anterior con {n} pestaña(s). ¿Restaurarla?",
+    "bannerRestore": "Restaurar",
+    "bannerDiscard": "Descartar",
     "title": "¿Restaurar la sesión anterior?",
     "body": "Tu última sesión tenía {n} pestaña(s). Los hosts se reconectan al abrir cada pestaña.",
     "startEmpty": "Empezar vacío",
