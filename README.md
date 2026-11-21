@@ -49,6 +49,7 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 ### 🖥️ High-Performance Terminal & Multiplexing
 - **Hardware-Accelerated WebGL Rendering**: 60+ FPS rendering powered by `@xterm/addon-webgl` with automatic Canvas 2D fallback.
 - **Direct Binary Streaming**: Terminal input and output flow over raw `Vec<u8>` Tauri binary channels, bypassing JSON serialization overhead.
+- **Keyboard Tab Navigation**: `Ctrl+Shift+T` opens a local terminal, `Ctrl+Tab` / `Ctrl+Shift+Tab` (or `Ctrl+PageDown` / `Ctrl+PageUp`) cycle through tabs and `Alt+1..9` jump straight to one (`Alt+9` = last). A local terminal also always opens at startup when there is nothing to restore.
 - **Recursive Split Panes & Tab Docking**: Split any workspace vertically or horizontally without limits. Easily open a local terminal, duplicate current hosts, pick from inventory, or move existing open tabs into panes without restarting sessions.
 - **Nerd Fonts & Powerline Ready**: Native support for icons and fonts such as *MesloLGS NF*, *Hack Nerd Font*, *JetBrains Mono*, and *Fira Code*.
 

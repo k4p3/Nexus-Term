@@ -49,6 +49,7 @@ Diseñado de manera nativa sobre **Tauri v2** y **Rust**, elimina el alto consum
 ### 🖥️ Terminal de Alto Rendimiento y Multiplexación
 - **Aceleración por Hardware (WebGL)**: Renderizado fluido a 60+ FPS mediante `@xterm/addon-webgl` con degradación suave automática a Canvas 2D.
 - **Streaming Binario Directo**: La entrada y salida de datos fluye mediante canales binarios `Vec<u8>` de Tauri v2, evitando la sobrecarga de serialización JSON.
+- **Navegación de Pestañas por Teclado**: `Ctrl+Shift+T` abre una terminal local, `Ctrl+Tab` / `Ctrl+Shift+Tab` (o `Ctrl+PageDown` / `Ctrl+PageUp`) recorren las pestañas y `Alt+1..9` salta directo a una (`Alt+9` = la última). Además, al iniciar siempre se abre una terminal local si no hay nada que restaurar.
 - **Paneles Divididos Recursivos (*Split Panes*) y Acoplamiento de Pestañas**: Divide cualquier espacio de trabajo vertical u horizontalmente sin límites. Abre terminales locales, duplica servidores, elige hosts del inventario o mueve pestañas abiertas directamente a un panel dividido sin reiniciar sesiones.
 - **Compatibilidad con Nerd Fonts y Powerline**: Soporte total para fuentes como *MesloLGS NF*, *Hack Nerd Font*, *JetBrains Mono* y *Fira Code*.
 

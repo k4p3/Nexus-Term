@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **New local terminal shortcut**: `Ctrl+Shift+T` (`Cmd+Shift+T` on macOS) opens a local terminal in a new tab from anywhere.
+- **Switch tabs from the keyboard**: `Ctrl+Tab` / `Ctrl+Shift+Tab` (or `Ctrl+PageDown` / `Ctrl+PageUp`) move to the next / previous tab, wrapping around at both ends.
+- **Jump to a tab**: `Alt+1` … `Alt+8` select that tab and `Alt+9` selects the last one. Note that these keys no longer reach the shell (for example `readline` numeric arguments or `tmux` windows).
+
+### Changed
+- **A local terminal always opens at startup** when there is nothing to restore, also when *Ask for the master password at startup* is enabled (before, the workspace could stay empty after unlocking). Restored tabs are never duplicated with an extra local terminal.
+
 ---
 
 ## [0.3.0] - 2026-11-21

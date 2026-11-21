@@ -31,7 +31,7 @@ NexusTerm protege todas tus credenciales, llaves privadas y notas bajo un modelo
 - **Cifrado AES-256-GCM Autenticado**: Cada registro se cifra individualmente con un vector de inicialización (IV) único de 96 bits.
 - **Envoltura de Llave de Bóveda (`VaultKey`)**: La clave maestra solo cifra la `VaultKey`. Esto permite cambiar la contraseña maestra al instante desde el panel de ajustes sin tener que descifrar y recifrar todos los servidores almacenados.
 - **Limpieza de Memoria (`Zeroize`)**: Al bloquear la bóveda o cerrar la aplicación, las llaves en memoria de Rust se sobrescriben con ceros inmediatamente.
-- **Desbloqueo bajo demanda**: la aplicación abre una terminal local al iniciar y solo pide la contraseña maestra al usar algo que necesita credenciales guardadas (hosts, identidades, SFTP, túneles, RDP/VNC, importar `~/.ssh/config`). Tras desbloquear, la acción que iniciaste continúa sola. En *Ajustes → Seguridad* puedes activar **Pedir la contraseña maestra al iniciar** para recuperar la pantalla de desbloqueo inicial.
+- **Desbloqueo bajo demanda**: la aplicación abre una terminal local al iniciar (también con «Pedir la contraseña maestra al iniciar», una vez desbloqueada la bóveda, si no hay pestañas que restaurar) y solo pide la contraseña maestra al usar algo que necesita credenciales guardadas (hosts, identidades, SFTP, túneles, RDP/VNC, importar `~/.ssh/config`). Tras desbloquear, la acción que iniciaste continúa sola. En *Ajustes → Seguridad* puedes activar **Pedir la contraseña maestra al iniciar** para recuperar la pantalla de desbloqueo inicial.
 - **Bloqueo que conserva las sesiones**: al bloquear (botón de la barra superior o auto-bloqueo) las terminales abiertas, locales y remotas, siguen funcionando. Solo se impide abrir conexiones nuevas con credenciales hasta volver a desbloquear. La barra lateral de hosts muestra "Bóveda bloqueada" con un botón para desbloquearla.
 - **Auto-bloqueo por inactividad** (*Ajustes → Seguridad*): activo por defecto a los 10 minutos; el tiempo se puede cambiar (1 a 1440 min) o desactivar. Cuenta la actividad del teclado, el ratón y el foco, nunca la salida de las terminales.
 
@@ -60,6 +60,10 @@ Motor de terminal de ultra-baja latencia optimizado tanto para entornos locales 
   - `Ctrl + Shift + E`: División Vertical duplicando la sesión o host del panel activo.
   - `Ctrl + Shift + W`: Cerrar el panel activo enfocado.
   - `Alt + ←` `Alt + →` `Alt + ↑` `Alt + ↓`: Ir al panel contiguo en esa dirección. El panel activo se reconoce por su cabecera resaltada. Si no hay panel en esa dirección (o la pestaña no está dividida), la tecla no se intercepta y llega al shell, por lo que `Alt`+flechas sigue funcionando en `readline`, `vim` o `tmux` en esos casos.
+- **Atajos de Pestañas**: Navega entre conexiones sin tocar el ratón:
+  - `Ctrl + Shift + T`: abrir una **Nueva Terminal Local** en una pestaña nueva, desde cualquier foco.
+  - `Ctrl + Tab` / `Ctrl + Shift + Tab` (o `Ctrl + PageDown` / `Ctrl + PageUp`): pestaña siguiente / anterior, de forma cíclica.
+  - `Alt + 1` … `Alt + 8`: saltar a esa pestaña; `Alt + 9`: saltar a la última. Estas teclas se interceptan antes de llegar al shell, por lo que dentro de `tmux` o `readline` (argumento numérico) no estarán disponibles.
 - **Soporte Completo de Nerd Fonts & Oh My Zsh**: Compatibilidad total con fuentes tipográficas populares (`MesloLGS NF`, `Hack Nerd Font`, `JetBrains Mono NF`, `Fira Code`) e iconos Powerline/Unicode.
 - **Streaming Binario Directo**: Comunicación mediante canales de streaming binario `Vec<u8>` en Tauri v2, evitando la sobrecarga de serialización JSON.
 
