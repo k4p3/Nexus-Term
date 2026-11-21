@@ -19,7 +19,10 @@ const edits = [
   ["src-tauri/Cargo.toml", /^(version\s*=\s*")[^"]+(")/m, `$1${version}$2`],
   ["src-tauri/Cargo.lock", /(name = "nexus-term"\nversion = ")[^"]+(")/, `$1${version}$2`],
   ["packaging/aur/PKGBUILD", /^(pkgver=).+$/m, `$1${version}`],
+  ["packaging/aur/PKGBUILD", /^(pkgrel=).+$/m, `$11`],
   ["packaging/aur/.SRCINFO", /^(\tpkgver = ).+$/m, `$1${version}`],
+  ["packaging/aur/.SRCINFO", /^(\tpkgrel = ).+$/m, `$11`],
+  ["packaging/aur/.SRCINFO", /(\tsource = .*\/releases\/download\/v)[^/]+(\/nexus-term_)[^_]+(_amd64\.deb)/, `$1${version}$2${version}$3`],
 ];
 
 for (const [file, re, replacement] of edits) {

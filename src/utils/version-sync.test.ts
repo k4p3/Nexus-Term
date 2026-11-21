@@ -36,6 +36,7 @@ describe("version single source of truth", () => {
   it("the AUR packaging matches", () => {
     expect(match(/^pkgver=(.+)$/m, pkgbuild)).toBe(version);
     expect(match(/^\tpkgver = (.+)$/m, srcinfo)).toBe(version);
+    expect(srcinfo).toContain(`/releases/download/v${version}/nexus-term_${version}_amd64.deb`);
   });
 
   it("the CHANGELOG documents the current version as its latest release", () => {
