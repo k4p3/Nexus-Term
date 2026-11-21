@@ -28,7 +28,9 @@ onMounted(() => {
   modalStack.push(id);
   previouslyFocused = document.activeElement as HTMLElement | null;
   window.addEventListener("keydown", onKey, true);
-  const target = panel.value?.querySelector<HTMLElement>("input, select, textarea, [data-autofocus]") ?? panel.value;
+  const target = panel.value?.querySelector<HTMLElement>("[data-autofocus]") ??
+    panel.value?.querySelector<HTMLElement>("input, select, textarea") ??
+    panel.value;
   target?.focus();
 });
 onUnmounted(() => {

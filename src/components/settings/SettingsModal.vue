@@ -211,6 +211,7 @@ async function handleResetDefaults() {
         <nav class="w-56 border-r border-line bg-app/50 p-3 space-y-1 shrink-0">
           <button
             @click="activeTab = 'general'"
+            data-autofocus
             :class="[
               'w-full flex items-center gap-3 px-3 h-9 text-sm font-medium rounded-control transition-colors text-left cursor-pointer',
               activeTab === 'general'
