@@ -21,14 +21,14 @@ function go(id: number, tabId?: string, paneId?: string) {
     <div
       v-for="toast in ui.toasts"
       :key="toast.id"
-      class="rounded-xl border px-3 py-2 text-xs shadow-xl flex items-start justify-between space-x-3 bg-theme-surface"
-      :class="toast.kind === 'warning' ? 'border-amber-500/50 text-amber-200' : toast.kind === 'success' ? 'border-emerald-500/50 text-emerald-200' : 'border-theme text-theme-main'"
+      class="rounded-xl border px-3 py-2 text-xs shadow-xl flex items-start justify-between space-x-3 bg-surface"
+      :class="toast.kind === 'warning' ? 'border-warning/50 text-warning' : toast.kind === 'success' ? 'border-success/50 text-success' : 'border-line text-fg'"
       role="status"
     >
       <span class="whitespace-pre-line break-words min-w-0">{{ toast.message }}</span>
       <span class="flex items-center space-x-2 shrink-0">
-        <button v-if="toast.tabId" type="button" class="text-theme-accent hover:underline cursor-pointer" @click="go(toast.id, toast.tabId, toast.paneId)">{{ t("toast.go") }}</button>
-        <button type="button" class="text-theme-muted hover:text-theme-main cursor-pointer" aria-label="close" @click="ui.dismissToast(toast.id)">✕</button>
+        <button v-if="toast.tabId" type="button" class="text-accent hover:underline cursor-pointer" @click="go(toast.id, toast.tabId, toast.paneId)">{{ t("toast.go") }}</button>
+        <button type="button" class="text-fg-muted hover:text-fg cursor-pointer" aria-label="close" @click="ui.dismissToast(toast.id)">✕</button>
       </span>
     </div>
   </div>

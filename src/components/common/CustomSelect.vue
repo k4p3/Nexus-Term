@@ -77,8 +77,8 @@ onUnmounted(() => {
       type="button"
       @click="toggleDropdown"
       :disabled="disabled"
-      class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main flex items-center justify-between transition focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-theme-active/50"
-      :class="{ 'border-theme-accent ring-1 ring-theme-accent': isOpen }"
+      class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg flex items-center justify-between transition focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed hover:bg-active/50"
+      :class="{ 'border-accent ring-1 ring-theme-accent': isOpen }"
     >
       <div class="flex items-center space-x-2 truncate min-w-0 pr-2">
         <!-- Selected Option Icon -->
@@ -86,20 +86,20 @@ onUnmounted(() => {
           :is="selectedOption.icon"
           v-if="selectedOption?.icon"
           class="w-4 h-4 shrink-0"
-          :class="selectedOption.iconColor || 'text-theme-accent'"
+          :class="selectedOption.iconColor || 'text-accent'"
         />
 
         <div class="truncate flex items-center space-x-2">
-          <span v-if="selectedOption" class="truncate font-medium text-theme-main">
+          <span v-if="selectedOption" class="truncate font-medium text-fg">
             {{ selectedOption.label }}
           </span>
-          <span v-else class="text-theme-muted truncate">
+          <span v-else class="text-fg-muted truncate">
             {{ placeholder }}
           </span>
 
           <span
             v-if="selectedOption?.badge"
-            class="px-1.5 py-0.2 text-[10px] font-mono rounded bg-theme-app border border-theme text-theme-muted shrink-0"
+            class="px-1.5 py-0.2 text-[10px] font-mono rounded bg-app border border-line text-fg-muted shrink-0"
           >
             {{ selectedOption.badge }}
           </span>
@@ -107,8 +107,8 @@ onUnmounted(() => {
       </div>
 
       <ChevronDown
-        class="w-4 h-4 text-theme-muted shrink-0 transition-transform duration-200"
-        :class="{ 'rotate-180 text-theme-accent': isOpen }"
+        class="w-4 h-4 text-fg-muted shrink-0 transition-transform duration-200"
+        :class="{ 'rotate-180 text-accent': isOpen }"
       />
     </button>
 
@@ -123,7 +123,7 @@ onUnmounted(() => {
     >
       <div
         v-if="isOpen"
-        class="absolute left-0 right-0 mt-1.5 z-50 bg-theme-surface border border-theme rounded-xl shadow-2xl p-1 max-h-60 overflow-y-auto space-y-0.5 backdrop-blur-md"
+        class="absolute left-0 right-0 mt-1.5 z-50 bg-surface border border-line rounded-xl shadow-2xl p-1 max-h-60 overflow-y-auto space-y-0.5 backdrop-blur-md"
       >
         <div
           v-for="opt in options"
@@ -132,8 +132,8 @@ onUnmounted(() => {
           class="flex items-center justify-between px-2.5 py-2 rounded-lg cursor-pointer text-xs transition group"
           :class="
             opt.value === modelValue
-              ? 'bg-theme-accent/15 text-theme-accent font-semibold'
-              : 'text-theme-main hover:bg-theme-active hover:text-theme-main'
+              ? 'bg-accent/15 text-accent font-semibold'
+              : 'text-fg hover:bg-active hover:text-fg'
           "
         >
           <div class="flex items-center space-x-2.5 truncate min-w-0 pr-2">
@@ -143,8 +143,8 @@ onUnmounted(() => {
               class="w-4 h-4 shrink-0 transition-colors"
               :class="
                 opt.value === modelValue
-                  ? 'text-theme-accent'
-                  : opt.iconColor || 'text-theme-muted group-hover:text-theme-main'
+                  ? 'text-accent'
+                  : opt.iconColor || 'text-fg-muted group-hover:text-fg'
               "
             />
 
@@ -153,14 +153,14 @@ onUnmounted(() => {
                 <span class="truncate">{{ opt.label }}</span>
                 <span
                   v-if="opt.badge"
-                  class="px-1.5 py-0.2 text-[9px] font-mono rounded bg-theme-app border border-theme text-theme-muted shrink-0"
+                  class="px-1.5 py-0.2 text-[9px] font-mono rounded bg-app border border-line text-fg-muted shrink-0"
                 >
                   {{ opt.badge }}
                 </span>
               </div>
               <div
                 v-if="opt.subtitle"
-                class="text-[10px] text-theme-muted font-mono truncate leading-tight mt-0.5"
+                class="text-[10px] text-fg-muted font-mono truncate leading-tight mt-0.5"
               >
                 {{ opt.subtitle }}
               </div>
@@ -169,11 +169,11 @@ onUnmounted(() => {
 
           <Check
             v-if="opt.value === modelValue"
-            class="w-3.5 h-3.5 text-theme-accent shrink-0 ml-2"
+            class="w-3.5 h-3.5 text-accent shrink-0 ml-2"
           />
         </div>
 
-        <div v-if="options.length === 0" class="px-3 py-2 text-center text-xs text-theme-muted">
+        <div v-if="options.length === 0" class="px-3 py-2 text-center text-xs text-fg-muted">
           No hay opciones disponibles
         </div>
       </div>

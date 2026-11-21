@@ -61,7 +61,7 @@ const folderOptions = computed<SelectOption[]>(() => {
       value: null,
       label: "Sin carpeta (Raíz)",
       icon: FolderIcon,
-      iconColor: "text-theme-muted",
+      iconColor: "text-fg-muted",
     },
   ];
   for (const folder of vaultStore.folders) {
@@ -69,7 +69,7 @@ const folderOptions = computed<SelectOption[]>(() => {
       value: folder.id,
       label: folder.name,
       icon: FolderIcon,
-      iconColor: folder.color || "text-amber-400",
+      iconColor: folder.color || "text-warning",
     });
   }
   return opts;
@@ -82,17 +82,17 @@ const identityOptions = computed<SelectOption[]>(() => {
       label: "Sin credencial vinculada",
       subtitle: "Autenticación anónima o interactiva",
       icon: ShieldOff,
-      iconColor: "text-theme-muted",
+      iconColor: "text-fg-muted",
     },
   ];
   for (const ident of vaultStore.identities) {
     const icon = ident.auth_type === "agent" ? Shield : ident.auth_type === "password" ? Lock : KeyRound;
     const iconColor =
       ident.auth_type === "agent"
-        ? "text-purple-400"
+        ? "text-info"
         : ident.auth_type === "password"
-        ? "text-blue-400"
-        : "text-amber-400";
+        ? "text-accent"
+        : "text-warning";
     const typeLabel =
       ident.auth_type === "password"
         ? "Password"
@@ -123,7 +123,7 @@ const jumpHostOptions = computed<SelectOption[]>(() => {
       label: "Conexión directa",
       subtitle: "Sin servidor de salto intermedio",
       icon: Globe,
-      iconColor: "text-theme-muted",
+      iconColor: "text-fg-muted",
     },
   ];
   for (const jHost of availableJumpHosts.value) {
@@ -133,7 +133,7 @@ const jumpHostOptions = computed<SelectOption[]>(() => {
       subtitle: `${jHost.hostname}:${jHost.port}`,
       badge: jHost.port !== 22 ? `:${jHost.port}` : undefined,
       icon: Route,
-      iconColor: "text-amber-400",
+      iconColor: "text-warning",
     });
   }
   return opts;
@@ -233,17 +233,17 @@ async function handleSave() {
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-    <div class="w-full max-w-lg bg-theme-surface border border-theme rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-theme-main transition-colors">
+  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4">
+    <div class="w-full max-w-lg bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-fg transition-colors">
       <!-- Header -->
-      <div class="px-5 py-3.5 border-b border-theme flex items-center justify-between bg-theme-header">
+      <div class="px-5 py-3.5 border-b border-line flex items-center justify-between bg-header">
         <div class="flex items-center space-x-2">
-          <Server class="w-5 h-5 text-theme-accent" />
-          <h3 class="text-sm font-bold text-theme-main">
+          <Server class="w-5 h-5 text-accent" />
+          <h3 class="text-sm font-bold text-fg">
             {{ hostToEdit ? 'Editar Servidor' : 'Nuevo Servidor' }}
           </h3>
         </div>
-        <button @click="emit('close')" class="text-theme-muted hover:text-theme-main p-1 rounded-lg hover:bg-theme-active transition cursor-pointer">
+        <button @click="emit('close')" class="text-fg-muted hover:text-fg p-1 rounded-lg hover:bg-active transition cursor-pointer">
           <X class="w-4 h-4" />
         </button>
       </div>
@@ -251,56 +251,56 @@ async function handleSave() {
       <!-- Form -->
       <form @submit.prevent="handleSave" class="p-5 space-y-4 overflow-y-auto flex-1">
         <div>
-          <label class="block text-xs font-medium text-theme-muted mb-1">Nombre / Alias del Servidor</label>
+          <label class="block text-xs font-medium text-fg-muted mb-1">Nombre / Alias del Servidor</label>
           <input
             v-model="label"
             type="text"
             required
             placeholder="ej. Web Server Producción / VPS Hetzner"
-            class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+            class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
           />
         </div>
 
         <div :class="protocol === 'rdp' ? 'grid grid-cols-2 gap-3' : ''">
           <div>
-            <label class="block text-xs font-medium text-theme-muted mb-1">{{ t('hostModal.protocol') }}</label>
+            <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('hostModal.protocol') }}</label>
             <CustomSelect v-model="protocol" :options="protocolOptions" />
           </div>
           <div v-if="protocol === 'rdp'">
-            <label class="block text-xs font-medium text-theme-muted mb-1">{{ t('hostModal.rdpDomain') }}</label>
+            <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('hostModal.rdpDomain') }}</label>
             <input
               v-model="rdpDomain"
               type="text"
               placeholder="CORP"
-              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
             />
           </div>
         </div>
 
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">
-            <label class="block text-xs font-medium text-theme-muted mb-1">Dirección IP o Hostname</label>
+            <label class="block text-xs font-medium text-fg-muted mb-1">Dirección IP o Hostname</label>
             <div class="relative">
-              <Globe class="w-4 h-4 text-theme-muted absolute left-3 top-2.5" />
+              <Globe class="w-4 h-4 text-fg-muted absolute left-3 top-2.5" />
               <input
                 v-model="hostname"
                 type="text"
                 required
                 placeholder="192.168.1.100 o app.ejemplo.com"
-                class="w-full pl-9 pr-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+                class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-theme-muted mb-1">Puerto</label>
+            <label class="block text-xs font-medium text-fg-muted mb-1">Puerto</label>
             <input
               v-model="port"
               type="number"
               min="1"
               max="65535"
               required
-              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
             />
           </div>
         </div>
@@ -308,11 +308,11 @@ async function handleSave() {
         <div class="grid grid-cols-2 gap-3">
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-xs font-medium text-theme-muted">Carpeta</label>
+              <label class="block text-xs font-medium text-fg-muted">Carpeta</label>
               <button
                 type="button"
                 @click="isNewFolderModalOpen = true"
-                class="text-[11px] text-theme-accent hover:underline flex items-center space-x-0.5 cursor-pointer"
+                class="text-[11px] text-accent hover:underline flex items-center space-x-0.5 cursor-pointer"
               >
                 <Plus class="w-3 h-3" />
                 <span>Nueva</span>
@@ -327,11 +327,11 @@ async function handleSave() {
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-xs font-medium text-theme-muted">Credencial / Identidad</label>
+              <label class="block text-xs font-medium text-fg-muted">Credencial / Identidad</label>
               <button
                 type="button"
                 @click="isNewIdentityModalOpen = true"
-                class="text-[11px] text-theme-accent hover:underline flex items-center space-x-0.5 cursor-pointer"
+                class="text-[11px] text-accent hover:underline flex items-center space-x-0.5 cursor-pointer"
               >
                 <Plus class="w-3 h-3" />
                 <span>Nueva</span>
@@ -342,15 +342,15 @@ async function handleSave() {
               :options="identityOptions"
               placeholder="Seleccionar credencial..."
             />
-            <div v-if="selectedIdentity?.public_key" class="mt-1 text-[10px] font-mono text-theme-muted truncate" :title="selectedIdentity.public_key">
+            <div v-if="selectedIdentity?.public_key" class="mt-1 text-[10px] font-mono text-fg-muted truncate" :title="selectedIdentity.public_key">
               🔑 {{ selectedIdentity.public_key.slice(0, 36) }}...
             </div>
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-theme-muted mb-1 flex items-center space-x-1.5">
-            <Route class="w-3.5 h-3.5 text-theme-accent" />
+          <label class="block text-xs font-medium text-fg-muted mb-1 flex items-center space-x-1.5">
+            <Route class="w-3.5 h-3.5 text-accent" />
             <span>Servidor de Salto / Bastion (Opcional)</span>
           </label>
           <CustomSelect
@@ -358,65 +358,65 @@ async function handleSave() {
             :options="jumpHostOptions"
             placeholder="Conexión directa..."
           />
-          <p class="mt-1 text-[11px] text-theme-muted">
+          <p class="mt-1 text-[11px] text-fg-muted">
             Si se especifica, NexusTerm tunelizará la conexión SSH a través de este Bastion usando direct-tcpip.
           </p>
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-theme-muted mb-1">
+          <label class="block text-xs font-medium text-fg-muted mb-1">
             Sobrescribir Usuario (Opcional)
           </label>
           <input
             v-model="usernameOverride"
             type="text"
             placeholder="Si difiere del usuario de la credencial"
-            class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+            class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-theme-muted mb-1">Etiquetas (separadas por coma)</label>
+          <label class="block text-xs font-medium text-fg-muted mb-1">Etiquetas (separadas por coma)</label>
           <div class="relative">
-            <Tag class="w-4 h-4 text-theme-muted absolute left-3 top-2.5" />
+            <Tag class="w-4 h-4 text-fg-muted absolute left-3 top-2.5" />
             <input
               v-model="tagsInput"
               type="text"
               placeholder="produccion, linux, nginx, aws"
-              class="w-full pl-9 pr-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+              class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
             />
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-theme-muted mb-1">Notas Cifradas (Opcional)</label>
+          <label class="block text-xs font-medium text-fg-muted mb-1">Notas Cifradas (Opcional)</label>
           <div class="relative">
             <textarea
               v-model="notes"
               rows="2"
               placeholder="Notas protegidas por la bóveda..."
-              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-xs text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-xs text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
             ></textarea>
           </div>
         </div>
 
-        <div v-if="error" class="p-3 bg-red-950/40 border border-red-800/60 rounded-xl text-xs text-red-300">
+        <div v-if="error" class="p-3 bg-danger/40 border border-danger/60 rounded-xl text-xs text-danger">
           {{ error }}
         </div>
 
         <!-- Actions -->
-        <div class="pt-3 border-t border-theme flex items-center justify-end space-x-2">
+        <div class="pt-3 border-t border-line flex items-center justify-end space-x-2">
           <button
             type="button"
             @click="emit('close')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-theme-muted hover:text-theme-main hover:bg-theme-active transition cursor-pointer"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-fg-muted hover:text-fg hover:bg-active transition cursor-pointer"
           >
             Cancelar
           </button>
           <button
             type="submit"
             :disabled="isSubmitting"
-            class="px-4 py-1.5 bg-theme-accent hover:brightness-110 text-slate-950 font-semibold rounded-xl text-xs shadow-md transition disabled:opacity-50 cursor-pointer"
+            class="px-4 py-1.5 bg-accent hover:brightness-110 text-on-accent font-semibold rounded-xl text-xs shadow-md transition disabled:opacity-50 cursor-pointer"
           >
             Guardar Servidor
           </button>

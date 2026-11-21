@@ -161,26 +161,26 @@ function handleInsertCommand(command: string) {
 </script>
 
 <template>
-  <div class="h-full w-full flex flex-col bg-theme-app text-theme-main select-none">
+  <div class="h-full w-full flex flex-col bg-app text-fg select-none">
     <!-- Top Application Bar -->
-    <header class="h-10 bg-theme-header border-b border-theme flex items-center px-3.5 justify-between select-none shrink-0 z-20">
+    <header class="h-10 bg-header border-b border-line flex items-center px-3.5 justify-between select-none shrink-0 z-20">
       <div class="flex items-center space-x-2.5">
-        <img src="/icon.png" class="w-6 h-6 rounded-lg shadow-xs object-cover border border-theme" alt="NexusTerm Logo" />
-        <span class="text-sm font-bold tracking-tight text-theme-main flex items-center space-x-1">
-          <span>Nexus</span><span class="text-theme-accent">Term</span>
+        <img src="/icon.png" class="w-6 h-6 rounded-lg shadow-xs object-cover border border-line" alt="NexusTerm Logo" />
+        <span class="text-sm font-bold tracking-tight text-fg flex items-center space-x-1">
+          <span>Nexus</span><span class="text-accent">Term</span>
         </span>
-        <span class="text-[10px] px-1.5 py-0.5 rounded-sm bg-cyan-500/10 border border-cyan-500/20 text-cyan-300 font-mono font-medium">v0.2.0</span>
+        <span class="text-[10px] px-1.5 py-0.5 rounded-sm bg-accent/10 border border-accent/20 text-accent font-mono font-medium">v0.2.0</span>
       </div>
 
       <div class="flex items-center space-x-2">
         <button
           @click="isQuickConnectOpen = true"
           :title="t('hosts.quickConnect')"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
+          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer"
         >
-          <Search class="w-3.5 h-3.5 text-theme-accent" />
+          <Search class="w-3.5 h-3.5 text-accent" />
           <span>{{ t('common.search') }}</span>
-          <kbd class="ml-1 text-[10px] font-mono bg-theme-header px-1 py-0.2 rounded-sm border border-theme text-theme-muted">
+          <kbd class="ml-1 text-[10px] font-mono bg-header px-1 py-0.2 rounded-sm border border-line text-fg-muted">
             Ctrl+K
           </kbd>
         </button>
@@ -188,22 +188,22 @@ function handleInsertCommand(command: string) {
         <button
           @click="isSnippetsOpen = !isSnippetsOpen"
           title="Biblioteca de Snippets"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
+          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer"
         >
-          <Code class="w-3.5 h-3.5 text-theme-accent" />
+          <Code class="w-3.5 h-3.5 text-accent" />
           <span>Snippets</span>
         </button>
 
         <button
           @click="isTunnelsOpen = !isTunnelsOpen"
           title="Gestor de Túneles SSH"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer relative"
+          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer relative"
         >
-          <ArrowRightLeft class="w-3.5 h-3.5 text-cyan-400" />
+          <ArrowRightLeft class="w-3.5 h-3.5 text-accent" />
           <span>Túneles</span>
           <span
             v-if="tunnelsStore.activeTunnelsCount > 0"
-            class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse ml-0.5"
+            class="w-1.5 h-1.5 rounded-full bg-success animate-pulse ml-0.5"
           ></span>
         </button>
 
@@ -213,42 +213,42 @@ function handleInsertCommand(command: string) {
           :class="[
             'flex items-center space-x-1.5 px-2.5 py-1 text-xs rounded-lg border transition-colors cursor-pointer',
             sftpStore.isOpen
-              ? 'bg-amber-500/20 text-amber-300 border-amber-500/60 shadow-xs'
-              : 'text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border-theme'
+              ? 'bg-warning/20 text-warning border-warning/60 shadow-xs'
+              : 'text-fg-muted hover:text-fg bg-surface hover:bg-active border-line'
           ]"
         >
-          <FolderSync class="w-3.5 h-3.5 text-amber-400" />
+          <FolderSync class="w-3.5 h-3.5 text-warning" />
           <span>SFTP</span>
           <span
             v-if="sftpStore.currentSessionId"
-            class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse ml-0.5"
+            class="w-1.5 h-1.5 rounded-full bg-warning animate-pulse ml-0.5"
           ></span>
         </button>
 
         <button
           @click="isSettingsOpen = true"
           :title="t('settings.title')"
-          class="p-1.5 text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
+          class="p-1.5 text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer"
         >
-          <Settings class="w-3.5 h-3.5 text-theme-muted" />
+          <Settings class="w-3.5 h-3.5 text-fg-muted" />
         </button>
 
         <button
           v-if="vaultStore.isUnlocked"
           @click="vaultStore.lock()"
           :title="t('vault.lockVault')"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
+          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer"
         >
-          <Lock class="w-3.5 h-3.5 text-amber-400" />
+          <Lock class="w-3.5 h-3.5 text-warning" />
           <span>{{ t('vault.lockVault') }}</span>
         </button>
         <button
           v-else
           @click="ensureUnlocked()"
           :title="t('vault.unlock')"
-          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
+          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer"
         >
-          <Lock class="w-3.5 h-3.5 text-slate-400" />
+          <Lock class="w-3.5 h-3.5 text-fg400" />
           <span>{{ t('vault.unlock') }}</span>
         </button>
       </div>
@@ -257,7 +257,7 @@ function handleInsertCommand(command: string) {
     <!-- Main Content Area -->
     <main class="flex-1 overflow-hidden relative flex">
       <div v-if="!appReady" class="h-full w-full flex items-center justify-center">
-        <RefreshCw class="w-6 h-6 text-cyan-400 animate-spin" />
+        <RefreshCw class="w-6 h-6 text-accent animate-spin" />
       </div>
 
       <VaultUnlockScreen v-else-if="showStartupGate" />

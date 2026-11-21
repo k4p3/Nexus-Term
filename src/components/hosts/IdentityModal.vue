@@ -12,21 +12,21 @@ const authTypeOptions: SelectOption[] = [
     label: "Contraseña",
     subtitle: "Usuario y contraseña estándar",
     icon: Lock,
-    iconColor: "text-blue-400",
+    iconColor: "text-accent",
   },
   {
     value: "private_key",
     label: "Llave SSH",
     subtitle: "Ed25519, RSA, ECDSA",
     icon: KeyRound,
-    iconColor: "text-amber-400",
+    iconColor: "text-warning",
   },
   {
     value: "agent",
     label: "Agente SSH del Sistema",
     subtitle: "Delegado a SSH_AUTH_SOCK",
     icon: Shield,
-    iconColor: "text-purple-400",
+    iconColor: "text-info",
   },
 ];
 
@@ -211,17 +211,17 @@ async function handleSave() {
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-    <div class="w-full max-w-lg bg-theme-surface border border-theme rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4">
+    <div class="w-full max-w-lg bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
       <!-- Header -->
-      <div class="px-5 py-3.5 border-b border-theme flex items-center justify-between bg-theme-app/50">
+      <div class="px-5 py-3.5 border-b border-line flex items-center justify-between bg-app/50">
         <div class="flex items-center space-x-2">
-          <Shield class="w-5 h-5 text-theme-accent" />
-          <h3 class="text-sm font-bold text-theme-main">
+          <Shield class="w-5 h-5 text-accent" />
+          <h3 class="text-sm font-bold text-fg">
             {{ identityToEdit ? 'Editar Credencial' : 'Nueva Credencial SSH' }}
           </h3>
         </div>
-        <button @click="emit('close')" class="text-theme-muted hover:text-theme-main p-1 rounded-lg hover:bg-theme-active transition cursor-pointer">
+        <button @click="emit('close')" class="text-fg-muted hover:text-fg p-1 rounded-lg hover:bg-active transition cursor-pointer">
           <X class="w-4 h-4" />
         </button>
       </div>
@@ -229,33 +229,33 @@ async function handleSave() {
       <!-- Form -->
       <form @submit.prevent="handleSave" class="p-5 space-y-4 overflow-y-auto flex-1">
         <div>
-          <label class="block text-xs font-medium text-theme-muted mb-1">Nombre Descriptivo</label>
+          <label class="block text-xs font-medium text-fg-muted mb-1">Nombre Descriptivo</label>
           <input
             v-model="name"
             type="text"
             required
             placeholder="ej. Servidores Prod - Llave Primaria"
-            class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+            class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
           />
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-theme-muted mb-1">Usuario SSH</label>
+            <label class="block text-xs font-medium text-fg-muted mb-1">Usuario SSH</label>
             <div class="relative">
-              <User class="w-4 h-4 text-theme-muted absolute left-3 top-2.5" />
+              <User class="w-4 h-4 text-fg-muted absolute left-3 top-2.5" />
               <input
                 v-model="username"
                 type="text"
                 required
                 placeholder="root / ubuntu / admin"
-                class="w-full pl-9 pr-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+                class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-theme-muted mb-1">Método de Autenticación</label>
+            <label class="block text-xs font-medium text-fg-muted mb-1">Método de Autenticación</label>
             <CustomSelect
               v-model="authType"
               :options="authTypeOptions"
@@ -265,30 +265,30 @@ async function handleSave() {
 
         <!-- Password input -->
         <div v-if="authType === 'password'">
-          <label class="block text-xs font-medium text-theme-muted mb-1">
+          <label class="block text-xs font-medium text-fg-muted mb-1">
             Contraseña
-            <span v-if="identityToEdit?.has_secret" class="text-xs text-theme-muted font-normal">
+            <span v-if="identityToEdit?.has_secret" class="text-xs text-fg-muted font-normal">
               (Dejar en blanco para conservar la existente)
             </span>
           </label>
           <div class="relative">
-            <Lock class="w-4 h-4 text-theme-muted absolute left-3 top-2.5" />
+            <Lock class="w-4 h-4 text-fg-muted absolute left-3 top-2.5" />
             <input
               v-model="secret"
               type="password"
               :placeholder="identityToEdit?.has_secret ? '••••••••••••' : 'Ingrese contraseña del servidor'"
-              class="w-full pl-9 pr-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+              class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
             />
           </div>
         </div>
 
         <!-- System Agent notice -->
-        <div v-else-if="authType === 'agent'" class="p-3 bg-cyan-950/30 border border-cyan-800/40 rounded-xl space-y-1.5 text-xs text-cyan-200">
+        <div v-else-if="authType === 'agent'" class="p-3 bg-accent/30 border border-accent/40 rounded-xl space-y-1.5 text-xs text-accent">
           <div class="font-semibold flex items-center space-x-1.5">
-            <Shield class="w-4 h-4 text-theme-accent" />
+            <Shield class="w-4 h-4 text-accent" />
             <span>Autenticación por Agente del Sistema</span>
           </div>
-          <p class="text-theme-muted text-[11px] leading-relaxed">
+          <p class="text-fg-muted text-[11px] leading-relaxed">
             NexusTerm delegará la firma criptográfica al socket local de su agente SSH (<code>SSH_AUTH_SOCK</code> en Linux/macOS o Pageant/OpenSSH en Windows). Compatible con YubiKey, llaves de hardware FIDO2 y 1Password.
           </p>
         </div>
@@ -296,9 +296,9 @@ async function handleSave() {
         <!-- Private key input -->
         <div v-else-if="authType === 'private_key'" class="space-y-3">
           <!-- Toolbar: Import File & Generate Key -->
-          <div class="p-2.5 bg-theme-app/50 border border-theme rounded-xl space-y-2">
+          <div class="p-2.5 bg-app/50 border border-line rounded-xl space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-medium text-theme-main">Herramientas de Llaves</span>
+              <span class="text-xs font-medium text-fg">Herramientas de Llaves</span>
               <div class="flex items-center space-x-1.5">
                 <!-- Hidden file input -->
                 <input
@@ -311,17 +311,17 @@ async function handleSave() {
                 <button
                   type="button"
                   @click="fileInputRef?.click()"
-                  class="px-2.5 py-1 bg-theme-surface hover:bg-theme-active border border-theme text-theme-main rounded-lg text-[11px] font-medium flex items-center space-x-1 transition cursor-pointer"
+                  class="px-2.5 py-1 bg-surface hover:bg-active border border-line text-fg rounded-lg text-[11px] font-medium flex items-center space-x-1 transition cursor-pointer"
                   title="Importar archivo id_ed25519, id_rsa, .pem o .pub"
                 >
-                  <Upload class="w-3.5 h-3.5 text-theme-accent" />
+                  <Upload class="w-3.5 h-3.5 text-accent" />
                   <span>Importar Archivo</span>
                 </button>
               </div>
             </div>
 
             <!-- Dual generator: ed25519 or rsa -->
-            <div class="flex items-center space-x-2 pt-1 border-t border-theme/60">
+            <div class="flex items-center space-x-2 pt-1 border-t border-line/60">
               <CustomSelect
                 v-model="genAlgorithm"
                 :options="genAlgorithmOptions"
@@ -331,7 +331,7 @@ async function handleSave() {
                 type="button"
                 @click="handleGenerateKey"
                 :disabled="isGeneratingKey"
-                class="px-2.5 py-2 bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 rounded-xl text-[11px] font-medium flex items-center space-x-1 transition cursor-pointer disabled:opacity-50 shrink-0"
+                class="px-2.5 py-2 bg-accent/15 hover:bg-accent/25 border border-accent/30 text-accent rounded-xl text-[11px] font-medium flex items-center space-x-1 transition cursor-pointer disabled:opacity-50 shrink-0"
               >
                 <Sparkles class="w-3.5 h-3.5" />
                 <span>{{ isGeneratingKey ? 'Generando...' : 'Generar Llave' }}</span>
@@ -340,9 +340,9 @@ async function handleSave() {
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-theme-muted mb-1">
+            <label class="block text-xs font-medium text-fg-muted mb-1">
               Contenido de la Llave Privada
-              <span v-if="identityToEdit?.has_secret" class="text-xs text-theme-muted font-normal">
+              <span v-if="identityToEdit?.has_secret" class="text-xs text-fg-muted font-normal">
                 (Dejar en blanco para conservar la existente)
               </span>
             </label>
@@ -351,77 +351,77 @@ async function handleSave() {
               rows="4"
               @blur="tryExtractPublicKey"
               :placeholder="identityToEdit?.has_secret ? '-----BEGIN OPENSSH PRIVATE KEY-----\n[Cifrada en bóveda local con AES-256-GCM]\n-----END OPENSSH PRIVATE KEY-----' : 'Pegue el contenido de id_ed25519 o id_rsa, o use Importar / Generar'"
-              class="w-full px-3 py-2 bg-theme-input border border-theme rounded-xl text-xs font-mono text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+              class="w-full px-3 py-2 bg-app border border-line rounded-xl text-xs font-mono text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
             ></textarea>
           </div>
 
           <!-- Passphrase Notice Alert -->
-          <div v-if="passphraseNotice" class="p-2.5 bg-amber-950/40 border border-amber-700/50 rounded-xl text-xs text-amber-200">
+          <div v-if="passphraseNotice" class="p-2.5 bg-warning/40 border border-warning/50 rounded-xl text-xs text-warning">
             ⚠️ Esta llave privada está protegida por frase de paso. Ingrese la <strong>Passphrase</strong> abajo para descifrarla y derivar su clave pública.
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-theme-muted mb-1">
+            <label class="block text-xs font-medium text-fg-muted mb-1">
               Passphrase de la Llave (Opcional)
             </label>
             <div class="relative">
-              <KeyRound class="w-4 h-4 text-theme-muted absolute left-3 top-2.5" />
+              <KeyRound class="w-4 h-4 text-fg-muted absolute left-3 top-2.5" />
               <input
                 v-model="passphrase"
                 type="password"
                 @blur="tryExtractPublicKey"
                 placeholder="Si la llave está protegida con contraseña"
-                class="w-full pl-9 pr-3 py-2 bg-theme-input border border-theme rounded-xl text-sm text-theme-main placeholder-theme-muted focus:outline-none focus:border-theme-accent focus:ring-1 focus:ring-theme-accent transition"
+                class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-theme-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-theme-accent transition"
               />
             </div>
           </div>
 
           <!-- Permanent Public Key Display with 1-click copy -->
-          <div v-if="publicKey" class="p-3 bg-theme-app/60 border border-theme rounded-xl space-y-2">
-            <div class="flex items-center justify-between text-xs text-theme-main font-medium">
+          <div v-if="publicKey" class="p-3 bg-app/60 border border-line rounded-xl space-y-2">
+            <div class="flex items-center justify-between text-xs text-fg font-medium">
               <span class="flex items-center space-x-1.5">
-                <span class="text-theme-accent font-semibold">Clave Pública OpenSSH</span>
-                <span v-if="keyType" class="text-[10px] px-1.5 py-0.2 bg-theme-active border border-theme rounded text-theme-muted">
+                <span class="text-accent font-semibold">Clave Pública OpenSSH</span>
+                <span v-if="keyType" class="text-[10px] px-1.5 py-0.2 bg-active border border-line rounded text-fg-muted">
                   {{ keyType }}
                 </span>
               </span>
               <button
                 type="button"
                 @click="copyPublicKey"
-                class="px-2.5 py-1 rounded-lg bg-theme-active hover:bg-theme-input border border-theme text-xs font-semibold text-theme-accent flex items-center space-x-1 transition cursor-pointer"
+                class="px-2.5 py-1 rounded-lg bg-active hover:bg-app border border-line text-xs font-semibold text-accent flex items-center space-x-1 transition cursor-pointer"
                 title="Copiar para ~/.ssh/authorized_keys"
               >
-                <Check v-if="copySuccess" class="w-3.5 h-3.5 text-emerald-400" />
+                <Check v-if="copySuccess" class="w-3.5 h-3.5 text-success" />
                 <Copy v-else class="w-3.5 h-3.5" />
                 <span>{{ copySuccess ? '¡Copiada!' : 'Copiar Clave' }}</span>
               </button>
             </div>
-            <div class="p-2 bg-theme-input border border-theme/60 rounded-lg font-mono text-[11px] text-theme-main break-all select-all">
+            <div class="p-2 bg-app border border-line/60 rounded-lg font-mono text-[11px] text-fg break-all select-all">
               {{ publicKey }}
             </div>
-            <div v-if="keyFingerprint" class="text-[10px] font-mono text-theme-muted">
+            <div v-if="keyFingerprint" class="text-[10px] font-mono text-fg-muted">
               Fingerprint: {{ keyFingerprint }}
             </div>
           </div>
         </div>
 
-        <div v-if="error" class="p-3 bg-red-950/40 border border-red-800/60 rounded-xl text-xs text-red-300">
+        <div v-if="error" class="p-3 bg-danger/40 border border-danger/60 rounded-xl text-xs text-danger">
           {{ error }}
         </div>
 
         <!-- Actions -->
-        <div class="pt-3 border-t border-theme flex items-center justify-end space-x-2">
+        <div class="pt-3 border-t border-line flex items-center justify-end space-x-2">
           <button
             type="button"
             @click="emit('close')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-theme-muted hover:text-theme-main hover:bg-theme-active transition cursor-pointer"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-fg-muted hover:text-fg hover:bg-active transition cursor-pointer"
           >
             Cancelar
           </button>
           <button
             type="submit"
             :disabled="isSubmitting"
-            class="px-4 py-1.5 bg-theme-accent hover:opacity-90 text-slate-950 font-semibold rounded-xl text-xs shadow-md transition cursor-pointer disabled:opacity-50"
+            class="px-4 py-1.5 bg-accent hover:opacity-90 text-on-accent font-semibold rounded-xl text-xs shadow-md transition cursor-pointer disabled:opacity-50"
           >
             Guardar Credencial
           </button>

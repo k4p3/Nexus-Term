@@ -76,34 +76,34 @@ async function handleSave() {
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
-    <div class="w-full max-w-sm bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-      <div class="px-5 py-3.5 border-b border-slate-800 flex items-center justify-between bg-slate-950/40">
+  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4">
+    <div class="w-full max-w-sm bg-active900 border border-line800 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div class="px-5 py-3.5 border-b border-line800 flex items-center justify-between bg-active950">
         <div class="flex items-center space-x-2">
-          <FolderIcon class="w-5 h-5 text-cyan-400" />
-          <h3 class="text-sm font-bold text-white">
+          <FolderIcon class="w-5 h-5 text-accent" />
+          <h3 class="text-sm font-bold text-fg">
             {{ folderToEdit ? 'Editar Carpeta' : 'Nueva Carpeta' }}
           </h3>
         </div>
-        <button @click="emit('close')" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition">
+        <button @click="emit('close')" class="text-fg400 hover:text-fg p-1 rounded-lg hover:bg-active800 transition">
           <X class="w-4 h-4" />
         </button>
       </div>
 
       <form @submit.prevent="handleSave" class="p-5 space-y-4">
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1">Nombre de la Carpeta</label>
+          <label class="block text-xs font-medium text-fg300 mb-1">Nombre de la Carpeta</label>
           <input
             v-model="name"
             type="text"
             required
             placeholder="ej. Producción / Clientes / Laboratorio"
-            class="w-full px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition"
+            class="w-full px-3 py-2 bg-active950 border border-line700 rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1.5">Color de Distinción</label>
+          <label class="block text-xs font-medium text-fg300 mb-1.5">Color de Distinción</label>
           <div class="flex items-center space-x-2">
             <button
               v-for="c in colorOptions"
@@ -112,27 +112,27 @@ async function handleSave() {
               @click="color = c"
               class="w-6 h-6 rounded-full transition-transform"
               :style="{ backgroundColor: c }"
-              :class="{ 'ring-2 ring-white ring-offset-2 ring-offset-slate-900 scale-110': color === c }"
+              :class="{ 'ring-2 ring-fg ring-offset-2 ring-offset-surface scale-110': color === c }"
             ></button>
           </div>
         </div>
 
-        <div v-if="error" class="p-3 bg-red-950/40 border border-red-800/60 rounded-xl text-xs text-red-300">
+        <div v-if="error" class="p-3 bg-danger/40 border border-danger/60 rounded-xl text-xs text-danger">
           {{ error }}
         </div>
 
-        <div class="pt-3 border-t border-slate-800 flex items-center justify-end space-x-2">
+        <div class="pt-3 border-t border-line800 flex items-center justify-end space-x-2">
           <button
             type="button"
             @click="emit('close')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-slate-800 transition"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-fg400 hover:text-fg hover:bg-active800 transition"
           >
             Cancelar
           </button>
           <button
             type="submit"
             :disabled="isSubmitting"
-            class="px-4 py-1.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold rounded-xl text-xs shadow-md shadow-cyan-500/20 transition disabled:opacity-50"
+            class="px-4 py-1.5 bg-accent hover:bg-accent-hover text-on-accent font-semibold rounded-xl text-xs shadow-md shadow-accent/20 transition disabled:opacity-50"
           >
             Guardar
           </button>

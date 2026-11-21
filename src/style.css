@@ -55,18 +55,6 @@
   --radius-modal: 14px;
 }
 
-/* Legacy aliases kept during migration; removed once no component uses them. */
-.bg-theme-app { background-color: var(--theme-bg-app); }
-.bg-theme-surface { background-color: var(--theme-bg-surface); }
-.bg-theme-header { background-color: var(--theme-bg-header); }
-.bg-theme-active { background-color: var(--theme-bg-active); }
-.border-theme { border-color: var(--theme-border); }
-.text-theme-main { color: var(--theme-text-main); }
-.text-theme-muted { color: var(--theme-text-muted); }
-.text-theme-accent { color: var(--theme-accent); }
-.bg-theme-accent { background-color: var(--theme-accent); }
-.border-theme-accent { border-color: var(--theme-accent); }
-
 html, body {
   background: var(--theme-bg-app);
   color: var(--theme-text-main);

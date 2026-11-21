@@ -54,24 +54,24 @@ function handleExecute() {
   <div
     v-if="isOpen && snippet"
     @click.self="emit('close')"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4"
+    class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4"
   >
     <div
-      class="bg-neutral-900 border border-neutral-700/80 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col text-neutral-100"
+      class="bg-active900 border border-line700 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col text-fg100"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between px-5 py-3.5 border-b border-neutral-800 bg-neutral-950/40">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-line800 bg-active950">
         <div class="flex items-center gap-2 truncate">
-          <div class="p-1.5 bg-cyan-500/20 text-cyan-400 rounded-lg shrink-0">
+          <div class="p-1.5 bg-accent/20 text-accent rounded-lg shrink-0">
             <Sparkles class="w-4 h-4" />
           </div>
-          <h3 class="text-sm font-semibold text-white truncate">
+          <h3 class="text-sm font-semibold text-fg truncate">
             {{ snippet.title }}
           </h3>
         </div>
         <button
           @click="emit('close')"
-          class="p-1 text-neutral-400 hover:text-white rounded-lg hover:bg-neutral-800 transition-colors"
+          class="p-1 text-fg400 hover:text-fg rounded-lg hover:bg-active800 transition-colors"
         >
           <X class="w-4 h-4" />
         </button>
@@ -79,38 +79,38 @@ function handleExecute() {
 
       <!-- Parameters inputs -->
       <form @submit.prevent="handleExecute" class="p-5 space-y-4">
-        <div class="p-3 bg-neutral-950 border border-neutral-800 rounded-xl font-mono text-xs text-cyan-300 break-all select-all">
+        <div class="p-3 bg-active950 border border-line800 rounded-xl font-mono text-xs text-accent break-all select-all">
           {{ snippet.command_template }}
         </div>
 
         <div v-if="paramsList.length > 0" class="space-y-3">
-          <p class="text-xs text-neutral-400 font-medium">Ingresa los valores de los parámetros:</p>
+          <p class="text-xs text-fg400 font-medium">Ingresa los valores de los parámetros:</p>
           <div v-for="param in paramsList" :key="param">
-            <label class="block text-[11px] font-mono text-blue-400 mb-1">
+            <label class="block text-[11px] font-mono text-accent mb-1">
               &#123;&#123; {{ param }} &#125;&#125;
             </label>
             <input
               v-model="paramValues[param]"
               type="text"
               :placeholder="`Valor para ${param}`"
-              class="w-full px-3 py-1.5 bg-neutral-950 border border-neutral-800 rounded-lg text-xs text-white focus:outline-hidden focus:border-cyan-500"
+              class="w-full px-3 py-1.5 bg-active950 border border-line800 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
               autofocus
             />
           </div>
         </div>
 
         <!-- Footer -->
-        <div class="pt-3 border-t border-neutral-800 flex items-center justify-end gap-2">
+        <div class="pt-3 border-t border-line800 flex items-center justify-end gap-2">
           <button
             type="button"
             @click="emit('close')"
-            class="px-3 py-1.5 text-xs text-neutral-400 hover:text-white rounded-lg transition-colors"
+            class="px-3 py-1.5 text-xs text-fg400 hover:text-fg rounded-lg transition-colors"
           >
             {{ t('common.cancel') }}
           </button>
           <button
             type="submit"
-            class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-semibold text-xs rounded-lg shadow-sm transition-colors cursor-pointer"
+            class="inline-flex items-center gap-1.5 px-4 py-1.5 bg-accent hover:bg-accent-hover text-on-accent font-semibold text-xs rounded-lg shadow-sm transition-colors cursor-pointer"
           >
             <Play class="w-3.5 h-3.5 fill-current" />
             <span>Enviar a Terminal</span>

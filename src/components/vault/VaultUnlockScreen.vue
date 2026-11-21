@@ -50,28 +50,28 @@ async function handleAction() {
 </script>
 
 <template>
-  <div class="h-full w-full flex items-center justify-center bg-slate-950 p-4">
-    <div class="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+  <div class="h-full w-full flex items-center justify-center bg-active950 p-4">
+    <div class="w-full max-w-md bg-active900 border border-line800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
       <!-- Decorative background glow -->
-      <div class="absolute -top-16 -right-16 w-44 h-44 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div class="absolute -bottom-16 -left-16 w-44 h-44 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -top-16 -right-16 w-44 h-44 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-16 -left-16 w-44 h-44 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
 
       <div class="text-center mb-6">
-        <div class="inline-flex p-3 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 mb-3 shadow-inner">
+        <div class="inline-flex p-3 rounded-2xl bg-accent/10 border border-accent/20 text-accent mb-3 shadow-inner">
           <KeyRound v-if="!vaultStore.isInitialized" class="w-8 h-8" />
           <Lock v-else class="w-8 h-8" />
         </div>
-        <h2 class="text-2xl font-bold tracking-tight text-white">
+        <h2 class="text-2xl font-bold tracking-tight text-fg">
           {{ !vaultStore.isInitialized ? t('vault.createTitle') : t('vault.unlockTitle') }}
         </h2>
-        <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">
+        <p class="text-xs text-fg400 mt-1 max-w-xs mx-auto">
           {{ !vaultStore.isInitialized ? t('vault.initPrompt') : t('vault.unlockPrompt') }}
         </p>
       </div>
 
       <form @submit.prevent="handleAction" class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-slate-300 mb-1.5">
+          <label class="block text-xs font-medium text-fg300 mb-1.5">
             {{ t('vault.masterPassword') }}
           </label>
           <input
@@ -80,12 +80,12 @@ async function handleAction() {
             autocomplete="current-password"
             autofocus
             placeholder="••••••••••••"
-            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-hidden focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition shadow-xs"
+            class="w-full px-3.5 py-2.5 bg-active950 border border-line700 rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition shadow-xs"
           />
         </div>
 
         <div v-if="!vaultStore.isInitialized">
-          <label class="block text-xs font-medium text-slate-300 mb-1.5">
+          <label class="block text-xs font-medium text-fg300 mb-1.5">
             {{ t('vault.confirmPassword') }}
           </label>
           <input
@@ -93,28 +93,28 @@ async function handleAction() {
             type="password"
             autocomplete="new-password"
             placeholder="••••••••••••"
-            class="w-full px-3.5 py-2.5 bg-slate-950 border border-slate-700/80 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-hidden focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 transition shadow-xs"
+            class="w-full px-3.5 py-2.5 bg-active950 border border-line700 rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition shadow-xs"
           />
         </div>
 
-        <div v-if="localError || vaultStore.error" class="p-3 bg-red-950/40 border border-red-800/60 rounded-xl flex items-start space-x-2 text-xs text-red-300">
-          <AlertCircle class="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
+        <div v-if="localError || vaultStore.error" class="p-3 bg-danger/40 border border-danger/60 rounded-xl flex items-start space-x-2 text-xs text-danger">
+          <AlertCircle class="w-4 h-4 shrink-0 text-danger mt-0.5" />
           <span>{{ localError || vaultStore.error }}</span>
         </div>
 
         <button
           type="submit"
           :disabled="vaultStore.isLoading"
-          class="w-full py-2.5 px-4 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-950 font-semibold rounded-xl text-sm shadow-lg shadow-cyan-500/20 transition flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+          class="w-full py-2.5 px-4 bg-accent hover:bg-accent-hover text-on-accent font-semibold rounded-xl text-sm shadow-lg shadow-accent/20 transition flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
         >
-          <Loader2 v-if="vaultStore.isLoading" class="w-4 h-4 animate-spin text-slate-950" />
+          <Loader2 v-if="vaultStore.isLoading" class="w-4 h-4 animate-spin text-on-accent" />
           <span>
             {{ !vaultStore.isInitialized ? t('vault.createVault') : t('vault.unlock') }}
           </span>
         </button>
 
-        <div class="pt-2 flex items-center justify-center space-x-1.5 text-[11px] text-slate-500">
-          <ShieldCheck class="w-3.5 h-3.5 text-cyan-400/80" />
+        <div class="pt-2 flex items-center justify-center space-x-1.5 text-[11px] text-fg500">
+          <ShieldCheck class="w-3.5 h-3.5 text-accent/80" />
           <span>Argon2id + AES-256-GCM Zero-Knowledge</span>
         </div>
       </form>
