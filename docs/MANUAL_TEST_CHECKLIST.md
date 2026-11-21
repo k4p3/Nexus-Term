@@ -1,6 +1,6 @@
 # Lista de Pruebas Manuales
 
-Marca cada casilla al probarla. Arranca con `pnpm tauri dev`, desbloquea la bóveda y ten a mano una sesión SSH y una terminal local.
+Marca cada casilla al probarla. Arranca con `pnpm tauri dev` (la app abre una terminal local sin pedir contraseña; desbloquea la bóveda al usar un host) y ten a mano una sesión SSH y una terminal local.
 
 Cambios cubiertos: `terminal-productivity-quick-wins` (sección A), `vnc-rdp-graphical-access` (sección B, tarea 5.3) y `terminal-productivity-advanced` (sección D, tarea 9.3).
 
@@ -128,6 +128,17 @@ Cambios cubiertos: `terminal-productivity-quick-wins` (sección A), `vnc-rdp-gra
 - [ ] Ajustes → desactivar Instant Replay: `Ctrl+Shift+Y` avisa de que está desactivado y no se retiene salida.
 - [ ] Cerrar el panel o bloquear la bóveda descarta el contenido (al reabrir en otro panel aparece vacío).
 
+### Desbloqueo bajo demanda y auto-bloqueo
+- [ ] Con la bóveda ya creada, al arrancar se abre una terminal local **sin** pedir contraseña.
+- [ ] La barra lateral muestra "Bóveda bloqueada" y un botón de desbloqueo; añadir host, carpeta, identidad e importar `ssh_config` piden desbloqueo antes de abrirse.
+- [ ] Abrir un host (o SFTP, o iniciar un túnel) con la bóveda bloqueada muestra el modal; tras desbloquear, la acción continúa sola.
+- [ ] Cancelar el modal (Esc o X) no conecta y muestra un mensaje claro.
+- [ ] Bloquear con una sesión SSH y otra local abiertas: ambas siguen funcionando, pero abrir una conexión nueva pide desbloqueo.
+- [ ] *Ajustes → Seguridad*: con el auto-bloqueo en 1 minuto y sin tocar teclado ni ratón, la bóveda se bloquea y conserva las sesiones; escribir en una terminal reinicia la cuenta; con el ajuste apagado no bloquea nunca.
+- [ ] Activar **Pedir la contraseña maestra al iniciar** y reiniciar: aparece la pantalla de desbloqueo completa antes del workspace.
+- [ ] Primer uso con una base de datos sin bóveda: el modal ofrece crearla con confirmación de contraseña.
+- [ ] Cerrar el servidor o cortar la red con una sesión SSH abierta (o dejarla inactiva unos minutos): la terminal muestra el aviso de conexión cerrada y el botón **Reconectar** abre una sesión nueva.
+
 ### Restauración de sesiones
 - [ ] Abre 3 pestañas (SSH, shell local y un panel dividido) y espera ~1 s; cierra la app, ábrela y desbloquea: aparece el diálogo "Restaurar (3 pestañas)".
 - [ ] **Restaurar** recrea pestañas y divisiones; solo la pestaña activa conecta al instante y las demás conectan **al abrirlas por primera vez**.
@@ -136,6 +147,8 @@ Cambios cubiertos: `terminal-productivity-quick-wins` (sección A), `vnc-rdp-gra
 - [ ] Borra de la bóveda un host usado en una pestaña guardada: al restaurar se omite ese panel y aparece el aviso.
 - [ ] Con hosts **RDP** y **VNC** en el layout: se restauran como paneles de escritorio remoto que conectan al activarse.
 - [ ] Bloquear y desbloquear sin cerrar la app **no** vuelve a mostrar el diálogo.
+- [ ] Con un layout con hosts y el desbloqueo bajo demanda: tras desbloquear aparece un **aviso inferior** (no un segundo modal) con *Restaurar* y *Descartar*; si lo ignoras y reinicias, el layout guardado sigue intacto.
+- [ ] Con un layout solo de terminales locales: se restauran al arrancar sin desbloquear.
 - [ ] Cerrar todas las pestañas y reiniciar: no se ofrece restaurar nada.
 
 ### Compatibilidad de terminal

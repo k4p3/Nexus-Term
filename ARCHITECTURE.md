@@ -103,9 +103,10 @@ src/
 │   ├── terminal/     # XtermView, contenedores de split panes, pestañas
 │   ├── snippets/     # Panel de snippets y barra de Broadcast
 │   ├── settings/     # Modal de configuración, atajos y personalización
-│   └── vault/        # Pantalla de desbloqueo/inicialización de bóveda
+│   └── vault/        # Pantalla y modal de desbloqueo/inicialización de bóveda
+├── composables/      # Lógica reutilizable: useEnsureUnlocked, useIdleLock, useSessionRestore
 ├── stores/           # 2. CAPA DE ESTADO GLOBAL (Pinia Stores)
-│   ├── vault.store.ts      # Bóveda, inventario de carpetas, hosts e identidades
+│   ├── vault.store.ts      # Bóveda, inventario de carpetas, hosts e identidades (bloquear conserva las sesiones)
 │   ├── sessions.store.ts   # Pestañas, paneles divididos (split tree) y broadcast
 │   ├── settings.store.ts   # Configuración de apariencia, fuente y terminal
 │   └── snippets.store.ts   # Colección de snippets interactivos
@@ -120,6 +121,14 @@ src/
     ├── settings.ts   # Estructuras de configuración
     └── themes.ts     # Definiciones de temas y paletas
 ```
+
+### 4.0. Desbloqueo Bajo Demanda de la Bóveda
+- La aplicación arranca con una terminal local sin pedir la contraseña maestra (salvo el ajuste `ask_password_on_startup`). `App.vue` ya no oculta el workspace tras `VaultUnlockScreen`.
+- `useEnsureUnlocked()` es el único punto para pedir el desbloqueo: `ensureUnlocked()` abre `VaultUnlockModal` (carga perezosa) y comparte un solo modal entre llamadas simultáneas; `runWithUnlock(fn)` reintenta una vez si el backend responde con un error que contiene el código estable `VAULT_LOCKED:` (`isVaultLockedError` en `src/utils/vault-errors.ts`).
+- El gate real sigue en el backend: solo los comandos que usan credenciales almacenadas llaman a `get_active_vault_key()`. Snippets, definiciones de túneles y ajustes no las contienen y no se bloquean.
+- `lock()` borra la clave y las cachés sensibles, pero **no** cierra sesiones: las conexiones ya autenticadas no vuelven a consultar la bóveda.
+- `useIdleLock()` bloquea tras `auto_lock_minutes` sin entrada del usuario (teclado, ratón, foco); la salida de las terminales no cuenta.
+- `useSessionRestore` restaura sin bóveda las pestañas solo locales; si el layout tiene hosts, aplaza la oferta al primer desbloqueo (aviso no modal) y no guarda nada hasta resolverla.
 
 ### 4.1. Reglas de Separación de Capas en el Frontend
 1. **Componentes (UI)**:

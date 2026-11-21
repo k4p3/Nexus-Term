@@ -31,6 +31,9 @@ NexusTerm protege todas tus credenciales, llaves privadas y notas bajo un modelo
 - **Cifrado AES-256-GCM Autenticado**: Cada registro se cifra individualmente con un vector de inicialización (IV) único de 96 bits.
 - **Envoltura de Llave de Bóveda (`VaultKey`)**: La clave maestra solo cifra la `VaultKey`. Esto permite cambiar la contraseña maestra al instante desde el panel de ajustes sin tener que descifrar y recifrar todos los servidores almacenados.
 - **Limpieza de Memoria (`Zeroize`)**: Al bloquear la bóveda o cerrar la aplicación, las llaves en memoria de Rust se sobrescriben con ceros inmediatamente.
+- **Desbloqueo bajo demanda**: la aplicación abre una terminal local al iniciar y solo pide la contraseña maestra al usar algo que necesita credenciales guardadas (hosts, identidades, SFTP, túneles, RDP/VNC, importar `~/.ssh/config`). Tras desbloquear, la acción que iniciaste continúa sola. En *Ajustes → Seguridad* puedes activar **Pedir la contraseña maestra al iniciar** para recuperar la pantalla de desbloqueo inicial.
+- **Bloqueo que conserva las sesiones**: al bloquear (botón de la barra superior o auto-bloqueo) las terminales abiertas, locales y remotas, siguen funcionando. Solo se impide abrir conexiones nuevas con credenciales hasta volver a desbloquear. La barra lateral de hosts muestra "Bóveda bloqueada" con un botón para desbloquearla.
+- **Auto-bloqueo por inactividad** (*Ajustes → Seguridad*): activo por defecto a los 10 minutos; el tiempo se puede cambiar (1 a 1440 min) o desactivar. Cuenta la actividad del teclado, el ratón y el foco, nunca la salida de las terminales.
 
 ---
 
@@ -136,13 +139,14 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 
 ### 4.13. Restauración de Sesiones
 - La **distribución de pestañas y paneles divididos** (estructura, proporciones, títulos e identificadores de host) se guarda automáticamente, con un pequeño retardo tras cada cambio. **Nunca** se guardan credenciales, hostnames, contenido de la terminal ni comandos.
-- Tras desbloquear la bóveda, según *Ajustes → Productividad de la terminal → Restaurar pestañas al iniciar*:
+- Tras desbloquear la bóveda (si el desbloqueo fue bajo demanda, la oferta aparece como un **aviso no modal** en la parte inferior, con *Restaurar* y *Descartar*, y no se sobrescribe el layout guardado mientras no respondas), según *Ajustes → Productividad de la terminal → Restaurar pestañas al iniciar*:
   - **Preguntar** (por defecto): un diálogo ofrece *Restaurar (N pestañas)* o *Empezar vacío*.
   - **Siempre**: se restaura sin preguntar.
   - **Nunca**: no se guarda ni se ofrece nada, y se borra el layout guardado.
 - **Conexión diferida**: cada pestaña restaurada conecta solo la primera vez que se activa, para no abrir muchas conexiones a la vez.
 - Los hosts que ya no existen se omiten y se avisa. Los shells locales se abren como shells nuevos (no se restaura el directorio ni el contenido). Los paneles RDP/VNC se restauran como paneles de escritorio remoto.
 - Bloquear y desbloquear la bóveda durante la misma ejecución no vuelve a preguntar.
+- Si el layout guardado solo tiene terminales locales, se restauran al arrancar sin necesidad de desbloquear. Si incluye hosts, la oferta se aplaza al primer desbloqueo.
 
 ### 4.14. Compatibilidad de Terminal (Unicode, OSC 52, Imágenes y Ligaduras)
 Se configuran en *Ajustes → Productividad de la terminal*.

@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Lazy vault unlock**: the app no longer asks for the master password at launch. It opens a local terminal right away and asks for the password only when you use something that needs stored credentials (saved hosts, identities, SFTP, tunnels, remote desktop, importing `~/.ssh/config`). After unlocking, the action you started continues on its own. The old behaviour is available with the new setting *Ask for the master password at startup*.
+- **Auto-lock on inactivity** (*Settings → Security*): enabled by default after 10 minutes, configurable from 1 to 1440 minutes or off. Inactivity is measured by your keyboard, mouse and focus, never by terminal output.
+- **Locking keeps your sessions**: locking the vault (manually or automatically) no longer closes open terminals; it only blocks opening new connections that use credentials until you unlock again.
+- **Previous-session offer as a banner**: after an on-demand unlock, restoring the previous session is offered in a non-blocking banner instead of a second dialog, and ignoring it never overwrites the saved layout.
+- **Reconnect button** for SSH sessions that were closed by the server or the network.
+- New settings: `ask_password_on_startup`, `auto_lock_enabled`, `auto_lock_minutes` (now 10 by default; the old value `0` is treated as unset). The backend locked-vault error now carries the stable code `VAULT_LOCKED:`.
+
+### Fixed
+- SSH sessions no longer freeze after a period of inactivity: a keepalive is sent every 30 s and a dead connection is detected after about 2 minutes. When a session closes unexpectedly, the terminal shows a notice and offers to reconnect.
+- Privacy audit test updated for `tauri-plugin-single-instance` (local IPC only, no network access).
+
 ---
 
 ## [0.1.1] - 2026-11-17
