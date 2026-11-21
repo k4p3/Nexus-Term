@@ -595,6 +595,13 @@ watch(
 
 const { runWithUnlock } = useEnsureUnlocked();
 
+/** Ajusta xterm al contenedor y avisa de las nuevas filas/columnas a la sesión. */
+function refit() {
+  if (!fitAddon || !term) return;
+  fitAddon.fit();
+  if (sessionId) sessionService.resizeSession(sessionId, term.cols, term.rows);
+}
+
 async function connectSession() {
   if (!term) return;
   try {
@@ -765,18 +772,16 @@ onMounted(async () => {
     }
   });
 
-  await connectSession();
-
-  // Handle container resizing
-  resizeObserver = new ResizeObserver(() => {
-    if (fitAddon && term) {
-      fitAddon.fit();
-      if (sessionId) {
-        sessionService.resizeSession(sessionId, term.cols, term.rows);
-      }
-    }
-  });
+  // El tamaño debe vigilarse ANTES de conectar: la terminal inicial se crea al arrancar y su contenedor
+  // puede cambiar de tamaño (diseño, tipografía) mientras se abre la sesión.
+  resizeObserver = new ResizeObserver(refit);
   resizeObserver.observe(terminalContainer.value);
+  // Al cargar la fuente cambia el tamaño de celda; sin esto quedaría un margen vacío bajo la terminal.
+  void document.fonts?.ready.then(refit);
+  requestAnimationFrame(refit);
+
+  await connectSession();
+  refit(); // la sesión se abrió con el tamaño de antes de conectar: se sincroniza con el actual
 
   terminalContainer.value.addEventListener('paste', onPasteEvent, true);
   uiStore.registerPaneActions(props.pane.id, {
@@ -1074,7 +1079,13 @@ function handleClose() {
 
     <!-- Terminal Element Container -->
     <div class="flex-1 w-full h-full p-1 relative overflow-hidden bg-slate-950">
-      <div v-show="!errorMessage" ref="terminalContainer" class="w-full h-full"></div>
+      <!-- xterm ajusta a filas enteras: el resto de píxeles toma el fondo del tema para que no se note -->
+      <div
+        v-show="!errorMessage"
+        ref="terminalContainer"
+        class="w-full h-full"
+        :style="{ backgroundColor: settingsStore.activeTheme.background }"
+      ></div>
 
       <!-- Search Bar Component -->
       <TerminalSearchBar
