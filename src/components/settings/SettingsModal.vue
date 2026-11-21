@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseModal from "../common/BaseModal.vue";
+import BaseButton from "../common/BaseButton.vue";
 import { ref, computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useSettingsStore } from '../../stores/settings.store';
@@ -201,39 +203,18 @@ async function handleResetDefaults() {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4">
-    <div
-      class="bg-surface border border-line rounded-xl shadow-2xl w-full max-w-4xl max-h-[85vh] flex flex-col overflow-hidden text-fg transition-colors"
-    >
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between px-6 py-4 border-b border-line bg-header">
-        <div class="flex items-center gap-2.5">
-          <div class="p-1.5 bg-app text-accent rounded-lg border border-line">
-            <Cpu class="w-5 h-5" />
-          </div>
-          <h2 class="text-base font-semibold text-fg tracking-wide">
-            {{ t('settings.title') }}
-          </h2>
-        </div>
-        <button
-          @click="emit('close')"
-          class="p-1.5 text-fg-muted hover:text-fg rounded-lg hover:bg-active transition-colors cursor-pointer"
-          :title="t('common.close')"
-        >
-          <X class="w-5 h-5" />
-        </button>
-      </div>
-
+  <BaseModal :title="t('settings.title')" size="xl" @close="emit('close')">
+    <template #icon><Cpu class="w-4 h-4" /></template>
       <!-- Main Layout: Sidebar Tabs + Content Area -->
-      <div class="flex flex-1 overflow-hidden">
+      <div class="-m-4 flex h-[62vh] overflow-hidden">
         <!-- Sidebar Navigation -->
         <nav class="w-56 border-r border-line bg-app/50 p-3 space-y-1 shrink-0">
           <button
             @click="activeTab = 'general'"
             :class="[
-              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left cursor-pointer',
+              'w-full flex items-center gap-3 px-3 h-9 text-sm font-medium rounded-control transition-colors text-left cursor-pointer',
               activeTab === 'general'
-                ? 'bg-active text-accent border border-line shadow-xs font-semibold'
+                ? 'bg-active text-fg font-semibold'
                 : 'text-fg-muted hover:text-fg hover:bg-active/50',
             ]"
           >
@@ -244,9 +225,9 @@ async function handleResetDefaults() {
           <button
             @click="activeTab = 'terminal'"
             :class="[
-              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left cursor-pointer',
+              'w-full flex items-center gap-3 px-3 h-9 text-sm font-medium rounded-control transition-colors text-left cursor-pointer',
               activeTab === 'terminal'
-                ? 'bg-active text-accent border border-line shadow-xs font-semibold'
+                ? 'bg-active text-fg font-semibold'
                 : 'text-fg-muted hover:text-fg hover:bg-active/50',
             ]"
           >
@@ -257,9 +238,9 @@ async function handleResetDefaults() {
           <button
             @click="activeTab = 'shell'"
             :class="[
-              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left cursor-pointer',
+              'w-full flex items-center gap-3 px-3 h-9 text-sm font-medium rounded-control transition-colors text-left cursor-pointer',
               activeTab === 'shell'
-                ? 'bg-active text-accent border border-line shadow-xs font-semibold'
+                ? 'bg-active text-fg font-semibold'
                 : 'text-fg-muted hover:text-fg hover:bg-active/50',
             ]"
           >
@@ -270,9 +251,9 @@ async function handleResetDefaults() {
           <button
             @click="activeTab = 'security'"
             :class="[
-              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left cursor-pointer',
+              'w-full flex items-center gap-3 px-3 h-9 text-sm font-medium rounded-control transition-colors text-left cursor-pointer',
               activeTab === 'security'
-                ? 'bg-active text-accent border border-line shadow-xs font-semibold'
+                ? 'bg-active text-fg font-semibold'
                 : 'text-fg-muted hover:text-fg hover:bg-active/50',
             ]"
           >
@@ -283,9 +264,9 @@ async function handleResetDefaults() {
           <button
             @click="activeTab = 'about'"
             :class="[
-              'w-full flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors text-left cursor-pointer',
+              'w-full flex items-center gap-3 px-3 h-9 text-sm font-medium rounded-control transition-colors text-left cursor-pointer',
               activeTab === 'about'
-                ? 'bg-active text-accent border border-line shadow-xs font-semibold'
+                ? 'bg-active text-fg font-semibold'
                 : 'text-fg-muted hover:text-fg hover:bg-active/50',
             ]"
           >
@@ -873,23 +854,12 @@ async function handleResetDefaults() {
         </div>
       </div>
 
-      <!-- Footer Bar -->
-      <div class="flex items-center justify-between px-6 py-3 border-t border-line bg-app/40">
-        <button
-          @click="handleResetDefaults"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-fg-muted hover:text-fg rounded-lg hover:bg-active transition-colors"
-        >
-          <RotateCcw class="w-3.5 h-3.5" />
-          <span>{{ t('settings.resetDefaults') }}</span>
-        </button>
-
-        <button
-          @click="emit('close')"
-          class="px-4 py-1.5 bg-accent hover:bg-accent-hover text-on-accent text-xs font-medium rounded-lg transition-colors"
-        >
-          {{ t('common.close') }}
-        </button>
-      </div>
-    </div>
-  </div>
+    <template #footer>
+      <BaseButton variant="ghost" class="mr-auto" @click="handleResetDefaults">
+        <RotateCcw class="w-3.5 h-3.5" />
+        <span>{{ t('settings.resetDefaults') }}</span>
+      </BaseButton>
+      <BaseButton variant="primary" @click="emit('close')">{{ t('common.close') }}</BaseButton>
+    </template>
+  </BaseModal>
 </template>
