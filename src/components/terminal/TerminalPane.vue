@@ -909,7 +909,7 @@ function handleClose() {
         <!-- Shell Integration Status Badge -->
         <div
           v-if="lastExitCode !== null"
-          class="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.2 rounded bg-active950 border border-line800"
+          class="inline-flex items-center gap-1 text-[10px] font-mono px-1.5 py-0.2 rounded bg-app border border-line"
           :title="`Último comando: Salida ${lastExitCode} (${lastDuration || '0s'})`"
         >
           <CheckCircle2 v-if="lastExitCode === 0" class="w-3 h-3 text-success" />
@@ -917,7 +917,7 @@ function handleClose() {
           <span :class="lastExitCode === 0 ? 'text-success' : 'text-danger'">
             {{ lastExitCode }}
           </span>
-          <span v-if="lastDuration" class="text-fg500 text-[9px]">
+          <span v-if="lastDuration" class="text-fg-muted text-[9px]">
             {{ lastDuration }}
           </span>
         </div>
@@ -929,7 +929,7 @@ function handleClose() {
           v-if="blockCount > 0"
           @click.stop="copyLastOutput"
           :title="isOutputCopied ? '¡Copiado!' : 'Copiar Salida del Último Comando'"
-          class="p-1 text-fg400 hover:text-accent rounded-sm hover:bg-active800 transition-colors"
+          class="p-1 text-fg-muted hover:text-accent rounded-sm hover:bg-active transition-colors"
         >
           <Copy class="w-3 h-3" :class="isOutputCopied ? 'text-success' : ''" />
         </button>
@@ -938,7 +938,7 @@ function handleClose() {
         <button
           @click.stop="isSearchOpen = !isSearchOpen"
           title="Buscar en buffer (Ctrl+F)"
-          class="p-1 text-fg400 hover:text-fg rounded-sm hover:bg-active800 transition-colors"
+          class="p-1 text-fg-muted hover:text-fg rounded-sm hover:bg-active transition-colors"
         >
           <Search class="w-3 h-3" />
         </button>
@@ -948,7 +948,7 @@ function handleClose() {
           v-if="blockCount > 0"
           @click.stop="jumpToPreviousPrompt"
           title="Comando Anterior (Ctrl+Shift+↑)"
-          class="p-1 text-fg400 hover:text-fg rounded-sm hover:bg-active800 transition-colors"
+          class="p-1 text-fg-muted hover:text-fg rounded-sm hover:bg-active transition-colors"
         >
           <ChevronUp class="w-3 h-3" />
         </button>
@@ -956,7 +956,7 @@ function handleClose() {
           v-if="blockCount > 0"
           @click.stop="jumpToNextPrompt"
           title="Comando Siguiente (Ctrl+Shift+↓)"
-          class="p-1 text-fg400 hover:text-fg rounded-sm hover:bg-active800 transition-colors"
+          class="p-1 text-fg-muted hover:text-fg rounded-sm hover:bg-active transition-colors"
         >
           <ChevronDown class="w-3 h-3" />
         </button>
@@ -967,7 +967,7 @@ function handleClose() {
           @click.stop="telemetryStore.togglePaneTelemetry(pane.id, pane.hostId)"
           :title="telemetryStore.isTelemetryVisible[pane.id] ? 'Ocultar monitor de telemetría' : 'Mostrar monitor de telemetría (CPU, RAM, Red)'"
           class="p-1 rounded-sm transition-colors cursor-pointer"
-          :class="telemetryStore.isTelemetryVisible[pane.id] ? 'bg-warning/20 text-warning' : 'text-fg400 hover:text-warning hover:bg-active800'"
+          :class="telemetryStore.isTelemetryVisible[pane.id] ? 'bg-warning/20 text-warning' : 'text-fg-muted hover:text-warning hover:bg-active'"
         >
           <Activity class="w-3 h-3" />
         </button>
@@ -975,7 +975,7 @@ function handleClose() {
         <button
           @click.stop="openSplitMenu('horizontal')"
           :title="`${t('terminal.splitRight')} (Ctrl+Shift+O / Ctrl+Shift+D)`"
-          class="p-1 text-fg400 hover:text-fg rounded-sm hover:bg-active800 transition-colors"
+          class="p-1 text-fg-muted hover:text-fg rounded-sm hover:bg-active transition-colors"
           :class="isSplitMenuOpen && splitDirection === 'horizontal' ? 'bg-accent/20 text-accent' : ''"
         >
           <Columns class="w-3 h-3" />
@@ -983,7 +983,7 @@ function handleClose() {
         <button
           @click.stop="openSplitMenu('vertical')"
           :title="`${t('terminal.splitDown')} (Ctrl+Shift+E)`"
-          class="p-1 text-fg400 hover:text-fg rounded-sm hover:bg-active800 transition-colors"
+          class="p-1 text-fg-muted hover:text-fg rounded-sm hover:bg-active transition-colors"
           :class="isSplitMenuOpen && splitDirection === 'vertical' ? 'bg-accent/20 text-accent' : ''"
         >
           <Rows class="w-3 h-3" />
@@ -991,7 +991,7 @@ function handleClose() {
         <button
           @click.stop="handleClose"
           :title="`${t('terminal.closePane')} (Ctrl+Shift+W)`"
-          class="p-1 text-fg400 hover:text-danger rounded-sm hover:bg-active800 transition-colors"
+          class="p-1 text-fg-muted hover:text-danger rounded-sm hover:bg-active transition-colors"
         >
           <X class="w-3 h-3" />
         </button>
@@ -1039,7 +1039,7 @@ function handleClose() {
         <button
           type="button"
           @click.stop="splitWithLocal"
-          class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-fg300 hover:text-fg hover:bg-active800 text-left transition-colors cursor-pointer"
+          class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-fg hover:text-fg hover:bg-active text-left transition-colors cursor-pointer"
         >
           <TerminalIcon class="w-3.5 h-3.5 text-info shrink-0" />
           <span>Nueva Terminal Local</span>
@@ -1049,7 +1049,7 @@ function handleClose() {
           v-if="pane.host"
           type="button"
           @click.stop="splitWithDuplicate"
-          class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-fg300 hover:text-fg hover:bg-active800 text-left transition-colors cursor-pointer"
+          class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-fg hover:text-fg hover:bg-active text-left transition-colors cursor-pointer"
         >
           <Server class="w-3.5 h-3.5 text-accent shrink-0" />
           <span class="truncate">Mismo Servidor ({{ pane.host.label }})</span>
@@ -1058,35 +1058,35 @@ function handleClose() {
         <button
           type="button"
           @click.stop="showServerPicker = !showServerPicker"
-          class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-fg300 hover:text-fg hover:bg-active800 text-left transition-colors cursor-pointer"
+          class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-fg hover:text-fg hover:bg-active text-left transition-colors cursor-pointer"
         >
           <div class="flex items-center gap-2 truncate">
             <Server class="w-3.5 h-3.5 text-accent shrink-0" />
             <span>Elegir Servidor...</span>
           </div>
-          <ChevronRight class="w-3 h-3 text-fg500" :class="showServerPicker ? 'rotate-90' : ''" />
+          <ChevronRight class="w-3 h-3 text-fg-muted" :class="showServerPicker ? 'rotate-90' : ''" />
         </button>
 
         <!-- Sublist of saved hosts -->
-        <div v-if="showServerPicker" class="pl-4 max-h-28 overflow-y-auto space-y-0.5 border-l border-line800 ml-2">
+        <div v-if="showServerPicker" class="pl-4 max-h-28 overflow-y-auto space-y-0.5 border-l border-line ml-2">
           <button
             v-for="h in vaultStore.hosts"
             :key="h.id"
             type="button"
             @click.stop="splitWithHost(h)"
-            class="w-full flex items-center gap-1.5 px-2 py-1 rounded text-fg300 hover:text-fg hover:bg-active800 text-left truncate text-[11px] transition-colors"
+            class="w-full flex items-center gap-1.5 px-2 py-1 rounded text-fg hover:text-fg hover:bg-active text-left truncate text-[11px] transition-colors"
           >
             <span class="truncate">{{ h.label }}</span>
           </button>
-          <div v-if="vaultStore.hosts.length === 0" class="text-[10px] text-fg500 py-1">
+          <div v-if="vaultStore.hosts.length === 0" class="text-[10px] text-fg-muted py-1">
             Sin servidores guardados
           </div>
         </div>
       </div>
 
       <!-- Dock existing open tab into this split -->
-      <div v-if="otherTabs.length > 0" class="pt-1.5 border-t border-line800">
-        <div class="text-[10px] uppercase font-semibold text-fg400 px-1 mb-1">
+      <div v-if="otherTabs.length > 0" class="pt-1.5 border-t border-line">
+        <div class="text-[10px] uppercase font-semibold text-fg-muted px-1 mb-1">
           Mover pestaña aquí:
         </div>
         <div class="max-h-28 overflow-y-auto space-y-0.5">
@@ -1095,7 +1095,7 @@ function handleClose() {
             :key="ot.id"
             type="button"
             @click.stop="dockExistingTab(ot.id)"
-            class="w-full flex items-center gap-2 px-2.5 py-1 rounded-md text-fg300 hover:text-fg hover:bg-active800 text-left truncate transition-colors text-[11px] cursor-pointer"
+            class="w-full flex items-center gap-2 px-2.5 py-1 rounded-md text-fg hover:text-fg hover:bg-active text-left truncate transition-colors text-[11px] cursor-pointer"
           >
             <FolderInput class="w-3 h-3 text-warning shrink-0" />
             <span class="truncate">{{ ot.title }}</span>
@@ -1105,7 +1105,7 @@ function handleClose() {
     </div>
 
     <!-- Terminal Element Container -->
-    <div class="flex-1 w-full h-full p-1 relative overflow-hidden bg-active950">
+    <div class="flex-1 w-full h-full p-1 relative overflow-hidden bg-app">
       <!-- xterm ajusta a filas enteras: el resto de píxeles toma el fondo del tema para que no se note -->
       <div
         v-show="!errorMessage"
@@ -1132,7 +1132,7 @@ function handleClose() {
       />
 
       <!-- Connecting Spinner -->
-      <div v-if="isConnecting" class="absolute inset-0 bg-active950 flex items-center justify-center space-x-2 text-xs text-fg400">
+      <div v-if="isConnecting" class="absolute inset-0 bg-app/80 flex items-center justify-center space-x-2 text-xs text-fg-muted">
         <Loader2 class="w-4 h-4 animate-spin text-accent" />
         <span>Conectando sesión...</span>
       </div>
@@ -1148,13 +1148,13 @@ function handleClose() {
       </div>
 
       <!-- Error State -->
-      <div v-if="errorMessage" class="absolute inset-0 bg-active950 p-6 flex flex-col items-center justify-center text-center">
+      <div v-if="errorMessage" class="absolute inset-0 bg-app p-6 flex flex-col items-center justify-center text-center">
         <AlertCircle class="w-8 h-8 text-danger mb-2" />
         <h4 class="text-sm font-bold text-fg mb-1">Error de Conexión</h4>
-        <p class="text-xs text-fg400 max-w-sm mb-4">{{ errorMessage }}</p>
+        <p class="text-xs text-fg-muted max-w-sm mb-4">{{ errorMessage }}</p>
         <button
           @click="handleClose"
-          class="px-3 py-1.5 bg-active800 hover:bg-active700 text-xs font-medium text-fg rounded-lg transition"
+          class="px-3 py-1.5 bg-active hover:bg-active text-xs font-medium text-fg rounded-lg transition"
         >
           Cerrar Panel
         </button>

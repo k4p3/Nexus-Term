@@ -50,8 +50,8 @@ async function handleAction() {
 </script>
 
 <template>
-  <div class="h-full w-full flex items-center justify-center bg-active950 p-4">
-    <div class="w-full max-w-md bg-active900 border border-line800 rounded-2xl p-8 shadow-2xl relative overflow-hidden">
+  <div class="h-full w-full flex items-center justify-center bg-app p-4">
+    <div class="w-full max-w-md bg-surface border border-line rounded-2xl p-8 shadow-2xl relative overflow-hidden">
       <!-- Decorative background glow -->
       <div class="absolute -top-16 -right-16 w-44 h-44 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
       <div class="absolute -bottom-16 -left-16 w-44 h-44 bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -64,14 +64,14 @@ async function handleAction() {
         <h2 class="text-2xl font-bold tracking-tight text-fg">
           {{ !vaultStore.isInitialized ? t('vault.createTitle') : t('vault.unlockTitle') }}
         </h2>
-        <p class="text-xs text-fg400 mt-1 max-w-xs mx-auto">
+        <p class="text-xs text-fg-muted mt-1 max-w-xs mx-auto">
           {{ !vaultStore.isInitialized ? t('vault.initPrompt') : t('vault.unlockPrompt') }}
         </p>
       </div>
 
       <form @submit.prevent="handleAction" class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-fg300 mb-1.5">
+          <label class="block text-xs font-medium text-fg mb-1.5">
             {{ t('vault.masterPassword') }}
           </label>
           <input
@@ -80,12 +80,12 @@ async function handleAction() {
             autocomplete="current-password"
             autofocus
             placeholder="••••••••••••"
-            class="w-full px-3.5 py-2.5 bg-active950 border border-line700 rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition shadow-xs"
+            class="w-full px-3.5 py-2.5 bg-app border border-line/80 rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition shadow-xs"
           />
         </div>
 
         <div v-if="!vaultStore.isInitialized">
-          <label class="block text-xs font-medium text-fg300 mb-1.5">
+          <label class="block text-xs font-medium text-fg mb-1.5">
             {{ t('vault.confirmPassword') }}
           </label>
           <input
@@ -93,7 +93,7 @@ async function handleAction() {
             type="password"
             autocomplete="new-password"
             placeholder="••••••••••••"
-            class="w-full px-3.5 py-2.5 bg-active950 border border-line700 rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition shadow-xs"
+            class="w-full px-3.5 py-2.5 bg-app border border-line/80 rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition shadow-xs"
           />
         </div>
 
@@ -113,7 +113,7 @@ async function handleAction() {
           </span>
         </button>
 
-        <div class="pt-2 flex items-center justify-center space-x-1.5 text-[11px] text-fg500">
+        <div class="pt-2 flex items-center justify-center space-x-1.5 text-[11px] text-fg-muted">
           <ShieldCheck class="w-3.5 h-3.5 text-accent/80" />
           <span>Argon2id + AES-256-GCM Zero-Knowledge</span>
         </div>

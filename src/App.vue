@@ -57,10 +57,7 @@ const isSnippetsOpen = ref(false);
 const isTunnelsOpen = ref(false);
 const isSidebarVisible = ref(true);
 
-let stopSystemModeWatch: () => void = () => {};
-
 onMounted(async () => {
-  stopSystemModeWatch = settingsStore.watchSystemMode();
   await settingsStore.loadSettings();
   await vaultStore.checkStatus();
   appReady.value = true;
@@ -70,7 +67,6 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-  stopSystemModeWatch();
   window.removeEventListener("keydown", handleGlobalKeyDown);
   window.removeEventListener("focus", handleWindowFocus);
 });
@@ -248,7 +244,7 @@ function handleInsertCommand(command: string) {
           :title="t('vault.unlock')"
           class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium text-fg-muted hover:text-fg bg-surface hover:bg-active border border-line rounded-lg transition-colors cursor-pointer"
         >
-          <Lock class="w-3.5 h-3.5 text-fg400" />
+          <Lock class="w-3.5 h-3.5 text-fg-muted" />
           <span>{{ t('vault.unlock') }}</span>
         </button>
       </div>

@@ -327,21 +327,21 @@ onUnmounted(() => {
           </div>
         </div>
 
-        <div v-if="items.length === 0" class="p-6 text-center text-xs text-fg500">
+        <div v-if="items.length === 0" class="p-6 text-center text-xs text-fg-muted">
           No se encontraron servidores o comandos que coincidan con "{{ query }}".
         </div>
       </div>
 
       <!-- Footer navigation hints -->
-      <div class="px-4 py-2 border-t border-line800 bg-active950 flex items-center justify-between text-[11px] text-fg500">
+      <div class="px-4 py-2 border-t border-line/80 bg-app/40 flex items-center justify-between text-[11px] text-fg-muted">
         <div class="flex items-center space-x-3">
           <span class="flex items-center space-x-1">
-            <kbd class="px-1 bg-active800 rounded border border-line700 font-mono text-[9px]">↑</kbd>
-            <kbd class="px-1 bg-active800 rounded border border-line700 font-mono text-[9px]">↓</kbd>
+            <kbd class="px-1 bg-active rounded border border-line font-mono text-[9px]">↑</kbd>
+            <kbd class="px-1 bg-active rounded border border-line font-mono text-[9px]">↓</kbd>
             <span>Navegar</span>
           </span>
           <span class="flex items-center space-x-1">
-            <kbd class="px-1 bg-active800 rounded border border-line700 font-mono text-[9px]">↵</kbd>
+            <kbd class="px-1 bg-active rounded border border-line font-mono text-[9px]">↵</kbd>
             <span>Conectar</span>
           </span>
         </div>

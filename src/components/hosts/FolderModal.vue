@@ -77,33 +77,33 @@ async function handleSave() {
 
 <template>
   <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4">
-    <div class="w-full max-w-sm bg-active900 border border-line800 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-      <div class="px-5 py-3.5 border-b border-line800 flex items-center justify-between bg-active950">
+    <div class="w-full max-w-sm bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div class="px-5 py-3.5 border-b border-line flex items-center justify-between bg-app/40">
         <div class="flex items-center space-x-2">
           <FolderIcon class="w-5 h-5 text-accent" />
           <h3 class="text-sm font-bold text-fg">
             {{ folderToEdit ? 'Editar Carpeta' : 'Nueva Carpeta' }}
           </h3>
         </div>
-        <button @click="emit('close')" class="text-fg400 hover:text-fg p-1 rounded-lg hover:bg-active800 transition">
+        <button @click="emit('close')" class="text-fg-muted hover:text-fg p-1 rounded-lg hover:bg-active transition">
           <X class="w-4 h-4" />
         </button>
       </div>
 
       <form @submit.prevent="handleSave" class="p-5 space-y-4">
         <div>
-          <label class="block text-xs font-medium text-fg300 mb-1">Nombre de la Carpeta</label>
+          <label class="block text-xs font-medium text-fg mb-1">Nombre de la Carpeta</label>
           <input
             v-model="name"
             type="text"
             required
             placeholder="ej. Producción / Clientes / Laboratorio"
-            class="w-full px-3 py-2 bg-active950 border border-line700 rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
+            class="w-full px-3 py-2 bg-app border border-line/80 rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-fg300 mb-1.5">Color de Distinción</label>
+          <label class="block text-xs font-medium text-fg mb-1.5">Color de Distinción</label>
           <div class="flex items-center space-x-2">
             <button
               v-for="c in colorOptions"
@@ -121,11 +121,11 @@ async function handleSave() {
           {{ error }}
         </div>
 
-        <div class="pt-3 border-t border-line800 flex items-center justify-end space-x-2">
+        <div class="pt-3 border-t border-line flex items-center justify-end space-x-2">
           <button
             type="button"
             @click="emit('close')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-fg400 hover:text-fg hover:bg-active800 transition"
+            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-fg-muted hover:text-fg hover:bg-active transition"
           >
             Cancelar
           </button>

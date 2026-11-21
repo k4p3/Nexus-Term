@@ -111,10 +111,10 @@ function handleSubmit() {
     class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4"
   >
     <div
-      class="bg-active900 border border-line700 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col text-fg100"
+      class="bg-surface border border-line/80 rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col text-fg"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between px-5 py-3.5 border-b border-line800 bg-active950">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-line bg-app/40">
         <div class="flex items-center space-x-2.5">
           <div class="p-1.5 rounded-lg bg-accent/10 text-accent border border-accent/20">
             <ArrowRightLeft class="w-4 h-4" />
@@ -123,14 +123,14 @@ function handleSubmit() {
             <h2 class="text-sm font-semibold text-fg">
               {{ tunnelToEdit ? "Editar Túnel SSH" : "Nuevo Túnel SSH" }}
             </h2>
-            <p class="text-[11px] text-fg400">
+            <p class="text-[11px] text-fg-muted">
               Configura reenvío de puertos (Local, Remoto o SOCKS5)
             </p>
           </div>
         </div>
         <button
           @click="emit('close')"
-          class="text-fg400 hover:text-fg p-1 rounded-lg hover:bg-active800 transition"
+          class="text-fg-muted hover:text-fg p-1 rounded-lg hover:bg-active transition"
         >
           <X class="w-4 h-4" />
         </button>
@@ -150,18 +150,18 @@ function handleSubmit() {
         <!-- Name & Host -->
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-[11px] font-medium text-fg300 mb-1">Nombre de la Regla</label>
+            <label class="block text-[11px] font-medium text-fg mb-1">Nombre de la Regla</label>
             <input
               v-model="name"
               type="text"
               placeholder="ej. Postgres Prod"
-              class="w-full px-3 py-1.5 bg-active950 border border-line700 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent transition"
+              class="w-full px-3 py-1.5 bg-app/60 border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent transition"
               required
             />
           </div>
 
           <div>
-            <label class="block text-[11px] font-medium text-fg300 mb-1">Servidor SSH</label>
+            <label class="block text-[11px] font-medium text-fg mb-1">Servidor SSH</label>
             <CustomSelect
               v-model="hostId"
               :options="hostOptions"
@@ -172,7 +172,7 @@ function handleSubmit() {
 
         <!-- Tunnel Type Selector -->
         <div>
-          <label class="block text-[11px] font-medium text-fg300 mb-1.5">Tipo de Reenvío</label>
+          <label class="block text-[11px] font-medium text-fg mb-1.5">Tipo de Reenvío</label>
           <div class="grid grid-cols-3 gap-2">
             <button
               type="button"
@@ -181,7 +181,7 @@ function handleSubmit() {
               :class="
                 tunnelType === 'local'
                   ? 'bg-accent/15 border-accent/40 text-accent shadow-xs'
-                  : 'bg-active950 border-line800 text-fg400 hover:text-fg200'
+                  : 'bg-app/40 border-line text-fg-muted hover:text-fg'
               "
             >
               <div class="font-medium text-xs">Local (-L)</div>
@@ -195,7 +195,7 @@ function handleSubmit() {
               :class="
                 tunnelType === 'remote'
                   ? 'bg-accent/15 border-accent/40 text-accent shadow-xs'
-                  : 'bg-active950 border-line800 text-fg400 hover:text-fg200'
+                  : 'bg-app/40 border-line text-fg-muted hover:text-fg'
               "
             >
               <div class="font-medium text-xs">Remoto (-R)</div>
@@ -209,7 +209,7 @@ function handleSubmit() {
               :class="
                 tunnelType === 'dynamic'
                   ? 'bg-success/15 border-success/40 text-success shadow-xs'
-                  : 'bg-active950 border-line800 text-fg400 hover:text-fg200'
+                  : 'bg-app/40 border-line text-fg-muted hover:text-fg'
               "
             >
               <div class="font-medium text-xs">SOCKS5 (-D)</div>
@@ -219,58 +219,58 @@ function handleSubmit() {
         </div>
 
         <!-- Port Configurations -->
-        <div class="p-3.5 rounded-xl bg-active950 border border-line800 space-y-3">
+        <div class="p-3.5 rounded-xl bg-app/40 border border-line/80 space-y-3">
           <!-- Local Bind -->
           <div class="grid grid-cols-3 gap-2">
             <div class="col-span-2">
-              <label class="block text-[10px] font-medium text-fg400 mb-1">
+              <label class="block text-[10px] font-medium text-fg-muted mb-1">
                 {{ tunnelType === 'remote' ? 'Destino Local' : 'Host en Escucha Local' }}
               </label>
               <input
                 v-model="localHost"
                 type="text"
                 placeholder="127.0.0.1"
-                class="w-full px-2.5 py-1.5 bg-active900 border border-line700 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent font-mono transition"
+                class="w-full px-2.5 py-1.5 bg-surface border border-line/80 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent font-mono transition"
                 required
               />
             </div>
             <div>
-              <label class="block text-[10px] font-medium text-fg400 mb-1">Puerto Local</label>
+              <label class="block text-[10px] font-medium text-fg-muted mb-1">Puerto Local</label>
               <input
                 v-model.number="localPort"
                 type="number"
                 min="1"
                 max="65535"
                 placeholder="ej. 5433"
-                class="w-full px-2.5 py-1.5 bg-active900 border border-line700 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent font-mono transition"
+                class="w-full px-2.5 py-1.5 bg-surface border border-line/80 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent font-mono transition"
                 required
               />
             </div>
           </div>
 
           <!-- Remote Destination (if not dynamic) -->
-          <div v-if="tunnelType !== 'dynamic'" class="grid grid-cols-3 gap-2 pt-1 border-t border-line800">
+          <div v-if="tunnelType !== 'dynamic'" class="grid grid-cols-3 gap-2 pt-1 border-t border-line/60">
             <div class="col-span-2">
-              <label class="block text-[10px] font-medium text-fg400 mb-1">
+              <label class="block text-[10px] font-medium text-fg-muted mb-1">
                 {{ tunnelType === 'remote' ? 'Host Remoto en Escucha' : 'Destino Remoto' }}
               </label>
               <input
                 v-model="remoteHost"
                 type="text"
                 placeholder="127.0.0.1 o host interno"
-                class="w-full px-2.5 py-1.5 bg-active900 border border-line700 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent font-mono transition"
+                class="w-full px-2.5 py-1.5 bg-surface border border-line/80 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent font-mono transition"
                 required
               />
             </div>
             <div>
-              <label class="block text-[10px] font-medium text-fg400 mb-1">Puerto Remoto</label>
+              <label class="block text-[10px] font-medium text-fg-muted mb-1">Puerto Remoto</label>
               <input
                 v-model.number="remotePort"
                 type="number"
                 min="1"
                 max="65535"
                 placeholder="ej. 5432"
-                class="w-full px-2.5 py-1.5 bg-active900 border border-line700 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent font-mono transition"
+                class="w-full px-2.5 py-1.5 bg-surface border border-line/80 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent font-mono transition"
                 required
               />
             </div>
@@ -283,11 +283,11 @@ function handleSubmit() {
         </div>
 
         <!-- Footer Actions -->
-        <div class="flex items-center justify-end space-x-2 pt-2 border-t border-line800">
+        <div class="flex items-center justify-end space-x-2 pt-2 border-t border-line">
           <button
             type="button"
             @click="emit('close')"
-            class="px-3.5 py-1.5 text-xs text-fg400 hover:text-fg hover:bg-active800 rounded-lg transition cursor-pointer"
+            class="px-3.5 py-1.5 text-xs text-fg-muted hover:text-fg hover:bg-active rounded-lg transition cursor-pointer"
           >
             Cancelar
           </button>

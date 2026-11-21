@@ -57,10 +57,10 @@ function handleExecute() {
     class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4"
   >
     <div
-      class="bg-active900 border border-line700 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col text-fg100"
+      class="bg-surface border border-line/80 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col text-fg"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between px-5 py-3.5 border-b border-line800 bg-active950">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-line bg-app/40">
         <div class="flex items-center gap-2 truncate">
           <div class="p-1.5 bg-accent/20 text-accent rounded-lg shrink-0">
             <Sparkles class="w-4 h-4" />
@@ -71,7 +71,7 @@ function handleExecute() {
         </div>
         <button
           @click="emit('close')"
-          class="p-1 text-fg400 hover:text-fg rounded-lg hover:bg-active800 transition-colors"
+          class="p-1 text-fg-muted hover:text-fg rounded-lg hover:bg-active transition-colors"
         >
           <X class="w-4 h-4" />
         </button>
@@ -79,12 +79,12 @@ function handleExecute() {
 
       <!-- Parameters inputs -->
       <form @submit.prevent="handleExecute" class="p-5 space-y-4">
-        <div class="p-3 bg-active950 border border-line800 rounded-xl font-mono text-xs text-accent break-all select-all">
+        <div class="p-3 bg-app border border-line rounded-xl font-mono text-xs text-accent break-all select-all">
           {{ snippet.command_template }}
         </div>
 
         <div v-if="paramsList.length > 0" class="space-y-3">
-          <p class="text-xs text-fg400 font-medium">Ingresa los valores de los parámetros:</p>
+          <p class="text-xs text-fg-muted font-medium">Ingresa los valores de los parámetros:</p>
           <div v-for="param in paramsList" :key="param">
             <label class="block text-[11px] font-mono text-accent mb-1">
               &#123;&#123; {{ param }} &#125;&#125;
@@ -93,18 +93,18 @@ function handleExecute() {
               v-model="paramValues[param]"
               type="text"
               :placeholder="`Valor para ${param}`"
-              class="w-full px-3 py-1.5 bg-active950 border border-line800 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
+              class="w-full px-3 py-1.5 bg-app border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
               autofocus
             />
           </div>
         </div>
 
         <!-- Footer -->
-        <div class="pt-3 border-t border-line800 flex items-center justify-end gap-2">
+        <div class="pt-3 border-t border-line flex items-center justify-end gap-2">
           <button
             type="button"
             @click="emit('close')"
-            class="px-3 py-1.5 text-xs text-fg400 hover:text-fg rounded-lg transition-colors"
+            class="px-3 py-1.5 text-xs text-fg-muted hover:text-fg rounded-lg transition-colors"
           >
             {{ t('common.cancel') }}
           </button>

@@ -281,10 +281,10 @@ async function handleResetDefaults() {
           <!-- 1. GENERAL TAB (LANGUAGE & EXTENSION) -->
           <div v-if="activeTab === 'general'" class="space-y-6">
             <div>
-              <h3 class="text-sm font-medium text-fg200 mb-1">
+              <h3 class="text-sm font-medium text-fg mb-1">
                 {{ t('settings.language') }}
               </h3>
-              <p class="text-xs text-fg400 mb-3">
+              <p class="text-xs text-fg-muted mb-3">
                 {{ t('settings.selectLanguage') }}
               </p>
 
@@ -297,7 +297,7 @@ async function handleResetDefaults() {
                     'flex items-center justify-between p-3 rounded-lg border text-sm font-medium transition-all text-left',
                     settingsStore.settings.locale === loc.code
                       ? 'border-accent bg-accent/10 text-fg'
-                      : 'border-line800 bg-active950 text-fg300 hover:border-line700',
+                      : 'border-line bg-app/40 text-fg hover:border-line',
                   ]"
                 >
                   <span>{{ loc.name }}</span>
@@ -309,11 +309,11 @@ async function handleResetDefaults() {
               </div>
             </div>
 
-            <div class="pt-4 border-t border-line800">
-              <h4 class="text-xs font-semibold text-fg300 uppercase tracking-wider mb-2">
+            <div class="pt-4 border-t border-line">
+              <h4 class="text-xs font-semibold text-fg uppercase tracking-wider mb-2">
                 {{ t('settings.importTranslation') }}
               </h4>
-              <p class="text-xs text-fg400 mb-3">
+              <p class="text-xs text-fg-muted mb-3">
                 Load a community-created JSON translation file. Claves ausentes utilizarán el idioma base (Inglés).
               </p>
 
@@ -322,11 +322,11 @@ async function handleResetDefaults() {
                   v-model="customLocaleCode"
                   type="text"
                   placeholder="Locale Code (e.g. fr, de, pt-BR)"
-                  class="w-full sm:w-44 px-3 py-2 bg-active950 border border-line800 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
+                  class="w-full sm:w-44 px-3 py-2 bg-app border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
                 />
 
                 <label
-                  class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3 py-2 bg-active800 hover:bg-active700 text-fg200 text-xs font-medium rounded-lg cursor-pointer transition-colors"
+                  class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3 py-2 bg-active hover:bg-active text-fg text-xs font-medium rounded-lg cursor-pointer transition-colors"
                 >
                   <Upload class="w-3.5 h-3.5" />
                   <span>Choose JSON</span>
@@ -351,10 +351,10 @@ async function handleResetDefaults() {
 
             <!-- Window & System Tray Behavior -->
             <div class="pt-4 border-t border-line">
-              <h4 class="text-xs font-semibold text-fg300 uppercase tracking-wider mb-1">
+              <h4 class="text-xs font-semibold text-fg uppercase tracking-wider mb-1">
                 Bandeja del Sistema (System Tray)
               </h4>
-              <p class="text-xs text-fg400 mb-3">
+              <p class="text-xs text-fg-muted mb-3">
                 Permite que NexusTerm continúe ejecutándose en segundo plano para no interrumpir túneles SSH ni transferencias activas.
               </p>
 
@@ -373,10 +373,10 @@ async function handleResetDefaults() {
 
             <!-- SFTP Transfers Settings -->
             <div class="pt-4 border-t border-line">
-              <h4 class="text-xs font-semibold text-fg300 uppercase tracking-wider mb-1">
+              <h4 class="text-xs font-semibold text-fg uppercase tracking-wider mb-1">
                 {{ t('settings.sftpSection') }}
               </h4>
-              <p class="text-xs text-fg400 mb-3">
+              <p class="text-xs text-fg-muted mb-3">
                 {{ t('settings.sftpConcurrentDesc') }}
               </p>
 
@@ -399,7 +399,7 @@ async function handleResetDefaults() {
                   @change="settingsStore.updateSettings({ paste_warning: ($event.target as HTMLInputElement).checked })" />
                 <span>
                   <span class="block text-xs font-medium text-fg">{{ t('settings.pasteWarning') }}</span>
-                  <span class="block text-xs text-fg400">{{ t('settings.pasteWarningDesc') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.pasteWarningDesc') }}</span>
                 </span>
               </label>
               <label class="flex items-center space-x-2 max-w-md">
@@ -413,7 +413,7 @@ async function handleResetDefaults() {
                   @change="settingsStore.updateSettings({ notify_long_commands: ($event.target as HTMLInputElement).checked })" />
                 <span>
                   <span class="block text-xs font-medium text-fg">{{ t('settings.notifyLong') }}</span>
-                  <span class="block text-xs text-fg400">{{ t('settings.notifyLongDesc') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.notifyLongDesc') }}</span>
                 </span>
               </label>
               <label class="flex items-center space-x-2 max-w-md">
@@ -427,7 +427,7 @@ async function handleResetDefaults() {
                   @change="settingsStore.updateSettings({ notify_include_command: ($event.target as HTMLInputElement).checked })" />
                 <span>
                   <span class="block text-xs font-medium text-fg">{{ t('settings.notifyIncludeCommand') }}</span>
-                  <span class="block text-xs text-fg400">{{ t('settings.notifyIncludeCommandDesc') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.notifyIncludeCommandDesc') }}</span>
                 </span>
               </label>
             </div>
@@ -439,7 +439,7 @@ async function handleResetDefaults() {
                   @change="settingsStore.updateSettings({ history_enabled: ($event.target as HTMLInputElement).checked })" />
                 <span>
                   <span class="block text-xs font-medium text-fg">{{ t('settings.historyEnabled') }}</span>
-                  <span class="block text-xs text-fg400">{{ t('settings.historyEnabledDesc') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.historyEnabledDesc') }}</span>
                 </span>
               </label>
               <label class="flex items-start space-x-2 cursor-pointer max-w-md">
@@ -447,7 +447,7 @@ async function handleResetDefaults() {
                   @change="settingsStore.updateSettings({ osc52_clipboard: ($event.target as HTMLInputElement).checked })" />
                 <span>
                   <span class="block text-xs font-medium text-fg">{{ t('settings.osc52') }}</span>
-                  <span class="block text-xs text-fg400">{{ t('settings.osc52Desc') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.osc52Desc') }}</span>
                 </span>
               </label>
               <label class="flex items-start space-x-2 cursor-pointer max-w-md">
@@ -455,7 +455,7 @@ async function handleResetDefaults() {
                   @change="settingsStore.updateSettings({ inline_images: ($event.target as HTMLInputElement).checked })" />
                 <span>
                   <span class="block text-xs font-medium text-fg">{{ t('settings.inlineImages') }}</span>
-                  <span class="block text-xs text-fg400">{{ t('settings.inlineImagesDesc') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.inlineImagesDesc') }}</span>
                 </span>
               </label>
               <label class="flex items-start space-x-2 cursor-pointer max-w-md">
@@ -463,7 +463,7 @@ async function handleResetDefaults() {
                   @change="settingsStore.updateSettings({ font_ligatures: ($event.target as HTMLInputElement).checked })" />
                 <span>
                   <span class="block text-xs font-medium text-fg">{{ t('settings.fontLigatures') }}</span>
-                  <span class="block text-xs text-fg400">{{ t('settings.fontLigaturesDesc') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.fontLigaturesDesc') }}</span>
                   <span v-if="settingsStore.settings.font_ligatures && ligStatus.ok" class="block text-xs text-success mt-1">
                     ✓ {{ t('settings.fontLigaturesOk', { font: ligStatus.effective }) }}
                   </span>
@@ -478,7 +478,7 @@ async function handleResetDefaults() {
               <label class="flex items-center space-x-2 max-w-md">
                 <span class="flex-1">
                   <span class="block text-xs font-medium text-fg">{{ t('settings.restoreSessions') }}</span>
-                  <span class="block text-xs text-fg400">{{ t('settings.restoreSessionsDesc') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.restoreSessionsDesc') }}</span>
                 </span>
                 <select class="px-2 py-1 bg-app border border-line rounded-lg text-xs"
                   :value="settingsStore.settings.restore_sessions"
@@ -493,7 +493,7 @@ async function handleResetDefaults() {
                   @change="settingsStore.updateSettings({ instant_replay: ($event.target as HTMLInputElement).checked })" />
                 <span>
                   <span class="block text-xs font-medium text-fg">{{ t('settings.instantReplay') }}</span>
-                  <span class="block text-xs text-fg400">{{ t('settings.instantReplayDesc') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.instantReplayDesc') }}</span>
                 </span>
               </label>
               <div class="flex items-center space-x-2 max-w-md">
@@ -521,7 +521,7 @@ async function handleResetDefaults() {
                 />
                 <span>
                   <span class="block text-xs font-medium text-fg">{{ t('settings.remoteClipboard') }}</span>
-                  <span class="block text-xs text-fg400">{{ t('settings.remoteClipboardDesc') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.remoteClipboardDesc') }}</span>
                 </span>
               </label>
             </div>
@@ -531,7 +531,7 @@ async function handleResetDefaults() {
           <div v-if="activeTab === 'terminal'" class="space-y-6">
             <!-- Font Selection -->
             <div>
-              <label class="block text-xs font-medium text-fg300 mb-1.5">
+              <label class="block text-xs font-medium text-fg mb-1.5">
                 {{ t('settings.fontFamily') }}
               </label>
               <CustomSelect
@@ -545,7 +545,7 @@ async function handleResetDefaults() {
             <!-- Size and Line Height -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
               <div>
-                <label class="block text-xs font-medium text-fg300 mb-1.5">
+                <label class="block text-xs font-medium text-fg mb-1.5">
                   {{ t('settings.fontSize') }}: <span class="text-accent font-semibold">{{ settingsStore.settings.font_size }}px</span>
                 </label>
                 <input
@@ -560,7 +560,7 @@ async function handleResetDefaults() {
               </div>
 
               <div>
-                <label class="block text-xs font-medium text-fg300 mb-1.5">
+                <label class="block text-xs font-medium text-fg mb-1.5">
                   {{ t('settings.lineHeight') }}: <span class="text-accent font-semibold">{{ settingsStore.settings.line_height }}</span>
                 </label>
                 <input
@@ -578,7 +578,7 @@ async function handleResetDefaults() {
             <!-- Cursor Style and Blink -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-lg">
               <div>
-                <label class="block text-xs font-medium text-fg300 mb-1.5">
+                <label class="block text-xs font-medium text-fg mb-1.5">
                   {{ t('settings.cursorStyle') }}
                 </label>
                 <CustomSelect
@@ -594,9 +594,9 @@ async function handleResetDefaults() {
                     type="checkbox"
                     :checked="settingsStore.settings.cursor_blink"
                     @change="(e) => settingsStore.updateSettings({ cursor_blink: (e.target as HTMLInputElement).checked })"
-                    class="w-4 h-4 rounded-sm bg-active950 border-line700 text-accent focus:ring-0 focus:ring-offset-0"
+                    class="w-4 h-4 rounded-sm bg-app border-line text-accent focus:ring-0 focus:ring-offset-0"
                   />
-                  <span class="text-xs font-medium text-fg300">{{ t('settings.cursorBlink') }}</span>
+                  <span class="text-xs font-medium text-fg">{{ t('settings.cursorBlink') }}</span>
                 </label>
               </div>
             </div>
@@ -604,7 +604,7 @@ async function handleResetDefaults() {
             <!-- Color Themes Grid -->
             <div>
               <div class="flex items-center justify-between max-w-2xl mb-3">
-                <label class="block text-xs font-medium text-fg300">
+                <label class="block text-xs font-medium text-fg">
                   {{ t('settings.colorTheme') }}
                 </label>
 
@@ -630,12 +630,12 @@ async function handleResetDefaults() {
                   :class="[
                     'flex flex-col p-3 rounded-lg border text-left transition-all relative overflow-hidden',
                     settingsStore.settings.theme_id === item.id
-                      ? 'border-accent ring-1 ring-accent bg-active950'
-                      : 'border-line800 bg-active950 hover:border-line700',
+                      ? 'border-accent ring-1 ring-accent bg-app'
+                      : 'border-line bg-app/60 hover:border-line',
                   ]"
                 >
                   <div class="flex items-center justify-between mb-2">
-                    <span class="text-xs font-semibold text-fg200 truncate">{{ item.name }}</span>
+                    <span class="text-xs font-semibold text-fg truncate">{{ item.name }}</span>
                     <Check
                       v-if="settingsStore.settings.theme_id === item.id"
                       class="w-3.5 h-3.5 text-accent"
@@ -644,7 +644,7 @@ async function handleResetDefaults() {
 
                   <!-- Theme Color Palette Bar Preview -->
                   <div
-                    class="h-5 rounded-sm flex overflow-hidden border border-line800"
+                    class="h-5 rounded-sm flex overflow-hidden border border-line"
                     :style="{ backgroundColor: item.theme.background || '#1a1b26' }"
                   >
                     <div class="w-1/4 h-full" :style="{ backgroundColor: item.theme.red || '#ff5555' }"></div>
@@ -669,10 +669,10 @@ async function handleResetDefaults() {
           <!-- 3. LOCAL SHELL TAB -->
           <div v-if="activeTab === 'shell'" class="space-y-4 max-w-lg">
             <div>
-              <label class="block text-xs font-medium text-fg300 mb-1">
+              <label class="block text-xs font-medium text-fg mb-1">
                 {{ t('settings.defaultShell') }}
               </label>
-              <p class="text-xs text-fg400 mb-2">
+              <p class="text-xs text-fg-muted mb-2">
                 {{ t('settings.shellHelp') }}
               </p>
               <input
@@ -680,7 +680,7 @@ async function handleResetDefaults() {
                 :value="settingsStore.settings.default_shell || ''"
                 @input="(e) => settingsStore.updateSettings({ default_shell: (e.target as HTMLInputElement).value.trim() || null })"
                 :placeholder="t('settings.defaultShellPlaceholder')"
-                class="w-full px-3 py-2 bg-active950 border border-line800 rounded-lg text-xs font-mono text-fg focus:outline-hidden focus:border-accent"
+                class="w-full px-3 py-2 bg-app border border-line rounded-lg text-xs font-mono text-fg focus:outline-hidden focus:border-accent"
               />
             </div>
           </div>
@@ -688,33 +688,33 @@ async function handleResetDefaults() {
           <!-- 4. VAULT SECURITY TAB -->
           <div v-if="activeTab === 'security'" class="space-y-4 max-w-lg">
             <div>
-              <h3 class="text-sm font-medium text-fg200 mb-1">
+              <h3 class="text-sm font-medium text-fg mb-1">
                 {{ t('settings.securityNotice') }}
               </h3>
-              <p class="text-xs text-fg400 mb-4">
+              <p class="text-xs text-fg-muted mb-4">
                 {{ t('settings.securityHelp') }}
               </p>
             </div>
 
-            <div class="space-y-3 bg-active950 p-4 border border-line800 rounded-xl">
+            <div class="space-y-3 bg-app/50 p-4 border border-line rounded-xl">
               <label class="flex items-start space-x-2 cursor-pointer">
                 <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.ask_password_on_startup"
                   @change="settingsStore.updateSettings({ ask_password_on_startup: ($event.target as HTMLInputElement).checked })" />
                 <span>
-                  <span class="block text-xs font-medium text-fg200">{{ t('settings.askPasswordOnStartup') }}</span>
-                  <span class="block text-xs text-fg400">{{ t('settings.askPasswordOnStartupDesc') }}</span>
+                  <span class="block text-xs font-medium text-fg">{{ t('settings.askPasswordOnStartup') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.askPasswordOnStartupDesc') }}</span>
                 </span>
               </label>
               <label class="flex items-start space-x-2 cursor-pointer">
                 <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.auto_lock_enabled"
                   @change="settingsStore.updateSettings({ auto_lock_enabled: ($event.target as HTMLInputElement).checked })" />
                 <span>
-                  <span class="block text-xs font-medium text-fg200">{{ t('settings.autoLock') }}</span>
-                  <span class="block text-xs text-fg400">{{ t('settings.autoLockDesc') }}</span>
+                  <span class="block text-xs font-medium text-fg">{{ t('settings.autoLock') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.autoLockDesc') }}</span>
                 </span>
               </label>
               <label class="flex items-center space-x-2" :class="{ 'opacity-50': !settingsStore.settings.auto_lock_enabled }">
-                <span class="text-xs font-medium text-fg200 flex-1">{{ t('settings.autoLockMinutes') }}</span>
+                <span class="text-xs font-medium text-fg flex-1">{{ t('settings.autoLockMinutes') }}</span>
                 <input type="number" min="1" max="1440" :disabled="!settingsStore.settings.auto_lock_enabled"
                   class="w-20 px-2 py-1 bg-app border border-line rounded-lg text-xs"
                   :value="settingsStore.settings.auto_lock_minutes"
@@ -722,37 +722,37 @@ async function handleResetDefaults() {
               </label>
             </div>
 
-            <div class="space-y-3 bg-active950 p-4 border border-line800 rounded-xl">
+            <div class="space-y-3 bg-app/50 p-4 border border-line rounded-xl">
               <div>
-                <label class="block text-xs font-medium text-fg300 mb-1">
+                <label class="block text-xs font-medium text-fg mb-1">
                   {{ t('settings.currentPassword') }}
                 </label>
                 <input
                   v-model="currentPassword"
                   type="password"
-                  class="w-full px-3 py-2 bg-active950 border border-line800 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
+                  class="w-full px-3 py-2 bg-app border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
                 />
               </div>
 
               <div>
-                <label class="block text-xs font-medium text-fg300 mb-1">
+                <label class="block text-xs font-medium text-fg mb-1">
                   {{ t('settings.newPassword') }}
                 </label>
                 <input
                   v-model="newPassword"
                   type="password"
-                  class="w-full px-3 py-2 bg-active950 border border-line800 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
+                  class="w-full px-3 py-2 bg-app border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
                 />
               </div>
 
               <div>
-                <label class="block text-xs font-medium text-fg300 mb-1">
+                <label class="block text-xs font-medium text-fg mb-1">
                   {{ t('settings.confirmNewPassword') }}
                 </label>
                 <input
                   v-model="confirmNewPassword"
                   type="password"
-                  class="w-full px-3 py-2 bg-active950 border border-line800 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
+                  class="w-full px-3 py-2 bg-app border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
                 />
               </div>
 
@@ -784,15 +784,15 @@ async function handleResetDefaults() {
               </div>
               <div>
                 <h3 class="text-base font-semibold text-fg">NexusTerm</h3>
-                <p class="text-xs text-fg400">v0.1.0 (Alpha)</p>
+                <p class="text-xs text-fg-muted">v0.1.0 (Alpha)</p>
               </div>
             </div>
 
-            <p class="text-xs text-fg300 leading-relaxed">
+            <p class="text-xs text-fg leading-relaxed">
               Gestor SSH, SFTP y emulador de terminal ligero, moderno y de alto rendimiento optimizado para Linux (KDE Plasma Wayland), Windows y macOS.
             </p>
 
-            <div class="p-3 bg-active950 border border-line800 rounded-lg text-xs text-fg400 space-y-1 font-mono">
+            <div class="p-3 bg-app/60 border border-line rounded-lg text-xs text-fg-muted space-y-1 font-mono">
               <p>• Tauri v2 + Tokio Async Runtime</p>
               <p>• Rust + Russh + Portable-PTY</p>
               <p>• Argon2id + AES-256-GCM Zero-Knowledge Vault</p>
@@ -804,10 +804,10 @@ async function handleResetDefaults() {
       </div>
 
       <!-- Footer Bar -->
-      <div class="flex items-center justify-between px-6 py-3 border-t border-line800 bg-active950">
+      <div class="flex items-center justify-between px-6 py-3 border-t border-line bg-app/40">
         <button
           @click="handleResetDefaults"
-          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-fg400 hover:text-fg rounded-lg hover:bg-active800 transition-colors"
+          class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-fg-muted hover:text-fg rounded-lg hover:bg-active transition-colors"
         >
           <RotateCcw class="w-3.5 h-3.5" />
           <span>{{ t('settings.resetDefaults') }}</span>

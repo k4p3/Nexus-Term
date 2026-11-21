@@ -237,11 +237,11 @@ function handleCopy(item: CommandSnippet) {
           v-if="snippetsStore.filteredSnippets.length === 0"
           class="h-48 flex flex-col items-center justify-center text-center p-4"
         >
-          <Code class="w-8 h-8 text-fg600 mb-2" />
-          <p class="text-xs text-fg400">No se encontraron snippets con el filtro seleccionado.</p>
+          <Code class="w-8 h-8 text-fg-muted mb-2" />
+          <p class="text-xs text-fg-muted">No se encontraron snippets con el filtro seleccionado.</p>
           <button
             @click="handleOpenNew"
-            class="mt-3 px-3 py-1 bg-active800 hover:bg-active700 text-fg200 text-xs rounded-lg transition-colors cursor-pointer"
+            class="mt-3 px-3 py-1 bg-active hover:bg-active text-fg text-xs rounded-lg transition-colors cursor-pointer"
           >
             + Crear nuevo snippet
           </button>
@@ -251,10 +251,10 @@ function handleCopy(item: CommandSnippet) {
           v-for="item in snippetsStore.filteredSnippets"
           :key="item.id"
           :class="[
-            'group p-3 bg-active950 border rounded-xl transition-all space-y-2 relative',
+            'group p-3 bg-app/70 border rounded-xl transition-all space-y-2 relative',
             item.is_enabled
-              ? 'border-line800 hover:border-line700'
-              : 'border-line800 opacity-60 bg-active950',
+              ? 'border-line hover:border-line'
+              : 'border-line/40 opacity-60 bg-app/40',
           ]"
         >
           <!-- Top Row: Badge, Title & Actions -->
@@ -280,15 +280,15 @@ function handleCopy(item: CommandSnippet) {
 
                 <span
                   v-if="!item.is_enabled"
-                  class="px-1.5 py-0.2 rounded text-[9px] font-medium bg-active800 text-fg400"
+                  class="px-1.5 py-0.2 rounded text-[9px] font-medium bg-active text-fg-muted"
                 >
                   Deshabilitado
                 </span>
 
-                <h4 class="text-xs font-semibold text-fg200 truncate">{{ item.title }}</h4>
+                <h4 class="text-xs font-semibold text-fg truncate">{{ item.title }}</h4>
               </div>
 
-              <p v-if="item.description" class="text-[11px] text-fg400 line-clamp-1">
+              <p v-if="item.description" class="text-[11px] text-fg-muted line-clamp-1">
                 {{ item.description }}
               </p>
             </div>
@@ -302,7 +302,7 @@ function handleCopy(item: CommandSnippet) {
                   'p-1 rounded transition-colors cursor-pointer',
                   item.is_enabled
                     ? 'text-success hover:bg-success/40'
-                    : 'text-fg500 hover:text-fg300 hover:bg-active800',
+                    : 'text-fg-muted hover:text-fg hover:bg-active',
                 ]"
                 :title="item.is_enabled ? 'Deshabilitar snippet' : 'Habilitar snippet'"
               >
@@ -312,7 +312,7 @@ function handleCopy(item: CommandSnippet) {
               <!-- Duplicate Button -->
               <button
                 @click="handleDuplicate(item)"
-                class="p-1 text-fg400 hover:text-accent rounded hover:bg-active800 transition-colors cursor-pointer"
+                class="p-1 text-fg-muted hover:text-accent rounded hover:bg-active transition-colors cursor-pointer"
                 title="Duplicar como snippet personal"
               >
                 <CopyPlus class="w-3.5 h-3.5" />
@@ -321,7 +321,7 @@ function handleCopy(item: CommandSnippet) {
               <!-- Copy Command -->
               <button
                 @click="handleCopy(item)"
-                class="p-1 text-fg400 hover:text-fg rounded hover:bg-active800 transition-colors cursor-pointer"
+                class="p-1 text-fg-muted hover:text-fg rounded hover:bg-active transition-colors cursor-pointer"
                 :title="copiedSnippetId === item.id ? '¡Copiado!' : 'Copiar comando'"
               >
                 <Check v-if="copiedSnippetId === item.id" class="w-3.5 h-3.5 text-success" />
@@ -332,7 +332,7 @@ function handleCopy(item: CommandSnippet) {
               <button
                 v-if="!item.is_builtin"
                 @click="handleEdit(item)"
-                class="p-1 text-fg400 hover:text-fg rounded hover:bg-active800 transition-colors cursor-pointer"
+                class="p-1 text-fg-muted hover:text-fg rounded hover:bg-active transition-colors cursor-pointer"
                 title="Editar"
               >
                 <Edit2 class="w-3.5 h-3.5" />
@@ -341,7 +341,7 @@ function handleCopy(item: CommandSnippet) {
               <!-- Delete / Disable -->
               <button
                 @click="handleDelete(item)"
-                class="p-1 text-fg400 hover:text-danger rounded hover:bg-active800 transition-colors cursor-pointer"
+                class="p-1 text-fg-muted hover:text-danger rounded hover:bg-active transition-colors cursor-pointer"
                 :title="item.is_builtin ? 'Deshabilitar snippet comunitario' : 'Eliminar snippet personal'"
               >
                 <Trash2 class="w-3.5 h-3.5" />
@@ -353,17 +353,17 @@ function handleCopy(item: CommandSnippet) {
           <div
             @click="handleInsertSnippet(item)"
             :class="[
-              'p-2 bg-active900 border rounded-lg font-mono text-[11px] break-all flex items-center justify-between gap-2 transition-all',
+              'p-2 bg-surface border rounded-lg font-mono text-[11px] break-all flex items-center justify-between gap-2 transition-all',
               item.is_enabled
-                ? 'text-accent border-line800 cursor-pointer hover:border-accent/50 hover:bg-active900 group/code'
-                : 'text-fg500 border-line800 cursor-not-allowed opacity-75',
+                ? 'text-accent border-line/80 cursor-pointer hover:border-accent/50 hover:bg-surface/90 group/code'
+                : 'text-fg-muted border-line/40 cursor-not-allowed opacity-75',
             ]"
             :title="item.is_enabled ? 'Hacer clic para insertar en la terminal' : 'Snippet deshabilitado (actívalo para usarlo)'"
           >
             <span class="truncate">{{ item.command_template }}</span>
             <div
               v-if="item.is_enabled"
-              class="p-1 rounded bg-active800 group-hover/code:bg-accent group-hover/code:text-on-accent text-fg400 shrink-0 transition-colors"
+              class="p-1 rounded bg-active group-hover/code:bg-accent group-hover/code:text-on-accent text-fg-muted shrink-0 transition-colors"
             >
               <Play class="w-3 h-3 fill-current" />
             </div>
@@ -374,7 +374,7 @@ function handleCopy(item: CommandSnippet) {
             <span
               v-for="t in item.tags"
               :key="t"
-              class="px-1.5 py-0.2 bg-active900 border border-line800 rounded text-[10px] text-fg400"
+              class="px-1.5 py-0.2 bg-surface border border-line rounded text-[10px] text-fg-muted"
             >
               #{{ t }}
             </span>

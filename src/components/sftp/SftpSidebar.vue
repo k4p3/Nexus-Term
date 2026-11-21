@@ -438,8 +438,8 @@ async function handleDeleteSelected() {
             v-else-if="entry.name.endsWith('.ts') || entry.name.endsWith('.js') || entry.name.endsWith('.rs') || entry.name.endsWith('.json')"
             class="w-4 h-4 text-accent shrink-0"
           />
-          <FileText v-else-if="entry.name.endsWith('.log') || entry.name.endsWith('.txt') || entry.name.endsWith('.md')" class="w-4 h-4 text-fg400 shrink-0" />
-          <File v-else class="w-4 h-4 text-fg400 shrink-0" />
+          <FileText v-else-if="entry.name.endsWith('.log') || entry.name.endsWith('.txt') || entry.name.endsWith('.md')" class="w-4 h-4 text-fg-muted shrink-0" />
+          <File v-else class="w-4 h-4 text-fg-muted shrink-0" />
 
           <div class="truncate">
             <div class="font-medium text-fg truncate leading-tight flex items-center">
@@ -566,19 +566,19 @@ async function handleDeleteSelected() {
       @click.self="isNewFolderModalOpen = false"
       class="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4"
     >
-      <div class="bg-active900 border border-line700 rounded-xl p-4 w-80 space-y-3 text-fg100">
+      <div class="bg-surface border border-line rounded-xl p-4 w-80 space-y-3 text-fg">
         <h3 class="text-xs font-semibold">Nueva Carpeta Remota</h3>
         <input
           v-model="newFolderName"
           type="text"
           placeholder="Nombre de la carpeta"
-          class="w-full px-2.5 py-1.5 bg-active950 border border-line700 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
+          class="w-full px-2.5 py-1.5 bg-app border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
           @keyup.enter="confirmCreateFolder"
         />
         <div class="flex justify-end space-x-2 text-xs">
           <button
             @click="isNewFolderModalOpen = false"
-            class="px-3 py-1.5 rounded-lg border border-line700 hover:bg-active800 text-fg300 cursor-pointer"
+            class="px-3 py-1.5 rounded-lg border border-line hover:bg-active text-fg cursor-pointer"
           >
             Cancelar
           </button>
@@ -598,18 +598,18 @@ async function handleDeleteSelected() {
       @click.self="isRenameModalOpen = false"
       class="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4"
     >
-      <div class="bg-active900 border border-line700 rounded-xl p-4 w-80 space-y-3 text-fg100">
+      <div class="bg-surface border border-line rounded-xl p-4 w-80 space-y-3 text-fg">
         <h3 class="text-xs font-semibold">Renombrar Elemento</h3>
         <input
           v-model="renameValue"
           type="text"
-          class="w-full px-2.5 py-1.5 bg-active950 border border-line700 rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
+          class="w-full px-2.5 py-1.5 bg-app border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
           @keyup.enter="confirmRename"
         />
         <div class="flex justify-end space-x-2 text-xs">
           <button
             @click="isRenameModalOpen = false"
-            class="px-3 py-1.5 rounded-lg border border-line700 hover:bg-active800 text-fg300 cursor-pointer"
+            class="px-3 py-1.5 rounded-lg border border-line hover:bg-active text-fg cursor-pointer"
           >
             Cancelar
           </button>

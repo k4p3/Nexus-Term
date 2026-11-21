@@ -314,8 +314,8 @@ async function handleDeleteIdentity(id: string) {
 
     <!-- Bóveda bloqueada / sin crear: los hosts e identidades requieren la contraseña maestra -->
     <div v-if="!vaultStore.isUnlocked" class="flex-1 flex flex-col items-center justify-center p-4 text-center space-y-3">
-      <Lock class="w-8 h-8 text-fg500" />
-      <p class="text-xs text-fg400 max-w-[14rem]">
+      <Lock class="w-8 h-8 text-fg-muted" />
+      <p class="text-xs text-fg-muted max-w-[14rem]">
         {{ vaultStore.isInitialized ? t('vault.sidebarLocked') : t('vault.sidebarNotCreated') }}
       </p>
       <button
@@ -333,31 +333,31 @@ async function handleDeleteIdentity(id: string) {
         <!-- Folders -->
         <div v-for="folder in vaultStore.folders" :key="folder.id" class="mb-1">
           <div
-            class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-active800 group cursor-pointer text-xs"
+            class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-active/60 group cursor-pointer text-xs"
             @click="toggleFolder(folder.id)"
           >
             <div class="flex items-center space-x-1.5 truncate min-w-0 flex-1">
-              <ChevronDown v-if="!collapsedFolders[folder.id]" class="w-3.5 h-3.5 text-fg400 shrink-0" />
-              <ChevronRight v-else class="w-3.5 h-3.5 text-fg400 shrink-0" />
+              <ChevronDown v-if="!collapsedFolders[folder.id]" class="w-3.5 h-3.5 text-fg-muted shrink-0" />
+              <ChevronRight v-else class="w-3.5 h-3.5 text-fg-muted shrink-0" />
               <div
                 class="w-2 h-2 rounded-full shrink-0"
                 :style="{ backgroundColor: folder.color || '#38bdf8' }"
               ></div>
-              <span class="font-medium text-fg200 truncate">{{ folder.name }}</span>
-              <span class="text-[10px] text-fg500 shrink-0">({{ getFolderHosts(folder.id).length }})</span>
+              <span class="font-medium text-fg truncate">{{ folder.name }}</span>
+              <span class="text-[10px] text-fg-muted shrink-0">({{ getFolderHosts(folder.id).length }})</span>
             </div>
 
             <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
               <button
                 @click.stop="openEditFolder(folder)"
-                class="p-1 hover:text-accent text-fg400 rounded"
+                class="p-1 hover:text-accent text-fg-muted rounded"
                 title="Editar Carpeta"
               >
                 <Edit2 class="w-3 h-3" />
               </button>
               <button
                 @click.stop="handleDeleteFolder(folder.id)"
-                class="p-1 hover:text-danger text-fg400 rounded"
+                class="p-1 hover:text-danger text-fg-muted rounded"
                 title="Eliminar Carpeta"
               >
                 <Trash2 class="w-3 h-3" />
@@ -371,12 +371,12 @@ async function handleDeleteIdentity(id: string) {
               v-for="host in getFolderHosts(folder.id)"
               :key="host.id"
               @dblclick="emit('connect-host', host)"
-              class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-active800 group cursor-pointer text-xs transition"
+              class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-active/80 group cursor-pointer text-xs transition"
             >
               <div class="flex items-center space-x-2 truncate min-w-0 flex-1">
                 <Server class="w-3.5 h-3.5 text-accent/80 shrink-0" />
                 <div class="truncate min-w-0 flex-1">
-                  <div class="font-medium text-fg200 truncate leading-tight flex items-center min-w-0">
+                  <div class="font-medium text-fg truncate leading-tight flex items-center min-w-0">
                     <span class="truncate">{{ host.label }}</span>
                     <span
                       v-if="host.protocol && host.protocol !== 'ssh'"
@@ -391,7 +391,7 @@ async function handleDeleteIdentity(id: string) {
                       <span>via {{ getJumpHostLabel(host.jump_host_id) || 'bastion' }}</span>
                     </span>
                   </div>
-                  <div class="text-[10px] text-fg500 font-mono truncate leading-tight">
+                  <div class="text-[10px] text-fg-muted font-mono truncate leading-tight">
                     {{ host.hostname }}:{{ host.port }}
                   </div>
                 </div>
@@ -414,14 +414,14 @@ async function handleDeleteIdentity(id: string) {
                 </button>
                 <button
                   @click.stop="openEditHost(host)"
-                  class="p-1 text-fg400 hover:text-fg rounded cursor-pointer"
+                  class="p-1 text-fg-muted hover:text-fg rounded cursor-pointer"
                   title="Editar"
                 >
                   <Edit2 class="w-3 h-3" />
                 </button>
                 <button
                   @click.stop="handleDeleteHost(host.id)"
-                  class="p-1 text-fg400 hover:text-danger rounded cursor-pointer"
+                  class="p-1 text-fg-muted hover:text-danger rounded cursor-pointer"
                   title="Eliminar"
                 >
                   <Trash2 class="w-3 h-3" />
@@ -433,19 +433,19 @@ async function handleDeleteIdentity(id: string) {
 
         <!-- Root hosts (outside folders) -->
         <div v-if="rootHosts.length > 0" class="mt-2 space-y-0.5">
-          <div class="px-2 py-1 text-[10px] font-semibold text-fg500 uppercase tracking-wider">
+          <div class="px-2 py-1 text-[10px] font-semibold text-fg-muted uppercase tracking-wider">
             Sin Carpeta
           </div>
           <div
             v-for="host in rootHosts"
             :key="host.id"
             @dblclick="emit('connect-host', host)"
-            class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-active800 group cursor-pointer text-xs transition"
+            class="flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-active/80 group cursor-pointer text-xs transition"
           >
             <div class="flex items-center space-x-2 truncate min-w-0 flex-1">
               <Server class="w-3.5 h-3.5 text-accent/80 shrink-0" />
               <div class="truncate min-w-0 flex-1">
-                <div class="font-medium text-fg200 truncate leading-tight flex items-center min-w-0">
+                <div class="font-medium text-fg truncate leading-tight flex items-center min-w-0">
                   <span class="truncate">{{ host.label }}</span>
                   <span
                     v-if="host.protocol && host.protocol !== 'ssh'"
@@ -460,7 +460,7 @@ async function handleDeleteIdentity(id: string) {
                     <span>via {{ getJumpHostLabel(host.jump_host_id) || 'bastion' }}</span>
                   </span>
                 </div>
-                <div class="text-[10px] text-fg500 font-mono truncate leading-tight">
+                <div class="text-[10px] text-fg-muted font-mono truncate leading-tight">
                   {{ host.hostname }}:{{ host.port }}
                 </div>
               </div>
@@ -483,14 +483,14 @@ async function handleDeleteIdentity(id: string) {
               </button>
               <button
                 @click.stop="openEditHost(host)"
-                class="p-1 text-fg400 hover:text-fg rounded cursor-pointer"
+                class="p-1 text-fg-muted hover:text-fg rounded cursor-pointer"
                 title="Editar"
               >
                 <Edit2 class="w-3 h-3" />
               </button>
               <button
                 @click.stop="handleDeleteHost(host.id)"
-                class="p-1 text-fg400 hover:text-danger rounded cursor-pointer"
+                class="p-1 text-fg-muted hover:text-danger rounded cursor-pointer"
                 title="Eliminar"
               >
                 <Trash2 class="w-3 h-3" />
@@ -499,7 +499,7 @@ async function handleDeleteIdentity(id: string) {
           </div>
         </div>
 
-        <div v-if="vaultStore.hosts.length === 0" class="p-4 text-center text-xs text-fg500 space-y-3">
+        <div v-if="vaultStore.hosts.length === 0" class="p-4 text-center text-xs text-fg-muted space-y-3">
           <p>No hay servidores guardados. Haz clic en <strong>+ Servidor</strong> para agregar el primero.</p>
           <button
             @click="openSshConfigImport()"
@@ -562,7 +562,7 @@ async function handleDeleteIdentity(id: string) {
           </div>
         </div>
 
-        <div v-if="vaultStore.identities.length === 0" class="p-4 text-center text-xs text-fg500">
+        <div v-if="vaultStore.identities.length === 0" class="p-4 text-center text-xs text-fg-muted">
           No hay credenciales guardadas. Agrega una para reutilizar usuario, contraseña o llave SSH.
         </div>
       </div>

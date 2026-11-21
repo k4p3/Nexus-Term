@@ -103,7 +103,7 @@ function handleNewTab() {
             'flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded-lg border transition-all cursor-pointer',
             sessionsStore.isBroadcastMode
               ? 'bg-warning/20 text-warning border-warning/60 shadow-xs'
-              : 'text-fg400 hover:text-fg200 bg-active800 border-line700 hover:bg-active800',
+              : 'text-fg-muted hover:text-fg bg-active/60 border-line/60 hover:bg-active',
           ]"
           :title="sessionsStore.isBroadcastMode ? 'Desactivar Modo Broadcast' : 'Activar Modo Broadcast (Replicar teclas en todos los paneles)'"
         >
@@ -155,7 +155,7 @@ function handleNewTab() {
           <Terminal class="w-10 h-10" />
         </div>
         <h3 class="text-xl font-bold text-fg mb-2">{{ t('terminal.activeSessions') }}</h3>
-        <p class="text-xs text-fg400 max-w-sm mb-6">
+        <p class="text-xs text-fg-muted max-w-sm mb-6">
           {{ t('hosts.noHosts') }}
         </p>
 
@@ -169,7 +169,7 @@ function handleNewTab() {
           </button>
         </div>
 
-        <div class="mt-8 flex items-center space-x-2 text-[11px] text-fg500">
+        <div class="mt-8 flex items-center space-x-2 text-[11px] text-fg-muted">
           <Sparkles class="w-3.5 h-3.5 text-accent" />
           <span>{{ t('hosts.quickConnect') }} (Ctrl+K)</span>
         </div>

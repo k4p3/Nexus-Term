@@ -30,10 +30,10 @@ function clearCompleted() {
 <template>
   <div
     v-if="sftpStore.isTransferQueueOpen"
-    class="fixed bottom-4 right-4 z-50 w-96 max-h-96 bg-active900 border border-line700 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-fg100"
+    class="fixed bottom-4 right-4 z-50 w-96 max-h-96 bg-surface border border-line/80 rounded-2xl shadow-2xl flex flex-col overflow-hidden text-fg"
   >
     <!-- Header -->
-    <div class="flex items-center justify-between px-4 py-3 border-b border-line800 bg-active950">
+    <div class="flex items-center justify-between px-4 py-3 border-b border-line bg-app/60">
       <div class="flex items-center space-x-2">
         <FolderSync class="w-4 h-4 text-accent" />
         <span class="text-xs font-semibold text-fg">Cola de Transferencias SFTP</span>
@@ -48,14 +48,14 @@ function clearCompleted() {
       <div class="flex items-center space-x-1">
         <button
           @click="clearCompleted()"
-          class="p-1 text-fg400 hover:text-fg rounded hover:bg-active800 transition cursor-pointer"
+          class="p-1 text-fg-muted hover:text-fg rounded hover:bg-active transition cursor-pointer"
           title="Limpiar completadas"
         >
           <Trash2 class="w-3.5 h-3.5" />
         </button>
         <button
           @click="sftpStore.isTransferQueueOpen = false"
-          class="p-1 text-fg400 hover:text-fg rounded hover:bg-active800 transition cursor-pointer"
+          class="p-1 text-fg-muted hover:text-fg rounded hover:bg-active transition cursor-pointer"
         >
           <X class="w-3.5 h-3.5" />
         </button>
@@ -66,7 +66,7 @@ function clearCompleted() {
     <div class="flex-1 overflow-y-auto p-3 space-y-2 text-xs">
       <div
         v-if="sftpStore.transfers.length === 0"
-        class="py-8 text-center text-fg500 text-[11px]"
+        class="py-8 text-center text-fg-muted text-[11px]"
       >
         No hay transferencias activas ni recientes
       </div>
@@ -74,7 +74,7 @@ function clearCompleted() {
       <div
         v-for="transfer in sftpStore.transfers"
         :key="transfer.transfer_id"
-        class="p-2.5 rounded-xl bg-active950 border border-line800 space-y-1.5"
+        class="p-2.5 rounded-xl bg-app/40 border border-line/80 space-y-1.5"
       >
         <div class="flex items-center justify-between">
           <div class="flex items-center space-x-2 truncate">
@@ -83,7 +83,7 @@ function clearCompleted() {
               class="w-3.5 h-3.5 text-accent shrink-0"
             />
             <Download v-else class="w-3.5 h-3.5 text-accent shrink-0" />
-            <span class="font-medium text-fg200 truncate">{{ transfer.filename }}</span>
+            <span class="font-medium text-fg truncate">{{ transfer.filename }}</span>
           </div>
 
           <div class="shrink-0 flex items-center space-x-1.5">
@@ -112,7 +112,7 @@ function clearCompleted() {
               <button
                 v-if="transfer.local_path && transfer.remote_path"
                 @click="sftpStore.retryTransfer(transfer.transfer_id)"
-                class="p-0.5 text-fg400 hover:text-accent rounded transition cursor-pointer"
+                class="p-0.5 text-fg-muted hover:text-accent rounded transition cursor-pointer"
                 title="Reintentar transferencia"
               >
                 <RotateCcw class="w-3 h-3" />
@@ -125,7 +125,7 @@ function clearCompleted() {
         </div>
 
         <!-- Progress Bar -->
-        <div class="w-full bg-active800 h-1.5 rounded-full overflow-hidden">
+        <div class="w-full bg-active h-1.5 rounded-full overflow-hidden">
           <div
             class="h-full transition-all duration-200"
             :class="{
@@ -139,7 +139,7 @@ function clearCompleted() {
         </div>
 
         <!-- Stats -->
-        <div class="flex items-center justify-between text-[10px] text-fg500 font-mono">
+        <div class="flex items-center justify-between text-[10px] text-fg-muted font-mono">
           <span v-if="transfer.status === 'queued'">
             En espera de ranura libre...
           </span>
@@ -150,7 +150,7 @@ function clearCompleted() {
           <div class="flex items-center space-x-2">
             <span
               v-if="transfer.status === 'in_progress' && transfer.speed_bytes_sec && transfer.speed_bytes_sec > 0"
-              class="text-fg400"
+              class="text-fg-muted"
             >
               {{ formatBytes(transfer.speed_bytes_sec) }}/s
             </span>

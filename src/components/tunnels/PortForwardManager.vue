@@ -99,10 +99,10 @@ async function handleToggleTunnel(id: string) {
     class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4"
   >
     <div
-      class="bg-active900 border border-line700 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col text-fg100 overflow-hidden"
+      class="bg-surface border border-line/80 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col text-fg overflow-hidden"
     >
       <!-- Header -->
-      <div class="flex items-center justify-between px-5 py-3.5 border-b border-line800 bg-active950">
+      <div class="flex items-center justify-between px-5 py-3.5 border-b border-line bg-app/40">
         <div class="flex items-center space-x-2.5">
           <div class="p-1.5 rounded-lg bg-accent/10 text-accent border border-accent/20">
             <ArrowRightLeft class="w-4 h-4" />
@@ -117,7 +117,7 @@ async function handleToggleTunnel(id: string) {
                 {{ tunnelsStore.activeTunnelsCount }} activo(s)
               </span>
             </div>
-            <p class="text-[11px] text-fg400">
+            <p class="text-[11px] text-fg-muted">
               Reenvío de puertos Local (-L), Remoto (-R) y Proxy SOCKS5 (-D)
             </p>
           </div>
@@ -133,7 +133,7 @@ async function handleToggleTunnel(id: string) {
           </button>
           <button
             @click="emit('close')"
-            class="text-fg400 hover:text-fg p-1.5 rounded-lg hover:bg-active800 transition cursor-pointer"
+            class="text-fg-muted hover:text-fg p-1.5 rounded-lg hover:bg-active transition cursor-pointer"
           >
             <X class="w-4 h-4" />
           </button>
@@ -145,20 +145,20 @@ async function handleToggleTunnel(id: string) {
         <!-- Empty State -->
         <div
           v-if="tunnelsStore.tunnels.length === 0"
-          class="p-8 text-center text-xs text-fg400 space-y-3"
+          class="p-8 text-center text-xs text-fg-muted space-y-3"
         >
-          <div class="w-10 h-10 mx-auto rounded-full bg-active800 flex items-center justify-center text-fg500">
+          <div class="w-10 h-10 mx-auto rounded-full bg-active flex items-center justify-center text-fg-muted">
             <ArrowRightLeft class="w-5 h-5" />
           </div>
           <div>
-            <p class="font-medium text-fg300">No hay reglas de túneles configuradas</p>
-            <p class="text-[11px] text-fg500 mt-0.5">
+            <p class="font-medium text-fg">No hay reglas de túneles configuradas</p>
+            <p class="text-[11px] text-fg-muted mt-0.5">
               Accede de forma segura a bases de datos o servicios remotos sin abrir puertos al público.
             </p>
           </div>
           <button
             @click="openAddTunnel()"
-            class="px-3.5 py-1.5 bg-active800 hover:bg-active700 text-accent border border-line700 rounded-lg text-xs font-medium inline-flex items-center space-x-1.5 transition cursor-pointer"
+            class="px-3.5 py-1.5 bg-active hover:bg-active text-accent border border-line rounded-lg text-xs font-medium inline-flex items-center space-x-1.5 transition cursor-pointer"
           >
             <Plus class="w-3.5 h-3.5" />
             <span>Crear primer túnel</span>
@@ -169,7 +169,7 @@ async function handleToggleTunnel(id: string) {
         <div
           v-for="tunnel in tunnelsStore.tunnels"
           :key="tunnel.id"
-          class="p-3.5 rounded-xl bg-active950 border border-line800 hover:border-line700 transition flex flex-col space-y-2.5"
+          class="p-3.5 rounded-xl bg-app/50 border border-line/80 hover:border-line transition flex flex-col space-y-2.5"
         >
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-2.5 truncate">
@@ -183,7 +183,7 @@ async function handleToggleTunnel(id: string) {
                   class="relative inline-flex rounded-full h-2.5 w-2.5"
                   :class="{
                     'bg-success': tunnelsStore.getTunnelStatus(tunnel.id).status === 'active',
-                    'bg-active600': tunnelsStore.getTunnelStatus(tunnel.id).status === 'stopped',
+                    'bg-active': tunnelsStore.getTunnelStatus(tunnel.id).status === 'stopped',
                     'bg-danger': tunnelsStore.getTunnelStatus(tunnel.id).status === 'error',
                   }"
                 ></span>
@@ -237,14 +237,14 @@ async function handleToggleTunnel(id: string) {
 
               <button
                 @click="openEditTunnel(tunnel)"
-                class="p-1.5 text-fg400 hover:text-fg hover:bg-active800 rounded-lg transition cursor-pointer"
+                class="p-1.5 text-fg-muted hover:text-fg hover:bg-active rounded-lg transition cursor-pointer"
                 title="Editar"
               >
                 <Edit2 class="w-3.5 h-3.5" />
               </button>
               <button
                 @click="handleDeleteTunnel(tunnel.id)"
-                class="p-1.5 text-fg400 hover:text-danger hover:bg-active800 rounded-lg transition cursor-pointer"
+                class="p-1.5 text-fg-muted hover:text-danger hover:bg-active rounded-lg transition cursor-pointer"
                 title="Eliminar"
               >
                 <Trash2 class="w-3.5 h-3.5" />
@@ -253,15 +253,15 @@ async function handleToggleTunnel(id: string) {
           </div>
 
           <!-- Mapping & Host details -->
-          <div class="flex items-center justify-between text-[11px] text-fg400 pt-1 border-t border-line800 font-mono">
+          <div class="flex items-center justify-between text-[11px] text-fg-muted pt-1 border-t border-line/40 font-mono">
             <div class="flex items-center space-x-2 truncate">
-              <span class="text-fg300 font-medium">
+              <span class="text-fg font-medium">
                 {{ tunnel.local_host }}:{{ tunnel.local_port }}
               </span>
-              <span class="text-fg500">
+              <span class="text-fg-muted">
                 {{ tunnel.tunnel_type === 'remote' ? '←' : '→' }}
               </span>
-              <span v-if="tunnel.tunnel_type !== 'dynamic'" class="text-fg300">
+              <span v-if="tunnel.tunnel_type !== 'dynamic'" class="text-fg">
                 {{ tunnel.remote_host }}:{{ tunnel.remote_port }}
               </span>
               <span v-else class="text-success">
@@ -269,7 +269,7 @@ async function handleToggleTunnel(id: string) {
               </span>
             </div>
 
-            <div class="flex items-center space-x-1.5 text-[10px] text-fg500 shrink-0 font-sans">
+            <div class="flex items-center space-x-1.5 text-[10px] text-fg-muted shrink-0 font-sans">
               <Server class="w-3 h-3" />
               <span class="truncate max-w-[150px]">{{ getHostLabel(tunnel.host_id) }}</span>
             </div>
@@ -278,7 +278,7 @@ async function handleToggleTunnel(id: string) {
           <!-- Telemetry Stats or Error Info -->
           <div
             v-if="tunnelsStore.getTunnelStatus(tunnel.id).status === 'active'"
-            class="flex items-center justify-between text-[10px] text-fg400 bg-active900 px-2.5 py-1.5 rounded-lg border border-line800"
+            class="flex items-center justify-between text-[10px] text-fg-muted bg-surface/60 px-2.5 py-1.5 rounded-lg border border-line/60"
           >
             <div class="flex items-center space-x-3 font-mono">
               <span class="flex items-center space-x-1 text-accent">
@@ -291,7 +291,7 @@ async function handleToggleTunnel(id: string) {
               </span>
             </div>
 
-            <div class="flex items-center space-x-1 text-fg400 font-sans">
+            <div class="flex items-center space-x-1 text-fg-muted font-sans">
               <Activity class="w-3 h-3 text-success" />
               <span>{{ tunnelsStore.getTunnelStatus(tunnel.id).active_connections }} conex. activas</span>
             </div>
@@ -308,11 +308,11 @@ async function handleToggleTunnel(id: string) {
       </div>
 
       <!-- Footer Info -->
-      <div class="px-5 py-2.5 border-t border-line800 bg-active950 flex items-center justify-between text-[11px] text-fg500">
+      <div class="px-5 py-2.5 border-t border-line bg-app/60 flex items-center justify-between text-[11px] text-fg-muted">
         <span>Los túneles activos se mantienen en segundo plano mientras NexusTerm esté en ejecución.</span>
         <button
           @click="tunnelsStore.refreshStatuses()"
-          class="hover:text-fg300 transition flex items-center space-x-1 cursor-pointer"
+          class="hover:text-fg transition flex items-center space-x-1 cursor-pointer"
         >
           <RefreshCw class="w-3 h-3" />
           <span>Actualizar</span>

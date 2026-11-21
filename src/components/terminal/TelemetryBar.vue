@@ -131,7 +131,7 @@ function getMemoryColorClass(percent: number): { text: string; bg: string } {
 
       <!-- Uptime -->
       <div class="flex items-center space-x-1 shrink-0 text-[11px]" title="Tiempo de actividad del servidor">
-        <Clock class="w-3 h-3 text-fg400 shrink-0" />
+        <Clock class="w-3 h-3 text-fg-muted shrink-0" />
         <span class="text-[10px] text-fg-muted">Up:</span>
         <span class="text-fg">
           {{ telemetryStore.formatUptime(snapshot.uptime_seconds) }}
