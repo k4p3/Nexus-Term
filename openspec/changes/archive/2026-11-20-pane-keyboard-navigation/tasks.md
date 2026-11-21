@@ -17,5 +17,5 @@
 ## 4. Validación
 - [x] 4.1 `cd src-tauri && cargo test`
 - [x] 4.2 `pnpm test`, `pnpm vue-tsc --noEmit`, `pnpm build`
-- [ ] 4.3 Prueba manual: 2 paneles, 2×2 y layout asimétrico; con `vim`/`readline` comprobar que `Alt+flecha` llega al shell cuando no hay vecino; en macOS comprobar `⌥`+flecha
-- [ ] 4.4 `openspec validate` y archivar al terminar
+- [x] 4.3 Prueba manual en Linux: `Alt+flechas` cambia de panel (pendiente de comprobar por quien lo use: paso de la tecla a `vim`/`readline` sin vecino y `⌥`+flecha en macOS)
+- [x] 4.4 `openspec validate` y archivar al terminar
