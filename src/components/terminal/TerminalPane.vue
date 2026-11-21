@@ -595,6 +595,15 @@ watch(
 
 const { runWithUnlock } = useEnsureUnlocked();
 
+// Indica qué panel está activo cuando la pestaña está dividida (en broadcast ya hay un borde ámbar):
+// cabecera con tinte y título en color de acento. Los cursores de los paneles inactivos se dibujan huecos.
+const showActiveIndicator = computed(
+  () =>
+    props.isActive &&
+    !sessionsStore.isBroadcastMode &&
+    sessionsStore.getLeafPanesInTab(props.tabId).length > 1,
+);
+
 /** Ajusta xterm al contenedor y avisa de las nuevas filas/columnas a la sesión. */
 function refit() {
   if (!fitAddon || !term) return;
@@ -661,6 +670,7 @@ onMounted(async () => {
   term = new Terminal({
     cursorBlink: settingsStore.settings.cursor_blink,
     cursorStyle: settingsStore.settings.cursor_style,
+    cursorInactiveStyle: 'outline', // cursor hueco en los paneles sin foco
     allowProposedApi: true,
     fontFamily: settingsStore.settings.font_family,
     fontSize: settingsStore.settings.font_size,
@@ -862,13 +872,14 @@ function handleClose() {
   >
     <!-- Pane Mini Header -->
     <div
-      class="h-7 border-b flex items-center justify-between px-2.5 text-xs select-none shrink-0"
+      class="h-7 border-b flex items-center justify-between px-2.5 text-xs select-none shrink-0 transition-colors duration-200"
       :class="sessionsStore.isBroadcastMode ? 'bg-amber-950/30 border-amber-800/60' : 'bg-theme-header border-theme'"
+      :style="showActiveIndicator ? { backgroundColor: 'color-mix(in srgb, var(--theme-accent) 14%, var(--theme-bg-header))' } : undefined"
     >
       <div class="flex items-center space-x-2 truncate">
         <Server v-if="pane.hostId" class="w-3.5 h-3.5 text-theme-accent shrink-0" />
         <TerminalIcon v-else class="w-3.5 h-3.5 text-purple-400 shrink-0" />
-        <span class="text-[11px] font-medium text-theme-main truncate">{{ pane.title }}</span>
+        <span class="text-[11px] font-medium truncate transition-colors duration-200" :class="showActiveIndicator ? 'text-theme-accent' : 'text-theme-main'">{{ pane.title }}</span>
 
         <!-- Broadcast Indicator -->
         <span
