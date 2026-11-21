@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { i18n } from "../locales";
 import { usePasteHistoryStore } from "./paste-history.store";
 import { useHistoryStore } from "./history.store";
 import { useReplayStore } from "./replay.store";
@@ -35,7 +36,7 @@ export const useVaultStore = defineStore("vault", () => {
         await fetchInventory();
       }
     } catch (err: any) {
-      error.value = typeof err === "string" ? err : err?.message || "Error al verificar estado de la bóveda";
+      error.value = typeof err === "string" ? err : err?.message || i18n.global.t('ui.err.vault.statusFailed');
     } finally {
       isLoading.value = false;
     }
@@ -50,7 +51,7 @@ export const useVaultStore = defineStore("vault", () => {
       isUnlocked.value = true;
       await fetchInventory();
     } catch (err: any) {
-      error.value = typeof err === "string" ? err : err?.message || "Error al inicializar la bóveda";
+      error.value = typeof err === "string" ? err : err?.message || i18n.global.t('ui.err.vault.initFailed');
       throw error.value;
     } finally {
       isLoading.value = false;
@@ -65,7 +66,7 @@ export const useVaultStore = defineStore("vault", () => {
       isUnlocked.value = true;
       await fetchInventory();
     } catch (err: any) {
-      error.value = typeof err === "string" ? err : err?.message || "Contraseña maestra incorrecta";
+      error.value = typeof err === "string" ? err : err?.message || i18n.global.t('ui.err.vault.wrongPassword');
       throw error.value;
     } finally {
       isLoading.value = false;
@@ -85,7 +86,7 @@ export const useVaultStore = defineStore("vault", () => {
       identities.value = [];
       hosts.value = [];
     } catch (err: any) {
-      error.value = typeof err === "string" ? err : err?.message || "Error al bloquear la bóveda";
+      error.value = typeof err === "string" ? err : err?.message || i18n.global.t('ui.err.vault.lockFailed');
     } finally {
       isLoading.value = false;
     }
@@ -141,7 +142,7 @@ export const useVaultStore = defineStore("vault", () => {
     try {
       await vaultService.changePassword(currentPassword, newPassword);
     } catch (err: any) {
-      error.value = typeof err === "string" ? err : err?.message || "Error al cambiar la contraseña maestra";
+      error.value = typeof err === "string" ? err : err?.message || i18n.global.t('ui.err.vault.rotateFailed');
       throw error.value;
     } finally {
       isLoading.value = false;

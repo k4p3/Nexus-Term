@@ -72,7 +72,7 @@ pub fn validate_session_id(id: &str) -> Result<(), RemoteDesktopError> {
     if ok {
         Ok(())
     } else {
-        Err(RemoteDesktopError::InvalidInput("Identificador de sesión inválido".into()))
+        Err(RemoteDesktopError::InvalidInput("Invalid session identifier".into()))
     }
 }
 
@@ -160,7 +160,7 @@ pub async fn rd_connect(
 
     let (tx, rx) = mpsc::channel(COMMAND_QUEUE);
     if !mgr.try_insert(session_id.clone(), tx).await {
-        return Err(RemoteDesktopError::InvalidInput("El identificador de sesión ya está en uso".into()));
+        return Err(RemoteDesktopError::InvalidInput("The session identifier is already in use".into()));
     }
 
     let info = RdConnectInfo {
@@ -192,7 +192,7 @@ pub async fn rd_connect(
             let outcome =
                 run_session(vault, resolved, host_id, width, height, known_fp, rx, frames, events.clone()).await;
             if let Err(e) = outcome {
-                tracing::warn!("Sesión gráfica {} terminó con error: {}", sid, e);
+                tracing::warn!("Graphical session {} ended with an error: {}", sid, e);
             }
             mgr.remove(&sid).await;
         })
@@ -243,7 +243,7 @@ async fn run_session(
             known_fingerprint: known_fp,
             store_fingerprint: Arc::new(move |fp| {
                 if let Err(e) = store_vault.accept_rdp_cert_fingerprint(&store_host, fp) {
-                    tracing::warn!("No se pudo guardar la huella del certificado: {}", e);
+                    tracing::warn!("Could not save the certificate fingerprint: {}", e);
                 }
             }),
         };
@@ -290,7 +290,7 @@ pub async fn rd_set_clipboard(
     text: String,
 ) -> Result<(), RemoteDesktopError> {
     if !clipboard_enabled(&vault) {
-        return Err(RemoteDesktopError::InvalidInput("El portapapeles está desactivado en Ajustes".into()));
+        return Err(RemoteDesktopError::InvalidInput("The clipboard is disabled in Settings".into()));
     }
     validate_clipboard_text(&text)?;
     mgr.send(&session_id, SessionCommand::Clipboard(text)).await

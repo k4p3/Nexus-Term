@@ -36,107 +36,107 @@ pub fn seed_community_snippets(conn: &Connection) -> Result<(), VaultError> {
     let builtins = [
         (
             "builtin-docker-logs",
-            "Docker: Seguir Logs",
-            "docker logs -f --tail {{lineas=100}} {{contenedor}}",
-            Some("Muestra y sigue los logs recientes del contenedor en tiempo real."),
+            "Docker: Follow Logs",
+            "docker logs -f --tail {{lines=100}} {{container}}",
+            Some("Shows and follows the container's recent logs in real time."),
             "[\"docker\", \"logs\"]",
         ),
         (
             "builtin-docker-exec",
-            "Docker: Shell Interactiva",
-            "docker exec -it {{contenedor}} /bin/sh",
-            Some("Abre una terminal interactiva dentro del contenedor en ejecución."),
+            "Docker: Interactive Shell",
+            "docker exec -it {{container}} /bin/sh",
+            Some("Opens an interactive shell inside the running container."),
             "[\"docker\", \"terminal\"]",
         ),
         (
             "builtin-docker-ps",
-            "Docker: Lista con Puertos",
+            "Docker: List with Ports",
             "docker ps -a --format \"table {{.ID}}\\t{{.Names}}\\t{{.Status}}\\t{{.Ports}}\"",
-            Some("Muestra todos los contenedores con formato limpio de columnas y puertos mapeados."),
+            Some("Lists all containers in a clean column layout with mapped ports."),
             "[\"docker\", \"status\"]",
         ),
         (
             "builtin-docker-prune",
-            "Docker: Limpieza Total",
+            "Docker: Full Cleanup",
             "docker system prune -af --volumes",
-            Some("Elimina contenedores detenidos, redes sin uso, imágenes huérfanas y volúmenes."),
+            Some("Removes stopped containers, unused networks, dangling images and volumes."),
             "[\"docker\", \"cleanup\"]",
         ),
         (
             "builtin-sys-journal",
-            "Systemd: Logs en Vivo",
-            "journalctl -u {{servicio}} -f -n {{lineas=50}}",
-            Some("Sigue los logs del servicio del sistema en tiempo real con marcas de tiempo."),
+            "Systemd: Live Logs",
+            "journalctl -u {{service}} -f -n {{lines=50}}",
+            Some("Follows a system service's logs in real time with timestamps."),
             "[\"system\", \"logs\"]",
         ),
         (
             "builtin-sys-status",
-            "Systemd: Estado de Servicio",
-            "sudo systemctl status {{servicio}}",
-            Some("Verifica el estado de ejecución, PID y últimas líneas de log de un servicio."),
+            "Systemd: Service Status",
+            "sudo systemctl status {{service}}",
+            Some("Checks a service's run state, PID and latest log lines."),
             "[\"system\", \"service\"]",
         ),
         (
             "builtin-sys-restart",
-            "Systemd: Reiniciar Servicio",
-            "sudo systemctl restart {{servicio}}",
-            Some("Reinicia limpiamente el demonio o servicio especificado."),
+            "Systemd: Restart Service",
+            "sudo systemctl restart {{service}}",
+            Some("Cleanly restarts the specified daemon or service."),
             "[\"system\", \"service\"]",
         ),
         (
             "builtin-net-listen",
-            "Red: Puertos Escuchando",
+            "Network: Listening Ports",
             "ss -tulpn",
-            Some("Muestra todos los sockets TCP/UDP abiertos a la escucha con el nombre y PID del proceso."),
+            Some("Lists all listening TCP/UDP sockets with the process name and PID."),
             "[\"network\", \"ports\"]",
         ),
         (
             "builtin-net-ips",
-            "Red: Resumen de IPs",
+            "Network: IP Summary",
             "ip -br -c a",
-            Some("Muestra las interfaces de red con sus direcciones IPv4/IPv6 asignadas y colores."),
+            Some("Shows network interfaces with their assigned IPv4/IPv6 addresses, in color."),
             "[\"network\", \"ip\"]",
         ),
         (
             "builtin-net-curl-hdr",
-            "Red: Cabeceras HTTP",
+            "Network: HTTP Headers",
             "curl -I {{url=https://google.com}}",
-            Some("Realiza una petición HEAD para inspeccionar cabeceras, códigos HTTP y certificados."),
+            Some("Sends a HEAD request to inspect headers, HTTP status codes and certificates."),
             "[\"network\", \"http\"]",
         ),
         (
             "builtin-net-ufw",
-            "Red: Estado Firewall UFW",
+            "Network: UFW Firewall Status",
             "sudo ufw status verbose",
-            Some("Muestra las reglas activas del cortafuegos UFW y puertos permitidos."),
+            Some("Shows the active UFW firewall rules and allowed ports."),
             "[\"network\", \"firewall\"]",
         ),
         (
             "builtin-fs-large-files",
-            "Disco: 10 Archivos Más Pesados",
-            "find / -type f -size +{{tamano=100M}} -exec ls -lh {} + 2>/dev/null | sort -k 5 -hr | head -n 10",
-            Some("Busca y lista los 10 archivos de mayor tamaño en el sistema de archivos."),
+            "Disk: 10 Largest Files",
+            "find / -type f -size +{{size=100M}} -exec ls -lh {} + 2>/dev/null | sort -k 5 -hr | head -n 10",
+            Some("Finds and lists the 10 largest files on the file system."),
             "[\"storage\", \"find\"]",
         ),
         (
             "builtin-fs-space",
-            "Disco: Particiones Reales",
+            "Disk: Real Partitions",
             "df -hT --exclude-type=tmpfs --exclude-type=devtmpfs",
-            Some("Muestra el espacio libre en particiones físicas sin el ruido de sistemas temporales."),
+            Some("Shows free space on physical partitions without temporary file systems."),
             "[\"storage\", \"df\"]",
         ),
         (
             "builtin-sys-mem",
-            "Memoria: Uso de RAM y Swap",
+            "Memory: RAM and Swap Usage",
             "free -h",
-            Some("Muestra la memoria física, usada, en caché y swap en unidades legibles."),
+            Some("Shows physical, used, cached and swap memory in readable units."),
             "[\"system\", \"memory\"]",
         ),
         (
             "builtin-sys-dmesg",
-            "Kernel: Mensajes Recientes",
+            "Kernel: Recent Messages",
             "dmesg -T | tail -n 50",
-            Some("Muestra los últimos 50 eventos del kernel con marcas de tiempo legibles."),
+            Some("Shows the last 50 kernel events with readable timestamps."),
             "[\"system\", \"kernel\"]",
         ),
     ];
@@ -146,6 +146,12 @@ pub fn seed_community_snippets(conn: &Connection) -> Result<(), VaultError> {
             "INSERT OR IGNORE INTO snippets (id, title, command_template, description, tags_json, is_builtin, is_enabled, created_at, updated_at)
              VALUES (?1, ?2, ?3, ?4, ?5, 1, 1, ?6, ?6)",
             params![id, title, template, desc, tags_json, now],
+        )?;
+        // Built-ins are read-only: refresh their text on existing databases (keeps is_enabled untouched).
+        conn.execute(
+            "UPDATE snippets SET title = ?2, command_template = ?3, description = ?4, tags_json = ?5
+             WHERE id = ?1 AND is_builtin = 1",
+            params![id, title, template, desc, tags_json],
         )?;
     }
 
@@ -302,6 +308,26 @@ pub fn delete_snippet(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn test_seeding_refreshes_legacy_builtin_text_and_keeps_enabled_state() {
+        let conn = Connection::open_in_memory().unwrap();
+        VaultManager::run_migrations(&conn).unwrap();
+        conn.execute(
+            "UPDATE snippets SET title = 'Docker: Seguir Logs', description = 'texto antiguo', is_enabled = 0 WHERE id = 'builtin-docker-logs'",
+            [],
+        )
+        .unwrap();
+
+        seed_community_snippets(&conn).unwrap();
+
+        let list = get_snippets_internal(&conn).unwrap();
+        let item = list.iter().find(|s| s.id == "builtin-docker-logs").unwrap();
+        assert_eq!(item.title, "Docker: Follow Logs");
+        assert!(item.command_template.contains("{{lines=100}}"));
+        assert!(!item.is_enabled, "user's enabled choice must be preserved");
+        assert_eq!(list.len(), 15);
+    }
 
     #[test]
     fn test_snippet_crud_and_community_seeding() {

@@ -204,7 +204,7 @@ watch(
 </script>
 
 <template>
-  <div ref="root" class="h-full w-full flex flex-col bg-black relative">
+  <div ref="root" class="h-full w-full flex flex-col bg-app relative">
     <RemoteToolbar
       :title="pane.title"
       :protocol="session?.protocol ?? pane.host?.protocol ?? 'rdp'"
@@ -219,7 +219,7 @@ watch(
 
     <div
       v-if="session?.unencryptedWarning"
-      class="flex items-center space-x-2 px-3 py-1 text-[11px] bg-amber-500/15 text-amber-300 border-b border-amber-500/30"
+      class="flex items-center space-x-2 px-3 py-1 text-[11px] bg-warning/15 text-warning border-b border-warning/30"
     >
       <ShieldAlert class="w-3.5 h-3.5 shrink-0" />
       <span>{{ t("remote.unencryptedWarning") }}</span>
@@ -229,7 +229,7 @@ watch(
       <canvas
         ref="canvas"
         tabindex="0"
-        class="outline-none bg-black"
+        class="outline-none bg-app"
         :style="canvasStyle"
         @mousemove="onMouseMove"
         @mousedown="onMouseButton"
@@ -242,7 +242,7 @@ watch(
 
       <div
         v-if="session?.state === 'connecting'"
-        class="absolute inset-0 flex flex-col items-center justify-center bg-black/70 text-theme-muted text-sm space-y-2"
+        class="absolute inset-0 flex flex-col items-center justify-center bg-overlay text-fg-muted text-sm space-y-2"
       >
         <Loader2 class="w-6 h-6 animate-spin" />
         <span>{{ t("remote.connecting", { host: pane.title }) }}</span>
@@ -250,16 +250,16 @@ watch(
 
       <div
         v-else-if="session && (session.state === 'error' || session.state === 'disconnected')"
-        class="absolute inset-0 flex flex-col items-center justify-center bg-black/80 text-sm space-y-3 p-4 text-center"
+        class="absolute inset-0 flex flex-col items-center justify-center bg-overlay text-sm space-y-3 p-4 text-center"
       >
-        <AlertCircle class="w-7 h-7" :class="session.state === 'error' ? 'text-red-400' : 'text-theme-muted'" />
-        <div class="text-theme-main">
+        <AlertCircle class="w-7 h-7" :class="session.state === 'error' ? 'text-danger' : 'text-fg-muted'" />
+        <div class="text-fg">
           {{ session.state === "error" ? t("remote.connectionError") : t("remote.disconnected") }}
         </div>
-        <div v-if="session.error" class="text-xs text-theme-muted max-w-md break-words">{{ session.error }}</div>
+        <div v-if="session.error" class="text-xs text-fg-muted max-w-md break-words">{{ session.error }}</div>
         <button
           type="button"
-          class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs bg-theme-accent text-white hover:opacity-90 cursor-pointer"
+          class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs bg-accent text-on-accent hover:opacity-90 cursor-pointer"
           @click="start"
         >
           <RefreshCw class="w-3.5 h-3.5" />

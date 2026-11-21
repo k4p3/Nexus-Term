@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { i18n } from "../locales";
 import { ref, computed } from "vue";
 import type { SftpEntry, TransferProgress } from "../types/sftp";
 import { sftpService } from "../services/sftp.service";
@@ -95,7 +96,7 @@ export const useSftpStore = defineStore("sftp", () => {
       const home = await sftpService.resolveHome(sessionId).catch(() => "/");
       await navigateTo(home, false);
     } catch (e: any) {
-      error.value = e?.toString() || "Error al conectar SFTP";
+      error.value = e?.toString() || i18n.global.t('ui.err.sftp.connectFailed');
       isOpen.value = false;
       throw e;
     } finally {
@@ -125,7 +126,7 @@ export const useSftpStore = defineStore("sftp", () => {
         historyIndex.value = history.value.length - 1;
       }
     } catch (e: any) {
-      error.value = e?.toString() || `Error al navegar a ${path}`;
+      error.value = e?.toString() || i18n.global.t('ui.err.sftp.navigateFailed', { path });
     } finally {
       isLoading.value = false;
     }
@@ -155,7 +156,7 @@ export const useSftpStore = defineStore("sftp", () => {
       await sftpService.mkdir(currentSessionId.value, newPath);
       await refresh();
     } catch (e: any) {
-      error.value = e?.toString() || "Error al crear la carpeta";
+      error.value = e?.toString() || i18n.global.t('ui.err.sftp.mkdirFailed');
       throw e;
     } finally {
       isLoading.value = false;
@@ -175,7 +176,7 @@ export const useSftpStore = defineStore("sftp", () => {
       await sftpService.rename(currentSessionId.value, oldPath, newPath);
       await refresh();
     } catch (e: any) {
-      error.value = e?.toString() || "Error al renombrar";
+      error.value = e?.toString() || i18n.global.t('ui.err.sftp.renameFailed');
       throw e;
     } finally {
       isLoading.value = false;
@@ -190,7 +191,7 @@ export const useSftpStore = defineStore("sftp", () => {
       await sftpService.remove(currentSessionId.value, path, isDir);
       await refresh();
     } catch (e: any) {
-      error.value = e?.toString() || "Error al eliminar";
+      error.value = e?.toString() || i18n.global.t('ui.err.sftp.deleteFailed');
       throw e;
     } finally {
       isLoading.value = false;
@@ -249,7 +250,7 @@ export const useSftpStore = defineStore("sftp", () => {
       }
     } catch (e: any) {
       task.status = "error";
-      task.error_message = e?.toString() || "Error en la transferencia";
+      task.error_message = e?.toString() || i18n.global.t('ui.err.sftp.transferFailed');
     } finally {
       processQueue();
     }

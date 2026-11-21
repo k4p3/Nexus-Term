@@ -22,7 +22,7 @@ pub async fn save_tunnel(
     payload: TunnelConfigPayload,
 ) -> Result<TunnelConfig, String> {
     if payload.local_port == 0 {
-        return Err("El puerto local debe ser mayor a 0".to_string());
+        return Err("The local port must be greater than 0".to_string());
     }
     let conn = vault.db.lock().map_err(|e| e.to_string())?;
     save_tunnel_internal(&conn, &payload).map_err(|e| e.to_string())
@@ -49,7 +49,7 @@ pub async fn start_tunnel(
         let conn = vault.db.lock().map_err(|e| e.to_string())?;
         get_tunnel_by_id_internal(&conn, &id)
             .map_err(|e| e.to_string())?
-            .ok_or_else(|| "Túnel no encontrado".to_string())?
+            .ok_or_else(|| "Tunnel not found".to_string())?
     };
 
     let vault_mgr = vault.inner().clone();

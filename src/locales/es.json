@@ -14,7 +14,9 @@
     "back": "Volver",
     "confirm": "Confirmar",
     "reset": "Restablecer",
-    "actions": "Acciones"
+    "actions": "Acciones",
+    "noOptions": "No hay opciones disponibles",
+    "selectOption": "Seleccionar opción..."
   },
   "vault": {
     "unlockCancelled": "Operación cancelada: la bóveda sigue bloqueada.",
@@ -34,7 +36,10 @@
     "mismatchPassword": "Las contraseñas no coinciden",
     "initPrompt": "Define una contraseña maestra robusta para proteger tus credenciales y llaves SSH con Argon2id + AES-256-GCM.",
     "unlockPrompt": "Introduce tu contraseña maestra para descifrar tus llaves SSH y conexiones.",
-    "emptyPassword": "La contraseña no puede estar vacía"
+    "emptyPassword": "La contraseña no puede estar vacía",
+    "showPassword": "Mostrar contraseña",
+    "hidePassword": "Ocultar contraseña",
+    "encryptionNote": "Cifrado local con Argon2id y AES-256-GCM. Tu contraseña nunca sale de este equipo."
   },
   "hosts": {
     "title": "Inventario",
@@ -110,7 +115,9 @@
     "activeSessions": "Sesiones Activas",
     "searchPrompt": "Buscar en la terminal...",
     "osc52Copied": "Copiado al portapapeles por el programa remoto (OSC 52)",
-    "osc52TooLarge": "Copia OSC 52 ignorada: supera 1 MiB"
+    "osc52TooLarge": "Copia OSC 52 ignorada: supera 1 MiB",
+    "hideSidebar": "Ocultar barra lateral (Ctrl+B)",
+    "showSidebar": "Mostrar barra lateral (Ctrl+B)"
   },
   "settings": {
     "title": "Configuración",
@@ -198,7 +205,18 @@
     "fontLigaturesOk": "Se usa «{font}», que admite ligaduras.",
     "fontLigaturesNoSupport": "La fuente en uso («{font}») no se sabe que tenga ligaduras, por lo que no se verá ningún cambio.",
     "fontLigaturesNoFont": "No se encontró ninguna fuente instalada de tu lista de fuentes.",
-    "fontLigaturesMissing": "No instaladas: {fonts}. Instala una fuente con ligaduras (p. ej. JetBrains Mono, Fira Code, Cascadia Code), reinicia la aplicación y ponla la primera de la lista."
+    "fontLigaturesMissing": "No instaladas: {fonts}. Instala una fuente con ligaduras (p. ej. JetBrains Mono, Fira Code, Cascadia Code), reinicia la aplicación y ponla la primera de la lista.",
+    "appearanceMode": "Apariencia",
+    "modeManual": "Usar un solo tema",
+    "modeSystem": "Seguir al sistema",
+    "lightTheme": "Tema en modo claro",
+    "darkTheme": "Tema en modo oscuro",
+    "uiDensity": "Densidad de la interfaz",
+    "densityComfortable": "Cómoda",
+    "densityCompact": "Compacta",
+    "removeTheme": "Eliminar tema",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro"
   },
   "snippets": {
     "title": "Snippets",
@@ -342,5 +360,412 @@
     "startEmpty": "Empezar vacío",
     "restore": "Restaurar ({n} pestañas)",
     "skipped": "Se omitieron {n} panel(es) porque el host ya no existe: {names}"
+  },
+  "ui": {
+    "app": {
+      "snippetsTitle": "Biblioteca de Snippets",
+      "tunnels": "Túneles",
+      "tunnelsTitle": "Gestor de Túneles SSH",
+      "sftpTitle": "Explorador SFTP (Archivos Remotos)"
+    },
+    "folder": {
+      "name": "Nombre de la Carpeta",
+      "color": "Color de Distinción",
+      "namePlaceholder": "ej. Producción / Clientes / Laboratorio",
+      "edit": "Editar Carpeta",
+      "new": "Nueva Carpeta",
+      "saveError": "Error al guardar la carpeta.",
+      "required": "El nombre de la carpeta es obligatorio."
+    },
+    "host": {
+      "label": "Nombre / Alias del Servidor",
+      "hostname": "Dirección IP o Hostname",
+      "port": "Puerto",
+      "folder": "Carpeta",
+      "newShort": "Nueva",
+      "identity": "Credencial / Identidad",
+      "jump": "Servidor de Salto / Bastion (Opcional)",
+      "jumpHelp": "Si se especifica, NexusTerm tunelizará la conexión SSH a través de este Bastion usando direct-tcpip.",
+      "userOverride": "Sobrescribir Usuario (Opcional)",
+      "tags": "Etiquetas (separadas por coma)",
+      "notes": "Notas Cifradas (Opcional)",
+      "save": "Guardar Servidor",
+      "edit": "Editar Servidor",
+      "new": "Nuevo Servidor",
+      "labelPlaceholder": "ej. Web Server Producción / VPS Hetzner",
+      "hostnamePlaceholder": "192.168.1.100 o app.ejemplo.com",
+      "folderPlaceholder": "Seleccionar carpeta...",
+      "identityPlaceholder": "Seleccionar credencial...",
+      "jumpPlaceholder": "Conexión directa...",
+      "userOverridePlaceholder": "Si difiere del usuario de la credencial",
+      "tagsPlaceholder": "produccion, linux, nginx, aws",
+      "notesPlaceholder": "Notas protegidas por la bóveda...",
+      "rdp": "RDP (Escritorio remoto)",
+      "noFolder": "Sin carpeta (Raíz)",
+      "noIdentity": "Sin credencial vinculada",
+      "noIdentitySub": "Autenticación anónima o interactiva",
+      "direct": "Conexión directa",
+      "directSub": "Sin servidor de salto intermedio",
+      "required": "Etiqueta y dirección (Host/IP) son obligatorios."
+    },
+    "sidebar": {
+      "noFolder": "Sin Carpeta",
+      "importConfigShort": "Importar ~/.ssh/config",
+      "noIdentities": "No hay credenciales guardadas. Agrega una para reutilizar usuario, contraseña o llave SSH.",
+      "importConfig": "Importar desde ~/.ssh/config",
+      "hide": "Ocultar Barra Lateral (Ctrl+B)",
+      "clearSearch": "Limpiar búsqueda",
+      "deleteFolder": "Eliminar Carpeta",
+      "connectSsh": "Conectar Terminal SSH",
+      "sftp": "Explorador SFTP (Archivos)",
+      "editIdentity": "Editar Credencial",
+      "deleteIdentity": "Eliminar Credencial",
+      "searchIdentities": "Buscar credenciales...",
+      "viaBastion": "Conectado vía Bastion: ",
+      "keyCopied": "¡Clave copiada!",
+      "copyKey": "Copiar clave pública",
+      "noHosts": "No hay servidores guardados. Usa el botón + para agregar el primero.",
+      "via": "vía"
+    },
+    "identity": {
+      "name": "Nombre Descriptivo",
+      "username": "Usuario SSH",
+      "authMethod": "Método de Autenticación",
+      "password": "Contraseña",
+      "keepExisting": "(Dejar en blanco para conservar la existente)",
+      "agentTitle": "Autenticación por Agente del Sistema",
+      "keyTools": "Herramientas de Llaves",
+      "importFile": "Importar Archivo",
+      "privateKey": "Contenido de la Llave Privada",
+      "passphrase": "Passphrase de la Llave (Opcional)",
+      "publicKey": "Clave Pública OpenSSH",
+      "save": "Guardar Credencial",
+      "new": "Nueva Credencial SSH",
+      "namePlaceholder": "ej. Servidores Prod - Llave Primaria",
+      "usernamePlaceholder": "root / ubuntu / admin",
+      "importTitle": "Importar archivo id_ed25519, id_rsa, .pem o .pub",
+      "passphrasePlaceholder": "Si la llave está protegida con contraseña",
+      "copyTitle": "Copiar para ~/.ssh/authorized_keys",
+      "passwordSub": "Usuario y contraseña estándar",
+      "sshKey": "Llave SSH",
+      "agent": "Agente SSH del Sistema",
+      "agentSub": "Delegado a SSH_AUTH_SOCK",
+      "ed25519": "Ed25519 (Recomendado)",
+      "rsa": "RSA (4096 bits)",
+      "genError": "Error al generar la llave SSH: {error}",
+      "required": "Nombre y usuario son obligatorios.",
+      "agentHelp": "NexusTerm delegará la firma criptográfica al socket local de su agente SSH (SSH_AUTH_SOCK en Linux/macOS o Pageant/OpenSSH en Windows). Compatible con YubiKey, llaves de hardware FIDO2 y 1Password.",
+      "passphraseNotice": "Esta llave privada está protegida por frase de paso. Ingresa la frase de paso abajo para descifrarla y derivar su clave pública.",
+      "copied": "¡Copiada!",
+      "copy": "Copiar clave",
+      "passwordPlaceholder": "Ingrese contraseña del servidor"
+    },
+    "quick": {
+      "navigate": "Navegar",
+      "connect": "Conectar",
+      "palette": "Paleta Rápida",
+      "placeholder": "Escribe para buscar servidor, carpeta o comando rápido...",
+      "openSftp": "Abrir SFTP directamente para este servidor",
+      "sftpSub": "Abrir gestor de archivos remotos y transferencias",
+      "tunnelsSub": "Reenvío Local (-L), Remoto (-R) y SOCKS5 (-D)",
+      "noResults": "No se encontraron servidores o comandos que coincidan con \"{query}\"."
+    },
+    "import": {
+      "scanning": "Analizando archivos OpenSSH locales...",
+      "done": "¡Importación Completada con Éxito!",
+      "doneBody": "Los servidores e identidades seleccionados han sido migrados a tu bóveda cifrada.",
+      "servers": "Servidores",
+      "identities": "Identidades",
+      "skipped": "Omitidos",
+      "ready": "Listo",
+      "detected": "Archivo detectado:",
+      "toggleHint": "Haz clic en cualquier servidor para incluirlo/excluirlo",
+      "exists": "Ya existe",
+      "folder": "Carpeta contenedora de importación",
+      "overwrite": "Sobrescribir servidores duplicados si ya existen en la bóveda",
+      "rescan": "Volver a escanear",
+      "folderPlaceholder": "ej. Importados de SSH Config (o en blanco para raíz)",
+      "title": "Importar desde ~/.ssh/config & known_hosts",
+      "running": "Importando...",
+      "start": "Iniciar Importación",
+      "selectOne": "Selecciona al menos un servidor para importar.",
+      "failed": "Error durante la importación.",
+      "noBlocks": "No se encontraron bloques Host utilizables en tu archivo ~/.ssh/config.",
+      "knownHosts": "Pre-cargar claves de confianza desde known_hosts (evita alertas TOFU)",
+      "found": "{hosts} servidores encontrados • {keys} claves en known_hosts",
+      "selectAll": "Seleccionar todos ({n} seleccionados)",
+      "readyCount": "{n} servidores listos para migrar"
+    },
+    "settings": {
+      "trayTitle": "Bandeja del Sistema (System Tray)",
+      "trayHelp": "Permite que NexusTerm continúe ejecutándose en segundo plano para no interrumpir túneles SSH ni transferencias activas.",
+      "trayOption": "Minimizar a la bandeja del sistema al presionar el botón de cerrar (X)",
+      "aboutBody": "Gestor SSH, SFTP y emulador de terminal ligero, moderno y de alto rendimiento optimizado para Linux (KDE Plasma Wayland), Windows y macOS.",
+      "localeHelp": "Carga un archivo JSON de traducción creado por la comunidad. Las claves ausentes usan el idioma base (inglés).",
+      "chooseJson": "Elegir JSON",
+      "localeCode": "Código de idioma (p. ej. fr, de, pt-BR)"
+    },
+    "sftp": {
+      "viewQueue": "Ver cola →",
+      "drop": "Soltar archivos aquí para subir a:",
+      "loading": "Cargando archivos remotos...",
+      "title": "Explorador SFTP",
+      "pick": "Selecciona un servidor guardado para explorar sus archivos remotos y transferir archivos:",
+      "noHosts": "No tienes servidores guardados en la bóveda. Agrega uno en la barra lateral izquierda.",
+      "download": "Descargar",
+      "newRemoteFolder": "Nueva Carpeta Remota",
+      "create": "Crear",
+      "renameItem": "Renombrar Elemento",
+      "queueTitle": "Cola de Transferencias",
+      "close": "Cerrar Explorador SFTP",
+      "up": "Subir de nivel (..)",
+      "refresh": "Refrescar directorio",
+      "upload": "Subir Archivos al servidor (selección múltiple)",
+      "filter": "Filtrar archivos...",
+      "downloadFile": "Descargar archivo",
+      "rename": "Renombrar",
+      "downloadSelected": "Descargar todos los seleccionados",
+      "deleteSelected": "Eliminar elementos seleccionados",
+      "clearSelection": "Limpiar selección",
+      "folderName": "Nombre de la carpeta",
+      "remoteServer": "Servidor Remoto",
+      "confirmDeleteFolder": "¿Estás seguro de eliminar la carpeta \"{name}\" del servidor?",
+      "confirmDeleteFile": "¿Estás seguro de eliminar el archivo \"{name}\" del servidor?",
+      "confirmDeleteMany": "¿Estás seguro de eliminar los {count} elementos seleccionados del servidor?",
+      "noMatches": "No se encontraron coincidencias",
+      "emptyDir": "Directorio vacío",
+      "progress": "{done}/{total} archivos transferidos ({pct}%)",
+      "selected": "{n} seleccionados",
+      "pickUpload": "Seleccionar archivos para subir"
+    },
+    "queue": {
+      "title": "Cola de Transferencias SFTP",
+      "empty": "No hay transferencias activas ni recientes",
+      "queued": "En cola",
+      "waiting": "En espera de ranura libre...",
+      "clearDone": "Limpiar completadas",
+      "retry": "Reintentar transferencia"
+    },
+    "snip": {
+      "subtitle": "Comunitarios y personalizados",
+      "all": "Todos",
+      "community": "Comunidad",
+      "mine": "Mis Snippets",
+      "showDisabled": "Mostrar snippets deshabilitados",
+      "none": "No se encontraron snippets con el filtro seleccionado.",
+      "createNew": "+ Crear nuevo snippet",
+      "personal": "Personal",
+      "disabled": "Deshabilitado",
+      "new": "Nuevo Snippet",
+      "search": "Buscar por comando, título o etiqueta...",
+      "communityTitle": "Snippet estándar de la comunidad",
+      "duplicate": "Duplicar como snippet personal",
+      "confirmDisable": "¿Deseas deshabilitar el snippet comunitario \"{title}\"? Podrás reactivarlo cuando quieras.",
+      "confirmDelete": "¿Eliminar permanentemente el snippet \"{title}\"?",
+      "insertHint": "Hacer clic para insertar en la terminal",
+      "disabledHint": "Snippet deshabilitado (actívalo para usarlo)",
+      "visible": "{n} visibles"
+    },
+    "snipForm": {
+      "title": "Título",
+      "template": "Plantilla de Comando",
+      "description": "Descripción (Opcional)",
+      "titlePlaceholder": "ej. Docker Follow Logs",
+      "descPlaceholder": "Seguir los logs de un contenedor con líneas variables",
+      "edit": "Editar Snippet",
+      "new": "Nuevo Snippet de Comando",
+      "fillParams": "Ingresa los valores de los parámetros:",
+      "send": "Enviar a Terminal",
+      "titleRequired": "El título es obligatorio.",
+      "commandRequired": "El comando es obligatorio.",
+      "supports": "Soporta {token}",
+      "valueFor": "Valor para {param}"
+    },
+    "telemetry": {
+      "connecting": "Conectando canal de telemetría remota...",
+      "disk": "Disco",
+      "rx": "Velocidad de descarga (Rx)",
+      "tx": "Velocidad de subida (Tx)",
+      "uptime": "Tiempo de actividad del servidor",
+      "hide": "Ocultar barra de telemetría",
+      "diskTitle": "Disco raíz (/): {used} / {total}",
+      "resume": "Reanudar telemetría",
+      "pause": "Pausar telemetría"
+    },
+    "pane": {
+      "split": "Dividir Panel",
+      "newLocal": "Nueva Terminal Local",
+      "pickServer": "Elegir Servidor...",
+      "noServers": "Sin servidores guardados",
+      "moveTab": "Mover pestaña aquí:",
+      "connecting": "Conectando sesión...",
+      "connectionError": "Error de Conexión",
+      "search": "Buscar en buffer (Ctrl+F)",
+      "prevCommand": "Comando Anterior (Ctrl+Shift+↑)",
+      "nextCommand": "Comando Siguiente (Ctrl+Shift+↓)",
+      "horizontal": "Horizontal",
+      "vertical": "Vertical",
+      "copyOutput": "Copiar salida del último comando",
+      "hideTelemetry": "Ocultar monitor de telemetría",
+      "showTelemetry": "Mostrar monitor de telemetría (CPU, RAM, Red)",
+      "connectFailed": "Error al conectar la sesión.",
+      "sameServer": "Mismo servidor ({label})"
+    },
+    "search": {
+      "matchCase": "Match Case (Mayúsculas/Minúsculas)",
+      "wholeWord": "Match Whole Word (Palabra Completa)",
+      "regex": "Use Regular Expression",
+      "prev": "Previous Match (Shift+Enter)",
+      "next": "Next Match (Enter)",
+      "close": "Close (Esc)"
+    },
+    "workspace": {
+      "broadcastBanner": "MODO BROADCAST ACTIVO: Todas las teclas se enviarán a los paneles divididos abiertos.",
+      "disable": "Desactivar",
+      "broadcastOff": "Desactivar Modo Broadcast",
+      "broadcastOn": "Activar Modo Broadcast (Replicar teclas en todos los paneles)"
+    },
+    "tunnels": {
+      "title": "Túneles SSH & Port Forwarding",
+      "subtitle": "Reenvío de puertos Local (-L), Remoto (-R) y Proxy SOCKS5 (-D)",
+      "new": "Nuevo Túnel",
+      "empty": "No hay reglas de túneles configuradas",
+      "emptyBody": "Accede de forma segura a bases de datos o servicios remotos sin abrir puertos al público.",
+      "createFirst": "Crear primer túnel",
+      "remote": "Remoto -R",
+      "dynamic": "(Proxy Dinámico)",
+      "footer": "Los túneles activos se mantienen en segundo plano mientras NexusTerm esté en ejecución.",
+      "update": "Actualizar",
+      "confirmDelete": "¿Estás seguro de eliminar este túnel?",
+      "connectFailed": "Error al conectar el túnel",
+      "active": "{n} activo(s)",
+      "connections": "{n} conex. activas",
+      "unknownHost": "Servidor desconocido"
+    },
+    "tunnelForm": {
+      "name": "Nombre de la Regla",
+      "host": "Servidor SSH",
+      "type": "Tipo de Reenvío",
+      "localToRemote": "Local a Remoto",
+      "remoteToLocal": "Remoto a Local",
+      "dynamic": "Proxy Dinámico",
+      "localPort": "Puerto Local",
+      "remotePort": "Puerto Remoto",
+      "namePlaceholder": "ej. Postgres Prod",
+      "hostPlaceholder": "Selecciona un servidor...",
+      "remoteHostPlaceholder": "127.0.0.1 o host interno",
+      "edit": "Editar Túnel SSH",
+      "newTitle": "Nuevo Túnel SSH",
+      "subtitle": "Configura reenvío de puertos (Local, Remoto o SOCKS5)",
+      "update": "Actualizar Túnel",
+      "save": "Guardar Túnel",
+      "nameRequired": "El nombre del túnel es obligatorio",
+      "hostRequired": "Debes seleccionar un servidor SSH",
+      "localPortRange": "El puerto local debe estar entre 1 y 65535",
+      "remoteHostRequired": "El host remoto de destino es obligatorio",
+      "remotePortRange": "El puerto remoto debe estar entre 1 y 65535",
+      "socksReady": "Proxy SOCKS5 dinámico listo para navegadores o herramientas en 127.0.0.1:{port}"
+    },
+    "confirm": {
+      "deleteHost": "¿Estás seguro de eliminar este servidor?",
+      "deleteFolder": "¿Estás seguro de eliminar esta carpeta?",
+      "deleteIdentity": "¿Estás seguro de eliminar esta credencial?"
+    },
+    "vault": {
+      "minLength": "La contraseña debe tener al menos 8 caracteres."
+    },
+    "err": {
+      "tunnels": {
+        "loadFailed": "Error al cargar los túneles",
+        "saveFailed": "Error al guardar el túnel",
+        "deleteFailed": "Error al eliminar el túnel",
+        "startFailed": "Error al iniciar el túnel",
+        "stopFailed": "Error al detener el túnel"
+      },
+      "vault": {
+        "statusFailed": "Error al verificar estado de la bóveda",
+        "initFailed": "Error al inicializar la bóveda",
+        "wrongPassword": "Contraseña maestra incorrecta",
+        "lockFailed": "Error al bloquear la bóveda",
+        "rotateFailed": "Error al cambiar la contraseña maestra"
+      },
+      "sftp": {
+        "connectFailed": "Error al conectar SFTP",
+        "navigateFailed": "Error al navegar a {path}",
+        "mkdirFailed": "Error al crear la carpeta",
+        "renameFailed": "Error al renombrar",
+        "deleteFailed": "Error al eliminar",
+        "transferFailed": "Error en la transferencia"
+      },
+      "saveHost": "Error al guardar el servidor.",
+      "saveIdentity": "Error al guardar la credencial.",
+      "readConfig": "Error al leer ~/.ssh/config"
+    },
+    "notify": {
+      "done": "Comando finalizado",
+      "failed": "Comando fallido"
+    },
+    "builtin": {
+      "docker-logs": {
+        "title": "Docker: Seguir Logs",
+        "description": "Muestra y sigue los logs recientes del contenedor en tiempo real."
+      },
+      "docker-exec": {
+        "title": "Docker: Shell Interactiva",
+        "description": "Abre una terminal interactiva dentro del contenedor en ejecución."
+      },
+      "docker-ps": {
+        "title": "Docker: Lista con Puertos",
+        "description": "Muestra todos los contenedores con formato limpio de columnas y puertos mapeados."
+      },
+      "docker-prune": {
+        "title": "Docker: Limpieza Total",
+        "description": "Elimina contenedores detenidos, redes sin uso, imágenes huérfanas y volúmenes."
+      },
+      "sys-journal": {
+        "title": "Systemd: Logs en Vivo",
+        "description": "Sigue los logs del servicio del sistema en tiempo real con marcas de tiempo."
+      },
+      "sys-status": {
+        "title": "Systemd: Estado de Servicio",
+        "description": "Verifica el estado de ejecución, PID y últimas líneas de log de un servicio."
+      },
+      "sys-restart": {
+        "title": "Systemd: Reiniciar Servicio",
+        "description": "Reinicia limpiamente el demonio o servicio especificado."
+      },
+      "net-listen": {
+        "title": "Red: Puertos Escuchando",
+        "description": "Muestra todos los sockets TCP/UDP abiertos a la escucha con el nombre y PID del proceso."
+      },
+      "net-ips": {
+        "title": "Red: Resumen de IPs",
+        "description": "Muestra las interfaces de red con sus direcciones IPv4/IPv6 asignadas y colores."
+      },
+      "net-curl-hdr": {
+        "title": "Red: Cabeceras HTTP",
+        "description": "Realiza una petición HEAD para inspeccionar cabeceras, códigos HTTP y certificados."
+      },
+      "net-ufw": {
+        "title": "Red: Estado Firewall UFW",
+        "description": "Muestra las reglas activas del cortafuegos UFW y puertos permitidos."
+      },
+      "fs-large-files": {
+        "title": "Disco: 10 Archivos Más Pesados",
+        "description": "Busca y lista los 10 archivos de mayor tamaño en el sistema de archivos."
+      },
+      "fs-space": {
+        "title": "Disco: Particiones Reales",
+        "description": "Muestra el espacio libre en particiones físicas sin el ruido de sistemas temporales."
+      },
+      "sys-mem": {
+        "title": "Memoria: Uso de RAM y Swap",
+        "description": "Muestra la memoria física, usada, en caché y swap en unidades legibles."
+      },
+      "sys-dmesg": {
+        "title": "Kernel: Mensajes Recientes",
+        "description": "Muestra los últimos 50 eventos del kernel con marcas de tiempo legibles."
+      }
+    }
   }
 }

@@ -1,4 +1,5 @@
 import { defineStore } from "pinia";
+import { i18n } from "../locales";
 import { ref, computed } from "vue";
 import type {
   TunnelConfig,
@@ -37,7 +38,7 @@ export const useTunnelsStore = defineStore("tunnels", () => {
       tunnels.value = await tunnelsService.listTunnels(hostId);
       await refreshStatuses();
     } catch (e: any) {
-      error.value = e?.toString() || "Error al cargar los túneles";
+      error.value = e?.toString() || i18n.global.t('ui.err.tunnels.loadFailed');
     } finally {
       isLoading.value = false;
     }
@@ -56,7 +57,7 @@ export const useTunnelsStore = defineStore("tunnels", () => {
       }
       return saved;
     } catch (e: any) {
-      error.value = e?.toString() || "Error al guardar el túnel";
+      error.value = e?.toString() || i18n.global.t('ui.err.tunnels.saveFailed');
       throw e;
     } finally {
       isLoading.value = false;
@@ -71,7 +72,7 @@ export const useTunnelsStore = defineStore("tunnels", () => {
       tunnels.value = tunnels.value.filter((t) => t.id !== id);
       delete statuses.value[id];
     } catch (e: any) {
-      error.value = e?.toString() || "Error al eliminar el túnel";
+      error.value = e?.toString() || i18n.global.t('ui.err.tunnels.deleteFailed');
       throw e;
     } finally {
       isLoading.value = false;
@@ -84,7 +85,7 @@ export const useTunnelsStore = defineStore("tunnels", () => {
       await tunnelsService.startTunnel(id);
       await refreshStatuses();
     } catch (e: any) {
-      error.value = e?.toString() || "Error al iniciar el túnel";
+      error.value = e?.toString() || i18n.global.t('ui.err.tunnels.startFailed');
       await refreshStatuses();
       throw e;
     }
@@ -96,7 +97,7 @@ export const useTunnelsStore = defineStore("tunnels", () => {
       await tunnelsService.stopTunnel(id);
       await refreshStatuses();
     } catch (e: any) {
-      error.value = e?.toString() || "Error al detener el túnel";
+      error.value = e?.toString() || i18n.global.t('ui.err.tunnels.stopFailed');
       throw e;
     }
   }

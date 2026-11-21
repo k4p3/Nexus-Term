@@ -466,7 +466,7 @@ impl VaultManager {
         let fp = sha256_hex.trim().to_lowercase();
         if fp.len() != 64 || !fp.chars().all(|c| c.is_ascii_hexdigit()) {
             return Err(VaultError::ValidationError(
-                "Huella SHA-256 inválida".into(),
+                "Invalid SHA-256 fingerprint".into(),
             ));
         }
         let conn = self.db.lock().unwrap();

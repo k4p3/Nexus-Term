@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useSnippetText } from "../../composables/useSnippetText";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import ListPicker, { type PickerItem } from "../common/ListPicker.vue";
@@ -13,6 +14,7 @@ import type { CommandSnippet } from "../../types/snippets";
 
 const emit = defineEmits<{ (e: "close"): void }>();
 const { t } = useI18n();
+const { snippetTitle, snippetDescription } = useSnippetText();
 const ui = useUiStore();
 const sessions = useSessionsStore();
 const settings = useSettingsStore();
@@ -88,7 +90,7 @@ const entries = computed<Entry[]>(() => {
   if (pane) {
     for (const sn of snippets.enabledSnippets) {
       out.push({
-        item: { id: `s:${sn.id}`, title: sn.title, subtitle: t("palette.snippetCategory") },
+        item: { id: `s:${sn.id}`, title: snippetTitle(sn), subtitle: t("palette.snippetCategory") },
         run: () => runSnippet(sn),
       });
     }

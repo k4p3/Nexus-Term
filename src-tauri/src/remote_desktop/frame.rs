@@ -90,7 +90,7 @@ pub fn encode_cursor(hotspot: (u16, u16), w: u16, h: u16, rgba: &[u8]) -> Result
 fn encode_with_payload(kind: u8, rect: &Rect, rgba: &[u8]) -> Result<Vec<u8>, RemoteDesktopError> {
     if rect.w > MAX_DIMENSION || rect.h > MAX_DIMENSION {
         return Err(RemoteDesktopError::Protocol(
-            "Dimensiones de rectángulo fuera de límites".into(),
+            "Rectangle dimensions out of bounds".into(),
         ));
     }
     let expected = rect.w as usize * rect.h as usize * 4;
@@ -111,7 +111,7 @@ fn encode_with_payload(kind: u8, rect: &Rect, rgba: &[u8]) -> Result<Vec<u8>, Re
 pub fn encode_resize(w: u16, h: u16) -> Result<Vec<u8>, RemoteDesktopError> {
     if w == 0 || h == 0 || w > MAX_DIMENSION || h > MAX_DIMENSION {
         return Err(RemoteDesktopError::Protocol(format!(
-            "Tamaño de framebuffer inválido: {}x{}",
+            "Invalid framebuffer size: {}x{}",
             w, h
         )));
     }
@@ -141,7 +141,7 @@ pub fn decode(buf: &[u8]) -> Result<DecodedFrame<'_>, RemoteDesktopError> {
         return Err(RemoteDesktopError::Protocol(format!("Tipo de frame desconocido: {}", kind)));
     }
     if expects_payload && payload.len() != rect.w as usize * rect.h as usize * 4 {
-        return Err(RemoteDesktopError::Protocol("Payload con tamaño inconsistente".into()));
+        return Err(RemoteDesktopError::Protocol("Payload with inconsistent size".into()));
     }
     if !expects_payload && !payload.is_empty() {
         return Err(RemoteDesktopError::Protocol("Resize no admite payload".into()));
@@ -153,7 +153,7 @@ pub fn decode(buf: &[u8]) -> Result<DecodedFrame<'_>, RemoteDesktopError> {
 pub fn validate_within(rect: &Rect, fb_w: u16, fb_h: u16) -> Result<(), RemoteDesktopError> {
     if rect.is_empty() || rect.right() > fb_w as u32 || rect.bottom() > fb_h as u32 {
         return Err(RemoteDesktopError::Protocol(format!(
-            "Rectángulo {}x{}@{},{} fuera del framebuffer {}x{}",
+            "Rectangle {}x{}@{},{} outside the framebuffer {}x{}",
             rect.w, rect.h, rect.x, rect.y, fb_w, fb_h
         )));
     }
@@ -247,7 +247,7 @@ impl Framebuffer {
     pub fn resize(&mut self, w: u16, h: u16) -> Result<(), RemoteDesktopError> {
         if w == 0 || h == 0 || w > MAX_DIMENSION || h > MAX_DIMENSION {
             return Err(RemoteDesktopError::Protocol(format!(
-                "Tamaño de framebuffer inválido: {}x{}",
+                "Invalid framebuffer size: {}x{}",
                 w, h
             )));
         }
@@ -262,7 +262,7 @@ impl Framebuffer {
         validate_within(rect, self.width, self.height)?;
         let row_len = rect.w as usize * 4;
         if rgba.len() != row_len * rect.h as usize {
-            return Err(RemoteDesktopError::Protocol("Datos de imagen con tamaño inconsistente".into()));
+            return Err(RemoteDesktopError::Protocol("Image data with inconsistent size".into()));
         }
         let stride = self.width as usize * 4;
         for row in 0..rect.h as usize {
@@ -279,7 +279,7 @@ impl Framebuffer {
     /// Copia la región `src` a `dst` (mismo tamaño), seguro ante solapamiento.
     pub fn copy_region(&mut self, dst: &Rect, src: &Rect) -> Result<(), RemoteDesktopError> {
         if dst.w != src.w || dst.h != src.h {
-            return Err(RemoteDesktopError::Protocol("CopyRect con tamaños distintos".into()));
+            return Err(RemoteDesktopError::Protocol("CopyRect with mismatched sizes".into()));
         }
         validate_within(dst, self.width, self.height)?;
         validate_within(src, self.width, self.height)?;

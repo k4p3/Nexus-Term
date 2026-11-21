@@ -113,7 +113,7 @@ pub fn to_latin1_lossy(text: &str) -> String {
 fn map_vnc_error(e: VncError) -> RemoteDesktopError {
     match e {
         VncError::WrongPassword | VncError::NoPassword => {
-            RemoteDesktopError::Authentication("contraseña VNC incorrecta o ausente".into())
+            RemoteDesktopError::Authentication("VNC password is wrong or missing".into())
         }
         other => RemoteDesktopError::Protocol(other.to_string()),
     }
@@ -298,7 +298,7 @@ async fn send(client: &::vnc::VncClient, ev: X11Event) -> Result<(), RemoteDeskt
     client
         .input(ev)
         .await
-        .map_err(|e| RemoteDesktopError::Protocol(format!("Entrada VNC fallida: {}", e)))
+        .map_err(|e| RemoteDesktopError::Protocol(format!("VNC input failed: {}", e)))
 }
 
 async fn handle_command(

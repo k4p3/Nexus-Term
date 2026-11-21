@@ -1,6 +1,6 @@
 {
   "name": "nexus-term",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Jonathan Bailon Segura <jonn59@gmail.com>",
   "license": "GPL-3.0-or-later",
   "private": true,
@@ -11,9 +11,12 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "preview": "vite preview",
+    "bump": "node scripts/bump-version.mjs",
     "tauri": "tauri"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/jetbrains-mono": "^5.3.0",
     "@tauri-apps/api": "^2.2.0",
     "@tauri-apps/plugin-notification": "^2.8.1",
     "@xterm/addon-canvas": "0.7.0",

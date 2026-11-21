@@ -37,14 +37,14 @@ pub async fn open_transport(
                 .await
                 .map_err(|e| RemoteDesktopError::Connection {
                     target: target.clone(),
-                    reason: format!("Servidor de Salto (Bastion) falló: {}", e),
+                    reason: format!("Jump host (bastion) failed: {}", e),
                 })?;
             let channel = jump
                 .channel_open_direct_tcpip(hostname, port as u32, "127.0.0.1", 0)
                 .await
                 .map_err(|e| RemoteDesktopError::Connection {
                     target: target.clone(),
-                    reason: format!("direct-tcpip a través del Bastion falló: {}", e),
+                    reason: format!("direct-tcpip through the bastion failed: {}", e),
                 })?;
             Ok(Transport {
                 stream: Box::new(channel.into_stream()),

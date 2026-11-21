@@ -1,3 +1,10 @@
+export interface CustomThemeRecord {
+  id: string;
+  name: string;
+  theme: Record<string, string>;
+  ui?: Record<string, string> | null;
+}
+
 export interface AppSettings {
   locale: string;
   font_family: string;
@@ -6,6 +13,11 @@ export interface AppSettings {
   cursor_style: 'block' | 'bar' | 'underline';
   cursor_blink: boolean;
   theme_id: string;
+  custom_themes: CustomThemeRecord[];
+  appearance_mode: 'manual' | 'system';
+  theme_light_id: string;
+  theme_dark_id: string;
+  ui_density: 'comfortable' | 'compact';
   default_shell: string | null;
   close_to_tray: boolean;
   ask_password_on_startup: boolean;

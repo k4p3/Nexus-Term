@@ -4,12 +4,17 @@ import {
   getThemeById,
   getUiPaletteByThemeId,
   deriveUiPalette,
+  resolveUiPalette,
+  contrastRatio,
 } from './themes';
 
 describe('themes utility and presets', () => {
-  it('should have 6 predefined themes available', () => {
-    expect(PRESET_THEMES.length).toBe(6);
+  it('should have 9 predefined themes available', () => {
+    expect(PRESET_THEMES.length).toBe(9);
     const ids = PRESET_THEMES.map((t) => t.id);
+    expect(ids).toContain('nexus-slate');
+    expect(ids).toContain('nexus-paper');
+    expect(ids).toContain('solarized-light');
     expect(ids).toContain('tokyo-night');
     expect(ids).toContain('dracula');
     expect(ids).toContain('nord');
@@ -23,7 +28,7 @@ describe('themes utility and presets', () => {
     expect(dracula.background).toBe('#282a36');
 
     const nonExistent = getThemeById('unknown-theme');
-    expect(nonExistent.background).toBe('#1a1b26'); // Tokyo night fallback
+    expect(nonExistent.background).toBe('#0f1115'); // Nexus Slate fallback
   });
 
   it('should return matching UI palettes for preset themes', () => {
@@ -51,5 +56,26 @@ describe('themes utility and presets', () => {
     expect(derived.accent).toBe('#39c5cf');
     expect(derived.bgSurface).toMatch(/^#[0-9a-f]{6}$/i);
     expect(derived.border).toBe('#484f58');
+  });
+
+  it('every preset meets AA contrast for text and on-accent text', () => {
+    for (const th of PRESET_THEMES) {
+      const p = getUiPaletteByThemeId(th.id);
+      expect(contrastRatio(p.textMain, p.bgApp), `${th.id} text/app`).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(p.textMain, p.bgSurface), `${th.id} text/surface`).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(p.textMuted, p.bgSurface), `${th.id} muted/surface`).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(p.onAccent, p.accent), `${th.id} onAccent`).toBeGreaterThanOrEqual(4.5);
+    }
+  });
+
+  it('resolves mode by luminance and exposes every semantic token', () => {
+    expect(getUiPaletteByThemeId('nexus-slate').mode).toBe('dark');
+    expect(getUiPaletteByThemeId('nexus-paper').mode).toBe('light');
+    expect(getUiPaletteByThemeId('solarized-light').mode).toBe('light');
+    const p = resolveUiPalette(deriveUiPalette({ background: '#fafafa', foreground: '#111111' } as any));
+    expect(p.mode).toBe('light');
+    for (const k of ['success', 'warning', 'danger', 'info', 'overlay', 'onAccent'] as const) {
+      expect(p[k]).toBeTruthy();
+    }
   });
 });

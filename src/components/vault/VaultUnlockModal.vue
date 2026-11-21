@@ -17,11 +17,11 @@ onBeforeUnmount(() => window.removeEventListener("keydown", onKey));
 </script>
 
 <template>
-  <div class="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm" role="dialog" aria-modal="true">
+  <div class="fixed inset-0 z-[100] bg-app/80 backdrop-blur-sm" role="dialog" aria-modal="true">
     <VaultUnlockScreen class="bg-transparent" @done="resolvePrompt(true)" />
     <button
       type="button"
-      class="absolute top-4 right-4 p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition cursor-pointer"
+      class="absolute top-4 right-4 p-2 rounded-lg text-fg-muted hover:text-fg hover:bg-active transition cursor-pointer"
       :aria-label="t('vault.cancel')"
       :title="t('vault.cancel')"
       @click="resolvePrompt(false)"

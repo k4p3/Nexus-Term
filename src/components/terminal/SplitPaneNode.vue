@@ -53,8 +53,8 @@ defineProps<{
 
       <!-- Split Divider Line -->
       <div
-        class="border-theme bg-theme-border shrink-0 transition-colors"
-        :class="node.direction === 'horizontal' ? 'w-1 cursor-col-resize hover:bg-theme-accent' : 'h-1 cursor-row-resize hover:bg-theme-accent'"
+        class="border-line bg-line shrink-0 transition-colors"
+        :class="node.direction === 'horizontal' ? 'w-1 cursor-col-resize hover:bg-accent' : 'h-1 cursor-row-resize hover:bg-accent'"
       ></div>
 
       <div class="flex-1 overflow-hidden h-full">

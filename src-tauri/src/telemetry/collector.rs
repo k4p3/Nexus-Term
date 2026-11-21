@@ -17,12 +17,12 @@ impl TelemetryCollector {
         let mut channel = session
             .channel_open_session()
             .await
-            .map_err(|e| format!("Error al abrir canal SSH para telemetría: {}", e))?;
+            .map_err(|e| format!("Could not open an SSH channel for telemetry: {}", e))?;
 
         channel
             .exec(true, TELEMETRY_SHELL_COMMAND)
             .await
-            .map_err(|e| format!("Error al ejecutar comando de telemetría: {}", e))?;
+            .map_err(|e| format!("Could not run the telemetry command: {}", e))?;
 
         let mut output = Vec::new();
         while let Some(msg) = channel.wait().await {
