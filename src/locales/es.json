@@ -17,6 +17,7 @@
     "actions": "Acciones"
   },
   "vault": {
+    "cancel": "Cancelar",
     "unlockTitle": "Desbloquear Bóveda NexusTerm",
     "createTitle": "Crear Bóveda Maestra",
     "masterPassword": "Contraseña Maestra",

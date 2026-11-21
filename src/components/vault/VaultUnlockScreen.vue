@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useVaultStore } from "../../stores/vault.store";
 import { Lock, KeyRound, ShieldCheck, AlertCircle, Loader2 } from "lucide-vue-next";
 
+const emit = defineEmits<{ (e: "done"): void }>();
 const { t } = useI18n();
 const vaultStore = useVaultStore();
 
@@ -32,6 +33,7 @@ async function handleAction() {
       await vaultStore.init(password.value);
       password.value = "";
       confirmPassword.value = "";
+      emit("done");
     } catch (err: any) {
       localError.value = err;
     }
@@ -39,6 +41,7 @@ async function handleAction() {
     try {
       await vaultStore.unlock(password.value);
       password.value = "";
+      emit("done");
     } catch (err: any) {
       localError.value = err;
     }

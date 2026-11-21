@@ -17,6 +17,7 @@
     "actions": "Actions"
   },
   "vault": {
+    "cancel": "Cancel",
     "unlockTitle": "Unlock NexusTerm Vault",
     "createTitle": "Create Master Vault",
     "masterPassword": "Master Password",

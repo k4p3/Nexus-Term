@@ -22,3 +22,18 @@ describe("vault lock", () => {
     expect(paste.entries).toEqual([]);
   });
 });
+
+describe("vault lock keeps open sessions", () => {
+  it("does not close or modify tabs and sessions when locking", async () => {
+    const { useSessionsStore } = await import("./sessions.store");
+    const sessions = useSessionsStore();
+    sessions.createTab("local");
+    const before = JSON.stringify(sessions.tabs);
+    const vault = useVaultStore();
+    vault.isUnlocked = true;
+    await vault.lock();
+    expect(vault.isUnlocked).toBe(false);
+    expect(sessions.tabs).toHaveLength(1);
+    expect(JSON.stringify(sessions.tabs)).toBe(before);
+  });
+});

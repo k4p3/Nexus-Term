@@ -8,6 +8,8 @@ export interface AppSettings {
   theme_id: string;
   default_shell: string | null;
   close_to_tray: boolean;
+  ask_password_on_startup: boolean;
+  auto_lock_enabled: boolean;
   auto_lock_minutes: number;
   sftp_max_concurrent_transfers: number;
   remote_desktop_clipboard: boolean;

@@ -6,10 +6,10 @@
 - [x] 1.3 Verificar que ninguna ruta de sesiones ya abiertas consulta la clave de la bóveda al bloquear
 
 ## 2. Frontend: núcleo
-- [ ] 2.1 Utilidad `isVaultLockedError` y tipos TS de los nuevos ajustes + pruebas
-- [ ] 2.2 Composable `useEnsureUnlocked` y `VaultUnlockModal` (lazy) + pruebas
-- [ ] 2.3 Cambiar `vault.store.lock()` para conservar sesiones y paneles + pruebas
-- [ ] 2.4 Composable `useIdleLock` + pruebas con temporizadores simulados
+- [x] 2.1 Utilidad `isVaultLockedError` y tipos TS de los nuevos ajustes + pruebas
+- [x] 2.2 Composable `useEnsureUnlocked` y `VaultUnlockModal` (lazy) + pruebas
+- [x] 2.3 Cambiar `vault.store.lock()` para conservar sesiones y paneles + pruebas
+- [x] 2.4 Composable `useIdleLock` + pruebas con temporizadores simulados
 
 ## 3. Frontend: integración
 - [ ] 3.1 `App.vue`: workspace siempre montado, pestaña local inicial, modo "pedir al iniciar"
