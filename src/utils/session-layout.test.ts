@@ -175,3 +175,22 @@ describe("buildRestoredTabs", () => {
     expect(r.skipped).toHaveLength(1);
   });
 });
+
+describe("layoutHasHostLeaf", () => {
+  const local = { type: "leaf", kind: "local", title: "L" } as const;
+  const hostLeaf = { type: "leaf", kind: "host", host_id: "h1", title: "H" } as const;
+  const mk = (root: never) => ({ version: 1, active_tab: 0, tabs: [{ title: "t", root, active_leaf: 0 }] });
+
+  it("is false for null, empty and local-only layouts", async () => {
+    const { layoutHasHostLeaf } = await import("./session-layout");
+    expect(layoutHasHostLeaf(null)).toBe(false);
+    expect(layoutHasHostLeaf({ version: 1, active_tab: 0, tabs: [] })).toBe(false);
+    expect(layoutHasHostLeaf(mk(local as never))).toBe(false);
+  });
+  it("detects hosts, including inside nested splits", async () => {
+    const { layoutHasHostLeaf } = await import("./session-layout");
+    expect(layoutHasHostLeaf(mk(hostLeaf as never))).toBe(true);
+    const split = { type: "split", direction: "horizontal", ratio: 0.5, first: local, second: { type: "split", direction: "vertical", ratio: 0.5, first: local, second: hostLeaf } };
+    expect(layoutHasHostLeaf(mk(split as never))).toBe(true);
+  });
+});

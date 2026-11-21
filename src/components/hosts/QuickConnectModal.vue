@@ -2,6 +2,7 @@
 import { ref, computed, onMounted, onUnmounted, nextTick, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVaultStore } from "../../stores/vault.store";
+import { useEnsureUnlocked } from "../../composables/useEnsureUnlocked";
 import { useSnippetsStore } from "../../stores/snippets.store";
 import type { HostSummary } from "../../types/inventory";
 import type { CommandSnippet } from "../../types/snippets";
@@ -27,6 +28,7 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 const vaultStore = useVaultStore();
+const { ensureUnlocked } = useEnsureUnlocked();
 const snippetsStore = useSnippetsStore();
 const query = ref("");
 const selectedIndex = ref(0);
@@ -234,6 +236,16 @@ onUnmounted(() => {
           ESC
         </kbd>
       </div>
+
+      <!-- Bóveda bloqueada: los hosts guardados no están disponibles -->
+      <button
+        v-if="!vaultStore.isUnlocked"
+        type="button"
+        @click="ensureUnlocked(); emit('close')"
+        class="w-full px-4 py-2 text-left text-xs text-amber-300 bg-amber-500/10 border-b border-theme hover:bg-amber-500/20 transition cursor-pointer"
+      >
+        {{ t('vault.quickConnectLocked') }}
+      </button>
 
       <!-- Results list -->
       <div class="max-h-80 overflow-y-auto p-2 space-y-1 bg-theme-surface">

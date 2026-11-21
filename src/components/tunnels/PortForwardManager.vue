@@ -2,6 +2,7 @@
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useTunnelsStore } from "../../stores/tunnels.store";
 import { useVaultStore } from "../../stores/vault.store";
+import { useEnsureUnlocked } from "../../composables/useEnsureUnlocked";
 import type { TunnelConfig, TunnelConfigPayload } from "../../types/tunnels";
 import TunnelModal from "./TunnelModal.vue";
 import {
@@ -31,6 +32,7 @@ const emit = defineEmits<{
 const tunnelsStore = useTunnelsStore();
 const vaultStore = useVaultStore();
 
+const { runWithUnlock, ensureUnlocked } = useEnsureUnlocked();
 const isModalOpen = ref(false);
 const tunnelToEdit = ref<TunnelConfig | null>(null);
 const actionLoading = ref<Record<string, boolean>>({});
@@ -57,7 +59,8 @@ function formatBytes(bytes: number): string {
   return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
 }
 
-function openAddTunnel() {
+async function openAddTunnel() {
+  if (!(await ensureUnlocked())) return; // el selector de host usa la bóveda
   tunnelToEdit.value = null;
   isModalOpen.value = true;
 }
@@ -80,7 +83,7 @@ async function handleDeleteTunnel(id: string) {
 async function handleToggleTunnel(id: string) {
   actionLoading.value[id] = true;
   try {
-    await tunnelsStore.toggleTunnel(id);
+    await runWithUnlock(() => tunnelsStore.toggleTunnel(id));
   } catch {
     // Error is set in store
   } finally {

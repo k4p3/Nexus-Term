@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, defineAsyncComponent } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch, defineAsyncComponent } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVaultStore } from "./stores/vault.store";
 import { useSessionsStore } from "./stores/sessions.store";
 import { useSettingsStore } from "./stores/settings.store";
 import { useTunnelsStore } from "./stores/tunnels.store";
 import { useSftpStore } from "./stores/sftp.store";
+import { useEnsureUnlocked } from "./composables/useEnsureUnlocked";
+import { useIdleLock } from "./composables/useIdleLock";
 import VaultUnlockScreen from "./components/vault/VaultUnlockScreen.vue";
 import HostTreeSidebar from "./components/hosts/HostTreeSidebar.vue";
 import TerminalWorkspace from "./components/terminal/TerminalWorkspace.vue";
@@ -26,6 +28,7 @@ const SftpSidebar = defineAsyncComponent(() => import("./components/sftp/SftpSid
 const TransferQueue = defineAsyncComponent(() => import("./components/sftp/TransferQueue.vue"));
 const TerminalCommandPalette = defineAsyncComponent(() => import("./components/terminal/TerminalCommandPalette.vue"));
 const ShortcutsModal = defineAsyncComponent(() => import("./components/terminal/ShortcutsModal.vue"));
+const VaultUnlockModal = defineAsyncComponent(() => import("./components/vault/VaultUnlockModal.vue"));
 const RestoreSessionsModal = defineAsyncComponent(() => import("./components/terminal/RestoreSessionsModal.vue"));
 
 const { t } = useI18n();
@@ -37,6 +40,16 @@ const sftpStore = useSftpStore();
 const uiStore = useUiStore();
 
 const sessionRestore = useSessionRestore();
+const { ensureUnlocked, runWithUnlock, promptOpen } = useEnsureUnlocked();
+useIdleLock();
+// Hasta cargar ajustes y estado de la bóveda no se pinta el workspace (evita parpadeos).
+const appReady = ref(false);
+// Con "pedir contraseña al iniciar" se muestra la pantalla completa hasta el primer desbloqueo.
+const unlockedOnce = ref(false);
+const showStartupGate = computed(
+  () => appReady.value && settingsStore.settings.ask_password_on_startup && !unlockedOnce.value && !vaultStore.isUnlocked,
+);
+watch(() => vaultStore.isUnlocked, (u) => { if (u) unlockedOnce.value = true; }, { immediate: true });
 const isQuickConnectOpen = ref(false);
 const isSettingsOpen = ref(false);
 const isSnippetsOpen = ref(false);
@@ -46,6 +59,8 @@ const isSidebarVisible = ref(true);
 onMounted(async () => {
   await settingsStore.loadSettings();
   await vaultStore.checkStatus();
+  appReady.value = true;
+  await sessionRestore.startup();
   window.addEventListener("keydown", handleGlobalKeyDown);
   window.addEventListener("focus", handleWindowFocus);
 });
@@ -59,7 +74,7 @@ onUnmounted(() => {
 watch(
   () => uiStore.quickConnectRequest,
   () => {
-    if (vaultStore.isUnlocked) isQuickConnectOpen.value = true;
+    isQuickConnectOpen.value = true;
   },
 );
 
@@ -78,13 +93,13 @@ function handleGlobalKeyDown(e: KeyboardEvent) {
   e.preventDefault();
   switch (def.id) {
     case "app.quickConnect":
-      if (vaultStore.isUnlocked) isQuickConnectOpen.value = !isQuickConnectOpen.value;
+      isQuickConnectOpen.value = !isQuickConnectOpen.value;
       break;
     case "app.settings":
       isSettingsOpen.value = !isSettingsOpen.value;
       break;
     case "app.toggleSidebar":
-      if (vaultStore.isUnlocked) isSidebarVisible.value = !isSidebarVisible.value;
+      isSidebarVisible.value = !isSidebarVisible.value;
       break;
     case "workspace.broadcast":
       sessionsStore.toggleBroadcastMode();
@@ -93,7 +108,7 @@ function handleGlobalKeyDown(e: KeyboardEvent) {
       uiStore.shortcutsOpen = !uiStore.shortcutsOpen;
       break;
     case "terminal.palette":
-      if (vaultStore.isUnlocked) uiStore.paletteOpen = !uiStore.paletteOpen;
+      uiStore.paletteOpen = !uiStore.paletteOpen;
       break;
   }
 }
@@ -106,7 +121,7 @@ function handleOpenLocalPty() {
   sessionsStore.createTab(t('terminal.newLocal'));
 }
 
-function handleToggleSftp() {
+async function handleToggleSftp() {
   if (sftpStore.isOpen) {
     sftpStore.isOpen = false;
   } else {
@@ -116,7 +131,8 @@ function handleToggleSftp() {
       const activeTab = sessionsStore.tabs.find((t) => t.id === sessionsStore.activeTabId);
       const activePane = leaves.find((l) => l.id === activeTab?.activePaneId) || leaves[0];
       if (activePane?.host) {
-        sftpStore.openSftp(activePane.host.id);
+        const hostId = activePane.host.id;
+        await runWithUnlock(() => sftpStore.openSftp(hostId));
         return;
       }
     }
@@ -125,7 +141,7 @@ function handleToggleSftp() {
 }
 
 function handleConnectSftp(host: HostSummary) {
-  sftpStore.openSftp(host.id);
+  void runWithUnlock(() => sftpStore.openSftp(host.id));
 }
 
 function handleInsertCommand(command: string) {
@@ -153,7 +169,6 @@ function handleInsertCommand(command: string) {
 
       <div class="flex items-center space-x-2">
         <button
-          v-if="vaultStore.isUnlocked"
           @click="isQuickConnectOpen = true"
           :title="t('hosts.quickConnect')"
           class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
@@ -166,7 +181,6 @@ function handleInsertCommand(command: string) {
         </button>
 
         <button
-          v-if="vaultStore.isUnlocked"
           @click="isSnippetsOpen = !isSnippetsOpen"
           title="Biblioteca de Snippets"
           class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
@@ -176,7 +190,6 @@ function handleInsertCommand(command: string) {
         </button>
 
         <button
-          v-if="vaultStore.isUnlocked"
           @click="isTunnelsOpen = !isTunnelsOpen"
           title="Gestor de Túneles SSH"
           class="flex items-center space-x-1.5 px-2.5 py-1 text-xs text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer relative"
@@ -190,7 +203,6 @@ function handleInsertCommand(command: string) {
         </button>
 
         <button
-          v-if="vaultStore.isUnlocked"
           @click="handleToggleSftp"
           title="Explorador SFTP (Archivos Remotos)"
           :class="[
@@ -225,16 +237,25 @@ function handleInsertCommand(command: string) {
           <Lock class="w-3.5 h-3.5 text-amber-400" />
           <span>{{ t('vault.lockVault') }}</span>
         </button>
+        <button
+          v-else
+          @click="ensureUnlocked()"
+          :title="t('vault.unlock')"
+          class="flex items-center space-x-1.5 px-2.5 py-1 text-xs font-medium text-theme-muted hover:text-theme-main bg-theme-surface hover:bg-theme-active border border-theme rounded-lg transition-colors cursor-pointer"
+        >
+          <Lock class="w-3.5 h-3.5 text-slate-400" />
+          <span>{{ t('vault.unlock') }}</span>
+        </button>
       </div>
     </header>
 
     <!-- Main Content Area -->
     <main class="flex-1 overflow-hidden relative flex">
-      <div v-if="vaultStore.isLoading && !vaultStore.isInitialized && !vaultStore.isUnlocked" class="h-full w-full flex items-center justify-center">
+      <div v-if="!appReady" class="h-full w-full flex items-center justify-center">
         <RefreshCw class="w-6 h-6 text-cyan-400 animate-spin" />
       </div>
 
-      <VaultUnlockScreen v-else-if="!vaultStore.isUnlocked" />
+      <VaultUnlockScreen v-else-if="showStartupGate" />
 
       <div v-else class="h-full w-full flex overflow-hidden">
         <!-- Collapsible Sidebar -->
@@ -294,11 +315,12 @@ function handleInsertCommand(command: string) {
 
       <TerminalCommandPalette v-if="uiStore.paletteOpen" @close="uiStore.paletteOpen = false" />
       <RestoreSessionsModal
-        v-if="sessionRestore.pendingLayout.value && vaultStore.isUnlocked"
+        v-if="sessionRestore.pendingLayout.value"
         :tab-count="sessionRestore.pendingTabCount()"
         @restore="sessionRestore.confirmRestore()"
         @discard="sessionRestore.discardRestore()"
       />
+      <VaultUnlockModal v-if="promptOpen" />
       <ShortcutsModal v-if="uiStore.shortcutsOpen" @close="uiStore.shortcutsOpen = false" />
     </main>
     <ToastHost />

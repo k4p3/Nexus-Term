@@ -17,6 +17,10 @@
     "actions": "Actions"
   },
   "vault": {
+    "unlockCancelled": "Cancelled: the vault is still locked.",
+    "quickConnectLocked": "Vault locked: click to unlock it and see your saved hosts",
+    "sidebarLocked": "Vault locked. Unlock it to see your hosts and identities.",
+    "sidebarNotCreated": "No vault yet. Create one to store hosts and identities.",
     "cancel": "Cancel",
     "unlockTitle": "Unlock NexusTerm Vault",
     "createTitle": "Create Master Vault",
@@ -136,6 +140,11 @@
     "defaultShellPlaceholder": "Auto-detect ($SHELL)",
     "shellHelp": "Path to your preferred shell binary (e.g., /bin/zsh, /usr/bin/fish, /bin/bash).",
     "securityNotice": "Vault Master Password Rotation",
+    "askPasswordOnStartup": "Ask for the master password at startup",
+    "askPasswordOnStartupDesc": "When off, the app opens a local terminal and only asks for the password when you use saved hosts or credentials.",
+    "autoLock": "Lock the vault after a period of inactivity",
+    "autoLockDesc": "Locks the vault without closing your open sessions. New connections cannot be opened until you unlock it.",
+    "autoLockMinutes": "Minutes of inactivity (1 to 1440)",
     "securityHelp": "Changing your master password re-wraps the encryption key without needing to re-encrypt your stored records.",
     "currentPassword": "Current Password",
     "newPassword": "New Master Password",

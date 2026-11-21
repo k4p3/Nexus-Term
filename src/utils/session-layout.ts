@@ -124,6 +124,15 @@ export function layoutTabCount(layout: SessionLayout | null): number {
   return layout?.tabs.length ?? 0;
 }
 
+function nodeHasHost(node: LayoutNode): boolean {
+  return node.type === "leaf" ? node.kind === "host" : nodeHasHost(node.first) || nodeHasHost(node.second);
+}
+
+/** Indica si algún panel del layout es de un host guardado (y por tanto necesita la bóveda para restaurarse). */
+export function layoutHasHostLeaf(layout: SessionLayout | null): boolean {
+  return !!layout && layout.tabs.some((t) => nodeHasHost(t.root));
+}
+
 // ---------- Restauración ----------
 
 export type RestoreAction = "prompt" | "auto" | "none";

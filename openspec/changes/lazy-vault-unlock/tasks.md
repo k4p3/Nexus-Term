@@ -12,11 +12,11 @@
 - [x] 2.4 Composable `useIdleLock` + pruebas con temporizadores simulados
 
 ## 3. Frontend: integración
-- [ ] 3.1 `App.vue`: workspace siempre montado, pestaña local inicial, modo "pedir al iniciar"
-- [ ] 3.2 `HostTreeSidebar`: estados "bloqueada" y "bóveda no creada"
-- [ ] 3.3 Llamar a `ensureUnlocked` en host, Quick Connect, SFTP, RDP/VNC, importar `ssh_config`, guardar host/identidad; reintento ante `VAULT_LOCKED`
-- [ ] 3.4 `useSessionRestore`: locales sin bóveda, remotas tras desbloqueo, sin pisar el layout guardado + pruebas
-- [ ] 3.5 Panel de Configuración: opciones de auto-bloqueo y "pedir contraseña al iniciar" (es/en)
+- [x] 3.1 `App.vue`: workspace siempre montado, pestaña local inicial, modo "pedir al iniciar"
+- [x] 3.2 `HostTreeSidebar`: estados "bloqueada" y "bóveda no creada"
+- [x] 3.3 Llamar a `ensureUnlocked` en host, Quick Connect, SFTP, RDP/VNC, importar `ssh_config`, guardar host/identidad; reintento ante `VAULT_LOCKED`
+- [x] 3.4 `useSessionRestore`: locales sin bóveda, remotas tras desbloqueo, sin pisar el layout guardado + pruebas
+- [x] 3.5 Panel de Configuración: opciones de auto-bloqueo y "pedir contraseña al iniciar" (es/en)
 
 ## 4. Validación
 - [ ] 4.1 `cd src-tauri && cargo test`

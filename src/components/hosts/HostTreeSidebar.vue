@@ -3,6 +3,7 @@ import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useVaultStore } from "../../stores/vault.store";
 import { useSftpStore } from "../../stores/sftp.store";
+import { useEnsureUnlocked } from "../../composables/useEnsureUnlocked";
 import type { HostSummary, Folder, IdentitySummary } from "../../types/inventory";
 import HostModal from "./HostModal.vue";
 import FolderModal from "./FolderModal.vue";
@@ -28,6 +29,7 @@ import {
   Route,
   FolderPlus,
   X,
+  Lock,
 } from "lucide-vue-next";
 
 const { t } = useI18n();
@@ -39,6 +41,7 @@ const emit = defineEmits<{
 
 const vaultStore = useVaultStore();
 const sftpStore = useSftpStore();
+const { ensureUnlocked } = useEnsureUnlocked();
 
 const searchQuery = ref("");
 const collapsedFolders = ref<Record<string, boolean>>({});
@@ -55,6 +58,11 @@ const isIdentityModalOpen = ref(false);
 const identityToEdit = ref<IdentitySummary | null>(null);
 
 const isSshConfigModalOpen = ref(false);
+
+async function openSshConfigImport() {
+  if (!(await ensureUnlocked())) return;
+  isSshConfigModalOpen.value = true;
+}
 
 function toggleFolder(folderId: string) {
   collapsedFolders.value[folderId] = !collapsedFolders.value[folderId];
@@ -86,7 +94,8 @@ function getJumpHostLabel(jumpId: string | null | undefined): string | null {
 }
 
 // Actions
-function openAddHost(folderId?: string) {
+async function openAddHost(_folderId?: string) {
+  if (!(await ensureUnlocked())) return;
   hostToEdit.value = null;
   isHostModalOpen.value = true;
 }
@@ -102,7 +111,8 @@ async function handleDeleteHost(id: string) {
   }
 }
 
-function openAddFolder() {
+async function openAddFolder() {
+  if (!(await ensureUnlocked())) return;
   folderToEdit.value = null;
   isFolderModalOpen.value = true;
 }
@@ -118,7 +128,8 @@ async function handleDeleteFolder(id: string) {
   }
 }
 
-function openAddIdentity() {
+async function openAddIdentity() {
+  if (!(await ensureUnlocked())) return;
   identityToEdit.value = null;
   isIdentityModalOpen.value = true;
 }
@@ -230,7 +241,7 @@ async function handleDeleteIdentity(id: string) {
           <!-- Import ~/.ssh/config (only in hosts tab) -->
           <button
             v-if="activeTab === 'hosts'"
-            @click="isSshConfigModalOpen = true"
+            @click="openSshConfigImport()"
             title="Importar desde ~/.ssh/config"
             class="p-1.5 text-theme-muted hover:text-cyan-400 hover:bg-theme-active rounded-lg transition cursor-pointer"
           >
@@ -301,8 +312,22 @@ async function handleDeleteIdentity(id: string) {
       </div>
     </div>
 
+    <!-- Bóveda bloqueada / sin crear: los hosts e identidades requieren la contraseña maestra -->
+    <div v-if="!vaultStore.isUnlocked" class="flex-1 flex flex-col items-center justify-center p-4 text-center space-y-3">
+      <Lock class="w-8 h-8 text-slate-500" />
+      <p class="text-xs text-slate-400 max-w-[14rem]">
+        {{ vaultStore.isInitialized ? t('vault.sidebarLocked') : t('vault.sidebarNotCreated') }}
+      </p>
+      <button
+        @click="ensureUnlocked()"
+        class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-xs font-medium text-white rounded-lg transition cursor-pointer"
+      >
+        {{ vaultStore.isInitialized ? t('vault.unlock') : t('vault.createVault') }}
+      </button>
+    </div>
+
     <!-- Tree Body -->
-    <div class="flex-1 overflow-y-auto p-2 space-y-1">
+    <div v-else class="flex-1 overflow-y-auto p-2 space-y-1">
       <!-- HOSTS TAB -->
       <div v-if="activeTab === 'hosts'">
         <!-- Folders -->
@@ -477,7 +502,7 @@ async function handleDeleteIdentity(id: string) {
         <div v-if="vaultStore.hosts.length === 0" class="p-4 text-center text-xs text-slate-500 space-y-3">
           <p>No hay servidores guardados. Haz clic en <strong>+ Servidor</strong> para agregar el primero.</p>
           <button
-            @click="isSshConfigModalOpen = true"
+            @click="openSshConfigImport()"
             class="px-3 py-1.5 bg-theme-surface hover:bg-theme-active border border-theme rounded-lg text-theme-accent text-xs font-medium inline-flex items-center space-x-1.5 transition cursor-pointer"
           >
             <FileCode class="w-3.5 h-3.5" />

@@ -697,6 +697,32 @@ async function handleResetDefaults() {
             </div>
 
             <div class="space-y-3 bg-neutral-950/50 p-4 border border-neutral-800 rounded-xl">
+              <label class="flex items-start space-x-2 cursor-pointer">
+                <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.ask_password_on_startup"
+                  @change="settingsStore.updateSettings({ ask_password_on_startup: ($event.target as HTMLInputElement).checked })" />
+                <span>
+                  <span class="block text-xs font-medium text-neutral-200">{{ t('settings.askPasswordOnStartup') }}</span>
+                  <span class="block text-xs text-neutral-400">{{ t('settings.askPasswordOnStartupDesc') }}</span>
+                </span>
+              </label>
+              <label class="flex items-start space-x-2 cursor-pointer">
+                <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.auto_lock_enabled"
+                  @change="settingsStore.updateSettings({ auto_lock_enabled: ($event.target as HTMLInputElement).checked })" />
+                <span>
+                  <span class="block text-xs font-medium text-neutral-200">{{ t('settings.autoLock') }}</span>
+                  <span class="block text-xs text-neutral-400">{{ t('settings.autoLockDesc') }}</span>
+                </span>
+              </label>
+              <label class="flex items-center space-x-2" :class="{ 'opacity-50': !settingsStore.settings.auto_lock_enabled }">
+                <span class="text-xs font-medium text-neutral-200 flex-1">{{ t('settings.autoLockMinutes') }}</span>
+                <input type="number" min="1" max="1440" :disabled="!settingsStore.settings.auto_lock_enabled"
+                  class="w-20 px-2 py-1 bg-theme-input border border-theme rounded-lg text-xs"
+                  :value="settingsStore.settings.auto_lock_minutes"
+                  @change="settingsStore.updateSettings({ auto_lock_minutes: Math.min(1440, Math.max(1, Math.floor(Number(($event.target as HTMLInputElement).value)) || 10)) })" />
+              </label>
+            </div>
+
+            <div class="space-y-3 bg-neutral-950/50 p-4 border border-neutral-800 rounded-xl">
               <div>
                 <label class="block text-xs font-medium text-neutral-300 mb-1">
                   {{ t('settings.currentPassword') }}

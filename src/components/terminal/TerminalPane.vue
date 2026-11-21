@@ -16,6 +16,7 @@ import {
 import { SearchAddon } from "@xterm/addon-search";
 import { WebLinksAddon } from "@xterm/addon-web-links";
 import { sessionService } from "../../services/session.service";
+import { useEnsureUnlocked } from "../../composables/useEnsureUnlocked";
 import { useSessionsStore } from "../../stores/sessions.store";
 import { useSettingsStore } from "../../stores/settings.store";
 import { useVaultStore } from "../../stores/vault.store";
@@ -592,6 +593,8 @@ watch(
   applyAddonPrefs,
 );
 
+const { runWithUnlock } = useEnsureUnlocked();
+
 async function connectSession() {
   if (!term) return;
   try {
@@ -600,15 +603,18 @@ async function connectSession() {
     connectionLost.value = false;
 
     if (props.pane.hostId) {
-      sessionId = await sessionService.connectSsh(
-        props.pane.hostId,
-        term.cols,
-        term.rows,
-        (chunk) => {
+      const hostId = props.pane.hostId;
+      const cols = term.cols;
+      const rows = term.rows;
+      // Si la bóveda está bloqueada se pide el desbloqueo y se reintenta (p. ej. pestañas restauradas).
+      const opened = await runWithUnlock(() =>
+        sessionService.connectSsh(hostId, cols, rows, (chunk) => {
           term?.write(chunk);
           recordOutput(chunk);
-        }
+        }),
       );
+      if (opened === undefined) throw t("vault.unlockCancelled");
+      sessionId = opened;
     } else {
       sessionId = await sessionService.openLocalPty(
         term.cols,

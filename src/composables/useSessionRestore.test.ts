@@ -161,3 +161,110 @@ describe("useSessionRestore", () => {
     expect(r.pendingLayout.value).toBeNull();
   });
 });
+
+describe("useSessionRestore: lazy startup (vault locked)", () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    vi.useFakeTimers();
+    Object.values(svc).forEach((f) => f.mockClear());
+    svc.get.mockResolvedValue(null);
+  });
+  afterEach(() => vi.useRealTimers());
+
+  function localOnly() {
+    const s = useSessionsStore();
+    s.createTab("L1");
+    s.createTab("L2");
+    const json = JSON.stringify(serializeLayout(s.tabs, s.tabs[0].id));
+    s.tabs.splice(0, 2);
+    s.activeTabId = null;
+    return json;
+  }
+
+  function setupLazy(mode: "ask" | "auto" | "off", layoutJson: string | null, askOnStartup = false) {
+    svc.get.mockResolvedValue(layoutJson);
+    const settings = useSettingsStore();
+    settings.settings.restore_sessions = mode;
+    settings.settings.ask_password_on_startup = askOnStartup;
+    const vault = useVaultStore();
+    const fetchInventory = vi.fn(async () => { vault.hosts = [host as never]; });
+    vault.fetchInventory = fetchInventory as never;
+    return { r: useSessionRestore(), vault, sessions: useSessionsStore(), fetchInventory };
+  }
+
+  it("opens an initial local tab without prompting when there is no saved layout", async () => {
+    const { r, sessions } = setupLazy("ask", null);
+    await r.startup();
+    expect(sessions.tabs).toHaveLength(1);
+    expect(sessions.tabs[0].rootPane).toMatchObject({ type: "leaf", hostId: undefined });
+    expect(r.pendingLayout.value).toBeNull();
+  });
+
+  it("restores local-only layouts without unlocking or touching the inventory", async () => {
+    const { r, sessions, fetchInventory } = setupLazy("auto", localOnly());
+    await r.startup();
+    expect(sessions.tabs.map((t) => t.title)).toEqual(["L1", "L2"]);
+    expect(fetchInventory).not.toHaveBeenCalled();
+  });
+
+  it("asks about a local-only layout at startup and opens a local tab if discarded", async () => {
+    const { r, sessions } = setupLazy("ask", localOnly());
+    await r.startup();
+    expect(r.pendingLayout.value?.tabs).toHaveLength(2);
+    expect(sessions.tabs).toHaveLength(0);
+    r.discardRestore();
+    expect(sessions.tabs).toHaveLength(1);
+  });
+
+  it("defers a layout with hosts to the first unlock and never overwrites it before that", async () => {
+    const { r, vault, sessions } = setupLazy("ask", stored());
+    await r.startup();
+    await flush();
+    expect(r.pendingLayout.value).toBeNull(); // sin diálogo mientras está bloqueada
+    expect(sessions.tabs).toHaveLength(1); // solo la terminal local inicial
+    sessions.createTab("user-tab");
+    await flush();
+    await vi.advanceTimersByTimeAsync(LAYOUT_SAVE_DEBOUNCE_MS + 10);
+    expect(svc.save).not.toHaveBeenCalled();
+    expect(svc.clear).not.toHaveBeenCalled();
+
+    vault.isUnlocked = true; // primer desbloqueo
+    await flush();
+    // El usuario ya abrió una pestaña propia, así que no se ofrece restaurar encima (regla existente)
+    expect(r.pendingLayout.value).toBeNull();
+  });
+
+  it("offers the deferred restore after unlock when only the initial local tab exists", async () => {
+    const { r, vault, sessions } = setupLazy("ask", stored());
+    await r.startup();
+    vault.isUnlocked = true;
+    await flush();
+    expect(r.pendingLayout.value?.tabs).toHaveLength(2);
+    await r.confirmRestore();
+    expect(sessions.tabs).toHaveLength(3); // inicial + 2 restauradas
+  });
+
+  it("auto mode restores the deferred layout right after the first unlock", async () => {
+    const { vault, sessions } = setupLazy("auto", stored());
+    await useSessionRestore().startup();
+    vault.isUnlocked = true;
+    await flush();
+    expect(sessions.tabs).toHaveLength(3);
+  });
+
+  it("does nothing special when 'ask password on startup' is enabled", async () => {
+    const { r, sessions } = setupLazy("ask", stored(), true);
+    await r.startup();
+    expect(sessions.tabs).toHaveLength(0);
+    expect(svc.get).not.toHaveBeenCalled();
+  });
+
+  it("off: opens a local tab, clears the stored layout and saves nothing", async () => {
+    const { r, sessions } = setupLazy("off", stored());
+    await r.startup();
+    expect(sessions.tabs).toHaveLength(1);
+    expect(svc.clear).toHaveBeenCalled();
+    await vi.advanceTimersByTimeAsync(LAYOUT_SAVE_DEBOUNCE_MS + 10);
+    expect(svc.save).not.toHaveBeenCalled();
+  });
+});

@@ -17,6 +17,10 @@
     "actions": "Acciones"
   },
   "vault": {
+    "unlockCancelled": "Operación cancelada: la bóveda sigue bloqueada.",
+    "quickConnectLocked": "Bóveda bloqueada: pulsa para desbloquearla y ver tus hosts guardados",
+    "sidebarLocked": "Bóveda bloqueada. Desbloquéala para ver tus hosts e identidades.",
+    "sidebarNotCreated": "Aún no has creado la bóveda. Créala para guardar hosts e identidades.",
     "cancel": "Cancelar",
     "unlockTitle": "Desbloquear Bóveda NexusTerm",
     "createTitle": "Crear Bóveda Maestra",
@@ -136,6 +140,11 @@
     "defaultShellPlaceholder": "Autodetectar ($SHELL)",
     "shellHelp": "Ruta absoluta del binario de tu shell (ej. /bin/zsh, /usr/bin/fish, /bin/bash).",
     "securityNotice": "Rotación de Contraseña Maestra de la Bóveda",
+    "askPasswordOnStartup": "Pedir la contraseña maestra al iniciar",
+    "askPasswordOnStartupDesc": "Si está desactivado, la app abre una terminal local y pide la contraseña solo al usar hosts o credenciales guardadas.",
+    "autoLock": "Bloquear la bóveda tras un tiempo de inactividad",
+    "autoLockDesc": "Bloquea la bóveda sin cerrar tus sesiones abiertas. No se podrán abrir nuevas conexiones hasta desbloquearla.",
+    "autoLockMinutes": "Minutos de inactividad (1 a 1440)",
     "securityHelp": "Cambiar la contraseña maestra re-envuelve la llave de cifrado de la bóveda sin necesidad de re-cifrar cada registro existente.",
     "currentPassword": "Contraseña Actual",
     "newPassword": "Nueva Contraseña Maestra",
