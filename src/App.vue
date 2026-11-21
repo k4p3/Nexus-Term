@@ -13,6 +13,7 @@ import HostTreeSidebar from "./components/hosts/HostTreeSidebar.vue";
 import TerminalWorkspace from "./components/terminal/TerminalWorkspace.vue";
 import ToastHost from "./components/common/ToastHost.vue";
 import { useSessionRestore } from "./composables/useSessionRestore";
+import { APP_VERSION } from "./utils/app-version";
 import { useUiStore } from "./stores/ui.store";
 import { matchShortcut } from "./utils/shortcuts";
 import type { HostSummary } from "./types/inventory";
@@ -163,7 +164,7 @@ function handleInsertCommand(command: string) {
       <div class="flex items-center gap-2.5">
         <img src="/icon.png" class="w-6 h-6 rounded-control object-cover" alt="" />
         <span class="text-sm font-semibold tracking-tight text-fg">NexusTerm</span>
-        <span class="text-[10px] px-1.5 py-0.5 rounded-control bg-active text-fg-muted font-mono">v0.2.0</span>
+        <span class="text-[10px] px-1.5 py-0.5 rounded-control bg-active text-fg-muted font-mono">v{{ APP_VERSION }}</span>
       </div>
 
       <div class="flex items-center gap-1">

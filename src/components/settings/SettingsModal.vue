@@ -9,6 +9,7 @@ import { useHistoryStore } from '../../stores/history.store';
 import { useUiStore } from '../../stores/ui.store';
 import { createCanvasInstalledChecker, ligatureStatus } from '../../utils/font-check';
 import { SUPPORTED_LOCALES } from '../../locales';
+import { APP_VERSION } from '../../utils/app-version';
 import { themeModeById } from '../../types/themes';
 import CustomSelect, { type SelectOption } from '../common/CustomSelect.vue';
 import {
@@ -836,7 +837,7 @@ async function handleResetDefaults() {
               </div>
               <div>
                 <h3 class="text-base font-semibold text-fg">NexusTerm</h3>
-                <p class="text-xs text-fg-muted">v0.2.0</p>
+                <p class="text-xs text-fg-muted">v{{ APP_VERSION }}</p>
               </div>
             </div>
 

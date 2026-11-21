@@ -138,6 +138,11 @@ terminal/
    - Queda terminantemente prohibido importar estáticamente en `App.vue` o en componentes contenedores vistas que solo se renderizan bajo interacción del usuario o eventos condicionales. Esto garantiza minimizar la huella de memoria RAM en reposo en Linux (evitando sobrecargar el heap de `WebKitWebProcess` en WebKitGTK) y asegurar un *code splitting* óptimo en producción.
 
 
+8. **Versionado y Releases (Fuente Única de Verdad)**:
+   - La versión de la aplicación vive en **`package.json`** y la interfaz la recibe en tiempo de compilación (`__APP_VERSION__` vía Vite → `src/utils/app-version.ts`). Queda prohibido escribir números de versión a mano en `App.vue` o en cualquier componente (por ejemplo en «Acerca de» o en la barra superior): usa `APP_VERSION`.
+   - Para publicar una versión se ejecuta **`pnpm bump <x.y.z>`** (`scripts/bump-version.mjs`), que actualiza `package.json`, `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml`, `src-tauri/Cargo.lock` y `packaging/aur/{PKGBUILD,.SRCINFO}`. Después se añade la sección `## [x.y.z]` al `CHANGELOG.md` y se revisan las fuentes y sumas del paquete AUR.
+   - La prueba `src/utils/version-sync.test.ts` falla si algún archivo no coincide con `package.json`, si el `CHANGELOG.md` no documenta la versión vigente o si un componente tiene una versión escrita a mano. No se puede archivar un cambio ni publicar un release con esa prueba en rojo.
+
 ---
 
 ## 5. Reglas de Git y Mensajes de Commit
