@@ -11,6 +11,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [0.3.0] - 2026-11-21
+
+A visual redesign with a real theme system: light and dark themes, follow-the-system mode, and a fully translated interface.
+
+### Added
+- **Theme system**: every UI color now comes from design tokens, so a theme changes the whole window, not only the terminal. Three new themes ship with the app: **Nexus Slate** (new default, dark), **Nexus Paper** and **Solarized Light** (light), next to the six existing ones. All built-in themes meet a 4.5:1 text contrast.
+- **Appearance settings** (*Settings → Terminal Appearance*): *Follow system* mode with a chosen light and dark theme, interface density (comfortable or compact), and the option to remove imported themes.
+- **Persisted custom themes**: imported themes are now saved and restored on restart (before, they were lost). Older settings files keep loading.
+- **Inter and JetBrains Mono fonts**, bundled with the app (OFL-1.1).
+- **Shared dialog components** (`BaseModal`, `BaseButton`, `IconButton`, `EmptyState`): consistent dialogs with proper dialog semantics, focus handling and Escape that closes only the topmost dialog.
+- **Show/hide password** button and labelled fields on the vault unlock screen.
+- **Single source for the app version**: the version shown in the top bar and in *About* is read from `package.json`. `pnpm bump <x.y.z>` updates every versioned file (including the AUR package), and a test fails when they get out of sync or the CHANGELOG lacks the current release.
+
+### Changed
+- **Redesigned interface**: quieter top bar, tabs with an accent line and a connection dot for remote sessions, sidebar actions that appear on hover or keyboard focus, and badges and error messages that use soft tints instead of heavy fills.
+- **Interface fully translated**: hard-coded Spanish texts in dialogs, tooltips, errors and confirmations now follow the selected language, including store and notification messages, the system tray menu and the built-in snippets. Backend error messages are now in English.
+- **Built-in snippets** are stored in English (parameters renamed, e.g. `{{container}}`, `{{lines}}`) and shown translated in Spanish; existing installs are refreshed on startup and keep their enabled/disabled choice.
+- The default theme is now **Nexus Slate** (existing installs keep the theme they had selected).
+
+### Fixed
+- The identity type badge (Password, Agent, key) no longer overflows its border: emojis were replaced with icons that fit.
+- Several styles that referenced undefined classes (`bg-theme-input`, `bg-theme-panel`, `bg-theme-hover`, `ring-theme-accent`) never applied; they now use real tokens.
+- The *About* screen showed an outdated version.
+
+---
+
 ## [0.2.0] - 2026-11-20
 
 On-demand vault unlock, auto-lock, keyboard navigation between split panes and more reliable SSH sessions.
