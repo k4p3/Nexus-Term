@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import BaseModal from "../common/BaseModal.vue";
+import BaseButton from "../common/BaseButton.vue";
 import { ref, watch, computed } from "vue";
 import { useVaultStore } from "../../stores/vault.store";
 import { sshConfigService } from "../../services/ssh_config.service";
@@ -136,26 +138,9 @@ async function handleImport() {
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4">
-    <div class="w-full max-w-2xl bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] text-fg transition-colors">
-      <!-- Header -->
-      <div class="px-5 py-3.5 border-b border-line flex items-center justify-between bg-header">
-        <div class="flex items-center space-x-2">
-          <FileCode class="w-5 h-5 text-accent" />
-          <h3 class="text-sm font-bold text-fg">
-            Importar desde ~/.ssh/config & known_hosts
-          </h3>
-        </div>
-        <button
-          @click="emit('close')"
-          class="text-fg-muted hover:text-fg p-1 rounded-lg hover:bg-active transition cursor-pointer"
-        >
-          <X class="w-4 h-4" />
-        </button>
-      </div>
-
-      <!-- Content -->
-      <div class="p-5 overflow-y-auto flex-1 space-y-4">
+  <BaseModal v-if="isOpen" title="Importar desde ~/.ssh/config & known_hosts" size="lg" @close="emit('close')">
+    <template #icon><FileCode class="w-4 h-4" /></template>
+      <div class="space-y-4">
         <!-- Loading state -->
         <div v-if="isLoading" class="py-12 flex flex-col items-center justify-center space-y-3">
           <RefreshCw class="w-6 h-6 text-accent animate-spin" />
@@ -349,30 +334,19 @@ async function handleImport() {
         </div>
       </div>
 
-      <!-- Footer Actions -->
-      <div v-if="!importResult" class="px-5 py-3 border-t border-line flex items-center justify-between bg-header">
-        <span class="text-xs text-fg-muted">
-          {{ selectedAliases.size }} servidores listos para migrar
-        </span>
-        <div class="flex items-center space-x-2">
-          <button
-            type="button"
-            @click="emit('close')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-fg-muted hover:text-fg hover:bg-active transition cursor-pointer"
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            @click="handleImport"
-            :disabled="isImporting || selectedAliases.size === 0"
-            class="px-4 py-1.5 bg-accent hover:opacity-90 text-on-accent font-semibold rounded-xl text-xs shadow-md transition cursor-pointer disabled:opacity-50 flex items-center space-x-1.5"
-          >
-            <RefreshCw v-if="isImporting" class="w-3.5 h-3.5 animate-spin" />
-            <span>{{ isImporting ? 'Importando...' : 'Iniciar Importación' }}</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
+    <template v-if="!importResult" #footer>
+      <span class="text-xs text-fg-muted mr-auto">
+        {{ selectedAliases.size }} servidores listos para migrar
+      </span>
+      <BaseButton variant="ghost" @click="emit('close')">Cancelar</BaseButton>
+      <BaseButton
+        variant="primary"
+        :loading="isImporting"
+        :disabled="selectedAliases.size === 0"
+        @click="handleImport"
+      >
+        {{ isImporting ? 'Importando...' : 'Iniciar Importación' }}
+      </BaseButton>
+    </template>
+  </BaseModal>
 </template>

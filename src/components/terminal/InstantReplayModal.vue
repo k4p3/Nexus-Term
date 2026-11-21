@@ -3,7 +3,8 @@ import { ref, computed, onMounted, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import { Terminal } from "@xterm/xterm";
 import { FitAddon } from "@xterm/addon-fit";
-import { History, X } from "lucide-vue-next";
+import { History } from "lucide-vue-next";
+import BaseModal from "../common/BaseModal.vue";
 import { useSettingsStore } from "../../stores/settings.store";
 import type { ReplayBuffer } from "../../utils/replay-buffer";
 
@@ -52,11 +53,7 @@ function step(deltaMs: number) {
 }
 
 function onKey(e: KeyboardEvent) {
-  if (e.key === "Escape") {
-    e.preventDefault();
-    e.stopPropagation();
-    emit("close");
-  } else if (e.key === "ArrowLeft" && !(e.target instanceof HTMLInputElement)) {
+  if (e.key === "ArrowLeft" && !(e.target instanceof HTMLInputElement)) {
     step(-5000);
   } else if (e.key === "ArrowRight" && !(e.target instanceof HTMLInputElement)) {
     step(5000);
@@ -96,19 +93,9 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4" @keydown="onKey">
-    <div class="w-full max-w-5xl max-h-[90vh] flex flex-col bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden text-fg">
-      <div class="px-5 py-3 border-b border-line flex items-center justify-between">
-        <div class="flex items-center space-x-2">
-          <History class="w-4 h-4 text-accent" />
-          <h3 class="text-sm font-bold">{{ t("replay.title") }}</h3>
-          <span class="text-[10px] px-1.5 py-0.5 rounded border border-line text-fg-muted">{{ t("replay.readOnly") }}</span>
-        </div>
-        <button type="button" class="p-1 rounded hover:bg-active cursor-pointer" :title="t('common.close')" @click="emit('close')">
-          <X class="w-4 h-4" />
-        </button>
-      </div>
-
+  <BaseModal :title="`${t('replay.title')} (${t('replay.readOnly')})`" size="xl" @close="emit('close')">
+    <template #icon><History class="w-4 h-4" /></template>
+    <div class="-m-4 flex flex-col" @keydown="onKey">
       <div v-if="!span" class="px-5 py-10 text-center text-xs text-fg-muted">{{ t("replay.empty") }}</div>
       <template v-else>
         <div class="flex-1 min-h-[16rem] overflow-hidden bg-app p-2">
@@ -138,5 +125,5 @@ onBeforeUnmount(() => {
         </div>
       </template>
     </div>
-  </div>
+  </BaseModal>
 </template>

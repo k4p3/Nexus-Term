@@ -8,11 +8,11 @@ import { onMounted, onUnmounted, ref } from "vue";
 import { X } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
 
-const props = withDefaults(defineProps<{ title: string; size?: "sm" | "md" | "lg" }>(), { size: "md" });
+const props = withDefaults(defineProps<{ title: string; size?: "sm" | "md" | "lg" | "xl" }>(), { size: "md" });
 const emit = defineEmits<{ (e: "close"): void }>();
 const { t } = useI18n();
 
-const SIZES = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-2xl" } as const;
+const SIZES = { sm: "max-w-sm", md: "max-w-lg", lg: "max-w-2xl", xl: "max-w-5xl" } as const;
 const panel = ref<HTMLElement | null>(null);
 const id = Symbol("modal");
 let previouslyFocused: HTMLElement | null = null;
