@@ -57,7 +57,10 @@ const isSnippetsOpen = ref(false);
 const isTunnelsOpen = ref(false);
 const isSidebarVisible = ref(true);
 
+let stopSystemModeWatch: () => void = () => {};
+
 onMounted(async () => {
+  stopSystemModeWatch = settingsStore.watchSystemMode();
   await settingsStore.loadSettings();
   await vaultStore.checkStatus();
   appReady.value = true;
@@ -67,6 +70,7 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+  stopSystemModeWatch();
   window.removeEventListener("keydown", handleGlobalKeyDown);
   window.removeEventListener("focus", handleWindowFocus);
 });

@@ -6,6 +6,17 @@ use tauri::State;
 
 use crate::vault::db::{VaultError, VaultManager};
 
+/// Imported color theme persisted with the settings. `theme` holds an xterm.js
+/// ITheme and `ui` an optional UI palette; both are opaque to the backend.
+#[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
+pub struct CustomTheme {
+    pub id: String,
+    pub name: String,
+    pub theme: serde_json::Value,
+    #[serde(default)]
+    pub ui: Option<serde_json::Value>,
+}
+
 #[derive(Debug, Serialize, Deserialize, Clone, PartialEq)]
 pub struct AppSettings {
     // General & i18n
@@ -25,6 +36,16 @@ pub struct AppSettings {
     pub cursor_blink: bool,
     #[serde(default = "default_theme_id")]
     pub theme_id: String,
+    #[serde(default)]
+    pub custom_themes: Vec<CustomTheme>,
+    #[serde(default = "default_appearance_mode")]
+    pub appearance_mode: String, // "manual" | "system"
+    #[serde(default = "default_theme_light_id")]
+    pub theme_light_id: String,
+    #[serde(default = "default_theme_dark_id")]
+    pub theme_dark_id: String,
+    #[serde(default = "default_ui_density")]
+    pub ui_density: String, // "comfortable" | "compact"
 
     // Shell & Behavior
     #[serde(default)]
@@ -146,7 +167,23 @@ fn default_cursor_blink() -> bool {
 }
 
 fn default_theme_id() -> String {
-    "tokyo-night".to_string()
+    "nexus-slate".to_string()
+}
+
+fn default_appearance_mode() -> String {
+    "manual".to_string()
+}
+
+fn default_theme_light_id() -> String {
+    "nexus-paper".to_string()
+}
+
+fn default_theme_dark_id() -> String {
+    "nexus-slate".to_string()
+}
+
+fn default_ui_density() -> String {
+    "comfortable".to_string()
 }
 
 fn default_auto_lock() -> u32 {
@@ -165,6 +202,11 @@ impl Default for AppSettings {
             cursor_style: default_cursor_style(),
             cursor_blink: default_cursor_blink(),
             theme_id: default_theme_id(),
+            custom_themes: Vec::new(),
+            appearance_mode: default_appearance_mode(),
+            theme_light_id: default_theme_light_id(),
+            theme_dark_id: default_theme_dark_id(),
+            ui_density: default_ui_density(),
             default_shell: None,
             close_to_tray: default_close_to_tray(),
             ask_password_on_startup: false,
@@ -262,7 +304,10 @@ mod tests {
         // Initially returns default
         let initial = get_settings_internal(&conn).unwrap();
         assert_eq!(initial.locale, "en");
-        assert_eq!(initial.theme_id, "tokyo-night");
+        assert_eq!(initial.theme_id, "nexus-slate");
+        assert!(initial.custom_themes.is_empty());
+        assert_eq!(initial.appearance_mode, "manual");
+        assert_eq!(initial.ui_density, "comfortable");
         assert_eq!(initial.font_size, 13);
         assert_eq!(initial.cursor_style, "block");
         assert_eq!(initial.close_to_tray, true);
@@ -285,6 +330,36 @@ mod tests {
         let fetched = get_settings_internal(&conn).unwrap();
         assert_eq!(fetched, customized);
         assert_eq!(fetched.sftp_max_concurrent_transfers, 4);
+    }
+
+    #[test]
+    fn test_custom_themes_persist_and_legacy_json_loads_without_them() {
+        let conn = Connection::open_in_memory().unwrap();
+        VaultManager::run_migrations(&conn).unwrap();
+        conn.execute(
+            "INSERT INTO app_settings (id, settings_json, updated_at) VALUES (1, '{\"theme_id\":\"dracula\"}', 'now')",
+            [],
+        )
+        .unwrap();
+        let legacy = get_settings_internal(&conn).unwrap();
+        assert_eq!(legacy.theme_id, "dracula");
+        assert!(legacy.custom_themes.is_empty());
+        assert_eq!(legacy.theme_light_id, "nexus-paper");
+
+        let mut s = legacy.clone();
+        s.theme_id = "custom-1".to_string();
+        s.appearance_mode = "system".to_string();
+        s.custom_themes.push(CustomTheme {
+            id: "custom-1".to_string(),
+            name: "Mine".to_string(),
+            theme: serde_json::json!({"background": "#000000", "foreground": "#ffffff"}),
+            ui: None,
+        });
+        save_settings_internal(&conn, &s).unwrap();
+        let fetched = get_settings_internal(&conn).unwrap();
+        assert_eq!(fetched.custom_themes.len(), 1);
+        assert_eq!(fetched.custom_themes[0].name, "Mine");
+        assert_eq!(fetched.appearance_mode, "system");
     }
 
     #[test]

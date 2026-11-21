@@ -1,22 +1,61 @@
 @import "tailwindcss";
 @import "@xterm/xterm/css/xterm.css";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
 
 :root {
   color-scheme: dark;
 
-  /* Theme tokens default (Tokyo Night) */
-  --theme-bg-app: #1a1b26;
-  --theme-bg-surface: #16161e;
-  --theme-bg-header: #13141c;
-  --theme-bg-active: #24283b;
-  --theme-border: #292e42;
-  --theme-text-main: #c0caf5;
-  --theme-text-muted: #787c99;
-  --theme-accent: #7aa2f7;
-  --theme-accent-hover: #89b4fa;
+  /* Default tokens (Nexus Slate). Overwritten at runtime by the settings store. */
+  --theme-bg-app: #0f1115;
+  --theme-bg-surface: #161a20;
+  --theme-bg-header: #1d222a;
+  --theme-bg-active: #262d38;
+  --theme-border: #2a303a;
+  --theme-text-main: #e6e9ef;
+  --theme-text-muted: #8b94a3;
+  --theme-accent: #6b8cff;
+  --theme-accent-hover: #8aa5ff;
+  --theme-on-accent: #0b0d12;
+  --theme-success: #5fd38d;
+  --theme-warning: #e5b567;
+  --theme-danger: #f27d84;
+  --theme-info: #6ea8fe;
+  --theme-overlay: rgba(0, 0, 0, 0.6);
+
+  --radius-control: 6px;
+  --radius-panel: 10px;
+  --radius-modal: 14px;
+  --control-h: 32px;
 }
 
-/* Theme utility classes */
+:root[data-density='compact'] {
+  --control-h: 28px;
+}
+
+/* Design tokens exposed to Tailwind: bg-surface, text-fg-muted, border-line, bg-accent/20, ... */
+@theme inline {
+  --color-app: var(--theme-bg-app);
+  --color-surface: var(--theme-bg-surface);
+  --color-header: var(--theme-bg-header);
+  --color-active: var(--theme-bg-active);
+  --color-line: var(--theme-border);
+  --color-fg: var(--theme-text-main);
+  --color-fg-muted: var(--theme-text-muted);
+  --color-accent: var(--theme-accent);
+  --color-accent-hover: var(--theme-accent-hover);
+  --color-on-accent: var(--theme-on-accent);
+  --color-success: var(--theme-success);
+  --color-warning: var(--theme-warning);
+  --color-danger: var(--theme-danger);
+  --color-info: var(--theme-info);
+  --color-overlay: var(--theme-overlay);
+  --radius-control: 6px;
+  --radius-panel: 10px;
+  --radius-modal: 14px;
+}
+
+/* Legacy aliases kept during migration; removed once no component uses them. */
 .bg-theme-app { background-color: var(--theme-bg-app); }
 .bg-theme-surface { background-color: var(--theme-bg-surface); }
 .bg-theme-header { background-color: var(--theme-bg-header); }
@@ -27,6 +66,26 @@
 .text-theme-accent { color: var(--theme-accent); }
 .bg-theme-accent { background-color: var(--theme-accent); }
 .border-theme-accent { border-color: var(--theme-accent); }
+
+html, body {
+  background: var(--theme-bg-app);
+  color: var(--theme-text-main);
+  font-family: 'Inter Variable', Inter, system-ui, sans-serif;
+  font-size: 14px;
+}
+
+/* Visible keyboard focus everywhere */
+:focus-visible {
+  outline: 2px solid var(--theme-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 /* Custom scrollbars for dark mode */
 ::-webkit-scrollbar {
