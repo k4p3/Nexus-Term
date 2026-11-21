@@ -500,7 +500,7 @@
       "trayTitle": "System tray",
       "trayHelp": "Lets NexusTerm keep running in the background so active SSH tunnels and transfers aren't interrupted.",
       "trayOption": "Minimize to the system tray when pressing the close button (X)",
-      "aboutBody": "Lightweight, modern, high-performance SSH and SFTP manager and terminal emulator optimized for Linux (KDE Plasma Wayland), Windows and macOS",
+      "aboutBody": "Lightweight, modern, high-performance SSH and SFTP manager and terminal emulator, optimized for Linux (KDE Plasma Wayland), Windows and macOS.",
       "localeHelp": "Load a community-created JSON translation file. Missing keys fall back to the base language (English).",
       "chooseJson": "Choose JSON",
       "localeCode": "Locale code (e.g. fr, de, pt-BR)"

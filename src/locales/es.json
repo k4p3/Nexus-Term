@@ -500,7 +500,7 @@
       "trayTitle": "Bandeja del Sistema (System Tray)",
       "trayHelp": "Permite que NexusTerm continúe ejecutándose en segundo plano para no interrumpir túneles SSH ni transferencias activas.",
       "trayOption": "Minimizar a la bandeja del sistema al presionar el botón de cerrar (X)",
-      "aboutBody": "Gestor SSH, SFTP y emulador de terminal ligero, moderno y de alto rendimiento optimizado para Linux (KDE Plasma Wayland), Windows y macOS",
+      "aboutBody": "Gestor SSH, SFTP y emulador de terminal ligero, moderno y de alto rendimiento optimizado para Linux (KDE Plasma Wayland), Windows y macOS.",
       "localeHelp": "Carga un archivo JSON de traducción creado por la comunidad. Las claves ausentes usan el idioma base (inglés).",
       "chooseJson": "Elegir JSON",
       "localeCode": "Código de idioma (p. ej. fr, de, pt-BR)"

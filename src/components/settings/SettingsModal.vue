@@ -842,7 +842,7 @@ async function handleResetDefaults() {
             </div>
 
             <p class="text-xs text-fg leading-relaxed">
-              Gestor SSH, SFTP y emulador de terminal ligero, moderno y de alto rendimiento optimizado para Linux (KDE Plasma Wayland), Windows y macOS.
+              {{ t('ui.settings.aboutBody') }}
             </p>
 
             <div class="p-3 bg-app/60 border border-line rounded-lg text-xs text-fg-muted space-y-1 font-mono">
