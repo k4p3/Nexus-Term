@@ -2,7 +2,10 @@
 import { ref, watch } from "vue";
 import { useVaultStore } from "../../stores/vault.store";
 import type { Folder } from "../../types/inventory";
-import { X, Folder as FolderIcon } from "lucide-vue-next";
+import { Folder as FolderIcon } from "lucide-vue-next";
+import { useI18n } from "vue-i18n";
+import BaseModal from "../common/BaseModal.vue";
+import BaseButton from "../common/BaseButton.vue";
 
 const props = defineProps<{
   isOpen: boolean;
@@ -14,6 +17,7 @@ const emit = defineEmits<{
   (e: "saved", id: string): void;
 }>();
 
+const { t } = useI18n();
 const vaultStore = useVaultStore();
 
 const name = ref("");
@@ -76,68 +80,52 @@ async function handleSave() {
 </script>
 
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-overlay backdrop-blur-xs p-4">
-    <div class="w-full max-w-sm bg-surface border border-line rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-      <div class="px-5 py-3.5 border-b border-line flex items-center justify-between bg-app/40">
-        <div class="flex items-center space-x-2">
-          <FolderIcon class="w-5 h-5 text-accent" />
-          <h3 class="text-sm font-bold text-fg">
-            {{ folderToEdit ? 'Editar Carpeta' : 'Nueva Carpeta' }}
-          </h3>
-        </div>
-        <button @click="emit('close')" class="text-fg-muted hover:text-fg p-1 rounded-lg hover:bg-active transition">
-          <X class="w-4 h-4" />
-        </button>
+  <BaseModal
+    v-if="isOpen"
+    :title="folderToEdit ? 'Editar Carpeta' : 'Nueva Carpeta'"
+    size="sm"
+    @close="emit('close')"
+  >
+    <template #icon><FolderIcon class="w-4 h-4" /></template>
+
+    <form id="folder-form" @submit.prevent="handleSave" class="space-y-4">
+      <div>
+        <label for="folder-name" class="block text-xs font-medium text-fg mb-1.5">Nombre de la Carpeta</label>
+        <input
+          id="folder-name"
+          v-model="name"
+          type="text"
+          required
+          placeholder="ej. Producción / Clientes / Laboratorio"
+          class="w-full h-9 px-3 bg-app border border-line rounded-control text-sm text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition"
+        />
       </div>
 
-      <form @submit.prevent="handleSave" class="p-5 space-y-4">
-        <div>
-          <label class="block text-xs font-medium text-fg mb-1">Nombre de la Carpeta</label>
-          <input
-            v-model="name"
-            type="text"
-            required
-            placeholder="ej. Producción / Clientes / Laboratorio"
-            class="w-full px-3 py-2 bg-app border border-line/80 rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
-          />
-        </div>
-
-        <div>
-          <label class="block text-xs font-medium text-fg mb-1.5">Color de Distinción</label>
-          <div class="flex items-center space-x-2">
-            <button
-              v-for="c in colorOptions"
-              :key="c"
-              type="button"
-              @click="color = c"
-              class="w-6 h-6 rounded-full transition-transform"
-              :style="{ backgroundColor: c }"
-              :class="{ 'ring-2 ring-fg ring-offset-2 ring-offset-surface scale-110': color === c }"
-            ></button>
-          </div>
-        </div>
-
-        <div v-if="error" class="p-3 bg-danger/15 border border-danger/30 rounded-xl text-xs text-danger">
-          {{ error }}
-        </div>
-
-        <div class="pt-3 border-t border-line flex items-center justify-end space-x-2">
+      <fieldset>
+        <legend class="block text-xs font-medium text-fg mb-1.5">Color de Distinción</legend>
+        <div class="flex items-center gap-2">
           <button
+            v-for="c in colorOptions"
+            :key="c"
             type="button"
-            @click="emit('close')"
-            class="px-3.5 py-1.5 rounded-xl text-xs font-medium text-fg-muted hover:text-fg hover:bg-active transition"
-          >
-            Cancelar
-          </button>
-          <button
-            type="submit"
-            :disabled="isSubmitting"
-            class="px-4 py-1.5 bg-accent hover:bg-accent-hover text-on-accent font-semibold rounded-xl text-xs shadow-md shadow-accent/20 transition disabled:opacity-50"
-          >
-            Guardar
-          </button>
+            :aria-label="c"
+            :aria-pressed="color === c"
+            @click="color = c"
+            class="w-6 h-6 rounded-full transition-transform cursor-pointer"
+            :style="{ backgroundColor: c }"
+            :class="{ 'ring-2 ring-fg ring-offset-2 ring-offset-surface scale-110': color === c }"
+          ></button>
         </div>
-      </form>
-    </div>
-  </div>
+      </fieldset>
+
+      <div v-if="error" role="alert" class="p-3 bg-danger/10 border border-danger/30 rounded-control text-xs text-danger">
+        {{ error }}
+      </div>
+    </form>
+
+    <template #footer>
+      <BaseButton variant="ghost" @click="emit('close')">{{ t('common.cancel') }}</BaseButton>
+      <BaseButton type="submit" variant="primary" :loading="isSubmitting" form="folder-form">{{ t('common.save') }}</BaseButton>
+    </template>
+  </BaseModal>
 </template>
