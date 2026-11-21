@@ -17,7 +17,9 @@ describe("shortcut registry", () => {
   });
 
   it("never registers a plain Ctrl+letter (reserved for the shell) except the existing globals", () => {
-    const allowedPlain = new Set(["app.quickConnect", "app.toggleSidebar", "app.settings", "terminal.search"]);
+    const allowedPlain = new Set(["app.quickConnect", "app.toggleSidebar", "app.settings", "terminal.search",
+      // Teclas no imprimibles que el shell no usa: cambio de pestaña.
+      "app.nextTab", "app.nextTabAlt", "app.prevTabAlt"]);
     for (const d of SHORTCUTS) {
       const c = d.combo;
       if (c.ctrl && !c.shift && !c.alt && !allowedPlain.has(d.id)) {
@@ -41,6 +43,16 @@ describe("shortcut registry", () => {
     expect(matchShortcut(ev({ key: "T", ctrlKey: true, shiftKey: true }), ["global", "workspace"])?.id).toBe("terminal.newLocal");
     expect(matchShortcut(ev({ key: "t", metaKey: true, shiftKey: true }), ["global"])?.id).toBe("terminal.newLocal");
     expect(matchShortcut(ev({ key: "t", ctrlKey: true }))).toBeNull();
+  });
+
+  it("resolves tab switching combos and keeps them apart from pane focus", () => {
+    const k = (o: Partial<KeyboardEvent>) => ev({ key: "", ...o });
+    expect(matchShortcut(k({ code: "Tab", key: "Tab", ctrlKey: true }))?.id).toBe("app.nextTab");
+    expect(matchShortcut(k({ code: "Tab", key: "Tab", ctrlKey: true, shiftKey: true }))?.id).toBe("app.prevTab");
+    expect(matchShortcut(k({ code: "PageDown", key: "PageDown", ctrlKey: true }))?.id).toBe("app.nextTabAlt");
+    expect(matchShortcut(k({ code: "PageUp", key: "PageUp", ctrlKey: true }))?.id).toBe("app.prevTabAlt");
+    expect(matchShortcut(k({ code: "Tab", key: "Tab" }))).toBeNull();
+    expect(matchShortcut(ev({ key: "ArrowLeft", altKey: true }), ["terminal"])?.id).toBe("terminal.focusLeft");
   });
 
   it("does not match with extra or missing modifiers", () => {

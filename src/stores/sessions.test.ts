@@ -98,4 +98,30 @@ describe('sessions store multiplexer', () => {
     expect(store.focusNeighborPane(tabId, 'up')).toBe(false);
     expect(tab.activePaneId).toBe(only);
   });
+
+  describe('activateAdjacentTab', () => {
+    it('cycles forward and backward across tabs', () => {
+      const store = useSessionsStore();
+      const a = store.createTab('A');
+      const b = store.createTab('B');
+      const c = store.createTab('C');
+      expect(store.activeTabId).toBe(c);
+      store.activateAdjacentTab(1);
+      expect(store.activeTabId).toBe(a);
+      store.activateAdjacentTab(-1);
+      expect(store.activeTabId).toBe(c);
+      store.activateAdjacentTab(-1);
+      expect(store.activeTabId).toBe(b);
+    });
+
+    it('does nothing with zero or one tab', () => {
+      const store = useSessionsStore();
+      store.activateAdjacentTab(1);
+      expect(store.activeTabId).toBeNull();
+      const a = store.createTab('A');
+      store.activateAdjacentTab(1);
+      store.activateAdjacentTab(-1);
+      expect(store.activeTabId).toBe(a);
+    });
+  });
 });

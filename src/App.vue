@@ -106,6 +106,14 @@ function handleGlobalKeyDown(e: KeyboardEvent) {
     case "workspace.broadcast":
       sessionsStore.toggleBroadcastMode();
       break;
+    case "app.nextTab":
+    case "app.nextTabAlt":
+      sessionsStore.activateAdjacentTab(1);
+      break;
+    case "app.prevTab":
+    case "app.prevTabAlt":
+      sessionsStore.activateAdjacentTab(-1);
+      break;
     case "terminal.newLocal":
       handleOpenLocalPty();
       break;

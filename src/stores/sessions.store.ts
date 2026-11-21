@@ -26,6 +26,15 @@ export const useSessionsStore = defineStore("sessions", () => {
     { flush: "sync" },
   );
 
+  /** Activa la pestaña siguiente (+1) o anterior (-1) de forma cíclica; sin efecto con menos de 2 pestañas. */
+  function activateAdjacentTab(delta: 1 | -1) {
+    const n = tabs.value.length;
+    if (n < 2) return;
+    const idx = tabs.value.findIndex((t) => t.id === activeTabId.value);
+    const next = idx === -1 ? (delta === 1 ? 0 : n - 1) : (idx + delta + n) % n;
+    activeTabId.value = tabs.value[next].id;
+  }
+
   /** Reconstruye las pestañas de un layout guardado. Devuelve cuántas se restauraron y los paneles omitidos. */
   function restoreLayout(layout: SessionLayout, hosts: HostSummary[]): { restored: number; skipped: string[] } {
     const r = buildRestoredTabs(layout, hosts, (prefix) =>
@@ -275,6 +284,7 @@ export const useSessionsStore = defineStore("sessions", () => {
     createTab,
     restoreLayout,
     closeTab,
+    activateAdjacentTab,
     splitPane,
     dockTabIntoPane,
     closePane,
