@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { ChevronDown, Check } from "lucide-vue-next";
 
+const { t } = useI18n();
 export interface SelectOption {
   value: string | number | null;
   label: string;
@@ -19,7 +21,6 @@ const props = withDefaults(
     disabled?: boolean;
   }>(),
   {
-    placeholder: "Seleccionar opción...",
     disabled: false,
   }
 );
@@ -94,7 +95,7 @@ onUnmounted(() => {
             {{ selectedOption.label }}
           </span>
           <span v-else class="text-fg-muted truncate">
-            {{ placeholder }}
+            {{ placeholder ?? t('common.selectOption') }}
           </span>
 
           <span
@@ -174,7 +175,7 @@ onUnmounted(() => {
         </div>
 
         <div v-if="options.length === 0" class="px-3 py-2 text-center text-xs text-fg-muted">
-          No hay opciones disponibles
+          {{ t('common.noOptions') }}
         </div>
       </div>
     </transition>

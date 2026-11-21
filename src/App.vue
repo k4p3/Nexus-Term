@@ -179,7 +179,7 @@ function handleInsertCommand(command: string) {
 
         <button
           @click="isSnippetsOpen = !isSnippetsOpen"
-          title="Biblioteca de Snippets"
+          :title="t('ui.app.snippetsTitle')"
           :aria-pressed="isSnippetsOpen"
           class="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs rounded-control transition-colors cursor-pointer"
           :class="isSnippetsOpen ? 'bg-accent/15 text-accent' : 'text-fg-muted hover:text-fg hover:bg-active'"
@@ -190,19 +190,19 @@ function handleInsertCommand(command: string) {
 
         <button
           @click="isTunnelsOpen = !isTunnelsOpen"
-          title="Gestor de Túneles SSH"
+          :title="t('ui.app.tunnelsTitle')"
           :aria-pressed="isTunnelsOpen"
           class="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs rounded-control transition-colors cursor-pointer"
           :class="isTunnelsOpen ? 'bg-accent/15 text-accent' : 'text-fg-muted hover:text-fg hover:bg-active'"
         >
           <ArrowRightLeft class="w-3.5 h-3.5" />
-          <span>Túneles</span>
+          <span>{{ t('ui.app.tunnels') }}</span>
           <span v-if="tunnelsStore.activeTunnelsCount > 0" class="w-1.5 h-1.5 rounded-full bg-success" aria-hidden="true"></span>
         </button>
 
         <button
           @click="handleToggleSftp"
-          title="Explorador SFTP (Archivos Remotos)"
+          :title="t('ui.app.sftpTitle')"
           :aria-pressed="sftpStore.isOpen"
           class="inline-flex items-center gap-1.5 h-7 px-2.5 text-xs rounded-control transition-colors cursor-pointer"
           :class="sftpStore.isOpen ? 'bg-accent/15 text-accent' : 'text-fg-muted hover:text-fg hover:bg-active'"

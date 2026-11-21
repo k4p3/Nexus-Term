@@ -93,7 +93,7 @@ function handleKeyDown(e: KeyboardEvent) {
           'px-1.5 py-0.5 rounded transition-colors cursor-pointer',
           matchCase ? 'bg-active text-accent font-bold' : 'text-fg-muted hover:text-fg',
         ]"
-        title="Match Case (Mayúsculas/Minúsculas)"
+        :title="t('ui.search.matchCase')"
       >
         Aa
       </button>
@@ -105,7 +105,7 @@ function handleKeyDown(e: KeyboardEvent) {
           'px-1.5 py-0.5 rounded transition-colors cursor-pointer',
           wholeWord ? 'bg-active text-accent font-bold' : 'text-fg-muted hover:text-fg',
         ]"
-        title="Match Whole Word (Palabra Completa)"
+        :title="t('ui.search.wholeWord')"
       >
         \b
       </button>
@@ -117,7 +117,7 @@ function handleKeyDown(e: KeyboardEvent) {
           'px-1.5 py-0.5 rounded transition-colors cursor-pointer',
           regex ? 'bg-active text-accent font-bold' : 'text-fg-muted hover:text-fg',
         ]"
-        title="Use Regular Expression"
+        :title="t('ui.search.regex')"
       >
         .*
       </button>
@@ -128,7 +128,7 @@ function handleKeyDown(e: KeyboardEvent) {
       type="button"
       @click="triggerSearch('previous')"
       class="p-1 text-fg-muted hover:text-fg rounded-md hover:bg-active transition-colors cursor-pointer"
-      title="Previous Match (Shift+Enter)"
+      :title="t('ui.search.prev')"
     >
       <ChevronUp class="w-3.5 h-3.5" />
     </button>
@@ -137,7 +137,7 @@ function handleKeyDown(e: KeyboardEvent) {
       type="button"
       @click="triggerSearch('next')"
       class="p-1 text-fg-muted hover:text-fg rounded-md hover:bg-active transition-colors cursor-pointer"
-      title="Next Match (Enter)"
+      :title="t('ui.search.next')"
     >
       <ChevronDown class="w-3.5 h-3.5" />
     </button>
@@ -146,7 +146,7 @@ function handleKeyDown(e: KeyboardEvent) {
       type="button"
       @click="emit('close')"
       class="p-1 text-fg-muted hover:text-danger rounded-md hover:bg-active transition-colors ml-1 cursor-pointer"
-      title="Close (Esc)"
+      :title="t('ui.search.close')"
     >
       <X class="w-3.5 h-3.5" />
     </button>

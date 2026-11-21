@@ -24,7 +24,7 @@ async function handleAction() {
 
   if (!vaultStore.isInitialized) {
     if (password.value.length < 8) {
-      localError.value = "La contraseña debe tener al menos 8 caracteres / Password must be at least 8 characters.";
+      localError.value = t('ui.vault.minLength');
       return;
     }
     if (password.value !== confirmPassword.value) {

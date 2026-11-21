@@ -1,47 +1,49 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import BaseModal from "../common/BaseModal.vue";
 import BaseButton from "../common/BaseButton.vue";
-import { ref, watch } from "vue";
+import { ref, watch, computed } from "vue";
 import { useVaultStore } from "../../stores/vault.store";
 import type { IdentitySummary, SaveIdentityPayload, AuthType } from "../../types/inventory";
 import { X, KeyRound, Lock, User, Shield, Upload, Copy, Check, Sparkles } from "lucide-vue-next";
 import { sessionService } from "../../services/session.service";
 import CustomSelect, { type SelectOption } from "../common/CustomSelect.vue";
 
-const authTypeOptions: SelectOption[] = [
+const { t } = useI18n();
+const authTypeOptions = computed<SelectOption[]>(() => [
   {
     value: "password",
-    label: "Contraseña",
-    subtitle: "Usuario y contraseña estándar",
+    label: t('ui.identity.password'),
+    subtitle: t('ui.identity.passwordSub'),
     icon: Lock,
     iconColor: "text-accent",
   },
   {
     value: "private_key",
-    label: "Llave SSH",
+    label: t('ui.identity.sshKey'),
     subtitle: "Ed25519, RSA, ECDSA",
     icon: KeyRound,
     iconColor: "text-warning",
   },
   {
     value: "agent",
-    label: "Agente SSH del Sistema",
-    subtitle: "Delegado a SSH_AUTH_SOCK",
+    label: t('ui.identity.agent'),
+    subtitle: t('ui.identity.agentSub'),
     icon: Shield,
     iconColor: "text-info",
   },
-];
+]);
 
-const genAlgorithmOptions: SelectOption[] = [
+const genAlgorithmOptions = computed<SelectOption[]>(() => [
   {
     value: "ed25519",
-    label: "Ed25519 (Recomendado)",
+    label: t('ui.identity.ed25519'),
   },
   {
     value: "rsa",
-    label: "RSA (4096 bits)",
+    label: t('ui.identity.rsa'),
   },
-];
+]);
 
 const props = defineProps<{
   isOpen: boolean;
@@ -88,7 +90,7 @@ async function handleGenerateKey() {
       name.value = `Llave ${algLabel} (${username.value || "root"})`;
     }
   } catch (err: any) {
-    error.value = "Error al generar la llave SSH: " + (err?.message || err);
+    error.value = t('ui.identity.genError', { error: err?.message || err });
   } finally {
     isGeneratingKey.value = false;
   }
@@ -183,7 +185,7 @@ watch(
 
 async function handleSave() {
   if (!name.value.trim() || !username.value.trim()) {
-    error.value = "Nombre y usuario son obligatorios.";
+    error.value = t('ui.identity.required');
     return;
   }
 
@@ -213,38 +215,38 @@ async function handleSave() {
 </script>
 
 <template>
-  <BaseModal v-if="isOpen" :title="identityToEdit ? 'Editar Credencial' : 'Nueva Credencial SSH'" size="md" @close="emit('close')">
+  <BaseModal v-if="isOpen" :title="identityToEdit ? t('ui.sidebar.editIdentity') : t('ui.identity.new')" size="md" @close="emit('close')">
     <template #icon><Shield class="w-4 h-4" /></template>
 
     <form id="identity-form" @submit.prevent="handleSave" class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-fg-muted mb-1">Nombre Descriptivo</label>
+          <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('ui.identity.name') }}</label>
           <input
             v-model="name"
             type="text"
             required
-            placeholder="ej. Servidores Prod - Llave Primaria"
+            :placeholder="t('ui.identity.namePlaceholder')"
             class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
           />
         </div>
 
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-medium text-fg-muted mb-1">Usuario SSH</label>
+            <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('ui.identity.username') }}</label>
             <div class="relative">
               <User class="w-4 h-4 text-fg-muted absolute left-3 top-2.5" />
               <input
                 v-model="username"
                 type="text"
                 required
-                placeholder="root / ubuntu / admin"
+                :placeholder="t('ui.identity.usernamePlaceholder')"
                 class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-fg-muted mb-1">Método de Autenticación</label>
+            <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('ui.identity.authMethod') }}</label>
             <CustomSelect
               v-model="authType"
               :options="authTypeOptions"
@@ -255,9 +257,9 @@ async function handleSave() {
         <!-- Password input -->
         <div v-if="authType === 'password'">
           <label class="block text-xs font-medium text-fg-muted mb-1">
-            Contraseña
+            {{ t('ui.identity.password') }}
             <span v-if="identityToEdit?.has_secret" class="text-xs text-fg-muted font-normal">
-              (Dejar en blanco para conservar la existente)
+              {{ t('ui.identity.keepExisting') }}
             </span>
           </label>
           <div class="relative">
@@ -265,7 +267,7 @@ async function handleSave() {
             <input
               v-model="secret"
               type="password"
-              :placeholder="identityToEdit?.has_secret ? '••••••••••••' : 'Ingrese contraseña del servidor'"
+              :placeholder="identityToEdit?.has_secret ? '••••••••••••' : t('ui.identity.passwordPlaceholder')"
               class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
             />
           </div>
@@ -275,10 +277,10 @@ async function handleSave() {
         <div v-else-if="authType === 'agent'" class="p-3 bg-accent/15 border border-accent/30 rounded-xl space-y-1.5 text-xs text-accent">
           <div class="font-semibold flex items-center space-x-1.5">
             <Shield class="w-4 h-4 text-accent" />
-            <span>Autenticación por Agente del Sistema</span>
+            <span>{{ t('ui.identity.agentTitle') }}</span>
           </div>
           <p class="text-fg-muted text-[11px] leading-relaxed">
-            NexusTerm delegará la firma criptográfica al socket local de su agente SSH (<code>SSH_AUTH_SOCK</code> en Linux/macOS o Pageant/OpenSSH en Windows). Compatible con YubiKey, llaves de hardware FIDO2 y 1Password.
+            {{ t('ui.identity.agentHelp') }}
           </p>
         </div>
 
@@ -287,7 +289,7 @@ async function handleSave() {
           <!-- Toolbar: Import File & Generate Key -->
           <div class="p-2.5 bg-app/50 border border-line rounded-xl space-y-2">
             <div class="flex items-center justify-between">
-              <span class="text-xs font-medium text-fg">Herramientas de Llaves</span>
+              <span class="text-xs font-medium text-fg">{{ t('ui.identity.keyTools') }}</span>
               <div class="flex items-center space-x-1.5">
                 <!-- Hidden file input -->
                 <input
@@ -301,10 +303,10 @@ async function handleSave() {
                   type="button"
                   @click="fileInputRef?.click()"
                   class="px-2.5 py-1 bg-surface hover:bg-active border border-line text-fg rounded-lg text-[11px] font-medium flex items-center space-x-1 transition cursor-pointer"
-                  title="Importar archivo id_ed25519, id_rsa, .pem o .pub"
+                  :title="t('ui.identity.importTitle')"
                 >
                   <Upload class="w-3.5 h-3.5 text-accent" />
-                  <span>Importar Archivo</span>
+                  <span>{{ t('ui.identity.importFile') }}</span>
                 </button>
               </div>
             </div>
@@ -330,28 +332,28 @@ async function handleSave() {
 
           <div>
             <label class="block text-xs font-medium text-fg-muted mb-1">
-              Contenido de la Llave Privada
+              {{ t('ui.identity.privateKey') }}
               <span v-if="identityToEdit?.has_secret" class="text-xs text-fg-muted font-normal">
-                (Dejar en blanco para conservar la existente)
+                {{ t('ui.identity.keepExisting') }}
               </span>
             </label>
             <textarea
               v-model="secret"
               rows="4"
               @blur="tryExtractPublicKey"
-              :placeholder="identityToEdit?.has_secret ? '-----BEGIN OPENSSH PRIVATE KEY-----\n[Cifrada en bóveda local con AES-256-GCM]\n-----END OPENSSH PRIVATE KEY-----' : 'Pegue el contenido de id_ed25519 o id_rsa, o use Importar / Generar'"
+              :placeholder="identityToEdit?.has_secret ? '-----BEGIN OPENSSH PRIVATE KEY-----\n[Encrypted in the local vault with AES-256-GCM]\n-----END OPENSSH PRIVATE KEY-----' : 'Pegue el contenido de id_ed25519 o id_rsa, o use Importar / Generar'"
               class="w-full px-3 py-2 bg-app border border-line rounded-xl text-xs font-mono text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
             ></textarea>
           </div>
 
           <!-- Passphrase Notice Alert -->
           <div v-if="passphraseNotice" class="p-2.5 bg-warning/15 border border-warning/30 rounded-xl text-xs text-warning">
-            ⚠️ Esta llave privada está protegida por frase de paso. Ingrese la <strong>Passphrase</strong> abajo para descifrarla y derivar su clave pública.
+            {{ t('ui.identity.passphraseNotice') }}
           </div>
 
           <div>
             <label class="block text-xs font-medium text-fg-muted mb-1">
-              Passphrase de la Llave (Opcional)
+              {{ t('ui.identity.passphrase') }}
             </label>
             <div class="relative">
               <KeyRound class="w-4 h-4 text-fg-muted absolute left-3 top-2.5" />
@@ -359,7 +361,7 @@ async function handleSave() {
                 v-model="passphrase"
                 type="password"
                 @blur="tryExtractPublicKey"
-                placeholder="Si la llave está protegida con contraseña"
+                :placeholder="t('ui.identity.passphrasePlaceholder')"
                 class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
               />
             </div>
@@ -369,7 +371,7 @@ async function handleSave() {
           <div v-if="publicKey" class="p-3 bg-app/60 border border-line rounded-xl space-y-2">
             <div class="flex items-center justify-between text-xs text-fg font-medium">
               <span class="flex items-center space-x-1.5">
-                <span class="text-accent font-semibold">Clave Pública OpenSSH</span>
+                <span class="text-accent font-semibold">{{ t('ui.identity.publicKey') }}</span>
                 <span v-if="keyType" class="text-[10px] px-1.5 py-0.2 bg-active border border-line rounded text-fg-muted">
                   {{ keyType }}
                 </span>
@@ -378,11 +380,11 @@ async function handleSave() {
                 type="button"
                 @click="copyPublicKey"
                 class="px-2.5 py-1 rounded-lg bg-active hover:bg-app border border-line text-xs font-semibold text-accent flex items-center space-x-1 transition cursor-pointer"
-                title="Copiar para ~/.ssh/authorized_keys"
+                :title="t('ui.identity.copyTitle')"
               >
                 <Check v-if="copySuccess" class="w-3.5 h-3.5 text-success" />
                 <Copy v-else class="w-3.5 h-3.5" />
-                <span>{{ copySuccess ? '¡Copiada!' : 'Copiar Clave' }}</span>
+                <span>{{ copySuccess ? t('ui.identity.copied') : t('ui.identity.copy') }}</span>
               </button>
             </div>
             <div class="p-2 bg-app border border-line/60 rounded-lg font-mono text-[11px] text-fg break-all select-all">
@@ -401,9 +403,9 @@ async function handleSave() {
         </form>
 
     <template #footer>
-      <BaseButton variant="ghost" @click="emit('close')">Cancelar</BaseButton>
+      <BaseButton variant="ghost" @click="emit('close')">{{ t('common.cancel') }}</BaseButton>
       <BaseButton type="submit" variant="primary" :loading="isSubmitting" form="identity-form">
-        Guardar Credencial
+        {{ t('ui.identity.save') }}
       </BaseButton>
     </template>
   </BaseModal>

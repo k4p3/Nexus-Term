@@ -65,8 +65,8 @@ const items = computed<SearchItem[]>(() => {
     result.push({
       type: "sftp",
       id: "action-sftp",
-      label: "Explorador SFTP (Archivos Remotos)",
-      subtitle: "Abrir gestor de archivos remotos y transferencias",
+      label: t('ui.app.sftpTitle'),
+      subtitle: t('ui.quick.sftpSub'),
     });
   }
 
@@ -75,8 +75,8 @@ const items = computed<SearchItem[]>(() => {
     result.push({
       type: "tunnels",
       id: "action-tunnels",
-      label: "Túneles SSH & Port Forwarding",
-      subtitle: "Reenvío Local (-L), Remoto (-R) y SOCKS5 (-D)",
+      label: t('ui.tunnels.title'),
+      subtitle: t('ui.quick.tunnelsSub'),
     });
   }
 
@@ -229,7 +229,7 @@ onUnmounted(() => {
           ref="searchInput"
           v-model="query"
           type="text"
-          placeholder="Escribe para buscar servidor, carpeta o comando rápido..."
+          :placeholder="t('ui.quick.placeholder')"
           class="w-full bg-transparent text-sm text-fg placeholder-fg-muted focus:outline-none"
         />
         <kbd class="px-1.5 py-0.5 text-[10px] font-mono text-fg-muted bg-app border border-line rounded">
@@ -291,7 +291,7 @@ onUnmounted(() => {
                 >{{ item.host.protocol }}</span>
                 <span v-if="item.jumpHostLabel" class="text-[10px] px-1.5 py-0.2 bg-warning/15 text-warning border border-warning/30 rounded flex items-center space-x-1">
                   <Route class="w-2.5 h-2.5 text-warning" />
-                  <span>via {{ item.jumpHostLabel }}</span>
+                  <span>{{ t('ui.sidebar.via') }} {{ item.jumpHostLabel }}</span>
                 </span>
                 <span v-if="item.folderName" class="text-[10px] px-1.5 py-0.2 bg-app text-fg-muted border border-line rounded flex items-center space-x-1">
                   <Folder class="w-2.5 h-2.5" />
@@ -309,7 +309,7 @@ onUnmounted(() => {
               v-if="item.type === 'host' && item.host"
               @click.stop="emit('connect-sftp', item.host); emit('close');"
               class="p-1 px-1.5 rounded-md text-[10px] text-warning bg-warning/10 hover:bg-warning/20 border border-warning/30 flex items-center space-x-1 cursor-pointer transition"
-              title="Abrir SFTP directamente para este servidor"
+              :title="t('ui.quick.openSftp')"
             >
               <FolderSync class="w-3 h-3" />
               <span>SFTP</span>
@@ -328,7 +328,7 @@ onUnmounted(() => {
         </div>
 
         <div v-if="items.length === 0" class="p-6 text-center text-xs text-fg-muted">
-          No se encontraron servidores o comandos que coincidan con "{{ query }}".
+          {{ t('ui.quick.noResults', { query }) }}
         </div>
       </div>
 
@@ -338,14 +338,14 @@ onUnmounted(() => {
           <span class="flex items-center space-x-1">
             <kbd class="px-1 bg-active rounded border border-line font-mono text-[9px]">↑</kbd>
             <kbd class="px-1 bg-active rounded border border-line font-mono text-[9px]">↓</kbd>
-            <span>Navegar</span>
+            <span>{{ t('ui.quick.navigate') }}</span>
           </span>
           <span class="flex items-center space-x-1">
             <kbd class="px-1 bg-active rounded border border-line font-mono text-[9px]">↵</kbd>
-            <span>Conectar</span>
+            <span>{{ t('ui.quick.connect') }}</span>
           </span>
         </div>
-        <span>Paleta Rápida</span>
+        <span>{{ t('ui.quick.palette') }}</span>
       </div>
     </div>
   </div>

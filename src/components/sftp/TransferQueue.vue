@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { useSftpStore } from "../../stores/sftp.store";
 import {
   X,
@@ -12,6 +13,7 @@ import {
   FolderSync,
 } from "lucide-vue-next";
 
+const { t } = useI18n();
 const sftpStore = useSftpStore();
 
 function formatBytes(bytes: number): string {
@@ -36,7 +38,7 @@ function clearCompleted() {
     <div class="flex items-center justify-between px-4 py-3 border-b border-line bg-app/60">
       <div class="flex items-center space-x-2">
         <FolderSync class="w-4 h-4 text-accent" />
-        <span class="text-xs font-semibold text-fg">Cola de Transferencias SFTP</span>
+        <span class="text-xs font-semibold text-fg">{{ t('ui.queue.title') }}</span>
         <span
           v-if="sftpStore.activeTransfersCount > 0"
           class="px-1.5 py-0.2 rounded-full text-[10px] font-mono bg-accent/20 text-accent"
@@ -49,7 +51,7 @@ function clearCompleted() {
         <button
           @click="clearCompleted()"
           class="p-1 text-fg-muted hover:text-fg rounded hover:bg-active transition cursor-pointer"
-          title="Limpiar completadas"
+          :title="t('ui.queue.clearDone')"
         >
           <Trash2 class="w-3.5 h-3.5" />
         </button>
@@ -68,7 +70,7 @@ function clearCompleted() {
         v-if="sftpStore.transfers.length === 0"
         class="py-8 text-center text-fg-muted text-[11px]"
       >
-        No hay transferencias activas ni recientes
+        {{ t('ui.queue.empty') }}
       </div>
 
       <div
@@ -92,14 +94,14 @@ function clearCompleted() {
               class="text-warning/90 flex items-center space-x-1 text-[10px]"
             >
               <Clock class="w-3 h-3" />
-              <span>En cola</span>
+              <span>{{ t('ui.queue.queued') }}</span>
             </span>
             <span
               v-else-if="transfer.status === 'completed'"
               class="text-success flex items-center space-x-1 text-[10px]"
             >
               <CheckCircle2 class="w-3 h-3" />
-              <span>Listo</span>
+              <span>{{ t('ui.import.ready') }}</span>
             </span>
             <div
               v-else-if="transfer.status === 'error'"
@@ -107,13 +109,13 @@ function clearCompleted() {
             >
               <span class="text-danger flex items-center space-x-1 text-[10px]">
                 <AlertCircle class="w-3 h-3" />
-                <span>Error</span>
+                <span>{{ t('common.error') }}</span>
               </span>
               <button
                 v-if="transfer.local_path && transfer.remote_path"
                 @click="sftpStore.retryTransfer(transfer.transfer_id)"
                 class="p-0.5 text-fg-muted hover:text-accent rounded transition cursor-pointer"
-                title="Reintentar transferencia"
+                :title="t('ui.queue.retry')"
               >
                 <RotateCcw class="w-3 h-3" />
               </button>
@@ -141,7 +143,7 @@ function clearCompleted() {
         <!-- Stats -->
         <div class="flex items-center justify-between text-[10px] text-fg-muted font-mono">
           <span v-if="transfer.status === 'queued'">
-            En espera de ranura libre...
+            {{ t('ui.queue.waiting') }}
           </span>
           <span v-else>
             {{ formatBytes(transfer.bytes_transferred) }} / {{ formatBytes(transfer.total_bytes) }}

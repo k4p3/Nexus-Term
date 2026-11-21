@@ -19,7 +19,7 @@ function onKey(e: KeyboardEvent) {
   }
 }
 
-// Foco inicial en "Cancelar": confirmar requiere una acción explícita.
+// Foco inicial en «Cancelar»: confirmar requiere una acción explícita.
 onMounted(() => cancelBtn.value?.focus());
 </script>
 

@@ -126,7 +126,7 @@ function handleNewTab() {
               ? 'bg-warning/15 text-warning border-warning/40'
               : 'text-fg-muted border-transparent hover:text-fg hover:bg-active'
           "
-          :title="sessionsStore.isBroadcastMode ? 'Desactivar Modo Broadcast' : 'Activar Modo Broadcast (Replicar teclas en todos los paneles)'"
+          :title="sessionsStore.isBroadcastMode ? t('ui.workspace.broadcastOff') : t('ui.workspace.broadcastOn')"
         >
           <Radio class="w-3.5 h-3.5" :class="sessionsStore.isBroadcastMode && 'animate-pulse'" />
           <span>Broadcast</span>
@@ -141,13 +141,13 @@ function handleNewTab() {
     >
       <div class="flex items-center space-x-2">
         <AlertTriangle class="w-3.5 h-3.5 text-warning shrink-0" />
-        <span>MODO BROADCAST ACTIVO: Todas las teclas se enviarán a los paneles divididos abiertos.</span>
+        <span>{{ t('ui.workspace.broadcastBanner') }}</span>
       </div>
       <button
         @click="sessionsStore.toggleBroadcastMode()"
         class="text-[11px] underline hover:text-fg cursor-pointer"
       >
-        Desactivar
+        {{ t('ui.workspace.disable') }}
       </button>
     </div>
 

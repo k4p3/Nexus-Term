@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import BaseModal from "../common/BaseModal.vue";
 import BaseButton from "../common/BaseButton.vue";
 import { ref, watch, computed } from "vue";
@@ -22,6 +23,7 @@ import {
   Network,
 } from "lucide-vue-next";
 
+const { t } = useI18n();
 const props = defineProps<{
   isOpen: boolean;
 }>();
@@ -111,7 +113,7 @@ async function handleImport() {
   );
 
   if (selectedHosts.length === 0 && !importKnownHosts.value) {
-    error.value = "Selecciona al menos un servidor para importar.";
+    error.value = t('ui.import.selectOne');
     return;
   }
 
@@ -130,7 +132,7 @@ async function handleImport() {
     await vaultStore.fetchInventory();
     emit("imported", summary);
   } catch (err: any) {
-    error.value = typeof err === "string" ? err : err?.message || "Error durante la importación.";
+    error.value = typeof err === "string" ? err : err?.message || t('ui.import.failed');
   } finally {
     isImporting.value = false;
   }
@@ -138,13 +140,13 @@ async function handleImport() {
 </script>
 
 <template>
-  <BaseModal v-if="isOpen" title="Importar desde ~/.ssh/config & known_hosts" size="lg" @close="emit('close')">
+  <BaseModal v-if="isOpen" :title="t('ui.import.title')" size="lg" @close="emit('close')">
     <template #icon><FileCode class="w-4 h-4" /></template>
       <div class="space-y-4">
         <!-- Loading state -->
         <div v-if="isLoading" class="py-12 flex flex-col items-center justify-center space-y-3">
           <RefreshCw class="w-6 h-6 text-accent animate-spin" />
-          <p class="text-xs text-fg-muted">Analizando archivos OpenSSH locales...</p>
+          <p class="text-xs text-fg-muted">{{ t('ui.import.scanning') }}</p>
         </div>
 
         <!-- Success summary state -->
@@ -153,20 +155,20 @@ async function handleImport() {
             <Check class="w-6 h-6" />
           </div>
           <div>
-            <h4 class="text-base font-bold text-fg">¡Importación Completada con Éxito!</h4>
+            <h4 class="text-base font-bold text-fg">{{ t('ui.import.done') }}</h4>
             <p class="text-xs text-fg-muted mt-1">
-              Los servidores e identidades seleccionados han sido migrados a tu bóveda cifrada.
+              {{ t('ui.import.doneBody') }}
             </p>
           </div>
 
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-lg mx-auto pt-2">
             <div class="p-3 bg-app border border-line rounded-xl text-center">
               <div class="text-lg font-bold text-accent">{{ importResult.hosts_imported }}</div>
-              <div class="text-[10px] text-fg-muted">Servidores</div>
+              <div class="text-[10px] text-fg-muted">{{ t('ui.import.servers') }}</div>
             </div>
             <div class="p-3 bg-app border border-line rounded-xl text-center">
               <div class="text-lg font-bold text-accent">{{ importResult.identities_created }}</div>
-              <div class="text-[10px] text-fg-muted">Identidades</div>
+              <div class="text-[10px] text-fg-muted">{{ t('ui.import.identities') }}</div>
             </div>
             <div class="p-3 bg-app border border-line rounded-xl text-center">
               <div class="text-lg font-bold text-success">{{ importResult.known_hosts_imported }}</div>
@@ -174,7 +176,7 @@ async function handleImport() {
             </div>
             <div class="p-3 bg-app border border-line rounded-xl text-center">
               <div class="text-lg font-bold text-warning">{{ importResult.hosts_skipped }}</div>
-              <div class="text-[10px] text-fg-muted">Omitidos</div>
+              <div class="text-[10px] text-fg-muted">{{ t('ui.import.skipped') }}</div>
             </div>
           </div>
 
@@ -184,7 +186,7 @@ async function handleImport() {
               @click="emit('close')"
               class="px-5 py-2 bg-accent text-on-accent font-semibold rounded-xl text-xs hover:opacity-90 transition cursor-pointer"
             >
-              Listo
+              {{ t('ui.import.ready') }}
             </button>
           </div>
         </div>
@@ -195,18 +197,18 @@ async function handleImport() {
           <div class="p-3 bg-app border border-line rounded-xl flex items-center justify-between text-xs">
             <div class="space-y-0.5 truncate">
               <div class="flex items-center space-x-1.5 font-medium text-fg">
-                <span>Archivo detectado:</span>
+                <span>{{ t('ui.import.detected') }}</span>
                 <span class="font-mono text-[11px] text-fg-muted truncate">{{ preview.config_path }}</span>
               </div>
               <div class="text-[11px] text-fg-muted">
-                {{ preview.hosts.length }} servidores encontrados • {{ preview.known_hosts_count }} claves en known_hosts
+                {{ t('ui.import.found', { hosts: preview.hosts.length, keys: preview.known_hosts_count }) }}
               </div>
             </div>
             <button
               type="button"
               @click="loadPreview"
               class="p-1.5 text-fg-muted hover:text-fg hover:bg-active rounded-lg transition shrink-0 cursor-pointer"
-              title="Volver a escanear"
+              :title="t('ui.import.rescan')"
             >
               <RefreshCw class="w-3.5 h-3.5" />
             </button>
@@ -214,7 +216,7 @@ async function handleImport() {
 
           <!-- Empty config warning -->
           <div v-if="preview.hosts.length === 0" class="p-4 bg-warning/15 border border-warning/30 rounded-xl text-xs text-warning">
-            No se encontraron bloques <code>Host</code> utilizables en tu archivo <code>~/.ssh/config</code>.
+            {{ t('ui.import.noBlocks') }}
           </div>
 
           <!-- Hosts Selection Table -->
@@ -227,11 +229,11 @@ async function handleImport() {
                   @change="toggleSelectAll"
                   class="rounded border-line bg-app text-accent focus:ring-accent cursor-pointer"
                 />
-                <span>Seleccionar todos ({{ selectedAliases.size }} seleccionados)</span>
+                <span>{{ t('ui.import.selectAll', { n: selectedAliases.size }) }}</span>
               </label>
 
               <span class="text-[11px] text-fg-muted">
-                Haz clic en cualquier servidor para incluirlo/excluirlo
+                {{ t('ui.import.toggleHint') }}
               </span>
             </div>
 
@@ -259,7 +261,7 @@ async function handleImport() {
                         class="text-[9px] px-1.5 py-0.2 rounded bg-warning/15 border border-warning/30 text-warning font-medium shrink-0 flex items-center space-x-0.5"
                       >
                         <AlertTriangle class="w-2.5 h-2.5" />
-                        <span>Ya existe</span>
+                        <span>{{ t('ui.import.exists') }}</span>
                       </span>
                     </div>
                     <div class="text-[10px] text-fg-muted font-mono truncate">
@@ -295,12 +297,12 @@ async function handleImport() {
             <div>
               <label class="block text-xs font-medium text-fg-muted mb-1 flex items-center space-x-1.5">
                 <FolderInput class="w-3.5 h-3.5 text-accent" />
-                <span>Carpeta contenedora de importación</span>
+                <span>{{ t('ui.import.folder') }}</span>
               </label>
               <input
                 v-model="folderName"
                 type="text"
-                placeholder="ej. Importados de SSH Config (o en blanco para raíz)"
+                :placeholder="t('ui.import.folderPlaceholder')"
                 class="w-full px-3 py-1.5 bg-surface border border-line rounded-lg text-xs text-fg focus:outline-none focus:border-accent transition"
               />
             </div>
@@ -313,7 +315,7 @@ async function handleImport() {
                   class="rounded border-line bg-surface text-accent focus:ring-accent cursor-pointer"
                 />
                 <ShieldCheck class="w-3.5 h-3.5 text-success" />
-                <span>Pre-cargar claves de confianza desde <code>known_hosts</code> (evita alertas TOFU)</span>
+                <span>{{ t('ui.import.knownHosts') }}</span>
               </label>
 
               <label class="flex items-center space-x-2 text-fg cursor-pointer">
@@ -323,7 +325,7 @@ async function handleImport() {
                   class="rounded border-line bg-surface text-accent focus:ring-accent cursor-pointer"
                 />
                 <AlertTriangle class="w-3.5 h-3.5 text-warning" />
-                <span>Sobrescribir servidores duplicados si ya existen en la bóveda</span>
+                <span>{{ t('ui.import.overwrite') }}</span>
               </label>
             </div>
           </div>
@@ -336,16 +338,16 @@ async function handleImport() {
 
     <template v-if="!importResult" #footer>
       <span class="text-xs text-fg-muted mr-auto">
-        {{ selectedAliases.size }} servidores listos para migrar
+        {{ t('ui.import.readyCount', { n: selectedAliases.size }) }}
       </span>
-      <BaseButton variant="ghost" @click="emit('close')">Cancelar</BaseButton>
+      <BaseButton variant="ghost" @click="emit('close')">{{ t('common.cancel') }}</BaseButton>
       <BaseButton
         variant="primary"
         :loading="isImporting"
         :disabled="selectedAliases.size === 0"
         @click="handleImport"
       >
-        {{ isImporting ? 'Importando...' : 'Iniciar Importación' }}
+        {{ isImporting ? t('ui.import.running') : t('ui.import.start') }}
       </BaseButton>
     </template>
   </BaseModal>

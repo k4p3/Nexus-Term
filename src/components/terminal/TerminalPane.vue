@@ -667,7 +667,7 @@ async function connectSession() {
     isConnecting.value = false;
   } catch (err: any) {
     isConnecting.value = false;
-    errorMessage.value = typeof err === "string" ? err : err?.message || "Error al conectar la sesión.";
+    errorMessage.value = typeof err === "string" ? err : err?.message || t('ui.pane.connectFailed');
   }
 }
 
@@ -928,7 +928,7 @@ function handleClose() {
         <button
           v-if="blockCount > 0"
           @click.stop="copyLastOutput"
-          :title="isOutputCopied ? '¡Copiado!' : 'Copiar Salida del Último Comando'"
+          :title="isOutputCopied ? t('common.copied') : t('ui.pane.copyOutput')"
           class="p-1 text-fg-muted hover:text-accent rounded-sm hover:bg-active transition-colors"
         >
           <Copy class="w-3 h-3" :class="isOutputCopied ? 'text-success' : ''" />
@@ -937,7 +937,7 @@ function handleClose() {
         <!-- Search button -->
         <button
           @click.stop="isSearchOpen = !isSearchOpen"
-          title="Buscar en buffer (Ctrl+F)"
+          :title="t('ui.pane.search')"
           class="p-1 text-fg-muted hover:text-fg rounded-sm hover:bg-active transition-colors"
         >
           <Search class="w-3 h-3" />
@@ -947,7 +947,7 @@ function handleClose() {
         <button
           v-if="blockCount > 0"
           @click.stop="jumpToPreviousPrompt"
-          title="Comando Anterior (Ctrl+Shift+↑)"
+          :title="t('ui.pane.prevCommand')"
           class="p-1 text-fg-muted hover:text-fg rounded-sm hover:bg-active transition-colors"
         >
           <ChevronUp class="w-3 h-3" />
@@ -955,7 +955,7 @@ function handleClose() {
         <button
           v-if="blockCount > 0"
           @click.stop="jumpToNextPrompt"
-          title="Comando Siguiente (Ctrl+Shift+↓)"
+          :title="t('ui.pane.nextCommand')"
           class="p-1 text-fg-muted hover:text-fg rounded-sm hover:bg-active transition-colors"
         >
           <ChevronDown class="w-3 h-3" />
@@ -965,7 +965,7 @@ function handleClose() {
         <button
           v-if="pane.hostId"
           @click.stop="telemetryStore.togglePaneTelemetry(pane.id, pane.hostId)"
-          :title="telemetryStore.isTelemetryVisible[pane.id] ? 'Ocultar monitor de telemetría' : 'Mostrar monitor de telemetría (CPU, RAM, Red)'"
+          :title="telemetryStore.isTelemetryVisible[pane.id] ? t('ui.pane.hideTelemetry') : t('ui.pane.showTelemetry')"
           class="p-1 rounded-sm transition-colors cursor-pointer"
           :class="telemetryStore.isTelemetryVisible[pane.id] ? 'bg-warning/20 text-warning' : 'text-fg-muted hover:text-warning hover:bg-active'"
         >
@@ -1013,13 +1013,13 @@ function handleClose() {
       class="absolute right-2 top-8 z-40 w-64 bg-surface border border-line rounded-xl shadow-2xl p-2.5 space-y-2 text-xs select-none backdrop-blur-md"
     >
       <div class="flex items-center justify-between pb-1.5 border-b border-line">
-        <span class="font-semibold text-fg">Dividir Panel</span>
+        <span class="font-semibold text-fg">{{ t('ui.pane.split') }}</span>
         <div class="flex items-center gap-1 bg-app p-0.5 rounded-lg border border-line">
           <button
             type="button"
             @click.stop="splitDirection = 'horizontal'"
             :class="['p-1 rounded transition-colors', splitDirection === 'horizontal' ? 'bg-active text-accent font-bold' : 'text-fg-muted']"
-            title="Horizontal"
+            :title="t('ui.pane.horizontal')"
           >
             <Columns class="w-3 h-3" />
           </button>
@@ -1027,7 +1027,7 @@ function handleClose() {
             type="button"
             @click.stop="splitDirection = 'vertical'"
             :class="['p-1 rounded transition-colors', splitDirection === 'vertical' ? 'bg-active text-accent font-bold' : 'text-fg-muted']"
-            title="Vertical"
+            :title="t('ui.pane.vertical')"
           >
             <Rows class="w-3 h-3" />
           </button>
@@ -1042,7 +1042,7 @@ function handleClose() {
           class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-fg hover:text-fg hover:bg-active text-left transition-colors cursor-pointer"
         >
           <TerminalIcon class="w-3.5 h-3.5 text-info shrink-0" />
-          <span>Nueva Terminal Local</span>
+          <span>{{ t('ui.pane.newLocal') }}</span>
         </button>
 
         <button
@@ -1052,7 +1052,7 @@ function handleClose() {
           class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-fg hover:text-fg hover:bg-active text-left transition-colors cursor-pointer"
         >
           <Server class="w-3.5 h-3.5 text-accent shrink-0" />
-          <span class="truncate">Mismo Servidor ({{ pane.host.label }})</span>
+          <span class="truncate">{{ t('ui.pane.sameServer', { label: pane.host.label }) }}</span>
         </button>
 
         <button
@@ -1062,7 +1062,7 @@ function handleClose() {
         >
           <div class="flex items-center gap-2 truncate">
             <Server class="w-3.5 h-3.5 text-accent shrink-0" />
-            <span>Elegir Servidor...</span>
+            <span>{{ t('ui.pane.pickServer') }}</span>
           </div>
           <ChevronRight class="w-3 h-3 text-fg-muted" :class="showServerPicker ? 'rotate-90' : ''" />
         </button>
@@ -1079,7 +1079,7 @@ function handleClose() {
             <span class="truncate">{{ h.label }}</span>
           </button>
           <div v-if="vaultStore.hosts.length === 0" class="text-[10px] text-fg-muted py-1">
-            Sin servidores guardados
+            {{ t('ui.pane.noServers') }}
           </div>
         </div>
       </div>
@@ -1087,7 +1087,7 @@ function handleClose() {
       <!-- Dock existing open tab into this split -->
       <div v-if="otherTabs.length > 0" class="pt-1.5 border-t border-line">
         <div class="text-[10px] uppercase font-semibold text-fg-muted px-1 mb-1">
-          Mover pestaña aquí:
+          {{ t('ui.pane.moveTab') }}
         </div>
         <div class="max-h-28 overflow-y-auto space-y-0.5">
           <button
@@ -1134,7 +1134,7 @@ function handleClose() {
       <!-- Connecting Spinner -->
       <div v-if="isConnecting" class="absolute inset-0 bg-app/80 flex items-center justify-center space-x-2 text-xs text-fg-muted">
         <Loader2 class="w-4 h-4 animate-spin text-accent" />
-        <span>Conectando sesión...</span>
+        <span>{{ t('ui.pane.connecting') }}</span>
       </div>
 
       <!-- Connection lost: offer reconnect -->
@@ -1150,13 +1150,13 @@ function handleClose() {
       <!-- Error State -->
       <div v-if="errorMessage" class="absolute inset-0 bg-app p-6 flex flex-col items-center justify-center text-center">
         <AlertCircle class="w-8 h-8 text-danger mb-2" />
-        <h4 class="text-sm font-bold text-fg mb-1">Error de Conexión</h4>
+        <h4 class="text-sm font-bold text-fg mb-1">{{ t('ui.pane.connectionError') }}</h4>
         <p class="text-xs text-fg-muted max-w-sm mb-4">{{ errorMessage }}</p>
         <button
           @click="handleClose"
           class="px-3 py-1.5 bg-active hover:bg-active text-xs font-medium text-fg rounded-lg transition"
         >
-          Cerrar Panel
+          {{ t('terminal.closePane') }}
         </button>
       </div>
     </div>

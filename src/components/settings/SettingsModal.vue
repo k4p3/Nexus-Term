@@ -314,14 +314,14 @@ async function handleResetDefaults() {
                 {{ t('settings.importTranslation') }}
               </h4>
               <p class="text-xs text-fg-muted mb-3">
-                Load a community-created JSON translation file. Claves ausentes utilizarán el idioma base (Inglés).
+                {{ t('ui.settings.localeHelp') }}
               </p>
 
               <div class="flex flex-col sm:flex-row items-center gap-3 max-w-lg">
                 <input
                   v-model="customLocaleCode"
                   type="text"
-                  placeholder="Locale Code (e.g. fr, de, pt-BR)"
+                  :placeholder="t('ui.settings.localeCode')"
                   class="w-full sm:w-44 px-3 py-2 bg-app border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
                 />
 
@@ -329,7 +329,7 @@ async function handleResetDefaults() {
                   class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-3 py-2 bg-active hover:bg-active text-fg text-xs font-medium rounded-lg cursor-pointer transition-colors"
                 >
                   <Upload class="w-3.5 h-3.5" />
-                  <span>Choose JSON</span>
+                  <span>{{ t('ui.settings.chooseJson') }}</span>
                   <input
                     type="file"
                     accept=".json,application/json"
@@ -352,10 +352,10 @@ async function handleResetDefaults() {
             <!-- Window & System Tray Behavior -->
             <div class="pt-4 border-t border-line">
               <h4 class="text-xs font-semibold text-fg uppercase tracking-wider mb-1">
-                Bandeja del Sistema (System Tray)
+                {{ t('ui.settings.trayTitle') }}
               </h4>
               <p class="text-xs text-fg-muted mb-3">
-                Permite que NexusTerm continúe ejecutándose en segundo plano para no interrumpir túneles SSH ni transferencias activas.
+                {{ t('ui.settings.trayHelp') }}
               </p>
 
               <label class="flex items-center space-x-3 cursor-pointer">
@@ -366,7 +366,7 @@ async function handleResetDefaults() {
                   class="w-4 h-4 rounded border-line text-accent focus:ring-0 focus:ring-offset-0 bg-app"
                 />
                 <span class="text-xs text-fg font-medium">
-                  Minimizar a la bandeja del sistema al presionar el botón de cerrar (X)
+                  {{ t('ui.settings.trayOption') }}
                 </span>
               </label>
             </div>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useTunnelsStore } from "../../stores/tunnels.store";
 import { useVaultStore } from "../../stores/vault.store";
@@ -21,6 +22,7 @@ import {
   RefreshCw,
 } from "lucide-vue-next";
 
+const { t } = useI18n();
 const props = defineProps<{
   isOpen: boolean;
 }>();
@@ -75,7 +77,7 @@ async function handleSaveTunnel(payload: TunnelConfigPayload) {
 }
 
 async function handleDeleteTunnel(id: string) {
-  if (confirm("¿Estás seguro de eliminar este túnel?")) {
+  if (confirm(t('ui.tunnels.confirmDelete'))) {
     await tunnelsStore.deleteTunnel(id);
   }
 }
@@ -109,16 +111,16 @@ async function handleToggleTunnel(id: string) {
           </div>
           <div>
             <div class="flex items-center space-x-2">
-              <h2 class="text-sm font-semibold text-fg">Túneles SSH & Port Forwarding</h2>
+              <h2 class="text-sm font-semibold text-fg">{{ t('ui.tunnels.title') }}</h2>
               <span
                 v-if="tunnelsStore.activeTunnelsCount > 0"
                 class="px-2 py-0.5 text-[10px] font-medium rounded-full bg-success/20 text-success border border-success/30 animate-pulse"
               >
-                {{ tunnelsStore.activeTunnelsCount }} activo(s)
+                {{ t('ui.tunnels.active', { n: tunnelsStore.activeTunnelsCount }) }}
               </span>
             </div>
             <p class="text-[11px] text-fg-muted">
-              Reenvío de puertos Local (-L), Remoto (-R) y Proxy SOCKS5 (-D)
+              {{ t('ui.tunnels.subtitle') }}
             </p>
           </div>
         </div>
@@ -129,7 +131,7 @@ async function handleToggleTunnel(id: string) {
             class="px-2.5 py-1.5 bg-accent hover:bg-accent-hover text-on-accent rounded-lg text-xs font-medium flex items-center space-x-1.5 transition cursor-pointer"
           >
             <Plus class="w-3.5 h-3.5" />
-            <span>Nuevo Túnel</span>
+            <span>{{ t('ui.tunnels.new') }}</span>
           </button>
           <button
             @click="emit('close')"
@@ -151,9 +153,9 @@ async function handleToggleTunnel(id: string) {
             <ArrowRightLeft class="w-5 h-5" />
           </div>
           <div>
-            <p class="font-medium text-fg">No hay reglas de túneles configuradas</p>
+            <p class="font-medium text-fg">{{ t('ui.tunnels.empty') }}</p>
             <p class="text-[11px] text-fg-muted mt-0.5">
-              Accede de forma segura a bases de datos o servicios remotos sin abrir puertos al público.
+              {{ t('ui.tunnels.emptyBody') }}
             </p>
           </div>
           <button
@@ -161,7 +163,7 @@ async function handleToggleTunnel(id: string) {
             class="px-3.5 py-1.5 bg-active hover:bg-active text-accent border border-line rounded-lg text-xs font-medium inline-flex items-center space-x-1.5 transition cursor-pointer"
           >
             <Plus class="w-3.5 h-3.5" />
-            <span>Crear primer túnel</span>
+            <span>{{ t('ui.tunnels.createFirst') }}</span>
           </button>
         </div>
 
@@ -202,7 +204,7 @@ async function handleToggleTunnel(id: string) {
                 v-else-if="tunnel.tunnel_type === 'remote'"
                 class="px-2 py-0.5 text-[9px] font-mono rounded bg-accent/10 text-accent border border-accent/20 shrink-0"
               >
-                Remoto -R
+                {{ t('ui.tunnels.remote') }}
               </span>
               <span
                 v-else
@@ -238,14 +240,14 @@ async function handleToggleTunnel(id: string) {
               <button
                 @click="openEditTunnel(tunnel)"
                 class="p-1.5 text-fg-muted hover:text-fg hover:bg-active rounded-lg transition cursor-pointer"
-                title="Editar"
+                :title="t('common.edit')"
               >
                 <Edit2 class="w-3.5 h-3.5" />
               </button>
               <button
                 @click="handleDeleteTunnel(tunnel.id)"
                 class="p-1.5 text-fg-muted hover:text-danger hover:bg-active rounded-lg transition cursor-pointer"
-                title="Eliminar"
+                :title="t('common.delete')"
               >
                 <Trash2 class="w-3.5 h-3.5" />
               </button>
@@ -265,7 +267,7 @@ async function handleToggleTunnel(id: string) {
                 {{ tunnel.remote_host }}:{{ tunnel.remote_port }}
               </span>
               <span v-else class="text-success">
-                (Proxy Dinámico)
+                {{ t('ui.tunnels.dynamic') }}
               </span>
             </div>
 
@@ -293,7 +295,7 @@ async function handleToggleTunnel(id: string) {
 
             <div class="flex items-center space-x-1 text-fg-muted font-sans">
               <Activity class="w-3 h-3 text-success" />
-              <span>{{ tunnelsStore.getTunnelStatus(tunnel.id).active_connections }} conex. activas</span>
+              <span>{{ t('ui.tunnels.connections', { n: tunnelsStore.getTunnelStatus(tunnel.id).active_connections }) }}</span>
             </div>
           </div>
 
@@ -302,20 +304,20 @@ async function handleToggleTunnel(id: string) {
             class="flex items-center space-x-1.5 text-[10px] text-danger bg-danger/10 border border-danger/20 px-2.5 py-1.5 rounded-lg"
           >
             <AlertCircle class="w-3.5 h-3.5 shrink-0" />
-            <span>{{ tunnelsStore.getTunnelStatus(tunnel.id).error_message || "Error al conectar el túnel" }}</span>
+            <span>{{ tunnelsStore.getTunnelStatus(tunnel.id).error_message || t('ui.tunnels.connectFailed') }}</span>
           </div>
         </div>
       </div>
 
       <!-- Footer Info -->
       <div class="px-5 py-2.5 border-t border-line bg-app/60 flex items-center justify-between text-[11px] text-fg-muted">
-        <span>Los túneles activos se mantienen en segundo plano mientras NexusTerm esté en ejecución.</span>
+        <span>{{ t('ui.tunnels.footer') }}</span>
         <button
           @click="tunnelsStore.refreshStatuses()"
           class="hover:text-fg transition flex items-center space-x-1 cursor-pointer"
         >
           <RefreshCw class="w-3 h-3" />
-          <span>Actualizar</span>
+          <span>{{ t('ui.tunnels.update') }}</span>
         </button>
       </div>
     </div>

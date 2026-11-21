@@ -17,6 +17,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
+const PARAM_TOKEN = "{{param}}"; // literal shown to the user; kept out of the template to avoid mustache parsing
 
 const title = ref('');
 const commandTemplate = ref('');
@@ -45,11 +46,11 @@ watch(
 
 function handleSubmit() {
   if (!title.value.trim()) {
-    error.value = 'El título es obligatorio / Title is required.';
+    error.value = t('ui.snipForm.titleRequired');
     return;
   }
   if (!commandTemplate.value.trim()) {
-    error.value = 'El comando es obligatorio / Command template is required.';
+    error.value = t('ui.snipForm.commandRequired');
     return;
   }
 
@@ -70,26 +71,26 @@ function handleSubmit() {
 </script>
 
 <template>
-  <BaseModal v-if="isOpen" :title="snippetToEdit ? 'Editar Snippet' : 'Nuevo Snippet de Comando'" size="md" @close="emit('close')">
+  <BaseModal v-if="isOpen" :title="snippetToEdit ? t('ui.snipForm.edit') : t('ui.snipForm.new')" size="md" @close="emit('close')">
     <template #icon><Code class="w-4 h-4" /></template>
 
     <form id="snippet-form" @submit.prevent="handleSubmit" class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-fg mb-1">Título</label>
+          <label class="block text-xs font-medium text-fg mb-1">{{ t('ui.snipForm.title') }}</label>
           <input
             v-model="title"
             type="text"
-            placeholder="ej. Docker Follow Logs"
+            :placeholder="t('ui.snipForm.titlePlaceholder')"
             class="w-full px-3 py-2 bg-app border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
           />
         </div>
 
         <div>
           <div class="flex items-center justify-between mb-1">
-            <label class="block text-xs font-medium text-fg">Plantilla de Comando</label>
+            <label class="block text-xs font-medium text-fg">{{ t('ui.snipForm.template') }}</label>
             <span class="text-[11px] text-accent flex items-center gap-1">
               <Sparkles class="w-3 h-3" />
-              <span v-pre>Soporta &#123;&#123;parametro&#125;&#125;</span>
+              <span>{{ t('ui.snipForm.supports', { token: PARAM_TOKEN }) }}</span>
             </span>
           </div>
           <textarea
@@ -101,17 +102,17 @@ function handleSubmit() {
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-fg mb-1">Descripción (Opcional)</label>
+          <label class="block text-xs font-medium text-fg mb-1">{{ t('ui.snipForm.description') }}</label>
           <input
             v-model="description"
             type="text"
-            placeholder="Seguir los logs de un contenedor con líneas variables"
+            :placeholder="t('ui.snipForm.descPlaceholder')"
             class="w-full px-3 py-2 bg-app border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-fg mb-1">Etiquetas (separadas por coma)</label>
+          <label class="block text-xs font-medium text-fg mb-1">{{ t('ui.host.tags') }}</label>
           <input
             v-model="tagsInput"
             type="text"

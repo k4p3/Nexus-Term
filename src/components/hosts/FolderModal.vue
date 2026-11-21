@@ -52,7 +52,7 @@ watch(
 
 async function handleSave() {
   if (!name.value.trim()) {
-    error.value = "El nombre de la carpeta es obligatorio.";
+    error.value = t('ui.folder.required');
     return;
   }
 
@@ -72,7 +72,7 @@ async function handleSave() {
     emit("saved", newId);
     emit("close");
   } catch (err: any) {
-    error.value = typeof err === "string" ? err : err?.message || "Error al guardar la carpeta.";
+    error.value = typeof err === "string" ? err : err?.message || t('ui.folder.saveError');
   } finally {
     isSubmitting.value = false;
   }
@@ -82,7 +82,7 @@ async function handleSave() {
 <template>
   <BaseModal
     v-if="isOpen"
-    :title="folderToEdit ? 'Editar Carpeta' : 'Nueva Carpeta'"
+    :title="folderToEdit ? t('ui.folder.edit') : t('ui.folder.new')"
     size="sm"
     @close="emit('close')"
   >
@@ -90,19 +90,19 @@ async function handleSave() {
 
     <form id="folder-form" @submit.prevent="handleSave" class="space-y-4">
       <div>
-        <label for="folder-name" class="block text-xs font-medium text-fg mb-1.5">Nombre de la Carpeta</label>
+        <label for="folder-name" class="block text-xs font-medium text-fg mb-1.5">{{ t('ui.folder.name') }}</label>
         <input
           id="folder-name"
           v-model="name"
           type="text"
           required
-          placeholder="ej. Producción / Clientes / Laboratorio"
+          :placeholder="t('ui.folder.namePlaceholder')"
           class="w-full h-9 px-3 bg-app border border-line rounded-control text-sm text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition"
         />
       </div>
 
       <fieldset>
-        <legend class="block text-xs font-medium text-fg mb-1.5">Color de Distinción</legend>
+        <legend class="block text-xs font-medium text-fg mb-1.5">{{ t('ui.folder.color') }}</legend>
         <div class="flex items-center gap-2">
           <button
             v-for="c in colorOptions"

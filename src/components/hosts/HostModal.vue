@@ -41,7 +41,7 @@ const rdpDomain = ref("");
 const port = ref(22);
 const protocolOptions = computed<SelectOption[]>(() => [
   { value: "ssh", label: "SSH", icon: Server },
-  { value: "rdp", label: "RDP (Escritorio remoto)", icon: Server },
+  { value: "rdp", label: t('ui.host.rdp'), icon: Server },
   { value: "vnc", label: "VNC", icon: Server },
 ]);
 
@@ -61,7 +61,7 @@ const folderOptions = computed<SelectOption[]>(() => {
   const opts: SelectOption[] = [
     {
       value: null,
-      label: "Sin carpeta (Raíz)",
+      label: t('ui.host.noFolder'),
       icon: FolderIcon,
       iconColor: "text-fg-muted",
     },
@@ -81,8 +81,8 @@ const identityOptions = computed<SelectOption[]>(() => {
   const opts: SelectOption[] = [
     {
       value: null,
-      label: "Sin credencial vinculada",
-      subtitle: "Autenticación anónima o interactiva",
+      label: t('ui.host.noIdentity'),
+      subtitle: t('ui.host.noIdentitySub'),
       icon: ShieldOff,
       iconColor: "text-fg-muted",
     },
@@ -122,8 +122,8 @@ const jumpHostOptions = computed<SelectOption[]>(() => {
   const opts: SelectOption[] = [
     {
       value: null,
-      label: "Conexión directa",
-      subtitle: "Sin servidor de salto intermedio",
+      label: t('ui.host.direct'),
+      subtitle: t('ui.host.directSub'),
       icon: Globe,
       iconColor: "text-fg-muted",
     },
@@ -196,7 +196,7 @@ watch(
 
 async function handleSave() {
   if (!label.value.trim() || !hostname.value.trim()) {
-    error.value = "Etiqueta y dirección (Host/IP) son obligatorios.";
+    error.value = t('ui.host.required');
     return;
   }
 
@@ -236,17 +236,17 @@ async function handleSave() {
 
 <template>
   <template v-if="isOpen">
-  <BaseModal :title="hostToEdit ? 'Editar Servidor' : 'Nuevo Servidor'" size="md" @close="emit('close')">
+  <BaseModal :title="hostToEdit ? t('ui.host.edit') : t('ui.host.new')" size="md" @close="emit('close')">
     <template #icon><Server class="w-4 h-4" /></template>
 
     <form id="host-form" @submit.prevent="handleSave" class="space-y-4">
         <div>
-          <label class="block text-xs font-medium text-fg-muted mb-1">Nombre / Alias del Servidor</label>
+          <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('ui.host.label') }}</label>
           <input
             v-model="label"
             type="text"
             required
-            placeholder="ej. Web Server Producción / VPS Hetzner"
+            :placeholder="t('ui.host.labelPlaceholder')"
             class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
           />
         </div>
@@ -269,21 +269,21 @@ async function handleSave() {
 
         <div class="grid grid-cols-3 gap-3">
           <div class="col-span-2">
-            <label class="block text-xs font-medium text-fg-muted mb-1">Dirección IP o Hostname</label>
+            <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('ui.host.hostname') }}</label>
             <div class="relative">
               <Globe class="w-4 h-4 text-fg-muted absolute left-3 top-2.5" />
               <input
                 v-model="hostname"
                 type="text"
                 required
-                placeholder="192.168.1.100 o app.ejemplo.com"
+                :placeholder="t('ui.host.hostnamePlaceholder')"
                 class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
               />
             </div>
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-fg-muted mb-1">Puerto</label>
+            <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('ui.host.port') }}</label>
             <input
               v-model="port"
               type="number"
@@ -298,39 +298,39 @@ async function handleSave() {
         <div class="grid grid-cols-2 gap-3">
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-xs font-medium text-fg-muted">Carpeta</label>
+              <label class="block text-xs font-medium text-fg-muted">{{ t('ui.host.folder') }}</label>
               <button
                 type="button"
                 @click="isNewFolderModalOpen = true"
                 class="text-[11px] text-accent hover:underline flex items-center space-x-0.5 cursor-pointer"
               >
                 <Plus class="w-3 h-3" />
-                <span>Nueva</span>
+                <span>{{ t('ui.host.newShort') }}</span>
               </button>
             </div>
             <CustomSelect
               v-model="folderId"
               :options="folderOptions"
-              placeholder="Seleccionar carpeta..."
+              :placeholder="t('ui.host.folderPlaceholder')"
             />
           </div>
 
           <div>
             <div class="flex items-center justify-between mb-1">
-              <label class="block text-xs font-medium text-fg-muted">Credencial / Identidad</label>
+              <label class="block text-xs font-medium text-fg-muted">{{ t('ui.host.identity') }}</label>
               <button
                 type="button"
                 @click="isNewIdentityModalOpen = true"
                 class="text-[11px] text-accent hover:underline flex items-center space-x-0.5 cursor-pointer"
               >
                 <Plus class="w-3 h-3" />
-                <span>Nueva</span>
+                <span>{{ t('ui.host.newShort') }}</span>
               </button>
             </div>
             <CustomSelect
               v-model="identityId"
               :options="identityOptions"
-              placeholder="Seleccionar credencial..."
+              :placeholder="t('ui.host.identityPlaceholder')"
             />
             <div v-if="selectedIdentity?.public_key" class="mt-1 text-[10px] font-mono text-fg-muted truncate" :title="selectedIdentity.public_key">
               🔑 {{ selectedIdentity.public_key.slice(0, 36) }}...
@@ -341,50 +341,50 @@ async function handleSave() {
         <div>
           <label class="block text-xs font-medium text-fg-muted mb-1 flex items-center space-x-1.5">
             <Route class="w-3.5 h-3.5 text-accent" />
-            <span>Servidor de Salto / Bastion (Opcional)</span>
+            <span>{{ t('ui.host.jump') }}</span>
           </label>
           <CustomSelect
             v-model="jumpHostId"
             :options="jumpHostOptions"
-            placeholder="Conexión directa..."
+            :placeholder="t('ui.host.jumpPlaceholder')"
           />
           <p class="mt-1 text-[11px] text-fg-muted">
-            Si se especifica, NexusTerm tunelizará la conexión SSH a través de este Bastion usando direct-tcpip.
+            {{ t('ui.host.jumpHelp') }}
           </p>
         </div>
 
         <div>
           <label class="block text-xs font-medium text-fg-muted mb-1">
-            Sobrescribir Usuario (Opcional)
+            {{ t('ui.host.userOverride') }}
           </label>
           <input
             v-model="usernameOverride"
             type="text"
-            placeholder="Si difiere del usuario de la credencial"
+            :placeholder="t('ui.host.userOverridePlaceholder')"
             class="w-full px-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
           />
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-fg-muted mb-1">Etiquetas (separadas por coma)</label>
+          <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('ui.host.tags') }}</label>
           <div class="relative">
             <Tag class="w-4 h-4 text-fg-muted absolute left-3 top-2.5" />
             <input
               v-model="tagsInput"
               type="text"
-              placeholder="produccion, linux, nginx, aws"
+              :placeholder="t('ui.host.tagsPlaceholder')"
               class="w-full pl-9 pr-3 py-2 bg-app border border-line rounded-xl text-sm text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
             />
           </div>
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-fg-muted mb-1">Notas Cifradas (Opcional)</label>
+          <label class="block text-xs font-medium text-fg-muted mb-1">{{ t('ui.host.notes') }}</label>
           <div class="relative">
             <textarea
               v-model="notes"
               rows="2"
-              placeholder="Notas protegidas por la bóveda..."
+              :placeholder="t('ui.host.notesPlaceholder')"
               class="w-full px-3 py-2 bg-app border border-line rounded-xl text-xs text-fg placeholder-fg-muted focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
             ></textarea>
           </div>
@@ -397,9 +397,9 @@ async function handleSave() {
         </form>
 
     <template #footer>
-      <BaseButton variant="ghost" @click="emit('close')">Cancelar</BaseButton>
+      <BaseButton variant="ghost" @click="emit('close')">{{ t('common.cancel') }}</BaseButton>
       <BaseButton type="submit" variant="primary" :loading="isSubmitting" form="host-form">
-        Guardar Servidor
+        {{ t('ui.host.save') }}
       </BaseButton>
     </template>
   </BaseModal>

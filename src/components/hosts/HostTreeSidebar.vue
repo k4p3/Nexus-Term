@@ -107,7 +107,7 @@ function openEditHost(host: HostSummary) {
 }
 
 async function handleDeleteHost(id: string) {
-  if (confirm("¿Estás seguro de eliminar este servidor?")) {
+  if (confirm(t('ui.confirm.deleteHost'))) {
     await vaultStore.deleteHost(id);
   }
 }
@@ -124,7 +124,7 @@ function openEditFolder(folder: Folder) {
 }
 
 async function handleDeleteFolder(id: string) {
-  if (confirm("¿Estás seguro de eliminar esta carpeta?")) {
+  if (confirm(t('ui.confirm.deleteFolder'))) {
     await vaultStore.deleteFolder(id);
   }
 }
@@ -190,7 +190,7 @@ function getIdentityBadge(identity: IdentitySummary): { label: string; class: st
 }
 
 async function handleDeleteIdentity(id: string) {
-  if (confirm("¿Estás seguro de eliminar esta credencial?")) {
+  if (confirm(t('ui.confirm.deleteIdentity'))) {
     await vaultStore.deleteIdentity(id);
   }
 }
@@ -243,7 +243,7 @@ async function handleDeleteIdentity(id: string) {
           <button
             v-if="activeTab === 'hosts'"
             @click="openSshConfigImport()"
-            title="Importar desde ~/.ssh/config" aria-label="Importar desde ~/.ssh/config"
+            :title="t('ui.sidebar.importConfig')" :aria-label="t('ui.sidebar.importConfig')"
             class="w-7 h-7 inline-flex items-center justify-center text-fg-muted hover:text-fg hover:bg-active rounded-control transition-colors cursor-pointer"
           >
             <FileCode class="w-4 h-4" />
@@ -261,7 +261,7 @@ async function handleDeleteIdentity(id: string) {
           <!-- Collapse Sidebar -->
           <button
             @click="emit('toggle-sidebar')"
-            title="Ocultar Barra Lateral (Ctrl+B)"
+            :title="t('ui.sidebar.hide')"
             class="w-7 h-7 inline-flex items-center justify-center text-fg-muted hover:text-fg hover:bg-active rounded-control transition-colors cursor-pointer"
           >
             <PanelLeftClose class="w-4 h-4" />
@@ -299,15 +299,15 @@ async function handleDeleteIdentity(id: string) {
         <input
           v-model="searchQuery"
           type="text"
-          :placeholder="activeTab === 'hosts' ? t('hosts.searchPlaceholder') : 'Buscar credenciales...'"
+          :placeholder="activeTab === 'hosts' ? t('hosts.searchPlaceholder') : t('ui.sidebar.searchIdentities')"
           class="w-full h-8 pl-8 pr-7 bg-app border border-line rounded-control text-xs text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent focus:ring-1 focus:ring-accent transition"
         />
         <button
           v-if="searchQuery"
           @click="searchQuery = ''"
           class="absolute right-1.5 top-2 text-fg-muted hover:text-fg p-0.5 rounded cursor-pointer"
-          title="Limpiar búsqueda"
-          aria-label="Limpiar búsqueda"
+          :title="t('ui.sidebar.clearSearch')"
+          :aria-label="t('ui.sidebar.clearSearch')"
         >
           <X class="w-3 h-3" />
         </button>
@@ -350,14 +350,14 @@ async function handleDeleteIdentity(id: string) {
               <button
                 @click.stop="openEditFolder(folder)"
                 class="p-1 hover:text-accent text-fg-muted rounded"
-                title="Editar Carpeta" aria-label="Editar Carpeta"
+                :title="t('ui.folder.edit')" :aria-label="t('ui.folder.edit')"
               >
                 <Edit2 class="w-3 h-3" />
               </button>
               <button
                 @click.stop="handleDeleteFolder(folder.id)"
                 class="p-1 hover:text-danger text-fg-muted rounded"
-                title="Eliminar Carpeta" aria-label="Eliminar Carpeta"
+                :title="t('ui.sidebar.deleteFolder')" :aria-label="t('ui.sidebar.deleteFolder')"
               >
                 <Trash2 class="w-3 h-3" />
               </button>
@@ -386,10 +386,10 @@ async function handleDeleteIdentity(id: string) {
                     <span
                       v-if="host.jump_host_id"
                       class="inline-flex items-center space-x-0.5 text-[9px] font-medium bg-warning/15 text-warning border border-warning/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
-                      :title="'Conectado vía Bastion: ' + (getJumpHostLabel(host.jump_host_id) || host.jump_host_id)"
+                      :title="t('ui.sidebar.viaBastion') + (getJumpHostLabel(host.jump_host_id) || host.jump_host_id)"
                     >
                       <Route class="w-2.5 h-2.5 text-warning" />
-                      <span>via {{ getJumpHostLabel(host.jump_host_id) || 'bastion' }}</span>
+                      <span>{{ t('ui.sidebar.via') }} {{ getJumpHostLabel(host.jump_host_id) || 'bastion' }}</span>
                     </span>
                   </div>
                   <div class="text-[10px] text-fg-muted font-mono truncate leading-tight">
@@ -402,28 +402,28 @@ async function handleDeleteIdentity(id: string) {
                 <button
                   @click.stop="emit('connect-host', host)"
                   class="p-1 text-accent hover:bg-accent/15 rounded-control cursor-pointer"
-                  title="Conectar Terminal SSH" aria-label="Conectar Terminal SSH"
+                  :title="t('ui.sidebar.connectSsh')" :aria-label="t('ui.sidebar.connectSsh')"
                 >
                   <Terminal class="w-3.5 h-3.5" />
                 </button>
                 <button
                   @click.stop="sftpStore.openSftp(host.id)"
                   class="p-1 text-fg-muted hover:text-fg hover:bg-active rounded-control cursor-pointer"
-                  title="Explorador SFTP (Archivos)" aria-label="Explorador SFTP (Archivos)"
+                  :title="t('ui.sidebar.sftp')" :aria-label="t('ui.sidebar.sftp')"
                 >
                   <FolderSync class="w-3.5 h-3.5" />
                 </button>
                 <button
                   @click.stop="openEditHost(host)"
                   class="p-1 text-fg-muted hover:text-fg rounded cursor-pointer"
-                  title="Editar" aria-label="Editar"
+                  :title="t('common.edit')" :aria-label="t('common.edit')"
                 >
                   <Edit2 class="w-3 h-3" />
                 </button>
                 <button
                   @click.stop="handleDeleteHost(host.id)"
                   class="p-1 text-fg-muted hover:text-danger rounded cursor-pointer"
-                  title="Eliminar" aria-label="Eliminar"
+                  :title="t('common.delete')" :aria-label="t('common.delete')"
                 >
                   <Trash2 class="w-3 h-3" />
                 </button>
@@ -435,7 +435,7 @@ async function handleDeleteIdentity(id: string) {
         <!-- Root hosts (outside folders) -->
         <div v-if="rootHosts.length > 0" class="mt-2 space-y-0.5">
           <div class="px-2 py-1 text-[11px] font-medium text-fg-muted">
-            Sin Carpeta
+            {{ t('ui.sidebar.noFolder') }}
           </div>
           <div
             v-for="host in rootHosts"
@@ -457,10 +457,10 @@ async function handleDeleteIdentity(id: string) {
                   <span
                     v-if="host.jump_host_id"
                     class="inline-flex items-center space-x-0.5 text-[9px] font-medium bg-warning/15 text-warning border border-warning/30 px-1 py-0.2 rounded ml-1.5 shrink-0"
-                    :title="'Conectado vía Bastion: ' + (getJumpHostLabel(host.jump_host_id) || host.jump_host_id)"
+                    :title="t('ui.sidebar.viaBastion') + (getJumpHostLabel(host.jump_host_id) || host.jump_host_id)"
                   >
                     <Route class="w-2.5 h-2.5 text-warning" />
-                    <span>via {{ getJumpHostLabel(host.jump_host_id) || 'bastion' }}</span>
+                    <span>{{ t('ui.sidebar.via') }} {{ getJumpHostLabel(host.jump_host_id) || 'bastion' }}</span>
                   </span>
                 </div>
                 <div class="text-[10px] text-fg-muted font-mono truncate leading-tight">
@@ -473,28 +473,28 @@ async function handleDeleteIdentity(id: string) {
               <button
                 @click.stop="emit('connect-host', host)"
                 class="p-1 text-accent hover:bg-accent/15 rounded-control cursor-pointer"
-                title="Conectar Terminal SSH" aria-label="Conectar Terminal SSH"
+                :title="t('ui.sidebar.connectSsh')" :aria-label="t('ui.sidebar.connectSsh')"
               >
                 <Terminal class="w-3.5 h-3.5" />
               </button>
               <button
                 @click.stop="sftpStore.openSftp(host.id)"
                 class="p-1 text-fg-muted hover:text-fg hover:bg-active rounded-control cursor-pointer"
-                title="Explorador SFTP (Archivos)" aria-label="Explorador SFTP (Archivos)"
+                :title="t('ui.sidebar.sftp')" :aria-label="t('ui.sidebar.sftp')"
               >
                 <FolderSync class="w-3.5 h-3.5" />
               </button>
               <button
                 @click.stop="openEditHost(host)"
                 class="p-1 text-fg-muted hover:text-fg rounded cursor-pointer"
-                title="Editar" aria-label="Editar"
+                :title="t('common.edit')" :aria-label="t('common.edit')"
               >
                 <Edit2 class="w-3 h-3" />
               </button>
               <button
                 @click.stop="handleDeleteHost(host.id)"
                 class="p-1 text-fg-muted hover:text-danger rounded cursor-pointer"
-                title="Eliminar" aria-label="Eliminar"
+                :title="t('common.delete')" :aria-label="t('common.delete')"
               >
                 <Trash2 class="w-3 h-3" />
               </button>
@@ -503,13 +503,13 @@ async function handleDeleteIdentity(id: string) {
         </div>
 
         <div v-if="vaultStore.hosts.length === 0" class="p-4 text-center text-xs text-fg-muted space-y-3">
-          <p>No hay servidores guardados. Haz clic en <strong>+ Servidor</strong> para agregar el primero.</p>
+          <p>{{ t('ui.sidebar.noHosts') }}</p>
           <button
             @click="openSshConfigImport()"
             class="px-3 py-1.5 bg-surface hover:bg-active border border-line rounded-lg text-accent text-xs font-medium inline-flex items-center space-x-1.5 transition cursor-pointer"
           >
             <FileCode class="w-3.5 h-3.5" />
-            <span>Importar ~/.ssh/config</span>
+            <span>{{ t('ui.sidebar.importConfigShort') }}</span>
           </button>
         </div>
       </div>
@@ -543,7 +543,7 @@ async function handleDeleteIdentity(id: string) {
               v-if="identity.public_key"
               @click.stop="copyIdentityPublicKey(identity)"
               class="p-1 text-fg-muted hover:text-accent rounded transition cursor-pointer"
-              :title="copiedIdentityId === identity.id ? '¡Clave copiada!' : 'Copiar clave pública'"
+              :title="copiedIdentityId === identity.id ? t('ui.sidebar.keyCopied') : t('ui.sidebar.copyKey')"
             >
               <Check v-if="copiedIdentityId === identity.id" class="w-3 h-3 text-success" />
               <Copy v-else class="w-3 h-3" />
@@ -551,14 +551,14 @@ async function handleDeleteIdentity(id: string) {
             <button
               @click="openEditIdentity(identity)"
               class="p-1 text-fg-muted hover:text-fg rounded transition cursor-pointer"
-              title="Editar Credencial" aria-label="Editar Credencial"
+              :title="t('ui.sidebar.editIdentity')" :aria-label="t('ui.sidebar.editIdentity')"
             >
               <Edit2 class="w-3 h-3" />
             </button>
             <button
               @click="handleDeleteIdentity(identity.id)"
               class="p-1 text-fg-muted hover:text-danger rounded transition cursor-pointer"
-              title="Eliminar Credencial" aria-label="Eliminar Credencial"
+              :title="t('ui.sidebar.deleteIdentity')" :aria-label="t('ui.sidebar.deleteIdentity')"
             >
               <Trash2 class="w-3 h-3" />
             </button>
@@ -566,7 +566,7 @@ async function handleDeleteIdentity(id: string) {
         </div>
 
         <div v-if="vaultStore.identities.length === 0" class="p-4 text-center text-xs text-fg-muted">
-          No hay credenciales guardadas. Agrega una para reutilizar usuario, contraseña o llave SSH.
+          {{ t('ui.sidebar.noIdentities') }}
         </div>
       </div>
     </div>

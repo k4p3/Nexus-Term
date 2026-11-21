@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { getCurrentWebview } from "@tauri-apps/api/webview";
 import { useSftpStore } from "../../stores/sftp.store";
@@ -29,6 +30,7 @@ import {
   Layers,
 } from "lucide-vue-next";
 
+const { t } = useI18n();
 const sftpStore = useSftpStore();
 const vaultStore = useVaultStore();
 
@@ -176,8 +178,10 @@ async function confirmRename() {
 }
 
 async function handleDelete(entry: SftpEntry) {
-  const typeStr = entry.is_dir ? "esta carpeta" : "este archivo";
-  if (confirm(`¿Estás seguro de eliminar ${typeStr} "${entry.name}" del servidor?`)) {
+  const msg = entry.is_dir
+    ? t('ui.sftp.confirmDeleteFolder', { name: entry.name })
+    : t('ui.sftp.confirmDeleteFile', { name: entry.name });
+  if (confirm(msg)) {
     await sftpStore.deleteItem(entry.path, entry.is_dir);
   }
 }
@@ -185,7 +189,7 @@ async function handleDelete(entry: SftpEntry) {
 async function handleDeleteSelected() {
   const count = sftpStore.selectedPaths.length;
   if (count === 0) return;
-  if (confirm(`¿Estás seguro de eliminar los ${count} elementos seleccionados del servidor?`)) {
+  if (confirm(t('ui.sftp.confirmDeleteMany', { count }))) {
     for (const path of [...sftpStore.selectedPaths]) {
       const entry = sftpStore.entries.find((e) => e.path === path);
       if (entry) {
@@ -220,7 +224,7 @@ async function handleDeleteSelected() {
           </div>
           <div class="truncate">
             <div class="text-xs font-semibold text-fg truncate">
-              SFTP: {{ currentHost?.label || "Servidor Remoto" }}
+              SFTP: {{ currentHost?.label || t('ui.sftp.remoteServer') }}
             </div>
             <div class="text-[10px] text-fg-muted font-mono truncate">
               {{ currentHost?.hostname }}:{{ currentHost?.port }}
@@ -232,7 +236,7 @@ async function handleDeleteSelected() {
           <button
             @click="sftpStore.isTransferQueueOpen = !sftpStore.isTransferQueueOpen"
             class="p-1.5 text-fg-muted hover:text-accent rounded-lg hover:bg-active transition relative cursor-pointer"
-            title="Cola de Transferencias"
+            :title="t('ui.sftp.queueTitle')"
           >
             <FolderSync class="w-3.5 h-3.5" />
             <span
@@ -243,7 +247,7 @@ async function handleDeleteSelected() {
           <button
             @click="sftpStore.closeSftp()"
             class="p-1.5 text-fg-muted hover:text-fg rounded-lg hover:bg-active transition cursor-pointer"
-            title="Cerrar Explorador SFTP"
+            :title="t('ui.sftp.close')"
           >
             <X class="w-3.5 h-3.5" />
           </button>
@@ -256,7 +260,7 @@ async function handleDeleteSelected() {
           @click="sftpStore.navigateUp()"
           :disabled="sftpStore.currentPath === '/' || sftpStore.isLoading"
           class="p-1.5 text-fg-muted hover:text-fg hover:bg-active disabled:opacity-40 rounded-lg border border-line transition cursor-pointer"
-          title="Subir de nivel (..)"
+          :title="t('ui.sftp.up')"
         >
           <ArrowUp class="w-3.5 h-3.5" />
         </button>
@@ -265,7 +269,7 @@ async function handleDeleteSelected() {
           @click="sftpStore.refresh()"
           :disabled="sftpStore.isLoading"
           class="p-1.5 text-fg-muted hover:text-fg hover:bg-active rounded-lg border border-line transition cursor-pointer"
-          title="Refrescar directorio"
+          :title="t('ui.sftp.refresh')"
         >
           <RefreshCw class="w-3.5 h-3.5" :class="{ 'animate-spin': sftpStore.isLoading }" />
         </button>
@@ -273,7 +277,7 @@ async function handleDeleteSelected() {
         <button
           @click="openCreateFolder()"
           class="p-1.5 text-fg-muted hover:text-accent hover:bg-active rounded-lg border border-line transition cursor-pointer"
-          title="Nueva Carpeta"
+          :title="t('ui.folder.new')"
         >
           <FolderPlus class="w-3.5 h-3.5" />
         </button>
@@ -281,7 +285,7 @@ async function handleDeleteSelected() {
         <button
           @click="triggerFileUpload()"
           class="p-1.5 text-fg-muted hover:text-accent hover:bg-active rounded-lg border border-line transition cursor-pointer"
-          title="Subir Archivos al servidor (selección múltiple)"
+          :title="t('ui.sftp.upload')"
         >
           <Upload class="w-3.5 h-3.5" />
         </button>
@@ -292,7 +296,7 @@ async function handleDeleteSelected() {
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Filtrar archivos..."
+            :placeholder="t('ui.sftp.filter')"
             class="w-full pl-6 pr-2 py-1 bg-app border border-line rounded-lg text-[11px] text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent transition"
           />
         </div>
@@ -321,11 +325,11 @@ async function handleDeleteSelected() {
         <div class="flex items-center space-x-1.5 truncate">
           <RefreshCw class="w-3 h-3 text-accent animate-spin shrink-0" />
           <span class="truncate">
-            {{ sftpStore.overallProgress.completed }}/{{ sftpStore.overallProgress.total }} archivos transferidos ({{ sftpStore.overallProgress.percentage }}%)
+            {{ t('ui.sftp.progress', { done: sftpStore.overallProgress.completed, total: sftpStore.overallProgress.total, pct: sftpStore.overallProgress.percentage }) }}
           </span>
         </div>
         <div class="text-[10px] font-mono font-semibold shrink-0 ml-2">
-          Ver cola &rarr;
+          {{ t('ui.sftp.viewQueue') }}
         </div>
       </div>
     </div>
@@ -354,7 +358,7 @@ async function handleDeleteSelected() {
       >
         <Upload class="w-8 h-8 text-accent animate-bounce" />
         <p class="text-xs font-semibold text-accent">
-          Soltar archivos aquí para subir a:
+          {{ t('ui.sftp.drop') }}
         </p>
         <p class="text-[11px] font-mono text-accent truncate max-w-full px-2">
           {{ sftpStore.currentPath }}
@@ -366,7 +370,7 @@ async function handleDeleteSelected() {
         class="py-12 text-center text-xs text-fg-muted space-y-2"
       >
         <RefreshCw class="w-5 h-5 mx-auto animate-spin text-accent" />
-        <p>Cargando archivos remotos...</p>
+        <p>{{ t('ui.sftp.loading') }}</p>
       </div>
 
       <!-- No active SFTP session picker -->
@@ -378,9 +382,9 @@ async function handleDeleteSelected() {
           <FolderSync class="w-6 h-6" />
         </div>
         <div>
-          <p class="font-semibold text-fg text-sm">Explorador SFTP</p>
+          <p class="font-semibold text-fg text-sm">{{ t('ui.sftp.title') }}</p>
           <p class="text-[11px] text-fg-muted mt-1 leading-relaxed">
-            Selecciona un servidor guardado para explorar sus archivos remotos y transferir archivos:
+            {{ t('ui.sftp.pick') }}
           </p>
         </div>
         <div class="space-y-1.5 max-h-72 overflow-y-auto text-left pt-1">
@@ -403,7 +407,7 @@ async function handleDeleteSelected() {
             </div>
           </div>
           <div v-if="vaultStore.hosts.length === 0" class="text-center text-fg-muted text-[11px] py-4">
-            No tienes servidores guardados en la bóveda. Agrega uno en la barra lateral izquierda.
+            {{ t('ui.sftp.noHosts') }}
           </div>
         </div>
       </div>
@@ -412,7 +416,7 @@ async function handleDeleteSelected() {
         v-else-if="filteredEntries.length === 0"
         class="py-12 text-center text-xs text-fg-muted"
       >
-        {{ searchQuery ? "No se encontraron coincidencias" : "Directorio vacío" }}
+        {{ searchQuery ? t('ui.sftp.noMatches') : t('ui.sftp.emptyDir') }}
       </div>
 
       <!-- File Rows with Checkboxes and Inline Progress -->
@@ -477,10 +481,10 @@ async function handleDeleteSelected() {
                     sftpStore.activeTransfersMap.get(entry.name)?.status === 'in_progress'
                       ? `${sftpStore.activeTransfersMap.get(entry.name)?.percentage.toFixed(0)}%`
                       : sftpStore.activeTransfersMap.get(entry.name)?.status === 'queued'
-                      ? 'En cola'
+                      ? t('ui.queue.queued')
                       : sftpStore.activeTransfersMap.get(entry.name)?.status === 'completed'
-                      ? 'Listo'
-                      : 'Error'
+                      ? t('ui.import.ready')
+                      : t('common.error')
                   }}
                 </span>
               </span>
@@ -499,21 +503,21 @@ async function handleDeleteSelected() {
             v-if="!entry.is_dir"
             @click.stop="handleDownload(entry)"
             class="p-1 text-fg-muted hover:text-accent rounded transition cursor-pointer"
-            title="Descargar archivo"
+            :title="t('ui.sftp.downloadFile')"
           >
             <Download class="w-3 h-3" />
           </button>
           <button
             @click.stop="openRename(entry)"
             class="p-1 text-fg-muted hover:text-fg rounded transition cursor-pointer"
-            title="Renombrar"
+            :title="t('ui.sftp.rename')"
           >
             <Edit2 class="w-3 h-3" />
           </button>
           <button
             @click.stop="handleDelete(entry)"
             class="p-1 text-fg-muted hover:text-danger rounded transition cursor-pointer"
-            title="Eliminar"
+            :title="t('common.delete')"
           >
             <Trash2 class="w-3 h-3" />
           </button>
@@ -528,32 +532,32 @@ async function handleDeleteSelected() {
     >
       <div class="flex items-center space-x-1.5 text-fg font-medium">
         <Layers class="w-3.5 h-3.5 text-accent" />
-        <span>{{ sftpStore.selectedPaths.length }} seleccionados</span>
+        <span>{{ t('ui.sftp.selected', { n: sftpStore.selectedPaths.length }) }}</span>
       </div>
 
       <div class="flex items-center space-x-1">
         <button
           @click="sftpStore.downloadSelected()"
           class="px-2 py-1 rounded-md bg-accent/20 hover:bg-accent/15 text-accent border border-accent/30 flex items-center space-x-1 text-[11px] font-medium transition cursor-pointer"
-          title="Descargar todos los seleccionados"
+          :title="t('ui.sftp.downloadSelected')"
         >
           <Download class="w-3 h-3" />
-          <span>Descargar</span>
+          <span>{{ t('ui.sftp.download') }}</span>
         </button>
 
         <button
           @click="handleDeleteSelected()"
           class="px-2 py-1 rounded-md bg-danger/20 hover:bg-danger/15 text-danger border border-danger/30 flex items-center space-x-1 text-[11px] font-medium transition cursor-pointer"
-          title="Eliminar elementos seleccionados"
+          :title="t('ui.sftp.deleteSelected')"
         >
           <Trash2 class="w-3 h-3" />
-          <span>Eliminar</span>
+          <span>{{ t('common.delete') }}</span>
         </button>
 
         <button
           @click="sftpStore.clearSelection()"
           class="p-1 text-fg-muted hover:text-fg rounded transition cursor-pointer"
-          title="Limpiar selección"
+          :title="t('ui.sftp.clearSelection')"
         >
           <X class="w-3.5 h-3.5" />
         </button>
@@ -567,11 +571,11 @@ async function handleDeleteSelected() {
       class="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4"
     >
       <div class="bg-surface border border-line rounded-xl p-4 w-80 space-y-3 text-fg">
-        <h3 class="text-xs font-semibold">Nueva Carpeta Remota</h3>
+        <h3 class="text-xs font-semibold">{{ t('ui.sftp.newRemoteFolder') }}</h3>
         <input
           v-model="newFolderName"
           type="text"
-          placeholder="Nombre de la carpeta"
+          :placeholder="t('ui.sftp.folderName')"
           class="w-full px-2.5 py-1.5 bg-app border border-line rounded-lg text-xs text-fg focus:outline-hidden focus:border-accent"
           @keyup.enter="confirmCreateFolder"
         />
@@ -580,13 +584,13 @@ async function handleDeleteSelected() {
             @click="isNewFolderModalOpen = false"
             class="px-3 py-1.5 rounded-lg border border-line hover:bg-active text-fg cursor-pointer"
           >
-            Cancelar
+            {{ t('common.cancel') }}
           </button>
           <button
             @click="confirmCreateFolder"
             class="px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-on-accent font-medium cursor-pointer"
           >
-            Crear
+            {{ t('ui.sftp.create') }}
           </button>
         </div>
       </div>
@@ -599,7 +603,7 @@ async function handleDeleteSelected() {
       class="fixed inset-0 z-50 flex items-center justify-center bg-overlay p-4"
     >
       <div class="bg-surface border border-line rounded-xl p-4 w-80 space-y-3 text-fg">
-        <h3 class="text-xs font-semibold">Renombrar Elemento</h3>
+        <h3 class="text-xs font-semibold">{{ t('ui.sftp.renameItem') }}</h3>
         <input
           v-model="renameValue"
           type="text"
@@ -611,13 +615,13 @@ async function handleDeleteSelected() {
             @click="isRenameModalOpen = false"
             class="px-3 py-1.5 rounded-lg border border-line hover:bg-active text-fg cursor-pointer"
           >
-            Cancelar
+            {{ t('common.cancel') }}
           </button>
           <button
             @click="confirmRename"
             class="px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-hover text-on-accent font-medium cursor-pointer"
           >
-            Guardar
+            {{ t('common.save') }}
           </button>
         </div>
       </div>

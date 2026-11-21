@@ -58,11 +58,11 @@ function handleEdit(item: CommandSnippet) {
 
 async function handleDelete(item: CommandSnippet) {
   if (item.is_builtin) {
-    if (confirm(`¿Deseas deshabilitar el snippet comunitario "${item.title}"? Podrás reactivarlo cuando quieras.`)) {
+    if (confirm(t('ui.snip.confirmDisable', { title: item.title }))) {
       await snippetsStore.toggleSnippetEnabled(item.id, false);
     }
   } else {
-    if (confirm(`¿Eliminar permanentemente el snippet "${item.title}"?`)) {
+    if (confirm(t('ui.snip.confirmDelete', { title: item.title }))) {
       await snippetsStore.deleteSnippet(item.id);
     }
   }
@@ -129,8 +129,8 @@ function handleCopy(item: CommandSnippet) {
             <Code class="w-4 h-4" />
           </div>
           <div>
-            <h2 class="text-sm font-semibold text-fg leading-tight">Biblioteca de Snippets</h2>
-            <p class="text-[10px] text-fg-muted">Comunitarios y personalizados</p>
+            <h2 class="text-sm font-semibold text-fg leading-tight">{{ t('ui.app.snippetsTitle') }}</h2>
+            <p class="text-[10px] text-fg-muted">{{ t('ui.snip.subtitle') }}</p>
           </div>
         </div>
 
@@ -138,10 +138,10 @@ function handleCopy(item: CommandSnippet) {
           <button
             @click="handleOpenNew"
             class="px-2 py-1 text-xs font-semibold text-on-accent bg-accent hover:brightness-110 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
-            title="Nuevo Snippet"
+            :title="t('ui.snip.new')"
           >
             <Plus class="w-3.5 h-3.5" />
-            <span>Crear</span>
+            <span>{{ t('ui.sftp.create') }}</span>
           </button>
           <button
             @click="emit('close')"
@@ -165,7 +165,7 @@ function handleCopy(item: CommandSnippet) {
                 : 'text-fg-muted hover:text-fg',
             ]"
           >
-            <span>Todos</span>
+            <span>{{ t('ui.snip.all') }}</span>
             <span class="text-[10px] px-1 py-0.2 rounded-full bg-active opacity-80">
               {{ snippetsStore.snippets.length }}
             </span>
@@ -181,7 +181,7 @@ function handleCopy(item: CommandSnippet) {
             ]"
           >
             <Globe class="w-3 h-3 text-accent" />
-            <span>Comunidad</span>
+            <span>{{ t('ui.snip.community') }}</span>
             <span class="text-[10px] px-1 py-0.2 rounded-full bg-active opacity-80">
               {{ snippetsStore.communitySnippets.length }}
             </span>
@@ -197,7 +197,7 @@ function handleCopy(item: CommandSnippet) {
             ]"
           >
             <User class="w-3 h-3 text-info" />
-            <span>Mis Snippets</span>
+            <span>{{ t('ui.snip.mine') }}</span>
             <span class="text-[10px] px-1 py-0.2 rounded-full bg-active opacity-80">
               {{ snippetsStore.customSnippets.length }}
             </span>
@@ -210,7 +210,7 @@ function handleCopy(item: CommandSnippet) {
           <input
             v-model="snippetsStore.searchQuery"
             type="text"
-            placeholder="Buscar por comando, título o etiqueta..."
+            :placeholder="t('ui.snip.search')"
             class="w-full pl-8 pr-3 py-1.5 bg-app border border-line rounded-lg text-xs text-fg placeholder-fg-muted focus:outline-hidden focus:border-accent"
           />
         </div>
@@ -223,10 +223,10 @@ function handleCopy(item: CommandSnippet) {
               v-model="snippetsStore.showDisabled"
               class="rounded border-line bg-app text-accent focus:ring-0 cursor-pointer w-3.5 h-3.5"
             />
-            <span>Mostrar snippets deshabilitados</span>
+            <span>{{ t('ui.snip.showDisabled') }}</span>
           </label>
           <span class="text-[10px] opacity-75">
-            {{ snippetsStore.filteredSnippets.length }} visibles
+            {{ t('ui.snip.visible', { n: snippetsStore.filteredSnippets.length }) }}
           </span>
         </div>
       </div>
@@ -238,12 +238,12 @@ function handleCopy(item: CommandSnippet) {
           class="h-48 flex flex-col items-center justify-center text-center p-4"
         >
           <Code class="w-8 h-8 text-fg-muted mb-2" />
-          <p class="text-xs text-fg-muted">No se encontraron snippets con el filtro seleccionado.</p>
+          <p class="text-xs text-fg-muted">{{ t('ui.snip.none') }}</p>
           <button
             @click="handleOpenNew"
             class="mt-3 px-3 py-1 bg-active hover:bg-active text-fg text-xs rounded-lg transition-colors cursor-pointer"
           >
-            + Crear nuevo snippet
+            {{ t('ui.snip.createNew') }}
           </button>
         </div>
 
@@ -265,24 +265,24 @@ function handleCopy(item: CommandSnippet) {
                 <span
                   v-if="item.is_builtin"
                   class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-accent/15 text-accent border border-accent/30"
-                  title="Snippet estándar de la comunidad"
+                  :title="t('ui.snip.communityTitle')"
                 >
                   <Globe class="w-2.5 h-2.5" />
-                  Comunidad
+                  {{ t('ui.snip.community') }}
                 </span>
                 <span
                   v-else
                   class="inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[9px] font-semibold bg-info/15 text-info border border-info/30"
                 >
                   <User class="w-2.5 h-2.5" />
-                  Personal
+                  {{ t('ui.snip.personal') }}
                 </span>
 
                 <span
                   v-if="!item.is_enabled"
                   class="px-1.5 py-0.2 rounded text-[9px] font-medium bg-active text-fg-muted"
                 >
-                  Deshabilitado
+                  {{ t('ui.snip.disabled') }}
                 </span>
 
                 <h4 class="text-xs font-semibold text-fg truncate">{{ item.title }}</h4>
@@ -313,7 +313,7 @@ function handleCopy(item: CommandSnippet) {
               <button
                 @click="handleDuplicate(item)"
                 class="p-1 text-fg-muted hover:text-accent rounded hover:bg-active transition-colors cursor-pointer"
-                title="Duplicar como snippet personal"
+                :title="t('ui.snip.duplicate')"
               >
                 <CopyPlus class="w-3.5 h-3.5" />
               </button>
@@ -322,7 +322,7 @@ function handleCopy(item: CommandSnippet) {
               <button
                 @click="handleCopy(item)"
                 class="p-1 text-fg-muted hover:text-fg rounded hover:bg-active transition-colors cursor-pointer"
-                :title="copiedSnippetId === item.id ? '¡Copiado!' : 'Copiar comando'"
+                :title="copiedSnippetId === item.id ? t('common.copied') : t('snippets.copyCommand')"
               >
                 <Check v-if="copiedSnippetId === item.id" class="w-3.5 h-3.5 text-success" />
                 <Copy v-else class="w-3.5 h-3.5" />
@@ -333,7 +333,7 @@ function handleCopy(item: CommandSnippet) {
                 v-if="!item.is_builtin"
                 @click="handleEdit(item)"
                 class="p-1 text-fg-muted hover:text-fg rounded hover:bg-active transition-colors cursor-pointer"
-                title="Editar"
+                :title="t('common.edit')"
               >
                 <Edit2 class="w-3.5 h-3.5" />
               </button>
@@ -358,7 +358,7 @@ function handleCopy(item: CommandSnippet) {
                 ? 'text-accent border-line/80 cursor-pointer hover:border-accent/30 hover:bg-surface/90 group/code'
                 : 'text-fg-muted border-line/40 cursor-not-allowed opacity-75',
             ]"
-            :title="item.is_enabled ? 'Hacer clic para insertar en la terminal' : 'Snippet deshabilitado (actívalo para usarlo)'"
+            :title="item.is_enabled ? t('ui.snip.insertHint') : t('ui.snip.disabledHint')"
           >
             <span class="truncate">{{ item.command_template }}</span>
             <div

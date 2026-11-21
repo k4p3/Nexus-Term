@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { computed, onMounted } from "vue";
 import { useTelemetryStore } from "../../stores/telemetry.store";
 import {
@@ -15,6 +16,7 @@ import {
   RefreshCw,
 } from "lucide-vue-next";
 
+const { t } = useI18n();
 const props = defineProps<{
   hostId: string;
   paneId: string;
@@ -58,7 +60,7 @@ function getMemoryColorClass(percent: number): { text: string; bg: string } {
     <!-- Left: Loading or Metrics Items -->
     <div v-if="!snapshot" class="flex items-center space-x-2 py-0.5 text-[11px] text-fg-muted">
       <RefreshCw class="w-3.5 h-3.5 animate-spin text-accent" />
-      <span>Conectando canal de telemetría remota...</span>
+      <span>{{ t('ui.telemetry.connecting') }}</span>
     </div>
 
     <div v-else class="flex items-center space-x-4 overflow-x-auto py-0.5 no-scrollbar">
@@ -100,9 +102,9 @@ function getMemoryColorClass(percent: number): { text: string; bg: string } {
       </div>
 
       <!-- Disk Metric -->
-      <div class="flex items-center space-x-1.5 shrink-0" :title="`Disco raíz (/): ${telemetryStore.formatBytes(snapshot.disk.used_bytes)} / ${telemetryStore.formatBytes(snapshot.disk.total_bytes)}`">
+      <div class="flex items-center space-x-1.5 shrink-0" :title="t('ui.telemetry.diskTitle', { used: telemetryStore.formatBytes(snapshot.disk.used_bytes), total: telemetryStore.formatBytes(snapshot.disk.total_bytes) })">
         <HardDrive class="w-3.5 h-3.5 text-accent shrink-0" />
-        <span class="text-[10px] text-fg-muted uppercase font-sans font-semibold">Disco</span>
+        <span class="text-[10px] text-fg-muted uppercase font-sans font-semibold">{{ t('ui.telemetry.disk') }}</span>
         <span class="font-bold text-[11px] text-fg">
           {{ snapshot.disk.usage_percent }}%
         </span>
@@ -110,11 +112,11 @@ function getMemoryColorClass(percent: number): { text: string; bg: string } {
 
       <!-- Network Rx / Tx -->
       <div class="flex items-center space-x-2 shrink-0">
-        <div class="flex items-center space-x-0.5 text-success text-[11px]" title="Velocidad de descarga (Rx)">
+        <div class="flex items-center space-x-0.5 text-success text-[11px]" :title="t('ui.telemetry.rx')">
           <ArrowDown class="w-3 h-3 shrink-0" />
           <span>{{ telemetryStore.formatSpeed(snapshot.network.rx_bytes_per_sec) }}</span>
         </div>
-        <div class="flex items-center space-x-0.5 text-accent text-[11px]" title="Velocidad de subida (Tx)">
+        <div class="flex items-center space-x-0.5 text-accent text-[11px]" :title="t('ui.telemetry.tx')">
           <ArrowUp class="w-3 h-3 shrink-0" />
           <span>{{ telemetryStore.formatSpeed(snapshot.network.tx_bytes_per_sec) }}</span>
         </div>
@@ -130,7 +132,7 @@ function getMemoryColorClass(percent: number): { text: string; bg: string } {
       </div>
 
       <!-- Uptime -->
-      <div class="flex items-center space-x-1 shrink-0 text-[11px]" title="Tiempo de actividad del servidor">
+      <div class="flex items-center space-x-1 shrink-0 text-[11px]" :title="t('ui.telemetry.uptime')">
         <Clock class="w-3 h-3 text-fg-muted shrink-0" />
         <span class="text-[10px] text-fg-muted">Up:</span>
         <span class="text-fg">
@@ -143,7 +145,7 @@ function getMemoryColorClass(percent: number): { text: string; bg: string } {
     <div class="flex items-center space-x-1 shrink-0 pl-2">
       <button
         @click="telemetryStore.togglePause(props.hostId)"
-        :title="isPaused ? 'Reanudar telemetría' : 'Pausar telemetría'"
+        :title="isPaused ? t('ui.telemetry.resume') : t('ui.telemetry.pause')"
         class="p-1 rounded-md text-fg-muted hover:text-fg hover:bg-active transition cursor-pointer"
       >
         <Play v-if="isPaused" class="w-3 h-3 text-success" />
@@ -152,7 +154,7 @@ function getMemoryColorClass(percent: number): { text: string; bg: string } {
 
       <button
         @click="emit('close')"
-        title="Ocultar barra de telemetría"
+        :title="t('ui.telemetry.hide')"
         class="p-1 rounded-md text-fg-muted hover:text-danger hover:bg-active transition cursor-pointer"
       >
         <X class="w-3 h-3" />

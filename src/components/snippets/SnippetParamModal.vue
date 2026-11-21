@@ -62,7 +62,7 @@ function handleExecute() {
         </div>
 
         <div v-if="paramsList.length > 0" class="space-y-3">
-          <p class="text-xs text-fg-muted font-medium">Ingresa los valores de los parámetros:</p>
+          <p class="text-xs text-fg-muted font-medium">{{ t('ui.snipForm.fillParams') }}</p>
           <div v-for="param in paramsList" :key="param">
             <label class="block text-[11px] font-mono text-accent mb-1">
               &#123;&#123; {{ param }} &#125;&#125;
@@ -83,7 +83,7 @@ function handleExecute() {
       <BaseButton variant="ghost" @click="emit('close')">{{ t('common.cancel') }}</BaseButton>
       <BaseButton type="submit" variant="primary" form="snippet-param-form">
         <Play class="w-3.5 h-3.5 fill-current" />
-            <span>Enviar a Terminal</span>
+            <span>{{ t('ui.snipForm.send') }}</span>
       </BaseButton>
     </template>
   </BaseModal>
