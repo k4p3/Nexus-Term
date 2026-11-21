@@ -29,3 +29,8 @@
 ## 6. Validación
 - [x] 6.1 `pnpm test`, `vue-tsc --noEmit`, `vite build` y `cargo test` sin errores
 - [ ] 6.2 Revisión manual en `pnpm tauri dev` con todos los temas y `openspec validate`
+
+## 7. Internacionalización y modales
+- [x] 7.1 Mover los textos fijos en español de los componentes a `en.json`/`es.json` (namespace `ui`)
+- [x] 7.2 Test de paridad de idiomas y de existencia de claves `t('...')`
+- [x] 7.3 Migrar el diálogo de confirmación de pegado a `BaseModal`
