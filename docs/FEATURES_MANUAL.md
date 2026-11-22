@@ -104,6 +104,17 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 - Almacena comandos recurrentes de Docker, Kubernetes, Git, bases de datos y scripts de mantenimiento.
 - Parámetros dinámicos `{{parametro}}`: Al hacer clic en un snippet, NexusTerm solicita los valores variables y **lo inserta en el prompt sin ejecutarlo**: lo revisas y pulsas `Enter`. La inserción pasa por el aviso de pegado seguro y usa *bracketed paste*, de modo que un snippet multilínea no se ejecuta línea a línea.
 
+#### Importar y exportar snippets
+- Los botones **Importar** y **Exportar** del cajón de snippets usan el formato JSON `nexusterm-snippets` v1:
+  ```json
+  { "format": "nexusterm-snippets", "version": 1,
+    "snippets": [{ "title": "Listar", "command": "ls -la {{dir=.}}", "description": "opcional", "tags": ["fs"] }] }
+  ```
+- Al importar se muestra un **resumen** (a importar / omitidos / inválidos) con **cada comando completo** y un aviso en los de riesgo (`sudo`, `rm -rf`, `curl | sh`…). Nada se ejecuta al importar y no se sobrescribe nada: un snippet con el mismo título y comando se omite.
+- Se **rechazan** por entrada los textos con saltos de línea, caracteres de control (incluido `ESC`), de dirección de texto (bidi) o de ancho cero. Límites: 1 MB, 500 snippets, título 120, comando 8000, descripción 500, 10 etiquetas de 32.
+- Los importados llevan la etiqueta `imported` (insignia «importado»). Exportar incluye solo tus snippets personalizados y no propaga esa etiqueta.
+- Importa solo ficheros de fuentes en las que confíes: revisa los comandos antes de usarlos.
+
 ### 4.3. Modo Broadcast / Entrada Múltiple (*Multi-Exec*)
 - Permite escribir en una terminal y replicar las pulsaciones en tiempo real en todos los paneles divididos activos de la pestaña. Ideal para ejecutar actualizaciones simultáneas en grupos de servidores.
 - Se activa o desactiva con el botón superior en la barra de pestañas o mediante el atajo `Ctrl + Shift + B`.

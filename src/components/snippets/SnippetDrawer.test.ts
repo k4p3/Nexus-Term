@@ -30,3 +30,24 @@ describe("SnippetDrawer insertion", () => {
     expect(w.emitted("insert-command")?.[0]).toEqual(["ls -la"]);
   });
 });
+
+describe("SnippetDrawer import/export UI", () => {
+  beforeEach(() => setActivePinia(createPinia()));
+
+  it("enables export only when there are custom snippets and shows the imported badge", async () => {
+    const w = mount(SnippetDrawer, { props: { isOpen: true }, global: { plugins: [i18n] } });
+    await flushPromises();
+    expect(w.find('[data-testid="export-btn"]').attributes("disabled")).toBeUndefined();
+    expect(w.find('[data-testid="imported-badge"]').exists()).toBe(false);
+  });
+
+  it("marks imported snippets with a badge", async () => {
+    const { snippetsService } = await import("../../services/snippets.service");
+    vi.mocked(snippetsService.getSnippets).mockResolvedValueOnce([
+      { id: "i1", title: "Imp", command_template: "pwd", description: null, tags: ["imported"], is_builtin: false, is_enabled: true, created_at: "x", updated_at: "x" },
+    ]);
+    const w = mount(SnippetDrawer, { props: { isOpen: true }, global: { plugins: [i18n] } });
+    await flushPromises();
+    expect(w.find('[data-testid="imported-badge"]').exists()).toBe(true);
+  });
+});

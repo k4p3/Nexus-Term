@@ -28,6 +28,8 @@ Cambios cubiertos: `terminal-productivity-quick-wins` (sección A), `vnc-rdp-gra
 - [ ] Cada acción muestra su atajo.
 - [ ] Cambiar de tema desde la paleta se aplica al instante.
 - [ ] Un snippet sin parámetros se **inserta en el prompt sin ejecutarse** (hay que pulsar `Enter`); uno con `{{parámetros}}` abre su formulario y, al confirmar, también solo se inserta. Con una terminal cerrada aparece un aviso.
+- [ ] **Exportar/Importar**: con snippets propios, *Exportar* descarga `nexusterm-snippets.json`; *Importar* ese mismo fichero muestra «0 para importar» y todos omitidos. Con un fichero nuevo, el resumen lista cada comando y marca los de riesgo; al confirmar aparecen con la insignia «importado».
+- [ ] Un fichero con un comando con salto de línea o carácter invisible lo rechaza solo a esa entrada; un fichero de más de 1 MB o con otro formato muestra un error y no importa nada. *Exportar* está deshabilitado sin snippets propios.
 - [ ] Un snippet con `rm -rf` o multilínea muestra el aviso de pegado seguro antes de insertarse.
 - [ ] En un panel RDP/VNC no aparecen acciones de terminal.
 

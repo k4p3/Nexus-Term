@@ -61,6 +61,22 @@ export const useSnippetsStore = defineStore('snippets', () => {
     return id;
   }
 
+  /** Crea los snippets importados uno a uno y recarga la lista una vez. Los que fallan se cuentan. */
+  async function importSnippets(items: SaveSnippetPayload[]): Promise<{ created: number; failed: number }> {
+    let created = 0;
+    let failed = 0;
+    for (const payload of items) {
+      try {
+        await snippetsService.saveSnippet(payload);
+        created++;
+      } catch {
+        failed++;
+      }
+    }
+    await fetchSnippets();
+    return { created, failed };
+  }
+
   async function toggleSnippetEnabled(id: string, enabled: boolean): Promise<void> {
     // Optimistic update
     const target = snippets.value.find((s) => s.id === id);
@@ -114,6 +130,7 @@ export const useSnippetsStore = defineStore('snippets', () => {
     filteredSnippets,
     fetchSnippets,
     saveSnippet,
+    importSnippets,
     toggleSnippetEnabled,
     duplicateSnippet,
     deleteSnippet,

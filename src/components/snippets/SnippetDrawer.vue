@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useSnippetText } from "../../composables/useSnippetText";
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineAsyncComponent } from 'vue';
+import { serializeSnippets, IMPORTED_TAG } from '../../utils/snippet-io';
+import { useUiStore } from '../../stores/ui.store';
 import { useI18n } from 'vue-i18n';
 import { useSnippetsStore, type SnippetOriginFilter } from '../../stores/snippets.store';
 import type { CommandSnippet, SaveSnippetPayload } from '../../types/snippets';
@@ -21,7 +23,11 @@ import {
   Globe,
   User,
   Power,
+  Upload,
+  Download,
 } from 'lucide-vue-next';
+
+const SnippetImportModal = defineAsyncComponent(() => import('./SnippetImportModal.vue'));
 
 const props = defineProps<{
   isOpen: boolean;
@@ -35,6 +41,20 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const { snippetTitle, snippetDescription } = useSnippetText();
 const snippetsStore = useSnippetsStore();
+const uiStore = useUiStore();
+const isImportOpen = ref(false);
+
+function handleExport() {
+  if (snippetsStore.customSnippets.length === 0) return;
+  const blob = new Blob([serializeSnippets(snippetsStore.snippets)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'nexusterm-snippets.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  uiStore.pushToast(t('snippetsIo.exported'), { kind: 'success' });
+}
 
 const isModalOpen = ref(false);
 const snippetToEdit = ref<CommandSnippet | null>(null);
@@ -137,6 +157,23 @@ function handleCopy(item: CommandSnippet) {
         </div>
 
         <div class="flex items-center gap-1.5">
+          <button
+            @click="isImportOpen = true"
+            class="p-1.5 text-fg-muted hover:text-fg rounded-lg hover:bg-active transition-colors cursor-pointer"
+            :title="t('snippetsIo.importBtn')"
+            data-testid="import-btn"
+          >
+            <Upload class="w-4 h-4" />
+          </button>
+          <button
+            @click="handleExport"
+            :disabled="snippetsStore.customSnippets.length === 0"
+            class="p-1.5 text-fg-muted hover:text-fg rounded-lg hover:bg-active transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            :title="snippetsStore.customSnippets.length ? t('snippetsIo.exportBtn') : t('snippetsIo.nothingToExport')"
+            data-testid="export-btn"
+          >
+            <Download class="w-4 h-4" />
+          </button>
           <button
             @click="handleOpenNew"
             class="px-2 py-1 text-xs font-semibold text-on-accent bg-accent hover:brightness-110 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-xs"
@@ -281,6 +318,14 @@ function handleCopy(item: CommandSnippet) {
                 </span>
 
                 <span
+                  v-if="item.tags.includes(IMPORTED_TAG)"
+                  class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-warning/15 text-warning border border-warning/30"
+                  data-testid="imported-badge"
+                >
+                  {{ t('snippetsIo.imported') }}
+                </span>
+
+                <span
                   v-if="!item.is_enabled"
                   class="px-1.5 py-0.2 rounded text-[9px] font-medium bg-active text-fg-muted"
                 >
@@ -384,6 +429,8 @@ function handleCopy(item: CommandSnippet) {
         </div>
       </div>
     </aside>
+
+    <SnippetImportModal v-if="isImportOpen" @close="isImportOpen = false" />
 
     <!-- Modal to Create / Edit Snippet -->
     <SnippetModal

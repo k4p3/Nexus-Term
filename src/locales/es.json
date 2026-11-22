@@ -97,6 +97,43 @@
     "authKey": "Llave Privada",
     "authAgent": "Agente SSH"
   },
+  "snippetsIo": {
+    "importTitle": "Importar snippets",
+    "intro": "Elige un fichero JSON en formato «nexusterm-snippets». Revisa los comandos antes de importar: nada se ejecuta al importar y los snippets quedan marcados como «importado».",
+    "choose": "Elegir fichero…",
+    "import": "Importar",
+    "export": "Exportar",
+    "importBtn": "Importar snippets",
+    "exportBtn": "Exportar mis snippets",
+    "nothingToExport": "No tienes snippets personalizados que exportar.",
+    "imported": "importado",
+    "counts": "{n} para importar · {s} omitidos · {i} inválidos",
+    "riskNotice": "Algunos comandos tienen patrones de riesgo. Revísalos: aunque no se ejecutan al importar, podrían ser peligrosos al usarlos.",
+    "risky": "Riesgo: {list}",
+    "done": "Importados {created} snippets ({failed} con error).",
+    "exported": "Snippets exportados.",
+    "error": {
+      "tooLarge": "El fichero supera 1 MB.",
+      "badJson": "El fichero no es JSON válido.",
+      "badFormat": "No es un fichero «nexusterm-snippets».",
+      "badVersion": "Versión de formato no soportada.",
+      "noSnippets": "El fichero no contiene una lista «snippets».",
+      "tooMany": "El fichero tiene más de 500 snippets."
+    },
+    "skip": {
+      "duplicate": "ya existe",
+      "duplicateInFile": "repetido en el fichero"
+    },
+    "invalid": {
+      "notObject": "entrada no válida",
+      "title": "falta el título",
+      "command": "falta el comando",
+      "description": "descripción no válida",
+      "tags": "etiquetas no válidas",
+      "unsafe": "contiene saltos de línea o caracteres de control/invisibles",
+      "tooLong": "supera los límites de longitud"
+    }
+  },
   "autocomplete": {
     "label": "Sugerencias de comandos",
     "empty": "Sin coincidencias",

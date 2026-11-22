@@ -97,6 +97,43 @@
     "authKey": "Private Key",
     "authAgent": "SSH Agent"
   },
+  "snippetsIo": {
+    "importTitle": "Import snippets",
+    "intro": "Choose a JSON file in the “nexusterm-snippets” format. Review the commands before importing: nothing runs on import and snippets are marked as “imported”.",
+    "choose": "Choose file…",
+    "import": "Import",
+    "export": "Export",
+    "importBtn": "Import snippets",
+    "exportBtn": "Export my snippets",
+    "nothingToExport": "You have no custom snippets to export.",
+    "imported": "imported",
+    "counts": "{n} to import · {s} skipped · {i} invalid",
+    "riskNotice": "Some commands match risky patterns. Review them: they are not run on import, but could be dangerous when used.",
+    "risky": "Risk: {list}",
+    "done": "Imported {created} snippets ({failed} failed).",
+    "exported": "Snippets exported.",
+    "error": {
+      "tooLarge": "The file is larger than 1 MB.",
+      "badJson": "The file is not valid JSON.",
+      "badFormat": "Not a “nexusterm-snippets” file.",
+      "badVersion": "Unsupported format version.",
+      "noSnippets": "The file has no “snippets” list.",
+      "tooMany": "The file has more than 500 snippets."
+    },
+    "skip": {
+      "duplicate": "already exists",
+      "duplicateInFile": "repeated in the file"
+    },
+    "invalid": {
+      "notObject": "invalid entry",
+      "title": "missing title",
+      "command": "missing command",
+      "description": "invalid description",
+      "tags": "invalid tags",
+      "unsafe": "contains line breaks or control/invisible characters",
+      "tooLong": "exceeds length limits"
+    }
+  },
   "autocomplete": {
     "label": "Command suggestions",
     "empty": "No matches",
