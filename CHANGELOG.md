@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [0.4.0] - 2026-11-21
+
 ### Added
 - **Import and export snippets**: new buttons in the snippet drawer. Import a `nexusterm-snippets` JSON file after reviewing a summary with every command in full (risky patterns such as `sudo`, `rm -rf` or `curl | sh` are flagged); duplicates are skipped and nothing is overwritten. Imported snippets are tagged and show an *imported* badge. Files with line breaks, control, bidirectional or invisible characters are rejected per entry (limits: 1 MB, 500 snippets). Export saves your custom snippets in the same format.
 - **Inline command suggestion**: while you type, the likely continuation of the command appears in gray after the cursor, taken from the host's history (and plain snippets). `→` or `End` accept it, `Ctrl+→` accepts one word; every other key, including `Enter` and `Tab`, reaches the shell untouched. It reads the typed text from the OSC 133 marks, so it works with local terminals (and remote shells with their own integration) and hides itself on full-screen programs, with the popup open or with a selection. Turn it off with *Settings → Terminal → Inline suggestion*.
@@ -24,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Automatic shell integration in local terminals**: NexusTerm now injects OSC 133 marks into local bash, zsh and fish (< 4) sessions without editing your config files, so command blocks, history and autocomplete work out of the box. Turn it off with *Settings → Terminal → Shell integration* if you already have your own. Applies to new terminals; SSH sessions are unchanged.
 - **History is no longer lost while the vault is locked**: commands finished before unlocking are kept in memory (up to 200, never written unencrypted) and saved encrypted on unlock.
 - **A local terminal always opens at startup** when there is nothing to restore, also when *Ask for the master password at startup* is enabled (before, the workspace could stay empty after unlocking). Restored tabs are never duplicated with an extra local terminal.
+
+### Fixed
+- **Command block duration indicator** (✓/✗ and time) is anchored to the right edge of the prompt line instead of overlapping the command on the left.
 
 ---
 
