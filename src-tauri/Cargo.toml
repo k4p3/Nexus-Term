@@ -32,6 +32,7 @@ chrono = { version = "0.4", features = ["serde"] }
 rand = "0.8"
 sha2 = "0.10"
 base64 = "0.22"
+nexus-sync-proto = { path = "../crates/sync-proto" }
 tracing = "0.1"
 tracing-subscriber = "0.3"
 russh-sftp = "2.0"

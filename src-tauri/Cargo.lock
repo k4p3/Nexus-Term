@@ -3677,6 +3677,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086"
 
 [[package]]
+name = "nexus-sync-proto"
+version = "0.1.0"
+dependencies = [
+ "aes-gcm 0.10.3",
+ "argon2",
+ "base64 0.22.1",
+ "data-encoding",
+ "hkdf 0.12.4",
+ "rand 0.8.8",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "thiserror 2.0.21",
+ "zeroize",
+]
+
+[[package]]
 name = "nexus-term"
 version = "0.4.0"
 dependencies = [
@@ -3697,6 +3714,7 @@ dependencies = [
  "ironrdp-svc",
  "ironrdp-tls",
  "ironrdp-tokio",
+ "nexus-sync-proto",
  "portable-pty",
  "rand 0.8.8",
  "rfd",

@@ -191,6 +191,9 @@ impl VaultManager {
         let _ = conn.execute("ALTER TABLE snippets ADD COLUMN is_builtin INTEGER NOT NULL DEFAULT 0", []);
         let _ = conn.execute("ALTER TABLE snippets ADD COLUMN is_enabled INTEGER NOT NULL DEFAULT 1", []);
 
+        // Seguimiento de cambios para la sincronización (idempotente)
+        crate::sync::migrate(conn)?;
+
         // Seed default community snippets idempotently
         crate::snippets::seed_community_snippets(conn)?;
         Ok(())

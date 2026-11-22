@@ -86,6 +86,12 @@ NexusTerm no abre múltiples conexiones TCP si un host utiliza terminal, SFTP y 
 - **Cifrado por Registro**: Cada registro confidencial (contraseñas, llaves SSH privadas, passphrases, notas) se cifra con una clave interna `VaultKey` envuelta usando AES-256-GCM y un nonce aleatorio de 96 bits.
 - **Limpieza de Memoria Sensible**: Uso de `zeroize::Zeroize` en structs que almacenan claves criptográficas para sobrescribir la memoria RAM con ceros inmediatamente al bloquear la bóveda o cerrar la aplicación.
 
+### 3.3.1. Sincronización con servidor propio (en construcción)
+La sincronización con un servidor autoalojado es *zero-knowledge*: el servidor solo almacena sobres cifrados. Se construye por fases (`sync-foundations` → `sync-server` → `sync-client-engine` → `sync-ui` → `sync-hardening-docs`).
+- **`crates/sync-proto`** (dependencia por ruta de `src-tauri`, sin red): sobre de registro versionado (AES-256-GCM con AAD `kind|id|rev|deleted`), jerarquía de claves (contraseña maestra + **Secret Key** → AUK → clave de autenticación y clave de envoltura mediante HKDF), **paquete de clave** con varias envolturas (`pwd`, `recovery`) y parámetros del KDF, **clave de recuperación** y texto del **kit de emergencia**. Comparte tipos con el futuro servidor.
+- **`src-tauri/src/sync/`**: seguimiento local de cambios mediante disparadores SQLite (`sync_rev`, `sync_dirty`, `sync_tombstones`, `sync_state`) para carpetas, identidades, hosts, túneles y snippets propios; sellado y apertura de registros. El flag `sync_state.applying` evita reenviar lo que llega del servidor.
+- El modelo de amenazas está en `docs/SYNC_THREAT_MODEL.md`.
+
 ### 3.4. Manejo de Errores Estructurado
 - Prohibido el uso de `.unwrap()` o `.expect()` en rutas de red, I/O o criptografía.
 - Cada módulo define su enum de errores con `thiserror` (ej. `VaultError`), serializable a JSON o cadena descriptiva hacia el frontend.
