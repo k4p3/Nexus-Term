@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Jump to a tab**: `Alt+1` … `Alt+8` select that tab and `Alt+9` selects the last one. Note that these keys no longer reach the shell (for example `readline` numeric arguments or `tmux` windows).
 
 ### Changed
+- **Snippets are inserted, not executed**: choosing a snippet (drawer or `Ctrl+K`) now types it at the prompt of the active terminal without a trailing newline, so you review it and press `Enter`. It goes through the safe-paste checks and bracketed paste. Before, it ran immediately. If no terminal is open you get a notice.
 - **Snippet parameters ignore Go templates**: `{{.ID}}`-style placeholders (as in `docker ps --format`) are no longer asked for as parameters; only `{{name}}` / `{{name=default}}` are. This fixes the built-in *Docker: List with Ports* snippet.
 - **Automatic shell integration in local terminals**: NexusTerm now injects OSC 133 marks into local bash, zsh and fish (< 4) sessions without editing your config files, so command blocks, history and autocomplete work out of the box. Turn it off with *Settings → Terminal → Shell integration* if you already have your own. Applies to new terminals; SSH sessions are unchanged.
 - **History is no longer lost while the vault is locked**: commands finished before unlocking are kept in memory (up to 200, never written unencrypted) and saved encrypted on unlock.

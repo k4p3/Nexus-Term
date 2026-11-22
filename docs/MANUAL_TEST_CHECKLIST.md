@@ -27,7 +27,8 @@ Cambios cubiertos: `terminal-productivity-quick-wins` (sección A), `vnc-rdp-gra
 - [ ] Escribir "div" filtra "Dividir…"; `↑`/`↓`/`Enter` funcionan; `Escape` cierra.
 - [ ] Cada acción muestra su atajo.
 - [ ] Cambiar de tema desde la paleta se aplica al instante.
-- [ ] Un snippet sin parámetros se ejecuta; uno con `{{parámetros}}` abre su formulario.
+- [ ] Un snippet sin parámetros se **inserta en el prompt sin ejecutarse** (hay que pulsar `Enter`); uno con `{{parámetros}}` abre su formulario y, al confirmar, también solo se inserta. Con una terminal cerrada aparece un aviso.
+- [ ] Un snippet con `rm -rf` o multilínea muestra el aviso de pegado seguro antes de insertarse.
 - [ ] En un panel RDP/VNC no aparecen acciones de terminal.
 
 ### Enlaces inteligentes (`Ctrl`+clic)

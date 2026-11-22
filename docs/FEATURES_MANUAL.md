@@ -102,7 +102,7 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 
 ### 4.2. Biblioteca de Snippets con Parámetros Dinámicos
 - Almacena comandos recurrentes de Docker, Kubernetes, Git, bases de datos y scripts de mantenimiento.
-- Parámetros dinámicos `{{parametro}}`: Al hacer clic en un snippet, NexusTerm solicita los valores variables y los inserta listos para ejecutar.
+- Parámetros dinámicos `{{parametro}}`: Al hacer clic en un snippet, NexusTerm solicita los valores variables y **lo inserta en el prompt sin ejecutarlo**: lo revisas y pulsas `Enter`. La inserción pasa por el aviso de pegado seguro y usa *bracketed paste*, de modo que un snippet multilínea no se ejecuta línea a línea.
 
 ### 4.3. Modo Broadcast / Entrada Múltiple (*Multi-Exec*)
 - Permite escribir en una terminal y replicar las pulsaciones en tiempo real en todos los paneles divididos activos de la pestaña. Ideal para ejecutar actualizaciones simultáneas en grupos de servidores.
