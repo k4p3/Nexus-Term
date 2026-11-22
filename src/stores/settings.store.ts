@@ -27,6 +27,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   ui_density: 'comfortable',
   default_shell: null,
   shell_integration: true,
+  inline_suggestion: true,
   close_to_tray: true,
   ask_password_on_startup: false,
   auto_lock_enabled: true,

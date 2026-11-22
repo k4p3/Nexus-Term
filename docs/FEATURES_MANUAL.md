@@ -93,6 +93,13 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 - No se abre en pantalla alterna (`vim`, `less`…): `Ctrl+Space` llega al programa. Con el historial desactivado solo se ofrecen snippets, y nunca se sugieren entradas que coincidan con los patrones de secretos.
 - Limitación: `Ctrl+Space` es *set-mark* en readline/emacs y deja de llegar al shell.
 
+### 4.1.2. Sugerencia en Línea
+- Mientras escribes, la **continuación probable** aparece en gris tras el cursor: la entrada del historial del host que empieza por lo escrito (la más usada y reciente) o, si no hay, un snippet sin parámetros. Se necesitan al menos 2 caracteres.
+- `→` o `End` aceptan la sugerencia completa y `Ctrl+→` solo la siguiente palabra. Solo se insertan, **nunca se ejecutan**; el resto de teclas (`Enter`, `Tab`…) llegan al shell sin cambios. Sin sugerencia visible, `→`/`End`/`Ctrl+→` son del shell.
+- Lee lo escrito **de la pantalla** con las marcas OSC 133 (ver §4.1), por lo que es correcta incluso tras flechas, `Tab` o el historial del shell. Sin OSC 133 no se muestra nada.
+- Se oculta en pantalla alterna, con el popup abierto, con texto seleccionado, con texto multilínea o con el cursor antes del final de lo escrito. Nunca sugiere entradas con secretos. Se desactiva en *Ajustes → Terminal → Sugerencia en línea*.
+- Limitación: si usas las *autosuggestions* de zsh o fish, desactiva una de las dos para no ver sugerencias superpuestas.
+
 ### 4.2. Biblioteca de Snippets con Parámetros Dinámicos
 - Almacena comandos recurrentes de Docker, Kubernetes, Git, bases de datos y scripts de mantenimiento.
 - Parámetros dinámicos `{{parametro}}`: Al hacer clic en un snippet, NexusTerm solicita los valores variables y los inserta listos para ejecutar.

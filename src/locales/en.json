@@ -152,6 +152,8 @@
     "defaultShell": "Default Local Shell",
     "shellIntegration": "Shell integration",
     "shellIntegrationDesc": "Adds OSC 133 marks to local terminals (bash, zsh, fish) without touching your config files. Enables history, command blocks and autocomplete. Turn it off if you already have your own integration. Applies to new terminals.",
+    "inlineSuggestion": "Inline suggestion",
+    "inlineSuggestionDesc": "Shows the likely continuation of the command you are typing in gray, from your history and snippets. Accept it with → or End (Ctrl+→ accepts one word). Requires shell integration (OSC 133).",
     "defaultShellPlaceholder": "Auto-detect ($SHELL)",
     "shellHelp": "Path to your preferred shell binary (e.g., /bin/zsh, /usr/bin/fish, /bin/bash).",
     "securityNotice": "Vault Master Password Rotation",

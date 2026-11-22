@@ -49,6 +49,7 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 ### 🖥️ High-Performance Terminal & Multiplexing
 - **Hardware-Accelerated WebGL Rendering**: 60+ FPS rendering powered by `@xterm/addon-webgl` with automatic Canvas 2D fallback.
 - **Direct Binary Streaming**: Terminal input and output flow over raw `Vec<u8>` Tauri binary channels, bypassing JSON serialization overhead.
+- **Inline Command Suggestion**: the likely continuation of what you type appears in gray after the cursor (from history and snippets); accept it with `→`/`End`, or one word with `Ctrl+→`. Nothing runs until you press `Enter`.
 - **Command Autocomplete Popup**: press `Ctrl+Space` for suggestions anchored at the cursor, drawn from the host's encrypted command history and your enabled snippets. Keep typing to filter; `↑`/`↓` move, `Tab` inserts without running and `Esc` closes. Disabled on full-screen programs such as `vim`.
 - **Keyboard Tab Navigation**: `Ctrl+Shift+T` opens a local terminal, `Ctrl+Tab` / `Ctrl+Shift+Tab` (or `Ctrl+PageDown` / `Ctrl+PageUp`) cycle through tabs and `Alt+1..9` jump straight to one (`Alt+9` = last). A local terminal also always opens at startup when there is nothing to restore.
 - **Recursive Split Panes & Tab Docking**: Split any workspace vertically or horizontally without limits. Easily open a local terminal, duplicate current hosts, pick from inventory, or move existing open tabs into panes without restarting sessions.

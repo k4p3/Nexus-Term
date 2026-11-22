@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Inline command suggestion**: while you type, the likely continuation of the command appears in gray after the cursor, taken from the host's history (and plain snippets). `→` or `End` accept it, `Ctrl+→` accepts one word; every other key, including `Enter` and `Tab`, reaches the shell untouched. It reads the typed text from the OSC 133 marks, so it works with local terminals (and remote shells with their own integration) and hides itself on full-screen programs, with the popup open or with a selection. Turn it off with *Settings → Terminal → Inline suggestion*.
 - **More built-in Docker snippets**: Compose up/down/logs/status, images, resource usage, restart and container processes (the community catalog now has 23 snippets).
 - **Command autocomplete popup**: `Ctrl+Space` opens suggestions anchored at the cursor from the host's encrypted history and enabled snippets. It filters as you type, `Tab` inserts without running, `Esc` closes, and `Enter` is never intercepted. It stays off on full-screen programs. Note that `Ctrl+Space` (readline *set-mark*) no longer reaches the shell.
 - **New local terminal shortcut**: `Ctrl+Shift+T` (`Cmd+Shift+T` on macOS) opens a local terminal in a new tab from anywhere.

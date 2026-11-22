@@ -20,6 +20,7 @@ export interface AppSettings {
   ui_density: 'comfortable' | 'compact';
   default_shell: string | null;
   shell_integration: boolean;
+  inline_suggestion: boolean;
   close_to_tray: boolean;
   ask_password_on_startup: boolean;
   auto_lock_enabled: boolean;

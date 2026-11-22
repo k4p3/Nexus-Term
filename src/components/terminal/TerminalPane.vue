@@ -23,6 +23,8 @@ import { useVaultStore } from "../../stores/vault.store";
 import { useTelemetryStore } from "../../stores/telemetry.store";
 import TerminalSearchBar, { type SearchOptions } from "./TerminalSearchBar.vue";
 import { useReplayStore } from "../../stores/replay.store";
+import { useInlineSuggestion } from "../../composables/useInlineSuggestion";
+import { readInputLine } from "../../utils/inline-suggestion";
 import { useHistoryStore } from "../../stores/history.store";
 import { useAutocomplete } from "../../composables/useAutocomplete";
 import QuickSelectOverlay from "./QuickSelectOverlay.vue";
@@ -187,6 +189,15 @@ const autocomplete = useAutocomplete({
   insert: insertSuggestion,
 });
 const { isOpen: isAutocompleteOpen } = autocomplete;
+
+const inlineSuggestion = useInlineSuggestion({
+  getTerm: () => term as never,
+  getLine: () => (term && tracker ? readInputLine(term, tracker.current()) : null),
+  hostId: () => props.pane.hostId,
+  isBlocked: () => isAutocompleteOpen.value,
+  insert: (text) => void insertSuggestion(text, false),
+});
+watch([isAutocompleteOpen, () => settingsStore.settings.inline_suggestion], () => inlineSuggestion.schedule());
 
 /** Instant Replay: retiene la salida con marca de tiempo solo en memoria, si el ajuste está activo. */
 function recordOutput(chunk: Uint8Array) {
@@ -755,6 +766,11 @@ onMounted(async () => {
       e.preventDefault();
       return false;
     }
+    // Sugerencia en gris visible: →, End y Ctrl+→ la aceptan; sin sugerencia llegan al shell.
+    if (inlineSuggestion.handleKey(e)) {
+      e.preventDefault();
+      return false;
+    }
     const def = matchShortcut(e);
     if (!def) return true;
     if (def.context !== 'terminal') return false;
@@ -819,6 +835,9 @@ onMounted(async () => {
 
   fitAddon.fit();
   term.textarea?.addEventListener('blur', () => autocomplete.close());
+  term.onWriteParsed(() => inlineSuggestion.schedule());
+  term.onCursorMove(() => inlineSuggestion.schedule());
+  term.onSelectionChange(() => inlineSuggestion.schedule());
 
   // Send keystrokes to Rust backend and replicate if broadcast mode is active
   term.onData((data) => {
@@ -883,6 +902,7 @@ onBeforeUnmount(async () => {
   }
   addonManager?.dispose();
   addonManager = null;
+  inlineSuggestion.dispose();
   tracker?.dispose();
   tracker = null;
   replayStore.release(props.pane.id);

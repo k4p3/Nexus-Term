@@ -51,6 +51,7 @@ export const useHistoryStore = defineStore("history", () => {
     const text = command.replace(/[\r\n]+$/u, "");
     try {
       await historyService.record(hostKey, text, exitCode);
+      if (loadedHost.value === hostKey) loadedHost.value = null; // la caché ya no incluye este comando
       return true;
     } catch {
       // Bóveda bloqueada (u otro fallo): se retiene en memoria hasta el desbloqueo.

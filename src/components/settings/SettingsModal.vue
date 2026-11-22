@@ -743,6 +743,14 @@ async function handleResetDefaults() {
                   <span class="block text-xs text-fg-muted">{{ t('settings.shellIntegrationDesc') }}</span>
                 </span>
               </label>
+              <label class="flex items-start space-x-2 cursor-pointer max-w-md mt-3">
+                <input type="checkbox" class="mt-0.5" :checked="settingsStore.settings.inline_suggestion"
+                  @change="settingsStore.updateSettings({ inline_suggestion: ($event.target as HTMLInputElement).checked })" />
+                <span>
+                  <span class="block text-xs font-medium text-fg">{{ t('settings.inlineSuggestion') }}</span>
+                  <span class="block text-xs text-fg-muted">{{ t('settings.inlineSuggestionDesc') }}</span>
+                </span>
+              </label>
             </div>
           </div>
 
