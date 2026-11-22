@@ -545,7 +545,10 @@ function decorateBlock(b: CommandBlock) {
   const deco = term.registerDecoration({ marker: b.prompt, x: 0, anchor: "right", width: label.length + 1 });
   deco?.onRender((el) => {
     el.textContent = label;
-    el.style.cssText = `color:var(${ok ? "--theme-success" : "--theme-danger"});font-size:0.8em;text-align:right;cursor:pointer;opacity:.85`;
+    Object.assign(el.style, {
+      right: "0px", left: "auto", color: `var(${ok ? "--theme-success" : "--theme-danger"})`,
+      fontSize: "0.8em", textAlign: "right", cursor: "pointer", opacity: ".85",
+    });
     el.title = ok
       ? t("terminal.blockOk", { time: formatDuration(b.durationMs) })
       : t("terminal.blockFailed", { code: b.exitCode, time: formatDuration(b.durationMs) });
