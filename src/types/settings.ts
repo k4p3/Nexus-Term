@@ -19,6 +19,7 @@ export interface AppSettings {
   theme_dark_id: string;
   ui_density: 'comfortable' | 'compact';
   default_shell: string | null;
+  shell_integration: boolean;
   close_to_tray: boolean;
   ask_password_on_startup: boolean;
   auto_lock_enabled: boolean;

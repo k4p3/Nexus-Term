@@ -106,6 +106,9 @@ Cambios cubiertos: `terminal-productivity-quick-wins` (sección A), `vnc-rdp-gra
 - [ ] `Ctrl+F` con un bloque seleccionado busca **solo dentro** de él (las coincidencias de fuera no se resaltan).
 - [ ] `Ctrl+Shift+R` repite el comando del bloque seleccionado (o del último); con `rm -rf /tmp/x` o `sudo …` pide confirmación antes de ejecutar.
 - [ ] **Scrollback**: genera >10 000 líneas (`seq 1 20000`) y ejecuta varios comandos; los ✓/✗ de los comandos recientes siguen en su línea y los bloques ya descartados desaparecen sin errores en consola.
+- [ ] **Inyección automática**: en una terminal local nueva (zsh o bash) sin configuración propia de OSC 133, aparecen ✓/✗ tras ejecutar comandos; `echo $NEXUSTERM_SHELL_INTEGRATION` devuelve `1` y `echo $ZDOTDIR` no apunta a la caché de la app.
+- [ ] Con *Ajustes → Terminal → Integración con el shell* desactivado, una terminal nueva no muestra marcas.
+- [ ] Con la bóveda bloqueada, ejecuta `echo hola`; al desbloquear, `Ctrl+Shift+H` y `Ctrl+Space` lo ofrecen y persiste tras reiniciar.
 - [ ] En un shell **sin** OSC 133 no aparecen marcas ni botones de bloque y la terminal funciona como antes.
 
 ### Historial de comandos por host (`Ctrl+Shift+H`)

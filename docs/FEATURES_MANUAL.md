@@ -81,6 +81,8 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 - **Bloques de Comandos**: cada comando es un bloque basado en *markers* de xterm, por lo que sigue apuntando a las líneas correctas cuando el *scrollback* se recorta (los bloques cuyas líneas se descartan desaparecen).
   - Indicador **✓/✗ con la duración** en el margen derecho de la línea del prompt; un clic selecciona el bloque.
   - Con un bloque seleccionado (o el último, si no hay ninguno): **copiar comando**, **copiar salida**, **repetir comando** (`Ctrl+Shift+R`, pasa por las comprobaciones del pegado seguro) y **buscar solo dentro del bloque** (`Ctrl+F`).
+  - **Inyección automática (terminales locales)**: NexusTerm añade las marcas OSC 133 a bash, zsh y fish (< 4; fish 4+ ya las emite) sin modificar tus ficheros: usa un `ZDOTDIR` temporal en zsh, `--init-file` en bash y `--init-command` en fish, con scripts en la caché de la app. Se desactiva en *Ajustes → Terminal → Integración con el shell*. Define `NEXUSTERM_SHELL_INTEGRATION=1` en el entorno del shell, por lo que tu propia configuración puede comprobarlo para no duplicar marcas. Otros shells, Windows y SSH no cambian. Se aplica a terminales nuevas.
+  - **Historial con la bóveda bloqueada**: los comandos terminados antes de desbloquear se retienen solo en memoria (máx. 200, nunca sin cifrar) y se guardan cifrados al desbloquear.
   - Si el shell no emite OSC 133, las acciones de bloque no aparecen y la terminal se comporta como siempre.
   - Limitación: xterm.js no permite ocultar líneas, por lo que no se pueden *colapsar* salidas (ver `docs/ROADMAP.md`).
 

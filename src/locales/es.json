@@ -150,6 +150,8 @@
     "importTheme": "Importar Tema (.json)",
     "themeImported": "¡Tema importado con éxito!",
     "defaultShell": "Shell Local Predeterminado",
+    "shellIntegration": "Integración con el shell",
+    "shellIntegrationDesc": "Añade marcas OSC 133 a los terminales locales (bash, zsh, fish) sin modificar tus ficheros de configuración. Habilita el historial, los bloques de comandos y el autocompletado. Desactívala si ya tienes tu propia integración. Se aplica a las terminales nuevas.",
     "defaultShellPlaceholder": "Autodetectar ($SHELL)",
     "shellHelp": "Ruta absoluta del binario de tu shell (ej. /bin/zsh, /usr/bin/fish, /bin/bash).",
     "securityNotice": "Rotación de Contraseña Maestra de la Bóveda",

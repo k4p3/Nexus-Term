@@ -26,6 +26,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   theme_dark_id: 'nexus-slate',
   ui_density: 'comfortable',
   default_shell: null,
+  shell_integration: true,
   close_to_tray: true,
   ask_password_on_startup: false,
   auto_lock_enabled: true,

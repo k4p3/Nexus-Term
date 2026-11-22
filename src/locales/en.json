@@ -150,6 +150,8 @@
     "importTheme": "Import Theme (.json)",
     "themeImported": "Theme imported successfully!",
     "defaultShell": "Default Local Shell",
+    "shellIntegration": "Shell integration",
+    "shellIntegrationDesc": "Adds OSC 133 marks to local terminals (bash, zsh, fish) without touching your config files. Enables history, command blocks and autocomplete. Turn it off if you already have your own integration. Applies to new terminals.",
     "defaultShellPlaceholder": "Auto-detect ($SHELL)",
     "shellHelp": "Path to your preferred shell binary (e.g., /bin/zsh, /usr/bin/fish, /bin/bash).",
     "securityNotice": "Vault Master Password Rotation",
