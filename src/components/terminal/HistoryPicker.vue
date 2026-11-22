@@ -5,7 +5,7 @@ import { useI18n } from "vue-i18n";
 import ListPicker, { type PickerItem } from "../common/ListPicker.vue";
 import { useHistoryStore } from "../../stores/history.store";
 import { useSnippetsStore } from "../../stores/snippets.store";
-import { rankHistory } from "../../utils/history-filter";
+import { toCandidates, rankCandidates, type Candidate } from "../../utils/completion-candidates";
 
 const props = defineProps<{ hostId: string | null | undefined }>();
 const emit = defineEmits<{
@@ -23,49 +23,36 @@ onMounted(async () => {
   if (snippets.snippets.length === 0) await snippets.fetchSnippets();
 });
 
-interface Meta {
-  text: string;
-  use_count: number;
-  last_used_at: string;
-}
+const candidates = computed(() => toCandidates(history.entries, snippets.enabledSnippets, true));
+const byId = computed(() => new Map(candidates.value.map((c) => [c.id, c])));
 
-const meta = computed(() => {
-  const m = new Map<string, Meta>();
-  for (const e of history.entries) m.set(`h:${e.id}`, { text: e.command, use_count: e.use_count, last_used_at: e.last_used_at });
-  for (const s of snippets.enabledSnippets)
-    m.set(`s:${s.id}`, { text: `${s.title} ${s.command_template}`, use_count: 0, last_used_at: "" });
-  return m;
-});
-
-const items = computed<PickerItem[]>(() => [
-  ...history.entries.map((e) => ({
-    id: `h:${e.id}`,
-    title: e.command.replace(/\s+/g, " "),
-    subtitle: e.last_exit_code !== null && e.last_exit_code !== 0 ? `✗ ${e.last_exit_code}` : undefined,
-    hint: e.use_count > 1 ? `×${e.use_count}` : undefined,
-  })),
-  ...snippets.enabledSnippets.map((s) => ({
-    id: `s:${s.id}`,
-    title: s.command_template.replace(/\s+/g, " "),
-    subtitle: `${t("history.snippet")}: ${snippetTitle(s)}`,
-  })),
-]);
+const items = computed<PickerItem[]>(() =>
+  candidates.value.map((c) => {
+    const title = c.text.replace(/\s+/g, " ");
+    if (c.kind === "snippet") {
+      const sn = snippets.enabledSnippets.find((x) => x.id === c.snippetId);
+      return { id: c.id, title, subtitle: `${t("history.snippet")}: ${sn ? snippetTitle(sn) : ""}` };
+    }
+    return {
+      id: c.id,
+      title,
+      subtitle: c.exitCode !== null && c.exitCode !== 0 ? `✗ ${c.exitCode}` : undefined,
+      hint: c.useCount > 1 ? `×${c.useCount}` : undefined,
+    };
+  }),
+);
 
 function ranker(list: PickerItem[], query: string): PickerItem[] {
-  const ranked = rankHistory(
-    list.map((i) => ({ item: i, ...(meta.value.get(i.id) ?? { text: i.title, use_count: 0, last_used_at: "" }) })),
+  const ranked = rankCandidates(
+    list.map((i) => byId.value.get(i.id)).filter((c): c is Candidate => !!c),
     query,
   );
-  return ranked.map((r) => r.item);
+  const items = new Map(list.map((i) => [i.id, i]));
+  return ranked.map((c) => items.get(c.id)).filter((i): i is PickerItem => !!i);
 }
 
 function select(id: string, withCtrl: boolean) {
-  const [kind, ...rest] = id.split(":");
-  const key = rest.join(":");
-  const text =
-    kind === "h"
-      ? history.entries.find((e) => e.id === key)?.command
-      : snippets.snippets.find((s) => s.id === key)?.command_template;
+  const text = byId.value.get(id)?.text;
   if (text) emit("insert", text, withCtrl);
 }
 </script>

@@ -97,6 +97,12 @@
     "authKey": "Llave Privada",
     "authAgent": "Agente SSH"
   },
+  "autocomplete": {
+    "label": "Sugerencias de comandos",
+    "empty": "Sin coincidencias",
+    "snippet": "Snippet",
+    "hint": "↑↓ navegar · Tab insertar · Esc cerrar"
+  },
   "history": {
     "snippet": "Snippet",
     "placeholder": "Buscar en el historial del host y snippets… (Enter inserta, Ctrl+Enter ejecuta)",
@@ -289,6 +295,7 @@
     "terminal.palette": "Paleta de comandos de la terminal",
     "terminal.pasteHistory": "Historial de pegado",
     "terminal.history": "Historial de comandos",
+    "terminal.autocomplete": "Autocompletar comando",
     "terminal.instantReplay": "Instant Replay (revisar salida)",
     "terminal.rerunBlock": "Repetir el comando del bloque seleccionado"
   },

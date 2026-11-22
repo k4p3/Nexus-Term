@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Command autocomplete popup**: `Ctrl+Space` opens suggestions anchored at the cursor from the host's encrypted history and enabled snippets. It filters as you type, `Tab` inserts without running, `Esc` closes, and `Enter` is never intercepted. It stays off on full-screen programs. Note that `Ctrl+Space` (readline *set-mark*) no longer reaches the shell.
 - **New local terminal shortcut**: `Ctrl+Shift+T` (`Cmd+Shift+T` on macOS) opens a local terminal in a new tab from anywhere.
 - **Switch tabs from the keyboard**: `Ctrl+Tab` / `Ctrl+Shift+Tab` (or `Ctrl+PageDown` / `Ctrl+PageUp`) move to the next / previous tab, wrapping around at both ends.
 - **Jump to a tab**: `Alt+1` … `Alt+8` select that tab and `Alt+9` selects the last one. Note that these keys no longer reach the shell (for example `readline` numeric arguments or `tmux` windows).

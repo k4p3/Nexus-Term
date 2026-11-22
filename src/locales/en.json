@@ -97,6 +97,12 @@
     "authKey": "Private Key",
     "authAgent": "SSH Agent"
   },
+  "autocomplete": {
+    "label": "Command suggestions",
+    "empty": "No matches",
+    "snippet": "Snippet",
+    "hint": "↑↓ navigate · Tab insert · Esc close"
+  },
   "history": {
     "snippet": "Snippet",
     "placeholder": "Search host history and snippets… (Enter inserts, Ctrl+Enter runs)",
@@ -289,6 +295,7 @@
     "terminal.palette": "Terminal command palette",
     "terminal.pasteHistory": "Paste history",
     "terminal.history": "Command history",
+    "terminal.autocomplete": "Autocomplete command",
     "terminal.instantReplay": "Instant Replay",
     "terminal.rerunBlock": "Re-run command of the selected block"
   },

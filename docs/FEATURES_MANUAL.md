@@ -84,6 +84,13 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
   - Si el shell no emite OSC 133, las acciones de bloque no aparecen y la terminal se comporta como siempre.
   - Limitación: xterm.js no permite ocultar líneas, por lo que no se pueden *colapsar* salidas (ver `docs/ROADMAP.md`).
 
+### 4.1.1. Autocompletado de Comandos
+- `Ctrl + Space` abre un popup junto al cursor con coincidencias del **historial del host** (o de las terminales locales) y de los **snippets habilitados**, ordenadas por coincidencia difusa, uso y recencia.
+- El popup **no roba el foco**: sigues escribiendo en la terminal y la lista se filtra con lo tecleado desde el último prompt. `↑`/`↓` navegan, `Tab` inserta la selección sustituyendo lo escrito, `Esc` cierra. **`Enter` nunca se intercepta**: aceptar una sugerencia solo la inserta, no la ejecuta.
+- La línea actual se reconstruye **en memoria** a partir de las teclas (no se guarda ni se registra). Si una tecla la hace ambigua (flechas, `Tab`, `Ctrl+R`, pegado, historial del shell), el popup muestra las entradas recientes sin filtrar e inserta sin borrar lo escrito, hasta el siguiente `Enter`.
+- No se abre en pantalla alterna (`vim`, `less`…): `Ctrl+Space` llega al programa. Con el historial desactivado solo se ofrecen snippets, y nunca se sugieren entradas que coincidan con los patrones de secretos.
+- Limitación: `Ctrl+Space` es *set-mark* en readline/emacs y deja de llegar al shell.
+
 ### 4.2. Biblioteca de Snippets con Parámetros Dinámicos
 - Almacena comandos recurrentes de Docker, Kubernetes, Git, bases de datos y scripts de mantenimiento.
 - Parámetros dinámicos `{{parametro}}`: Al hacer clic en un snippet, NexusTerm solicita los valores variables y los inserta listos para ejecutar.
@@ -243,6 +250,7 @@ NexusTerm multiplexa un canal SFTP sobre la misma conexión SSH autenticada de l
 | `Ctrl + Shift + C` | Copiar Texto Seleccionado | Terminal Activa |
 | `Ctrl + Shift + V` | Pegar Texto del Portapapeles (con pegado seguro) | Terminal Activa |
 | `Ctrl + Shift + Space` | Quick Select (copiar/pegar con etiquetas) | Terminal Activa |
+| `Ctrl + Space` | Popup de Autocompletado | Terminal Activa |
 | `Ctrl + Shift + P` | Paleta de Comandos de la Terminal | Espacio de Trabajo |
 | `Ctrl + Alt + V` | Historial de Pegado | Terminal Activa |
 | `Ctrl + Shift + H` | Historial de Comandos por Host (`Enter` inserta, `Ctrl+Enter` ejecuta) | Terminal Activa |

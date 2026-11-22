@@ -19,7 +19,9 @@ describe("shortcut registry", () => {
   it("never registers a plain Ctrl+letter (reserved for the shell) except the existing globals", () => {
     const allowedPlain = new Set(["app.quickConnect", "app.toggleSidebar", "app.settings", "terminal.search",
       // Teclas no imprimibles que el shell no usa: cambio de pestaña.
-      "app.nextTab", "app.nextTabAlt", "app.prevTabAlt"]);
+      "app.nextTab", "app.nextTabAlt", "app.prevTabAlt",
+      // Ctrl+Space (set-mark en readline, poco usado): autocompletado.
+      "terminal.autocomplete"]);
     for (const d of SHORTCUTS) {
       const c = d.combo;
       if (c.ctrl && !c.shift && !c.alt && !allowedPlain.has(d.id)) {
@@ -63,6 +65,14 @@ describe("shortcut registry", () => {
     expect(matchShortcut(ev({ key: "1", code: "Digit1", altKey: true, shiftKey: true }))).toBeNull();
     expect(matchShortcut(ev({ key: "ArrowLeft", altKey: true }), ["terminal"])?.id).toBe("terminal.focusLeft");
     expect(formatShortcut(SHORTCUTS.find((d) => d.id === "app.goToTab3")!)).toBe("Alt+3");
+  });
+
+  it("keeps Ctrl+Space (autocomplete) apart from Ctrl+Shift+Space (quick select)", () => {
+    const sp = (o: Partial<KeyboardEvent>) => ev({ key: " ", code: "Space", ...o });
+    expect(matchShortcut(sp({ ctrlKey: true }), ["terminal"])?.id).toBe("terminal.autocomplete");
+    expect(matchShortcut(sp({ ctrlKey: true, shiftKey: true }), ["terminal"])?.id).toBe("terminal.quickSelect");
+    expect(matchShortcut(sp({ ctrlKey: true }), ["global", "workspace"])).toBeNull();
+    expect(matchShortcut(sp({}))).toBeNull();
   });
 
   it("does not match with extra or missing modifiers", () => {

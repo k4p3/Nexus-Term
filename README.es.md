@@ -49,6 +49,7 @@ Diseñado de manera nativa sobre **Tauri v2** y **Rust**, elimina el alto consum
 ### 🖥️ Terminal de Alto Rendimiento y Multiplexación
 - **Aceleración por Hardware (WebGL)**: Renderizado fluido a 60+ FPS mediante `@xterm/addon-webgl` con degradación suave automática a Canvas 2D.
 - **Streaming Binario Directo**: La entrada y salida de datos fluye mediante canales binarios `Vec<u8>` de Tauri v2, evitando la sobrecarga de serialización JSON.
+- **Popup de Autocompletado de Comandos**: pulsa `Ctrl+Space` para ver sugerencias junto al cursor, tomadas del historial cifrado del host y de tus snippets habilitados. Sigue escribiendo para filtrar; `↑`/`↓` navegan, `Tab` inserta sin ejecutar y `Esc` cierra. Se desactiva en programas de pantalla completa como `vim`.
 - **Navegación de Pestañas por Teclado**: `Ctrl+Shift+T` abre una terminal local, `Ctrl+Tab` / `Ctrl+Shift+Tab` (o `Ctrl+PageDown` / `Ctrl+PageUp`) recorren las pestañas y `Alt+1..9` salta directo a una (`Alt+9` = la última). Además, al iniciar siempre se abre una terminal local si no hay nada que restaurar.
 - **Paneles Divididos Recursivos (*Split Panes*) y Acoplamiento de Pestañas**: Divide cualquier espacio de trabajo vertical u horizontalmente sin límites. Abre terminales locales, duplica servidores, elige hosts del inventario o mueve pestañas abiertas directamente a un panel dividido sin reiniciar sesiones.
 - **Compatibilidad con Nerd Fonts y Powerline**: Soporte total para fuentes como *MesloLGS NF*, *Hack Nerd Font*, *JetBrains Mono* y *Fira Code*.
@@ -141,6 +142,7 @@ Diseñado de manera nativa sobre **Tauri v2** y **Rust**, elimina el alto consum
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> | Copiar Texto Seleccionado | Terminal Activa |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> | Pegar Texto del Portapapeles (con comprobación de pegado seguro) | Terminal Activa |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd> | Quick Select (copiar elementos de la pantalla con etiquetas) | Terminal Activa |
+| <kbd>Ctrl</kbd> + <kbd>Space</kbd> | Popup de Autocompletado (historial y snippets; `Tab` inserta, `Esc` cierra) | Terminal Activa |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> | Paleta de Comandos de la Terminal | Espacio de Trabajo |
 | <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd> | Historial de Pegado | Terminal Activa |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd> | Historial de Comandos por Host (`Enter` inserta, `Ctrl+Enter` ejecuta) | Terminal Activa |
