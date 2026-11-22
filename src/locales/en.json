@@ -97,6 +97,49 @@
     "authKey": "Private Key",
     "authAgent": "SSH Agent"
   },
+  "snippetsIo": {
+    "importTitle": "Import snippets",
+    "intro": "Choose a JSON file in the “nexusterm-snippets” format. Review the commands before importing: nothing runs on import and snippets are marked as “imported”.",
+    "choose": "Choose file…",
+    "import": "Import",
+    "export": "Export",
+    "importBtn": "Import snippets",
+    "exportBtn": "Export my snippets",
+    "nothingToExport": "You have no custom snippets to export.",
+    "imported": "imported",
+    "counts": "{n} to import · {s} skipped · {i} invalid",
+    "riskNotice": "Some commands match risky patterns. Review them: they are not run on import, but could be dangerous when used.",
+    "risky": "Risk: {list}",
+    "done": "Imported {created} snippets ({failed} failed).",
+    "exported": "Snippets exported.",
+    "error": {
+      "tooLarge": "The file is larger than 1 MB.",
+      "badJson": "The file is not valid JSON.",
+      "badFormat": "Not a “nexusterm-snippets” file.",
+      "badVersion": "Unsupported format version.",
+      "noSnippets": "The file has no “snippets” list.",
+      "tooMany": "The file has more than 500 snippets."
+    },
+    "skip": {
+      "duplicate": "already exists",
+      "duplicateInFile": "repeated in the file"
+    },
+    "invalid": {
+      "notObject": "invalid entry",
+      "title": "missing title",
+      "command": "missing command",
+      "description": "invalid description",
+      "tags": "invalid tags",
+      "unsafe": "contains line breaks or control/invisible characters",
+      "tooLong": "exceeds length limits"
+    }
+  },
+  "autocomplete": {
+    "label": "Command suggestions",
+    "empty": "No matches",
+    "snippet": "Snippet",
+    "hint": "↑↓ navigate · Tab insert · Esc close"
+  },
   "history": {
     "snippet": "Snippet",
     "placeholder": "Search host history and snippets… (Enter inserts, Ctrl+Enter runs)",
@@ -144,6 +187,10 @@
     "importTheme": "Import Theme (.json)",
     "themeImported": "Theme imported successfully!",
     "defaultShell": "Default Local Shell",
+    "shellIntegration": "Shell integration",
+    "shellIntegrationDesc": "Adds OSC 133 marks to local terminals (bash, zsh, fish) without touching your config files. Enables history, command blocks and autocomplete. Turn it off if you already have your own integration. Applies to new terminals.",
+    "inlineSuggestion": "Inline suggestion",
+    "inlineSuggestionDesc": "Shows the likely continuation of the command you are typing in gray, from your history and snippets. Accept it with → or End (Ctrl+→ accepts one word). Requires shell integration (OSC 133).",
     "defaultShellPlaceholder": "Auto-detect ($SHELL)",
     "shellHelp": "Path to your preferred shell binary (e.g., /bin/zsh, /usr/bin/fish, /bin/bash).",
     "securityNotice": "Vault Master Password Rotation",
@@ -256,6 +303,20 @@
     "app.quickConnect": "Quick Connect",
     "app.toggleSidebar": "Toggle sidebar",
     "app.settings": "Settings",
+    "terminal.newLocal": "New local terminal",
+    "app.goToTab1": "Go to tab 1",
+    "app.goToTab2": "Go to tab 2",
+    "app.goToTab3": "Go to tab 3",
+    "app.goToTab4": "Go to tab 4",
+    "app.goToTab5": "Go to tab 5",
+    "app.goToTab6": "Go to tab 6",
+    "app.goToTab7": "Go to tab 7",
+    "app.goToTab8": "Go to tab 8",
+    "app.goToTab9": "Go to last tab",
+    "app.nextTab": "Next tab",
+    "app.nextTabAlt": "Next tab (alternative)",
+    "app.prevTab": "Previous tab",
+    "app.prevTabAlt": "Previous tab (alternative)",
     "app.shortcuts": "Keyboard shortcuts cheat sheet",
     "terminal.search": "Search terminal buffer",
     "terminal.splitH": "Split horizontally",
@@ -275,6 +336,7 @@
     "terminal.palette": "Terminal command palette",
     "terminal.pasteHistory": "Paste history",
     "terminal.history": "Command history",
+    "terminal.autocomplete": "Autocomplete command",
     "terminal.instantReplay": "Instant Replay",
     "terminal.rerunBlock": "Re-run command of the selected block"
   },
@@ -562,6 +624,7 @@
       "duplicate": "Duplicate as personal snippet",
       "confirmDisable": "Disable the community snippet \"{title}\"? You can re-enable it any time.",
       "confirmDelete": "Permanently delete the snippet \"{title}\"?",
+      "noTerminal": "Open a terminal to insert the snippet.",
       "insertHint": "Click to insert into the terminal",
       "disabledHint": "Snippet disabled (enable it to use it)",
       "visible": "{n} visible"

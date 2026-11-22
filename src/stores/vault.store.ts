@@ -49,6 +49,7 @@ export const useVaultStore = defineStore("vault", () => {
       await vaultService.init(masterPassword);
       isInitialized.value = true;
       isUnlocked.value = true;
+      void useHistoryStore().flushPending();
       await fetchInventory();
     } catch (err: any) {
       error.value = typeof err === "string" ? err : err?.message || i18n.global.t('ui.err.vault.initFailed');

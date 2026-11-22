@@ -17,7 +17,11 @@ describe("shortcut registry", () => {
   });
 
   it("never registers a plain Ctrl+letter (reserved for the shell) except the existing globals", () => {
-    const allowedPlain = new Set(["app.quickConnect", "app.toggleSidebar", "app.settings", "terminal.search"]);
+    const allowedPlain = new Set(["app.quickConnect", "app.toggleSidebar", "app.settings", "terminal.search",
+      // Teclas no imprimibles que el shell no usa: cambio de pestaña.
+      "app.nextTab", "app.nextTabAlt", "app.prevTabAlt",
+      // Ctrl+Space (set-mark en readline, poco usado): autocompletado.
+      "terminal.autocomplete"]);
     for (const d of SHORTCUTS) {
       const c = d.combo;
       if (c.ctrl && !c.shift && !c.alt && !allowedPlain.has(d.id)) {
@@ -35,6 +39,40 @@ describe("shortcut registry", () => {
     expect(matchShortcut(ev({ key: "H", ctrlKey: true, shiftKey: true }))?.id).toBe("terminal.history");
     expect(matchShortcut(ev({ key: "y", ctrlKey: true, shiftKey: true }))?.id).toBe("terminal.instantReplay");
     expect(matchShortcut(ev({ key: "R", ctrlKey: true, shiftKey: true }))?.id).toBe("terminal.rerunBlock");
+  });
+
+  it("resolves Ctrl+Shift+T to a new local terminal in the global context", () => {
+    expect(matchShortcut(ev({ key: "T", ctrlKey: true, shiftKey: true }), ["global", "workspace"])?.id).toBe("terminal.newLocal");
+    expect(matchShortcut(ev({ key: "t", metaKey: true, shiftKey: true }), ["global"])?.id).toBe("terminal.newLocal");
+    expect(matchShortcut(ev({ key: "t", ctrlKey: true }))).toBeNull();
+  });
+
+  it("resolves tab switching combos and keeps them apart from pane focus", () => {
+    const k = (o: Partial<KeyboardEvent>) => ev({ key: "", ...o });
+    expect(matchShortcut(k({ code: "Tab", key: "Tab", ctrlKey: true }))?.id).toBe("app.nextTab");
+    expect(matchShortcut(k({ code: "Tab", key: "Tab", ctrlKey: true, shiftKey: true }))?.id).toBe("app.prevTab");
+    expect(matchShortcut(k({ code: "PageDown", key: "PageDown", ctrlKey: true }))?.id).toBe("app.nextTabAlt");
+    expect(matchShortcut(k({ code: "PageUp", key: "PageUp", ctrlKey: true }))?.id).toBe("app.prevTabAlt");
+    expect(matchShortcut(k({ code: "Tab", key: "Tab" }))).toBeNull();
+    expect(matchShortcut(ev({ key: "ArrowLeft", altKey: true }), ["terminal"])?.id).toBe("terminal.focusLeft");
+  });
+
+  it("resolves Alt+1..9 to tab jumps by physical key and not to pane focus", () => {
+    for (let n = 1; n <= 9; n++) {
+      expect(matchShortcut(ev({ key: "¡", code: `Digit${n}`, altKey: true }))?.id).toBe(`app.goToTab${n}`);
+    }
+    expect(matchShortcut(ev({ key: "1", code: "Digit1" }))).toBeNull();
+    expect(matchShortcut(ev({ key: "1", code: "Digit1", altKey: true, shiftKey: true }))).toBeNull();
+    expect(matchShortcut(ev({ key: "ArrowLeft", altKey: true }), ["terminal"])?.id).toBe("terminal.focusLeft");
+    expect(formatShortcut(SHORTCUTS.find((d) => d.id === "app.goToTab3")!)).toBe("Alt+3");
+  });
+
+  it("keeps Ctrl+Space (autocomplete) apart from Ctrl+Shift+Space (quick select)", () => {
+    const sp = (o: Partial<KeyboardEvent>) => ev({ key: " ", code: "Space", ...o });
+    expect(matchShortcut(sp({ ctrlKey: true }), ["terminal"])?.id).toBe("terminal.autocomplete");
+    expect(matchShortcut(sp({ ctrlKey: true, shiftKey: true }), ["terminal"])?.id).toBe("terminal.quickSelect");
+    expect(matchShortcut(sp({ ctrlKey: true }), ["global", "workspace"])).toBeNull();
+    expect(matchShortcut(sp({}))).toBeNull();
   });
 
   it("does not match with extra or missing modifiers", () => {

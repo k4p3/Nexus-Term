@@ -98,4 +98,58 @@ describe('sessions store multiplexer', () => {
     expect(store.focusNeighborPane(tabId, 'up')).toBe(false);
     expect(tab.activePaneId).toBe(only);
   });
+
+  describe('activateAdjacentTab', () => {
+    it('cycles forward and backward across tabs', () => {
+      const store = useSessionsStore();
+      const a = store.createTab('A');
+      const b = store.createTab('B');
+      const c = store.createTab('C');
+      expect(store.activeTabId).toBe(c);
+      store.activateAdjacentTab(1);
+      expect(store.activeTabId).toBe(a);
+      store.activateAdjacentTab(-1);
+      expect(store.activeTabId).toBe(c);
+      store.activateAdjacentTab(-1);
+      expect(store.activeTabId).toBe(b);
+    });
+
+    it('does nothing with zero or one tab', () => {
+      const store = useSessionsStore();
+      store.activateAdjacentTab(1);
+      expect(store.activeTabId).toBeNull();
+      const a = store.createTab('A');
+      store.activateAdjacentTab(1);
+      store.activateAdjacentTab(-1);
+      expect(store.activeTabId).toBe(a);
+    });
+  });
+
+  describe('activateTabByIndex', () => {
+    it('activates the tab at a valid position', () => {
+      const store = useSessionsStore();
+      const a = store.createTab('A');
+      store.createTab('B');
+      store.createTab('C');
+      store.activateTabByIndex(0);
+      expect(store.activeTabId).toBe(a);
+    });
+
+    it('ignores positions that do not exist', () => {
+      const store = useSessionsStore();
+      store.createTab('A');
+      const b = store.createTab('B');
+      store.activateTabByIndex(4);
+      store.activateTabByIndex(-1);
+      expect(store.activeTabId).toBe(b);
+      store.activateTabByIndex(store.tabs.length - 1);
+      expect(store.activeTabId).toBe(b);
+    });
+
+    it('does nothing without tabs', () => {
+      const store = useSessionsStore();
+      store.activateTabByIndex(-1);
+      expect(store.activeTabId).toBeNull();
+    });
+  });
 });

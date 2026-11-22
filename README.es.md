@@ -49,14 +49,18 @@ Diseñado de manera nativa sobre **Tauri v2** y **Rust**, elimina el alto consum
 ### 🖥️ Terminal de Alto Rendimiento y Multiplexación
 - **Aceleración por Hardware (WebGL)**: Renderizado fluido a 60+ FPS mediante `@xterm/addon-webgl` con degradación suave automática a Canvas 2D.
 - **Streaming Binario Directo**: La entrada y salida de datos fluye mediante canales binarios `Vec<u8>` de Tauri v2, evitando la sobrecarga de serialización JSON.
+- **Sugerencia en Línea de Comandos**: la continuación probable de lo que escribes aparece en gris tras el cursor (historial y snippets); acéptala con `→`/`Fin`, o una palabra con `Ctrl+→`. No se ejecuta nada hasta que pulses `Enter`.
+- **Popup de Autocompletado de Comandos**: pulsa `Ctrl+Space` para ver sugerencias junto al cursor, tomadas del historial cifrado del host y de tus snippets habilitados. Sigue escribiendo para filtrar; `↑`/`↓` navegan, `Tab` inserta sin ejecutar y `Esc` cierra. Se desactiva en programas de pantalla completa como `vim`.
+- **Navegación de Pestañas por Teclado**: `Ctrl+Shift+T` abre una terminal local, `Ctrl+Tab` / `Ctrl+Shift+Tab` (o `Ctrl+PageDown` / `Ctrl+PageUp`) recorren las pestañas y `Alt+1..9` salta directo a una (`Alt+9` = la última). Además, al iniciar siempre se abre una terminal local si no hay nada que restaurar.
 - **Paneles Divididos Recursivos (*Split Panes*) y Acoplamiento de Pestañas**: Divide cualquier espacio de trabajo vertical u horizontalmente sin límites. Abre terminales locales, duplica servidores, elige hosts del inventario o mueve pestañas abiertas directamente a un panel dividido sin reiniciar sesiones.
 - **Compatibilidad con Nerd Fonts y Powerline**: Soporte total para fuentes como *MesloLGS NF*, *Hack Nerd Font*, *JetBrains Mono* y *Fira Code*.
 
 ### ⚡ Herramientas Avanzadas (Power Tools)
-- **Integración con el Shell (OSC 133)**: Reconocimiento semántico de prompts para Zsh, Bash y Fish. Indica si los comandos terminaron con éxito (`0`) o error, muestra el tiempo de ejecución (ej. `⏱ 2.1s`) y permite saltar entre prompts instantáneamente (`Ctrl+Shift+↑/↓`). Cada comando es un **bloque** seguido con *markers* de xterm (sigue siendo correcto al recortarse el scrollback): haz clic en su marca ✓/✗ para seleccionarlo, copiar su comando o su salida, buscar solo dentro de él o repetirlo (`Ctrl+Shift+R`).
+- **Integración con el Shell (OSC 133)**: Reconocimiento semántico de prompts para Zsh, Bash y Fish, inyectado automáticamente en las terminales locales sin tocar tus ficheros de configuración (se puede desactivar en Ajustes). Indica si los comandos terminaron con éxito (`0`) o error, muestra el tiempo de ejecución (ej. `⏱ 2.1s`) y permite saltar entre prompts instantáneamente (`Ctrl+Shift+↑/↓`). Cada comando es un **bloque** seguido con *markers* de xterm (sigue siendo correcto al recortarse el scrollback): haz clic en su marca ✓/✗ para seleccionarlo, copiar su comando o su salida, buscar solo dentro de él o repetirlo (`Ctrl+Shift+R`).
 - **Modo Broadcast / Multi-Exec (`Ctrl+Shift+B`)**: Escribe una sola vez y replica tus pulsaciones en todos los paneles divididos activos de la pestaña de forma simultánea.
 - **Navegación por Teclado entre Paneles (`Alt+←` `Alt+→` `Alt+↑` `Alt+↓`)**: Salta al panel contiguo en esa dirección sin usar el ratón. Si no hay panel en esa dirección, la tecla llega a tu shell sin cambios.
-- **Biblioteca de Snippets con Parámetros**: Guarda comandos frecuentes de Docker, Kubernetes, Git y administración con variables `{{parametro}}` que solicitan valores antes de ejecutarse.
+- **Importar/Exportar Snippets**: comparte snippets en un JSON documentado; al importar se revisa cada comando (los de riesgo se marcan), se omiten duplicados y se rechazan caracteres ocultos o de control.
+- **Biblioteca de Snippets con Parámetros**: Guarda comandos frecuentes de Docker, Kubernetes, Git y administración con variables `{{parametro}}` que solicitan valores antes de insertarse en el prompt (nunca se ejecutan hasta que pulses `Enter`).
 - **Búsqueda en el Buffer (`Ctrl+F`)**: Búsqueda rápida con soporte para expresiones regulares (RegEx) y resaltado interactivo.
 - **Enlaces Inteligentes**: Las URLs (`https://`) se abren con un clic; las rutas de código (`src/main.rs:10:5`) y las direcciones IP abren un menú contextual con `Ctrl`+clic (copiar, mostrar en SFTP, conectar por SSH).
 - **Quick Select (`Ctrl+Shift+Space`)**: Resalta URLs, rutas, hashes de git, IPs, UUID y correos visibles con etiquetas de teclado. Escribe la etiqueta para copiar; con `Shift` pega en el prompt.
@@ -140,11 +144,16 @@ Diseñado de manera nativa sobre **Tauri v2** y **Rust**, elimina el alto consum
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> | Copiar Texto Seleccionado | Terminal Activa |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> | Pegar Texto del Portapapeles (con comprobación de pegado seguro) | Terminal Activa |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd> | Quick Select (copiar elementos de la pantalla con etiquetas) | Terminal Activa |
+| <kbd>Ctrl</kbd> + <kbd>Space</kbd> | Popup de Autocompletado (historial y snippets; `Tab` inserta, `Esc` cierra) | Terminal Activa |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> | Paleta de Comandos de la Terminal | Espacio de Trabajo |
 | <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd> | Historial de Pegado | Terminal Activa |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd> | Historial de Comandos por Host (`Enter` inserta, `Ctrl+Enter` ejecuta) | Terminal Activa |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> | Repetir el comando del bloque seleccionado (o del último) | Integración de Shell |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd> | Instant Replay (revisar la salida reciente tras un `clear`) | Terminal Activa |
+| <kbd>Ctrl</kbd> + <kbd>Tab</kbd> / <kbd>Ctrl</kbd> + <kbd>PageDown</kbd> | Pestaña Siguiente | Global |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> / <kbd>Ctrl</kbd> + <kbd>PageUp</kbd> | Pestaña Anterior | Global |
+| <kbd>Alt</kbd> + <kbd>1</kbd>..<kbd>9</kbd> | Saltar a la Pestaña 1-8 (`Alt+9` = última pestaña) | Global |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd> | Nueva Terminal Local | Global |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd> | Hoja de Atajos de Teclado | Global |
 | <kbd>Escape</kbd> | Cerrar Modales y Paneles Emergentes | Global |
 

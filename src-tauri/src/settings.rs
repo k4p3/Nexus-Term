@@ -50,6 +50,12 @@ pub struct AppSettings {
     // Shell & Behavior
     #[serde(default)]
     pub default_shell: Option<String>,
+    /// Inyecta marcas OSC 133 en terminales locales (bash/zsh/fish) para historial y bloques.
+    #[serde(default = "default_true")]
+    pub shell_integration: bool,
+    /// Muestra en gris la continuación del comando que se está escribiendo (historial y snippets).
+    #[serde(default = "default_true")]
+    pub inline_suggestion: bool,
     #[serde(default = "default_close_to_tray")]
     pub close_to_tray: bool,
 
@@ -208,6 +214,8 @@ impl Default for AppSettings {
             theme_dark_id: default_theme_dark_id(),
             ui_density: default_ui_density(),
             default_shell: None,
+            shell_integration: default_true(),
+            inline_suggestion: default_true(),
             close_to_tray: default_close_to_tray(),
             ask_password_on_startup: false,
             auto_lock_enabled: true,
@@ -367,6 +375,8 @@ mod tests {
         let legacy = get_settings_internal(&conn).unwrap();
         assert_eq!(legacy.theme_id, "dracula");
         assert!(legacy.custom_themes.is_empty());
+        assert!(legacy.shell_integration);
+        assert!(legacy.inline_suggestion);
         assert_eq!(legacy.theme_light_id, "nexus-paper");
 
         let mut s = legacy.clone();

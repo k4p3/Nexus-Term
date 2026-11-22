@@ -1,3 +1,5 @@
+pub mod integration;
+
 use portable_pty::{native_pty_system, CommandBuilder, MasterPty, PtySize};
 use std::collections::HashMap;
 use std::io::{Read, Write};
@@ -93,6 +95,7 @@ impl PtySessionManager {
         cols: u16,
         rows: u16,
         custom_shell: Option<String>,
+        integration_dir: Option<std::path::PathBuf>,
         on_data: Channel<Vec<u8>>,
     ) -> Result<String, String> {
         let pty_system = native_pty_system();
@@ -119,8 +122,27 @@ impl PtySessionManager {
             });
 
         let mut cmd = CommandBuilder::new(&shell);
-        if cfg!(unix) {
-            cmd.arg("-l");
+        let plan = if cfg!(unix) {
+            integration_dir.and_then(|d| {
+                integration::integration_plan(&shell, &d, std::env::var("ZDOTDIR").ok().as_deref())
+            })
+        } else {
+            None
+        };
+        match &plan {
+            Some(p) => {
+                for a in &p.args {
+                    cmd.arg(a);
+                }
+                for (k, v) in &p.env {
+                    cmd.env(k, v);
+                }
+            }
+            None => {
+                if cfg!(unix) {
+                    cmd.arg("-l");
+                }
+            }
         }
         if let Ok(home) = std::env::var("HOME") {
             cmd.cwd(home);
@@ -235,13 +257,29 @@ impl PtySessionManager {
 // Tauri Commands for Local PTY
 #[tauri::command]
 pub fn open_local_pty(
+    app: tauri::AppHandle,
     manager: tauri::State<'_, PtySessionManager>,
+    vault_mgr: tauri::State<'_, Arc<crate::vault::db::VaultManager>>,
     cols: u16,
     rows: u16,
     custom_shell: Option<String>,
     on_data: Channel<Vec<u8>>,
 ) -> Result<String, String> {
-    manager.spawn_local(cols, rows, custom_shell, on_data)
+    use tauri::Manager;
+    let enabled = vault_mgr
+        .db
+        .lock()
+        .ok()
+        .and_then(|c| crate::settings::get_settings_internal(&c).ok())
+        .map(|s| s.shell_integration)
+        .unwrap_or(true);
+    // Si no se puede preparar el directorio, el shell arranca sin integración.
+    let dir = if enabled {
+        app.path().app_cache_dir().ok().and_then(|b| integration::materialize(&b).ok())
+    } else {
+        None
+    };
+    manager.spawn_local(cols, rows, custom_shell, dir, on_data)
 }
 
 #[cfg(test)]

@@ -200,7 +200,7 @@ function executeItem(item: SearchItem) {
     if (params.length > 0) {
       emit("open-snippets");
     } else {
-      emit("insert-command", item.snippet.command_template + "\n");
+      emit("insert-command", item.snippet.command_template);
     }
   } else if (item.host) {
     emit("connect-host", item.host);

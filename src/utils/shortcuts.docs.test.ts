@@ -9,6 +9,7 @@ const normalize = (s: string) => s.replace(/<\/?kbd>/g, "").replace(/`/g, "").re
 
 // Atajos alternativos que comparten fila con otro en la documentación.
 const DOCUMENTED_AS: Record<string, string[]> = {
+  ...Object.fromEntries(Array.from({ length: 9 }, (_, i) => [`app.goToTab${i + 1}`, ["Alt+1..9"]])),
   "terminal.splitHAlt": ["Ctrl+Shift+O/D", "Ctrl+Shift+O/Ctrl+Shift+D"],
 };
 

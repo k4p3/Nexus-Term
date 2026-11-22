@@ -70,7 +70,7 @@ describe("useSessionRestore", () => {
     vault.isUnlocked = true;
     await flush();
     r.discardRestore();
-    expect(sessions.tabs).toHaveLength(0);
+    expect(sessions.tabs).toHaveLength(1); // descartar la oferta abre una terminal local
     sessions.createTab("new");
     await flush();
     await vi.advanceTimersByTimeAsync(LAYOUT_SAVE_DEBOUNCE_MS + 10);
@@ -90,7 +90,7 @@ describe("useSessionRestore", () => {
     vault.isUnlocked = true;
     await flush();
     expect(r.pendingLayout.value).toBeNull();
-    expect(sessions.tabs).toHaveLength(0);
+    expect(sessions.tabs).toHaveLength(1); // solo la terminal local inicial
     expect(svc.get).not.toHaveBeenCalled();
     expect(svc.clear).toHaveBeenCalled();
     sessions.createTab("x");
@@ -130,7 +130,7 @@ describe("useSessionRestore", () => {
     await vi.advanceTimersByTimeAsync(200);
     expect(svc.save).toHaveBeenCalledTimes(1);
     const saved = JSON.parse(svc.save.mock.calls[0][0]);
-    expect(saved.tabs).toHaveLength(2);
+    expect(saved.tabs).toHaveLength(3); // local inicial + "one" + "two"
     void r;
   });
 
@@ -138,13 +138,39 @@ describe("useSessionRestore", () => {
     const { vault, sessions } = setup("auto", null);
     vault.isUnlocked = true;
     await flush();
-    const id = sessions.createTab("one");
+    sessions.createTab("one");
     await flush();
     await vi.advanceTimersByTimeAsync(LAYOUT_SAVE_DEBOUNCE_MS + 10);
-    sessions.closeTab(id);
+    for (const tab of [...sessions.tabs]) sessions.closeTab(tab.id);
     await flush();
     await vi.advanceTimersByTimeAsync(LAYOUT_SAVE_DEBOUNCE_MS + 10);
     expect(svc.clear).toHaveBeenCalled();
+  });
+
+  it("opens a local terminal when unlocking with nothing to restore", async () => {
+    const { vault, sessions } = setup("ask", null);
+    vault.isUnlocked = true;
+    await flush();
+    expect(sessions.tabs).toHaveLength(1);
+  });
+
+  it("does not add a local terminal when tabs are restored", async () => {
+    const { vault, sessions } = setup("auto", stored());
+    vault.isUnlocked = true;
+    await flush();
+    expect(sessions.tabs).toHaveLength(2);
+  });
+
+  it("does not reopen a local terminal after locking and unlocking", async () => {
+    const { vault, sessions } = setup("auto", null);
+    vault.isUnlocked = true;
+    await flush();
+    sessions.closeTab(sessions.tabs[0].id);
+    vault.isUnlocked = false;
+    await flush();
+    vault.isUnlocked = true;
+    await flush();
+    expect(sessions.tabs).toHaveLength(0);
   });
 
   it("does not ask again after locking and unlocking in the same run", async () => {

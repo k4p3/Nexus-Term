@@ -110,7 +110,9 @@ describe("site: shortcuts page lists every registered shortcut", () => {
   for (const [label, page] of [["en", PAIRS.shortcuts[0]], ["es", PAIRS.shortcuts[1]]] as const) {
     const text = normalize(read(page));
     for (const def of SHORTCUTS) {
-      const accepted = def.id === "terminal.splitHAlt" ? ["Ctrl+Shift+O/D"] : [formatShortcut(def, "other")];
+      const accepted = def.id === "terminal.splitHAlt"
+        ? ["Ctrl+Shift+O/D"]
+        : def.id.startsWith("app.goToTab") ? ["Alt+1..9"] : [formatShortcut(def, "other")];
       it(`${def.id} (${accepted[0]}) appears in ${label}`, () => {
         expect(accepted.some((a) => text.includes(a))).toBe(true);
       });

@@ -27,7 +27,10 @@ Cambios cubiertos: `terminal-productivity-quick-wins` (sección A), `vnc-rdp-gra
 - [ ] Escribir "div" filtra "Dividir…"; `↑`/`↓`/`Enter` funcionan; `Escape` cierra.
 - [ ] Cada acción muestra su atajo.
 - [ ] Cambiar de tema desde la paleta se aplica al instante.
-- [ ] Un snippet sin parámetros se ejecuta; uno con `{{parámetros}}` abre su formulario.
+- [ ] Un snippet sin parámetros se **inserta en el prompt sin ejecutarse** (hay que pulsar `Enter`); uno con `{{parámetros}}` abre su formulario y, al confirmar, también solo se inserta. Con una terminal cerrada aparece un aviso.
+- [ ] **Exportar/Importar**: con snippets propios, *Exportar* descarga `nexusterm-snippets.json`; *Importar* ese mismo fichero muestra «0 para importar» y todos omitidos. Con un fichero nuevo, el resumen lista cada comando y marca los de riesgo; al confirmar aparecen con la insignia «importado».
+- [ ] Un fichero con un comando con salto de línea o carácter invisible lo rechaza solo a esa entrada; un fichero de más de 1 MB o con otro formato muestra un error y no importa nada. *Exportar* está deshabilitado sin snippets propios.
+- [ ] Un snippet con `rm -rf` o multilínea muestra el aviso de pegado seguro antes de insertarse.
 - [ ] En un panel RDP/VNC no aparecen acciones de terminal.
 
 ### Enlaces inteligentes (`Ctrl`+clic)
@@ -106,6 +109,11 @@ Cambios cubiertos: `terminal-productivity-quick-wins` (sección A), `vnc-rdp-gra
 - [ ] `Ctrl+F` con un bloque seleccionado busca **solo dentro** de él (las coincidencias de fuera no se resaltan).
 - [ ] `Ctrl+Shift+R` repite el comando del bloque seleccionado (o del último); con `rm -rf /tmp/x` o `sudo …` pide confirmación antes de ejecutar.
 - [ ] **Scrollback**: genera >10 000 líneas (`seq 1 20000`) y ejecuta varios comandos; los ✓/✗ de los comandos recientes siguen en su línea y los bloques ya descartados desaparecen sin errores en consola.
+- [ ] **Sugerencia en línea**: tras ejecutar `echo hola mundo`, escribir `echo h` muestra `ola mundo` en gris; `→` o `End` lo insertan sin ejecutar; `Ctrl+→` inserta solo ` ola`; `Enter` ejecuta solo lo escrito.
+- [ ] La sugerencia no aparece en `vim`/`less`, con el popup `Ctrl+Space` abierto, con texto seleccionado ni con el cursor en mitad de la línea; con *Sugerencia en línea* desactivado nunca aparece y `→` mueve el cursor como siempre.
+- [ ] **Inyección automática**: en una terminal local nueva (zsh o bash) sin configuración propia de OSC 133, aparecen ✓/✗ tras ejecutar comandos; `echo $NEXUSTERM_SHELL_INTEGRATION` devuelve `1` y `echo $ZDOTDIR` no apunta a la caché de la app.
+- [ ] Con *Ajustes → Terminal → Integración con el shell* desactivado, una terminal nueva no muestra marcas.
+- [ ] Con la bóveda bloqueada, ejecuta `echo hola`; al desbloquear, `Ctrl+Shift+H` y `Ctrl+Space` lo ofrecen y persiste tras reiniciar.
 - [ ] En un shell **sin** OSC 133 no aparecen marcas ni botones de bloque y la terminal funciona como antes.
 
 ### Historial de comandos por host (`Ctrl+Shift+H`)

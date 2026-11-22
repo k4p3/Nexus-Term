@@ -51,7 +51,7 @@ export function useSessionRestore() {
   }
 
   function openInitialLocalTab() {
-    if (lazyStart && sessions.tabs.length === 0) initialTabId = sessions.createTab(t("terminal.newLocal"));
+    if (sessions.tabs.length === 0) initialTabId = sessions.createTab(t("terminal.newLocal"));
   }
 
   async function applyRestore(layout: SessionLayout) {
@@ -82,6 +82,7 @@ export function useSessionRestore() {
     }
     if (action === "auto" && layout) await applyRestore(layout);
     startupResolved = true;
+    openInitialLocalTab(); // sin pestañas (nada que restaurar) se abre una terminal local
     schedule();
   }
 

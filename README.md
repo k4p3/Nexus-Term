@@ -49,14 +49,18 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 ### 🖥️ High-Performance Terminal & Multiplexing
 - **Hardware-Accelerated WebGL Rendering**: 60+ FPS rendering powered by `@xterm/addon-webgl` with automatic Canvas 2D fallback.
 - **Direct Binary Streaming**: Terminal input and output flow over raw `Vec<u8>` Tauri binary channels, bypassing JSON serialization overhead.
+- **Inline Command Suggestion**: the likely continuation of what you type appears in gray after the cursor (from history and snippets); accept it with `→`/`End`, or one word with `Ctrl+→`. Nothing runs until you press `Enter`.
+- **Command Autocomplete Popup**: press `Ctrl+Space` for suggestions anchored at the cursor, drawn from the host's encrypted command history and your enabled snippets. Keep typing to filter; `↑`/`↓` move, `Tab` inserts without running and `Esc` closes. Disabled on full-screen programs such as `vim`.
+- **Keyboard Tab Navigation**: `Ctrl+Shift+T` opens a local terminal, `Ctrl+Tab` / `Ctrl+Shift+Tab` (or `Ctrl+PageDown` / `Ctrl+PageUp`) cycle through tabs and `Alt+1..9` jump straight to one (`Alt+9` = last). A local terminal also always opens at startup when there is nothing to restore.
 - **Recursive Split Panes & Tab Docking**: Split any workspace vertically or horizontally without limits. Easily open a local terminal, duplicate current hosts, pick from inventory, or move existing open tabs into panes without restarting sessions.
 - **Nerd Fonts & Powerline Ready**: Native support for icons and fonts such as *MesloLGS NF*, *Hack Nerd Font*, *JetBrains Mono*, and *Fira Code*.
 
 ### ⚡ Advanced Power Tools
-- **Shell Integration (OSC 133)**: Semantic prompt detection for Zsh, Bash, and Fish. Visual indicators show command exit codes (`0` vs. errors), execution runtime (e.g., `⏱ 2.1s`), and enable instant prompt navigation (`Ctrl+Shift+↑/↓`). Each command is a **block** tracked with xterm markers (so it stays correct when the scrollback is trimmed): click its ✓/✗ marker to select it, copy its command or output, search only inside it, or re-run it (`Ctrl+Shift+R`).
+- **Shell Integration (OSC 133)**: Semantic prompt detection for Zsh, Bash, and Fish, injected automatically in local terminals without touching your config files (can be disabled in Settings). Visual indicators show command exit codes (`0` vs. errors), execution runtime (e.g., `⏱ 2.1s`), and enable instant prompt navigation (`Ctrl+Shift+↑/↓`). Each command is a **block** tracked with xterm markers (so it stays correct when the scrollback is trimmed): click its ✓/✗ marker to select it, copy its command or output, search only inside it, or re-run it (`Ctrl+Shift+R`).
 - **Broadcast / Multi-Exec Mode (`Ctrl+Shift+B`)**: Type once and stream keystrokes across all split panes simultaneously—ideal for clustered server updates.
 - **Keyboard Pane Navigation (`Alt+←` `Alt+→` `Alt+↑` `Alt+↓`)**: Jump to the neighbouring split pane in that direction without touching the mouse. If there is no pane that way, the key goes to your shell untouched.
-- **Parameterized Snippet Library**: Store common Docker, Kubernetes, Git, and administration commands with `{{placeholders}}` that prompt for inputs on execution.
+- **Snippet Import/Export**: share snippets as a documented JSON file; imports show a full review (risky commands flagged), skip duplicates and reject hidden/control characters.
+- **Parameterized Snippet Library**: Store common Docker, Kubernetes, Git, and administration commands with `{{placeholders}}` that prompt for inputs before being inserted at the prompt (never executed until you press `Enter`).
 - **Buffer Search (`Ctrl+F`)**: High-speed buffer searching with regex matching and result highlighting.
 - **Interactive Smart Links**: URLs (`https://`) open on click; file paths (`src/main.rs:10:5`) and IP addresses open a context menu with `Ctrl`+click (copy, show in SFTP, connect via SSH).
 - **Quick Select (`Ctrl+Shift+Space`)**: Highlights URLs, paths, git hashes, IPs, UUIDs and e-mails on screen with keyboard labels. Type the label to copy it; hold `Shift` to paste it into the prompt.
@@ -140,11 +144,16 @@ Engineered natively with **Tauri v2** and **Rust**, it eliminates the heavy RAM 
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> | Copy Selected Text | Active Terminal |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>V</kbd> | Paste from Clipboard (with safe-paste check) | Active Terminal |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Space</kbd> | Quick Select (copy on-screen tokens with labels) | Active Terminal |
+| <kbd>Ctrl</kbd> + <kbd>Space</kbd> | Autocomplete Popup (history and snippets; `Tab` inserts, `Esc` closes) | Active Terminal |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> | Terminal Command Palette | Workspace |
 | <kbd>Ctrl</kbd> + <kbd>Alt</kbd> + <kbd>V</kbd> | Paste History | Active Terminal |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd> | Per-Host Command History (`Enter` inserts, `Ctrl+Enter` runs) | Active Terminal |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> | Re-run the command of the selected (or last) block | Shell Integration |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Y</kbd> | Instant Replay (review recent output after a `clear`) | Active Terminal |
+| <kbd>Ctrl</kbd> + <kbd>Tab</kbd> / <kbd>Ctrl</kbd> + <kbd>PageDown</kbd> | Next Tab | Global |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> / <kbd>Ctrl</kbd> + <kbd>PageUp</kbd> | Previous Tab | Global |
+| <kbd>Alt</kbd> + <kbd>1</kbd>..<kbd>9</kbd> | Jump to Tab 1-8 (`Alt+9` = last tab) | Global |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>T</kbd> | New Local Terminal | Global |
 | <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>/</kbd> | Keyboard Shortcuts Cheat Sheet | Global |
 | <kbd>Escape</kbd> | Dismiss Active Modals / Dropdowns | Global |
 

@@ -99,4 +99,16 @@ describe("paste history store", () => {
     expect(spy).not.toHaveBeenCalled();
     spy.mockRestore();
   });
+
+  it("inserts text into a registered pane and reports missing panes", () => {
+    const ui = useUiStore();
+    const fn = vi.fn();
+    ui.registerPaneInserter("p1", fn);
+    expect(ui.insertIntoPane("p1", "ls -la")).toBe(true);
+    expect(fn).toHaveBeenCalledWith("ls -la");
+    expect(ui.insertIntoPane("nope", "x")).toBe(false);
+    expect(ui.insertIntoPane(null, "x")).toBe(false);
+    ui.unregisterPaneInserter("p1");
+    expect(ui.insertIntoPane("p1", "x")).toBe(false);
+  });
 });

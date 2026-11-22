@@ -198,6 +198,11 @@ export class BlockTracker {
     for (const b of [...this.list]) this.remove(b);
   }
 
+  /** Bloque actual (el último, aún sin ejecutar si se está escribiendo en el prompt). */
+  current(): CommandBlock | undefined {
+    return this.last();
+  }
+
   private last(): CommandBlock | undefined {
     this.prune();
     return this.list[this.list.length - 1];
