@@ -81,12 +81,39 @@ Inspirado en emuladores modernos de última generación como **Ghostty**, **Kitt
 - **Bloques de Comandos**: cada comando es un bloque basado en *markers* de xterm, por lo que sigue apuntando a las líneas correctas cuando el *scrollback* se recorta (los bloques cuyas líneas se descartan desaparecen).
   - Indicador **✓/✗ con la duración** en el margen derecho de la línea del prompt; un clic selecciona el bloque.
   - Con un bloque seleccionado (o el último, si no hay ninguno): **copiar comando**, **copiar salida**, **repetir comando** (`Ctrl+Shift+R`, pasa por las comprobaciones del pegado seguro) y **buscar solo dentro del bloque** (`Ctrl+F`).
+  - **Inyección automática (terminales locales)**: NexusTerm añade las marcas OSC 133 a bash, zsh y fish (< 4; fish 4+ ya las emite) sin modificar tus ficheros: usa un `ZDOTDIR` temporal en zsh, `--init-file` en bash y `--init-command` en fish, con scripts en la caché de la app. Se desactiva en *Ajustes → Terminal → Integración con el shell*. Define `NEXUSTERM_SHELL_INTEGRATION=1` en el entorno del shell, por lo que tu propia configuración puede comprobarlo para no duplicar marcas. Otros shells, Windows y SSH no cambian. Se aplica a terminales nuevas.
+  - **Historial con la bóveda bloqueada**: los comandos terminados antes de desbloquear se retienen solo en memoria (máx. 200, nunca sin cifrar) y se guardan cifrados al desbloquear.
   - Si el shell no emite OSC 133, las acciones de bloque no aparecen y la terminal se comporta como siempre.
   - Limitación: xterm.js no permite ocultar líneas, por lo que no se pueden *colapsar* salidas (ver `docs/ROADMAP.md`).
 
+### 4.1.1. Autocompletado de Comandos
+- `Ctrl + Space` abre un popup junto al cursor con coincidencias del **historial del host** (o de las terminales locales) y de los **snippets habilitados**, ordenadas por coincidencia difusa, uso y recencia.
+- El popup **no roba el foco**: sigues escribiendo en la terminal y la lista se filtra con lo tecleado desde el último prompt. `↑`/`↓` navegan, `Tab` inserta la selección sustituyendo lo escrito, `Esc` cierra. **`Enter` nunca se intercepta**: aceptar una sugerencia solo la inserta, no la ejecuta.
+- La línea actual se reconstruye **en memoria** a partir de las teclas (no se guarda ni se registra). Si una tecla la hace ambigua (flechas, `Tab`, `Ctrl+R`, pegado, historial del shell), el popup muestra las entradas recientes sin filtrar e inserta sin borrar lo escrito, hasta el siguiente `Enter`.
+- No se abre en pantalla alterna (`vim`, `less`…): `Ctrl+Space` llega al programa. Con el historial desactivado solo se ofrecen snippets, y nunca se sugieren entradas que coincidan con los patrones de secretos.
+- Limitación: `Ctrl+Space` es *set-mark* en readline/emacs y deja de llegar al shell.
+
+### 4.1.2. Sugerencia en Línea
+- Mientras escribes, la **continuación probable** aparece en gris tras el cursor: la entrada del historial del host que empieza por lo escrito (la más usada y reciente) o, si no hay, un snippet sin parámetros. Se necesitan al menos 2 caracteres.
+- `→` o `End` aceptan la sugerencia completa y `Ctrl+→` solo la siguiente palabra. Solo se insertan, **nunca se ejecutan**; el resto de teclas (`Enter`, `Tab`…) llegan al shell sin cambios. Sin sugerencia visible, `→`/`End`/`Ctrl+→` son del shell.
+- Lee lo escrito **de la pantalla** con las marcas OSC 133 (ver §4.1), por lo que es correcta incluso tras flechas, `Tab` o el historial del shell. Sin OSC 133 no se muestra nada.
+- Se oculta en pantalla alterna, con el popup abierto, con texto seleccionado, con texto multilínea o con el cursor antes del final de lo escrito. Nunca sugiere entradas con secretos. Se desactiva en *Ajustes → Terminal → Sugerencia en línea*.
+- Limitación: si usas las *autosuggestions* de zsh o fish, desactiva una de las dos para no ver sugerencias superpuestas.
+
 ### 4.2. Biblioteca de Snippets con Parámetros Dinámicos
 - Almacena comandos recurrentes de Docker, Kubernetes, Git, bases de datos y scripts de mantenimiento.
-- Parámetros dinámicos `{{parametro}}`: Al hacer clic en un snippet, NexusTerm solicita los valores variables y los inserta listos para ejecutar.
+- Parámetros dinámicos `{{parametro}}`: Al hacer clic en un snippet, NexusTerm solicita los valores variables y **lo inserta en el prompt sin ejecutarlo**: lo revisas y pulsas `Enter`. La inserción pasa por el aviso de pegado seguro y usa *bracketed paste*, de modo que un snippet multilínea no se ejecuta línea a línea.
+
+#### Importar y exportar snippets
+- Los botones **Importar** y **Exportar** del cajón de snippets usan el formato JSON `nexusterm-snippets` v1:
+  ```json
+  { "format": "nexusterm-snippets", "version": 1,
+    "snippets": [{ "title": "Listar", "command": "ls -la {{dir=.}}", "description": "opcional", "tags": ["fs"] }] }
+  ```
+- Al importar se muestra un **resumen** (a importar / omitidos / inválidos) con **cada comando completo** y un aviso en los de riesgo (`sudo`, `rm -rf`, `curl | sh`…). Nada se ejecuta al importar y no se sobrescribe nada: un snippet con el mismo título y comando se omite.
+- Se **rechazan** por entrada los textos con saltos de línea, caracteres de control (incluido `ESC`), de dirección de texto (bidi) o de ancho cero. Límites: 1 MB, 500 snippets, título 120, comando 8000, descripción 500, 10 etiquetas de 32.
+- Los importados llevan la etiqueta `imported` (insignia «importado»). Exportar incluye solo tus snippets personalizados y no propaga esa etiqueta.
+- Importa solo ficheros de fuentes en las que confíes: revisa los comandos antes de usarlos.
 
 ### 4.3. Modo Broadcast / Entrada Múltiple (*Multi-Exec*)
 - Permite escribir en una terminal y replicar las pulsaciones en tiempo real en todos los paneles divididos activos de la pestaña. Ideal para ejecutar actualizaciones simultáneas en grupos de servidores.
@@ -243,6 +270,7 @@ NexusTerm multiplexa un canal SFTP sobre la misma conexión SSH autenticada de l
 | `Ctrl + Shift + C` | Copiar Texto Seleccionado | Terminal Activa |
 | `Ctrl + Shift + V` | Pegar Texto del Portapapeles (con pegado seguro) | Terminal Activa |
 | `Ctrl + Shift + Space` | Quick Select (copiar/pegar con etiquetas) | Terminal Activa |
+| `Ctrl + Space` | Popup de Autocompletado | Terminal Activa |
 | `Ctrl + Shift + P` | Paleta de Comandos de la Terminal | Espacio de Trabajo |
 | `Ctrl + Alt + V` | Historial de Pegado | Terminal Activa |
 | `Ctrl + Shift + H` | Historial de Comandos por Host (`Enter` inserta, `Ctrl+Enter` ejecuta) | Terminal Activa |

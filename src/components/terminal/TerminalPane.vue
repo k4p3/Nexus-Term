@@ -23,7 +23,10 @@ import { useVaultStore } from "../../stores/vault.store";
 import { useTelemetryStore } from "../../stores/telemetry.store";
 import TerminalSearchBar, { type SearchOptions } from "./TerminalSearchBar.vue";
 import { useReplayStore } from "../../stores/replay.store";
+import { useInlineSuggestion } from "../../composables/useInlineSuggestion";
+import { readInputLine } from "../../utils/inline-suggestion";
 import { useHistoryStore } from "../../stores/history.store";
+import { useAutocomplete } from "../../composables/useAutocomplete";
 import QuickSelectOverlay from "./QuickSelectOverlay.vue";
 import type { LinkMenuItem } from "./TerminalLinkMenu.vue";
 
@@ -31,6 +34,7 @@ import type { LinkMenuItem } from "./TerminalLinkMenu.vue";
 const PasteConfirmModal = defineAsyncComponent(() => import("./PasteConfirmModal.vue"));
 const PasteHistoryPicker = defineAsyncComponent(() => import("./PasteHistoryPicker.vue"));
 const HistoryPicker = defineAsyncComponent(() => import("./HistoryPicker.vue"));
+const AutocompletePopup = defineAsyncComponent(() => import("./AutocompletePopup.vue"));
 const InstantReplayModal = defineAsyncComponent(() => import("./InstantReplayModal.vue"));
 const TerminalLinkMenu = defineAsyncComponent(() => import("./TerminalLinkMenu.vue"));
 import { useUiStore } from "../../stores/ui.store";
@@ -166,6 +170,34 @@ function insertCommand(text: string, execute = false) {
   doPaste(text);
   if (execute) term?.input("\r");
 }
+
+/** Autocompletado: aceptar una sugerencia solo inserta texto (con `replace`, tras borrar lo escrito); nunca ejecuta. */
+function insertSuggestion(text: string, replace: boolean): boolean {
+  const analysis = analyzePaste(text);
+  if (settingsStore.settings.paste_warning && analysis.needsConfirm) {
+    pendingPaste.value = { text, analysis }; // necesita confirmación: se inserta tal cual, sin borrar lo escrito
+    return false;
+  }
+  if (replace) term?.input("\x15");
+  doPaste(text);
+  return true;
+}
+
+const autocomplete = useAutocomplete({
+  getTerm: () => term,
+  hostId: () => props.pane.hostId,
+  insert: insertSuggestion,
+});
+const { isOpen: isAutocompleteOpen } = autocomplete;
+
+const inlineSuggestion = useInlineSuggestion({
+  getTerm: () => term as never,
+  getLine: () => (term && tracker ? readInputLine(term, tracker.current()) : null),
+  hostId: () => props.pane.hostId,
+  isBlocked: () => isAutocompleteOpen.value,
+  insert: (text) => void insertSuggestion(text, false),
+});
+watch([isAutocompleteOpen, () => settingsStore.settings.inline_suggestion], () => inlineSuggestion.schedule());
 
 /** Instant Replay: retiene la salida con marca de tiempo solo en memoria, si el ajuste está activo. */
 function recordOutput(chunk: Uint8Array) {
@@ -524,7 +556,10 @@ function decorateBlock(b: CommandBlock) {
   const deco = term.registerDecoration({ marker: b.prompt, x: 0, anchor: "right", width: label.length + 1 });
   deco?.onRender((el) => {
     el.textContent = label;
-    el.style.cssText = `color:var(${ok ? "--theme-success" : "--theme-danger"});font-size:0.8em;text-align:right;cursor:pointer;opacity:.85`;
+    Object.assign(el.style, {
+      right: "0px", left: "auto", color: `var(${ok ? "--theme-success" : "--theme-danger"})`,
+      fontSize: "0.8em", textAlign: "right", cursor: "pointer", opacity: ".85",
+    });
     el.title = ok
       ? t("terminal.blockOk", { time: formatDuration(b.durationMs) })
       : t("terminal.blockFailed", { code: b.exitCode, time: formatDuration(b.durationMs) });
@@ -726,9 +761,21 @@ onMounted(async () => {
       return false;
     }
     if (e.type !== 'keydown') return true;
+    // Con el popup abierto, ↑/↓/Tab/Esc son suyos; Enter y el resto siguen al shell.
+    if (isAutocompleteOpen.value && autocomplete.handleKey(e)) {
+      e.preventDefault();
+      return false;
+    }
+    // Sugerencia en gris visible: →, End y Ctrl+→ la aceptan; sin sugerencia llegan al shell.
+    if (inlineSuggestion.handleKey(e)) {
+      e.preventDefault();
+      return false;
+    }
     const def = matchShortcut(e);
     if (!def) return true;
     if (def.context !== 'terminal') return false;
+    // En pantalla alterna (vim, less…) Ctrl+Space pertenece al programa.
+    if (def.id === 'terminal.autocomplete' && autocomplete.isAlternateScreen()) return true;
     // Cambio de panel con Alt+flechas: solo se intercepta si hay un panel en esa dirección;
     // si no, la tecla llega al shell (readline, vim, tmux...).
     const focusDir = FOCUS_SHORTCUTS[def.id];
@@ -751,6 +798,7 @@ onMounted(async () => {
       'terminal.rerunBlock': rerunBlockCommand,
       'terminal.history': () => (isHistoryOpen.value = true),
       'terminal.instantReplay': openReplay,
+      'terminal.autocomplete': () => void autocomplete.toggle(),
     };
     action[def.id]?.();
     return false;
@@ -786,9 +834,14 @@ onMounted(async () => {
   applyAddonPrefs();
 
   fitAddon.fit();
+  term.textarea?.addEventListener('blur', () => autocomplete.close());
+  term.onWriteParsed(() => inlineSuggestion.schedule());
+  term.onCursorMove(() => inlineSuggestion.schedule());
+  term.onSelectionChange(() => inlineSuggestion.schedule());
 
   // Send keystrokes to Rust backend and replicate if broadcast mode is active
   term.onData((data) => {
+    autocomplete.onInput(data);
     if (sessionId) {
       const bytes = new TextEncoder().encode(data);
       sessionService.writeSession(sessionId, bytes);
@@ -810,6 +863,10 @@ onMounted(async () => {
   refit(); // la sesión se abrió con el tamaño de antes de conectar: se sincroniza con el actual
 
   terminalContainer.value.addEventListener('paste', onPasteEvent, true);
+  uiStore.registerPaneInserter(props.pane.id, (text) => {
+    insertSuggestion(text, false);
+    term?.focus();
+  });
   uiStore.registerPaneActions(props.pane.id, {
     search: () => (isSearchOpen.value = !isSearchOpen.value),
     quickSelect: () => quickSelect.start(),
@@ -835,6 +892,7 @@ onBeforeUnmount(async () => {
     terminalContainer.value.removeEventListener('paste', onPasteEvent, true);
   }
   uiStore.unregisterPaneActions(props.pane.id);
+  uiStore.unregisterPaneInserter(props.pane.id);
   if (resizeObserver) {
     resizeObserver.disconnect();
     resizeObserver = null;
@@ -849,6 +907,7 @@ onBeforeUnmount(async () => {
   }
   addonManager?.dispose();
   addonManager = null;
+  inlineSuggestion.dispose();
   tracker?.dispose();
   tracker = null;
   replayStore.release(props.pane.id);
@@ -1172,6 +1231,14 @@ function handleClose() {
   />
   <InstantReplayModal v-if="isReplayOpen && term" :buffer="replayStore.bufferFor(pane.id)" :cols="term.cols" :rows="term.rows" @close="isReplayOpen = false; term?.focus()" />
   <HistoryPicker v-if="isHistoryOpen" :host-id="pane.hostId" @insert="onHistoryInsert" @close="isHistoryOpen = false; term?.focus()" />
+  <AutocompletePopup
+    v-if="isAutocompleteOpen"
+    :candidates="autocomplete.candidates.value"
+    :index="autocomplete.index.value"
+    :anchor="autocomplete.anchor.value"
+    @select="(c) => { autocomplete.accept(c); term?.focus(); }"
+    @hover="(i) => (autocomplete.index.value = i)"
+  />
   <PasteHistoryPicker v-if="isPasteHistoryOpen" @paste="onPasteFromHistory" @close="isPasteHistoryOpen = false; term?.focus()" />
   <TerminalLinkMenu
     v-if="linkMenu"

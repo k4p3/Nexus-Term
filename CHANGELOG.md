@@ -10,11 +10,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **Import and export snippets**: new buttons in the snippet drawer. Import a `nexusterm-snippets` JSON file after reviewing a summary with every command in full (risky patterns such as `sudo`, `rm -rf` or `curl | sh` are flagged); duplicates are skipped and nothing is overwritten. Imported snippets are tagged and show an *imported* badge. Files with line breaks, control, bidirectional or invisible characters are rejected per entry (limits: 1 MB, 500 snippets). Export saves your custom snippets in the same format.
+- **Inline command suggestion**: while you type, the likely continuation of the command appears in gray after the cursor, taken from the host's history (and plain snippets). `→` or `End` accept it, `Ctrl+→` accepts one word; every other key, including `Enter` and `Tab`, reaches the shell untouched. It reads the typed text from the OSC 133 marks, so it works with local terminals (and remote shells with their own integration) and hides itself on full-screen programs, with the popup open or with a selection. Turn it off with *Settings → Terminal → Inline suggestion*.
+- **More built-in Docker snippets**: Compose up/down/logs/status, images, resource usage, restart and container processes (the community catalog now has 23 snippets).
+- **Command autocomplete popup**: `Ctrl+Space` opens suggestions anchored at the cursor from the host's encrypted history and enabled snippets. It filters as you type, `Tab` inserts without running, `Esc` closes, and `Enter` is never intercepted. It stays off on full-screen programs. Note that `Ctrl+Space` (readline *set-mark*) no longer reaches the shell.
 - **New local terminal shortcut**: `Ctrl+Shift+T` (`Cmd+Shift+T` on macOS) opens a local terminal in a new tab from anywhere.
 - **Switch tabs from the keyboard**: `Ctrl+Tab` / `Ctrl+Shift+Tab` (or `Ctrl+PageDown` / `Ctrl+PageUp`) move to the next / previous tab, wrapping around at both ends.
 - **Jump to a tab**: `Alt+1` … `Alt+8` select that tab and `Alt+9` selects the last one. Note that these keys no longer reach the shell (for example `readline` numeric arguments or `tmux` windows).
 
 ### Changed
+- **Snippets are inserted, not executed**: choosing a snippet (drawer or `Ctrl+K`) now types it at the prompt of the active terminal without a trailing newline, so you review it and press `Enter`. It goes through the safe-paste checks and bracketed paste. Before, it ran immediately. If no terminal is open you get a notice.
+- **Snippet parameters ignore Go templates**: `{{.ID}}`-style placeholders (as in `docker ps --format`) are no longer asked for as parameters; only `{{name}}` / `{{name=default}}` are. This fixes the built-in *Docker: List with Ports* snippet.
+- **Automatic shell integration in local terminals**: NexusTerm now injects OSC 133 marks into local bash, zsh and fish (< 4) sessions without editing your config files, so command blocks, history and autocomplete work out of the box. Turn it off with *Settings → Terminal → Shell integration* if you already have your own. Applies to new terminals; SSH sessions are unchanged.
+- **History is no longer lost while the vault is locked**: commands finished before unlocking are kept in memory (up to 200, never written unencrypted) and saved encrypted on unlock.
 - **A local terminal always opens at startup** when there is nothing to restore, also when *Ask for the master password at startup* is enabled (before, the workspace could stay empty after unlocking). Restored tabs are never duplicated with an extra local terminal.
 
 ---
@@ -99,7 +107,7 @@ First full production-ready release of **NexusTerm**, featuring embedded graphic
 - `docs/ROADMAP.md` with planned work and tentative ideas.
 - **SFTP Concurrent Transfers**: Multi-file background transfer queue with real-time progress bars, speed gauges, retry logic, and configurable concurrency pool.
 - **SSH Jump Hosts & Bastion Chaining**: Transparent bastion chaining (`A -> B -> Target`) using native Rust `direct-tcpip` multiplexing without external proxy binaries.
-- **Default Community Snippets**: Built-in curated catalog of 15 essential sysadmin/DevOps snippets (Docker, Systemd, Network, Storage & Kernel diagnostics).
+- **Default Community Snippets**: Built-in curated catalog of 23 essential sysadmin/DevOps snippets (Docker, Systemd, Network, Storage & Kernel diagnostics).
 - **Snippet State Management**: Toggle snippets enabled/disabled individually without deleting them from the database.
 - **Origin Filtering & Cloning**: Filter snippets by "All", "Community", or "Custom" in the drawer, and 1-click duplicate built-in snippets to customize them.
 - **Branding**: Official GitHub Social Preview card (1280x640) added to `public/social-preview.png`.

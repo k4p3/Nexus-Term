@@ -64,3 +64,22 @@ The application SHALL provide the global shortcuts `Alt+1` to `Alt+8` that activ
 #### Scenario: No conflict with other shortcuts
 - **WHEN** the shortcut registry is validated
 - **THEN** none of the `Alt+1..9` combinations collides with another shortcut, including the `Alt+Arrow` pane focus shortcuts.
+
+### Requirement: Autocomplete Shortcut
+The application SHALL provide the terminal-context shortcut `Ctrl+Space` to toggle the autocomplete popup, and SHALL list it in the shortcut cheat sheet.
+
+#### Scenario: Shortcut toggles the popup
+- **WHEN** the user presses `Ctrl+Space` in a terminal pane on the normal screen
+- **THEN** the autocomplete popup opens, and pressing it again closes it
+- **AND** the key event is not forwarded to the shell.
+
+#### Scenario: No conflict with Quick Select
+- **WHEN** the shortcut registry is validated
+- **THEN** `Ctrl+Space` does not collide with `Ctrl+Shift+Space` (Quick Select) or any other shortcut.
+
+### Requirement: Contextual Suggestion Keys
+The keys that accept an inline suggestion (`→`, `End`, `Ctrl+→`) SHALL be consumed only while a suggestion is visible; otherwise they SHALL reach the shell unchanged. They are documented in the shortcut sheet and manuals but are not entries of the global shortcut registry.
+
+#### Scenario: No suggestion visible
+- **WHEN** no suggestion is visible and the user presses `→`, `End` or `Ctrl+→`
+- **THEN** the key is sent to the shell unchanged.

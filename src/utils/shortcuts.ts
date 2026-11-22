@@ -59,6 +59,7 @@ export const SHORTCUTS: ShortcutDef[] = [
   def("terminal.copy", { key: "c", ctrl: true, shift: true }, "terminal", "clipboard", true),
   def("terminal.paste", { key: "v", ctrl: true, shift: true }, "terminal", "clipboard", true),
   def("terminal.quickSelect", { code: "Space", ctrl: true, shift: true }, "terminal", "selection"),
+  def("terminal.autocomplete", { code: "Space", ctrl: true }, "terminal", "tools"),
   def("terminal.palette", { key: "p", ctrl: true, shift: true }, "workspace", "tools"),
   def("terminal.pasteHistory", { key: "v", ctrl: true, alt: true }, "terminal", "clipboard"),
   def("terminal.history", { key: "h", ctrl: true, shift: true }, "terminal", "tools"),

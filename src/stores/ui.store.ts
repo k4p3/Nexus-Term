@@ -39,6 +39,7 @@ export const useUiStore = defineStore("ui", () => {
   const paneActions = ref<Record<string, PaneActions>>({});
   /** Último panel notificado por el sistema: al recuperar el foco, la ventana lo activa. */
   const lastNotified = ref<{ tabId: string; paneId: string; at: number } | null>(null);
+  const paneInserters = new Map<string, (text: string) => void>();
   let nextToastId = 1;
 
   function pushToast(message: string, opts: Partial<Omit<Toast, "id" | "message">> = {}): number {
@@ -61,6 +62,22 @@ export const useUiStore = defineStore("ui", () => {
 
   function registerPaneActions(paneId: string, actions: PaneActions) {
     paneActions.value[paneId] = actions;
+  }
+
+  /** Inserta texto en el prompt de un panel (sin ejecutarlo). Devuelve `false` si el panel no existe. */
+  function registerPaneInserter(paneId: string, fn: (text: string) => void) {
+    paneInserters.set(paneId, fn);
+  }
+
+  function unregisterPaneInserter(paneId: string) {
+    paneInserters.delete(paneId);
+  }
+
+  function insertIntoPane(paneId: string | null | undefined, text: string): boolean {
+    const fn = paneId ? paneInserters.get(paneId) : undefined;
+    if (!fn) return false;
+    fn(text);
+    return true;
   }
 
   function unregisterPaneActions(paneId: string) {
@@ -102,5 +119,8 @@ export const useUiStore = defineStore("ui", () => {
     registerPaneActions,
     unregisterPaneActions,
     runPaneAction,
+    registerPaneInserter,
+    unregisterPaneInserter,
+    insertIntoPane,
   };
 });

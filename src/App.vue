@@ -17,7 +17,6 @@ import { APP_VERSION } from "./utils/app-version";
 import { useUiStore } from "./stores/ui.store";
 import { matchShortcut } from "./utils/shortcuts";
 import type { HostSummary } from "./types/inventory";
-import { sessionService } from "./services/session.service";
 import { Lock, RefreshCw, Search, Settings, Code, ArrowRightLeft, FolderSync } from "lucide-vue-next";
 
 // Modales y paneles secundarios cargados bajo demanda (lazy loading) para reducir memoria inicial
@@ -165,13 +164,11 @@ function handleConnectSftp(host: HostSummary) {
   void runWithUnlock(() => sftpStore.openSftp(host.id));
 }
 
+/** Inserta el texto en el prompt del panel activo sin ejecutarlo; el usuario decide con Enter. */
 function handleInsertCommand(command: string) {
-  if (!sessionsStore.activeTabId) return;
   const tab = sessionsStore.tabs.find((t) => t.id === sessionsStore.activeTabId);
-  if (!tab) return;
-  const sessionId = sessionsStore.paneSessionMap[tab.activePaneId];
-  if (sessionId) {
-    sessionService.writeSession(sessionId, new TextEncoder().encode(command));
+  if (!tab || !uiStore.insertIntoPane(tab.activePaneId, command)) {
+    uiStore.pushToast(t("ui.snip.noTerminal"), { kind: "warning" });
   }
 }
 </script>

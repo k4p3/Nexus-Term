@@ -97,6 +97,49 @@
     "authKey": "Llave Privada",
     "authAgent": "Agente SSH"
   },
+  "snippetsIo": {
+    "importTitle": "Importar snippets",
+    "intro": "Elige un fichero JSON en formato «nexusterm-snippets». Revisa los comandos antes de importar: nada se ejecuta al importar y los snippets quedan marcados como «importado».",
+    "choose": "Elegir fichero…",
+    "import": "Importar",
+    "export": "Exportar",
+    "importBtn": "Importar snippets",
+    "exportBtn": "Exportar mis snippets",
+    "nothingToExport": "No tienes snippets personalizados que exportar.",
+    "imported": "importado",
+    "counts": "{n} para importar · {s} omitidos · {i} inválidos",
+    "riskNotice": "Algunos comandos tienen patrones de riesgo. Revísalos: aunque no se ejecutan al importar, podrían ser peligrosos al usarlos.",
+    "risky": "Riesgo: {list}",
+    "done": "Importados {created} snippets ({failed} con error).",
+    "exported": "Snippets exportados.",
+    "error": {
+      "tooLarge": "El fichero supera 1 MB.",
+      "badJson": "El fichero no es JSON válido.",
+      "badFormat": "No es un fichero «nexusterm-snippets».",
+      "badVersion": "Versión de formato no soportada.",
+      "noSnippets": "El fichero no contiene una lista «snippets».",
+      "tooMany": "El fichero tiene más de 500 snippets."
+    },
+    "skip": {
+      "duplicate": "ya existe",
+      "duplicateInFile": "repetido en el fichero"
+    },
+    "invalid": {
+      "notObject": "entrada no válida",
+      "title": "falta el título",
+      "command": "falta el comando",
+      "description": "descripción no válida",
+      "tags": "etiquetas no válidas",
+      "unsafe": "contiene saltos de línea o caracteres de control/invisibles",
+      "tooLong": "supera los límites de longitud"
+    }
+  },
+  "autocomplete": {
+    "label": "Sugerencias de comandos",
+    "empty": "Sin coincidencias",
+    "snippet": "Snippet",
+    "hint": "↑↓ navegar · Tab insertar · Esc cerrar"
+  },
   "history": {
     "snippet": "Snippet",
     "placeholder": "Buscar en el historial del host y snippets… (Enter inserta, Ctrl+Enter ejecuta)",
@@ -144,6 +187,10 @@
     "importTheme": "Importar Tema (.json)",
     "themeImported": "¡Tema importado con éxito!",
     "defaultShell": "Shell Local Predeterminado",
+    "shellIntegration": "Integración con el shell",
+    "shellIntegrationDesc": "Añade marcas OSC 133 a los terminales locales (bash, zsh, fish) sin modificar tus ficheros de configuración. Habilita el historial, los bloques de comandos y el autocompletado. Desactívala si ya tienes tu propia integración. Se aplica a las terminales nuevas.",
+    "inlineSuggestion": "Sugerencia en línea",
+    "inlineSuggestionDesc": "Muestra en gris la continuación del comando que escribes, tomada de tu historial y tus snippets. Acéptala con → o Fin (Ctrl+→ acepta una palabra). Requiere la integración con el shell (OSC 133).",
     "defaultShellPlaceholder": "Autodetectar ($SHELL)",
     "shellHelp": "Ruta absoluta del binario de tu shell (ej. /bin/zsh, /usr/bin/fish, /bin/bash).",
     "securityNotice": "Rotación de Contraseña Maestra de la Bóveda",
@@ -289,6 +336,7 @@
     "terminal.palette": "Paleta de comandos de la terminal",
     "terminal.pasteHistory": "Historial de pegado",
     "terminal.history": "Historial de comandos",
+    "terminal.autocomplete": "Autocompletar comando",
     "terminal.instantReplay": "Instant Replay (revisar salida)",
     "terminal.rerunBlock": "Repetir el comando del bloque seleccionado"
   },
@@ -576,6 +624,7 @@
       "duplicate": "Duplicar como snippet personal",
       "confirmDisable": "¿Deseas deshabilitar el snippet comunitario \"{title}\"? Podrás reactivarlo cuando quieras.",
       "confirmDelete": "¿Eliminar permanentemente el snippet \"{title}\"?",
+      "noTerminal": "Abre una terminal para insertar el snippet.",
       "insertHint": "Hacer clic para insertar en la terminal",
       "disabledHint": "Snippet deshabilitado (actívalo para usarlo)",
       "visible": "{n} visibles"

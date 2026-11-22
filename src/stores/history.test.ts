@@ -77,12 +77,11 @@ describe("history store", () => {
     expect(svc.clear).toHaveBeenCalledWith(null);
   });
 
-  it("load failure leaves an empty cache", async () => {
+  it("load failure leaves an empty cache (only pending entries, none here)", async () => {
     svc.search.mockRejectedValueOnce("locked");
     const s = useHistoryStore();
     await s.load("h1");
     expect(s.entries).toEqual([]);
-    expect(s.loadedHost).toBeNull();
   });
 
   it("discards the cache when the vault is locked", async () => {
@@ -93,5 +92,58 @@ describe("history store", () => {
     vault.isUnlocked = true;
     await vault.lock();
     expect(s.entries).toEqual([]);
+  });
+
+  describe("pending queue while the vault is locked", () => {
+    it("queues commands in memory when recording fails and exposes them in load()", async () => {
+      const s = useHistoryStore();
+      svc.record.mockRejectedValueOnce("locked");
+      expect(await s.record("h1", "ls -la", 0, true)).toBe(false);
+      svc.search.mockRejectedValueOnce("locked");
+      await s.load("h1");
+      expect(s.entries.map((e) => e.command)).toEqual(["ls -la"]);
+    });
+
+    it("does not queue excluded or disabled commands", async () => {
+      const s = useHistoryStore();
+      svc.record.mockRejectedValue("locked");
+      await s.record("h1", "export TOKEN=abc123secret", 0, true);
+      await s.record("h1", "ls", 0, false);
+      expect(s.pending).toHaveLength(0);
+      svc.record.mockReset();
+      svc.record.mockImplementation(async () => {});
+    });
+
+    it("caps the queue at 200 keeping the newest", async () => {
+      const s = useHistoryStore();
+      svc.record.mockRejectedValue("locked");
+      for (let i = 0; i < 205; i++) await s.record("h1", `cmd${i}`, 0, true);
+      expect(s.pending).toHaveLength(200);
+      expect(s.pending[0].command).toBe("cmd5");
+      svc.record.mockReset();
+      svc.record.mockImplementation(async () => {});
+    });
+
+    it("flushes in order on demand, empties the queue and keeps it on reset()", async () => {
+      const s = useHistoryStore();
+      svc.record.mockRejectedValueOnce("locked").mockRejectedValueOnce("locked");
+      await s.record("h1", "first", 0, true);
+      await s.record("h2", "second", 1, true);
+      s.reset();
+      expect(s.pending).toHaveLength(2);
+      svc.record.mockClear();
+      await s.flushPending();
+      expect((svc.record.mock.calls as unknown as unknown[][]).map((c) => c[1])).toEqual(["first", "second"]);
+      expect(s.pending).toHaveLength(0);
+    });
+
+    it("never writes the queue anywhere except the encrypted service", async () => {
+      const spy = vi.spyOn(Storage.prototype, "setItem");
+      const s = useHistoryStore();
+      svc.record.mockRejectedValueOnce("locked");
+      await s.record("h1", "ls", 0, true);
+      expect(spy).not.toHaveBeenCalled();
+      spy.mockRestore();
+    });
   });
 });

@@ -1,3 +1,4 @@
+import { SNIPPET_PARAM_RE } from "../utils/snippet-params";
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { CommandSnippet, SaveSnippetPayload } from '../types/snippets';
@@ -60,6 +61,22 @@ export const useSnippetsStore = defineStore('snippets', () => {
     return id;
   }
 
+  /** Crea los snippets importados uno a uno y recarga la lista una vez. Los que fallan se cuentan. */
+  async function importSnippets(items: SaveSnippetPayload[]): Promise<{ created: number; failed: number }> {
+    let created = 0;
+    let failed = 0;
+    for (const payload of items) {
+      try {
+        await snippetsService.saveSnippet(payload);
+        created++;
+      } catch {
+        failed++;
+      }
+    }
+    await fetchSnippets();
+    return { created, failed };
+  }
+
   async function toggleSnippetEnabled(id: string, enabled: boolean): Promise<void> {
     // Optimistic update
     const target = snippets.value.find((s) => s.id === id);
@@ -86,7 +103,7 @@ export const useSnippetsStore = defineStore('snippets', () => {
   }
 
   function extractParameters(template: string): string[] {
-    const matches = template.matchAll(/\{\{([^}]+)\}\}/g);
+    const matches = template.matchAll(SNIPPET_PARAM_RE);
     const params = new Set<string>();
     for (const match of matches) {
       params.add(match[1].trim());
@@ -95,7 +112,7 @@ export const useSnippetsStore = defineStore('snippets', () => {
   }
 
   function substituteParameters(template: string, values: Record<string, string>): string {
-    return template.replace(/\{\{([^}]+)\}\}/g, (_, key) => {
+    return template.replace(SNIPPET_PARAM_RE, (_, key) => {
       const trimmed = key.trim();
       return values[trimmed] !== undefined ? values[trimmed] : `{{${trimmed}}}`;
     });
@@ -113,6 +130,7 @@ export const useSnippetsStore = defineStore('snippets', () => {
     filteredSnippets,
     fetchSnippets,
     saveSnippet,
+    importSnippets,
     toggleSnippetEnabled,
     duplicateSnippet,
     deleteSnippet,
