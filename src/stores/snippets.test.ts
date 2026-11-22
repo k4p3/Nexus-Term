@@ -108,4 +108,11 @@ describe('snippets store parameter engine and state management', () => {
     expect(store.customSnippets.length).toBe(1);
     expect(store.enabledSnippets.length).toBe(2);
   });
+
+  it("leaves Go templates such as {{.ID}} alone", () => {
+    const store = useSnippetsStore();
+    const t = 'docker ps --format "table {{.ID}}\\t{{.Names}}" {{filter=x}}';
+    expect(store.extractParameters(t)).toEqual(["filter=x"]);
+    expect(store.substituteParameters(t, { "filter=x": "y" })).toBe('docker ps --format "table {{.ID}}\\t{{.Names}}" y');
+  });
 });

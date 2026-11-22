@@ -1,5 +1,6 @@
 import type { HistoryEntry } from "../types/history";
 import { toCandidates, type SnippetLike } from "./completion-candidates";
+import { hasSnippetParams } from "./snippet-params";
 import type { BufferLineLike, MarkerLike } from "./command-blocks";
 
 /** Mínimo de caracteres escritos antes de sugerir. */
@@ -77,7 +78,7 @@ export function suggestFor(
     .sort((a, b) => b.useCount - a.useCount || (a.lastUsedAt < b.lastUsedAt ? 1 : a.lastUsedAt > b.lastUsedAt ? -1 : 0));
   if (fromHistory.length) return fromHistory[0].text.slice(text.length);
 
-  const snip = snippets.find((s) => fits(s.command_template) && !s.command_template.includes("{{"));
+  const snip = snippets.find((s) => fits(s.command_template) && !hasSnippetParams(s.command_template));
   return snip ? snip.command_template.slice(text.length) : null;
 }
 

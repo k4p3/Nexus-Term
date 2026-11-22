@@ -1,3 +1,4 @@
+import { SNIPPET_PARAM_RE } from "../utils/snippet-params";
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import type { CommandSnippet, SaveSnippetPayload } from '../types/snippets';
@@ -86,7 +87,7 @@ export const useSnippetsStore = defineStore('snippets', () => {
   }
 
   function extractParameters(template: string): string[] {
-    const matches = template.matchAll(/\{\{([^}]+)\}\}/g);
+    const matches = template.matchAll(SNIPPET_PARAM_RE);
     const params = new Set<string>();
     for (const match of matches) {
       params.add(match[1].trim());
@@ -95,7 +96,7 @@ export const useSnippetsStore = defineStore('snippets', () => {
   }
 
   function substituteParameters(template: string, values: Record<string, string>): string {
-    return template.replace(/\{\{([^}]+)\}\}/g, (_, key) => {
+    return template.replace(SNIPPET_PARAM_RE, (_, key) => {
       const trimmed = key.trim();
       return values[trimmed] !== undefined ? values[trimmed] : `{{${trimmed}}}`;
     });
