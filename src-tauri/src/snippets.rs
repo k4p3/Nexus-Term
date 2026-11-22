@@ -63,6 +63,62 @@ pub fn seed_community_snippets(conn: &Connection) -> Result<(), VaultError> {
             "[\"docker\", \"cleanup\"]",
         ),
         (
+            "builtin-compose-up",
+            "Docker Compose: Up",
+            "docker compose up -d {{service}}",
+            Some("Starts the Compose services in the background (all of them if the service is left empty)."),
+            "[\"compose\", \"start\"]",
+        ),
+        (
+            "builtin-compose-down",
+            "Docker Compose: Down",
+            "docker compose down",
+            Some("Stops and removes the Compose project's containers and networks."),
+            "[\"compose\", \"stop\"]",
+        ),
+        (
+            "builtin-compose-logs",
+            "Docker Compose: Follow Logs",
+            "docker compose logs -f --tail {{lines=100}} {{service}}",
+            Some("Follows the recent logs of the Compose services in real time."),
+            "[\"compose\", \"logs\"]",
+        ),
+        (
+            "builtin-compose-ps",
+            "Docker Compose: Status",
+            "docker compose ps",
+            Some("Lists the Compose project's containers and their state."),
+            "[\"compose\", \"status\"]",
+        ),
+        (
+            "builtin-docker-images",
+            "Docker: List Images",
+            "docker images",
+            Some("Lists the local images with their tag, ID and size."),
+            "[\"docker\", \"images\"]",
+        ),
+        (
+            "builtin-docker-stats",
+            "Docker: Resource Usage",
+            "docker stats --no-stream",
+            Some("Shows a one-off snapshot of CPU and memory usage per container."),
+            "[\"docker\", \"status\"]",
+        ),
+        (
+            "builtin-docker-restart",
+            "Docker: Restart Container",
+            "docker restart {{container}}",
+            Some("Restarts the specified container."),
+            "[\"docker\", \"service\"]",
+        ),
+        (
+            "builtin-docker-top",
+            "Docker: Container Processes",
+            "docker top {{container}}",
+            Some("Lists the processes running inside the container."),
+            "[\"docker\", \"status\"]",
+        ),
+        (
             "builtin-sys-journal",
             "Systemd: Live Logs",
             "journalctl -u {{service}} -f -n {{lines=50}}",
@@ -326,7 +382,7 @@ mod tests {
         assert_eq!(item.title, "Docker: Follow Logs");
         assert!(item.command_template.contains("{{lines=100}}"));
         assert!(!item.is_enabled, "user's enabled choice must be preserved");
-        assert_eq!(list.len(), 15);
+        assert_eq!(list.len(), 23);
     }
 
     #[test]
@@ -336,7 +392,7 @@ mod tests {
 
         // 1. Initial list has seeded community snippets
         let initial = get_snippets_internal(&conn).unwrap();
-        assert_eq!(initial.len(), 15);
+        assert_eq!(initial.len(), 23);
         let docker_logs = initial.iter().find(|s| s.id == "builtin-docker-logs").unwrap();
         assert!(docker_logs.is_builtin);
         assert!(docker_logs.is_enabled);
@@ -350,7 +406,7 @@ mod tests {
         // 3. Deleting a builtin snippet should keep it disabled instead of deleting row
         delete_snippet_internal(&conn, "builtin-docker-logs").unwrap();
         let list_after_delete_builtin = get_snippets_internal(&conn).unwrap();
-        assert_eq!(list_after_delete_builtin.len(), 15);
+        assert_eq!(list_after_delete_builtin.len(), 23);
         let disabled_builtin = list_after_delete_builtin.iter().find(|s| s.id == "builtin-docker-logs").unwrap();
         assert!(!disabled_builtin.is_enabled);
 
@@ -368,7 +424,7 @@ mod tests {
         assert!(!custom_id.is_empty());
 
         let list_with_custom = get_snippets_internal(&conn).unwrap();
-        assert_eq!(list_with_custom.len(), 16);
+        assert_eq!(list_with_custom.len(), 24);
         let custom_item = list_with_custom.iter().find(|s| s.id == custom_id).unwrap();
         assert!(!custom_item.is_builtin);
         assert!(custom_item.is_enabled);
@@ -384,7 +440,7 @@ mod tests {
         // 6. Delete custom snippet completely removes it
         delete_snippet_internal(&conn, &custom_id).unwrap();
         let list_after_custom_delete = get_snippets_internal(&conn).unwrap();
-        assert_eq!(list_after_custom_delete.len(), 15);
+        assert_eq!(list_after_custom_delete.len(), 23);
         assert!(list_after_custom_delete.iter().all(|s| s.id != custom_id));
     }
 }

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **More built-in Docker snippets**: Compose up/down/logs/status, images, resource usage, restart and container processes (the community catalog now has 23 snippets).
 - **Command autocomplete popup**: `Ctrl+Space` opens suggestions anchored at the cursor from the host's encrypted history and enabled snippets. It filters as you type, `Tab` inserts without running, `Esc` closes, and `Enter` is never intercepted. It stays off on full-screen programs. Note that `Ctrl+Space` (readline *set-mark*) no longer reaches the shell.
 - **New local terminal shortcut**: `Ctrl+Shift+T` (`Cmd+Shift+T` on macOS) opens a local terminal in a new tab from anywhere.
 - **Switch tabs from the keyboard**: `Ctrl+Tab` / `Ctrl+Shift+Tab` (or `Ctrl+PageDown` / `Ctrl+PageUp`) move to the next / previous tab, wrapping around at both ends.
@@ -102,7 +103,7 @@ First full production-ready release of **NexusTerm**, featuring embedded graphic
 - `docs/ROADMAP.md` with planned work and tentative ideas.
 - **SFTP Concurrent Transfers**: Multi-file background transfer queue with real-time progress bars, speed gauges, retry logic, and configurable concurrency pool.
 - **SSH Jump Hosts & Bastion Chaining**: Transparent bastion chaining (`A -> B -> Target`) using native Rust `direct-tcpip` multiplexing without external proxy binaries.
-- **Default Community Snippets**: Built-in curated catalog of 15 essential sysadmin/DevOps snippets (Docker, Systemd, Network, Storage & Kernel diagnostics).
+- **Default Community Snippets**: Built-in curated catalog of 23 essential sysadmin/DevOps snippets (Docker, Systemd, Network, Storage & Kernel diagnostics).
 - **Snippet State Management**: Toggle snippets enabled/disabled individually without deleting them from the database.
 - **Origin Filtering & Cloning**: Filter snippets by "All", "Community", or "Custom" in the drawer, and 1-click duplicate built-in snippets to customize them.
 - **Branding**: Official GitHub Social Preview card (1280x640) added to `public/social-preview.png`.
