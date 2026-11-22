@@ -89,13 +89,13 @@ function handleInsertSnippet(item: CommandSnippet) {
     snippetForParam.value = item;
     isParamModalOpen.value = true;
   } else {
-    emit('insert-command', item.command_template + '\n');
+    emit('insert-command', item.command_template);
     emit('close');
   }
 }
 
 function handleParamExecute(finalCommand: string) {
-  emit('insert-command', finalCommand + '\n');
+  emit('insert-command', finalCommand);
   emit('close');
 }
 

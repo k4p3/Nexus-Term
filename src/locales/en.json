@@ -587,6 +587,7 @@
       "duplicate": "Duplicate as personal snippet",
       "confirmDisable": "Disable the community snippet \"{title}\"? You can re-enable it any time.",
       "confirmDelete": "Permanently delete the snippet \"{title}\"?",
+      "noTerminal": "Open a terminal to insert the snippet.",
       "insertHint": "Click to insert into the terminal",
       "disabledHint": "Snippet disabled (enable it to use it)",
       "visible": "{n} visible"

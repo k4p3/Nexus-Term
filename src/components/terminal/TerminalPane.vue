@@ -863,6 +863,10 @@ onMounted(async () => {
   refit(); // la sesión se abrió con el tamaño de antes de conectar: se sincroniza con el actual
 
   terminalContainer.value.addEventListener('paste', onPasteEvent, true);
+  uiStore.registerPaneInserter(props.pane.id, (text) => {
+    insertSuggestion(text, false);
+    term?.focus();
+  });
   uiStore.registerPaneActions(props.pane.id, {
     search: () => (isSearchOpen.value = !isSearchOpen.value),
     quickSelect: () => quickSelect.start(),
@@ -888,6 +892,7 @@ onBeforeUnmount(async () => {
     terminalContainer.value.removeEventListener('paste', onPasteEvent, true);
   }
   uiStore.unregisterPaneActions(props.pane.id);
+  uiStore.unregisterPaneInserter(props.pane.id);
   if (resizeObserver) {
     resizeObserver.disconnect();
     resizeObserver = null;

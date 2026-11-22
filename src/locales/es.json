@@ -587,6 +587,7 @@
       "duplicate": "Duplicar como snippet personal",
       "confirmDisable": "¿Deseas deshabilitar el snippet comunitario \"{title}\"? Podrás reactivarlo cuando quieras.",
       "confirmDelete": "¿Eliminar permanentemente el snippet \"{title}\"?",
+      "noTerminal": "Abre una terminal para insertar el snippet.",
       "insertHint": "Hacer clic para insertar en la terminal",
       "disabledHint": "Snippet deshabilitado (actívalo para usarlo)",
       "visible": "{n} visibles"
