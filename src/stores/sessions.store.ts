@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { ref, watch } from "vue";
 import type { HostSummary } from "../types/inventory";
-import type { SessionTab, PaneNode, LeafPane, SplitDirection } from "../types/session";
+import type { SessionTab, PaneNode, LeafPane, SplitDirection, SplitPlacement } from "../types/session";
 import { sessionService } from "../services/session.service";
 import { buildRestoredTabs, type SessionLayout } from "../utils/session-layout";
 import { findNeighborPane, type FocusDirection } from "../utils/pane-navigation";
@@ -9,6 +9,9 @@ import { findNeighborPane, type FocusDirection } from "../utils/pane-navigation"
 function generateId(): string {
   return "pane-" + Math.random().toString(36).substring(2, 9);
 }
+
+const MIN_SPLIT_RATIO = 0.1;
+const MAX_SPLIT_RATIO = 0.9;
 
 export const useSessionsStore = defineStore("sessions", () => {
   const tabs = ref<SessionTab[]>([]);
@@ -139,7 +142,8 @@ export const useSessionsStore = defineStore("sessions", () => {
     tabId: string,
     targetPaneId: string,
     direction: SplitDirection,
-    host?: HostSummary
+    host?: HostSummary,
+    placement: SplitPlacement = "after",
   ) {
     const tab = tabs.value.find((t) => t.id === tabId);
     if (!tab) return;
@@ -164,8 +168,8 @@ export const useSessionsStore = defineStore("sessions", () => {
             type: "split",
             id: generateId(),
             direction,
-            first: node,
-            second: newLeaf,
+            first: placement === "before" ? newLeaf : node,
+            second: placement === "before" ? node : newLeaf,
             ratio: 0.5,
           };
         }
@@ -186,7 +190,8 @@ export const useSessionsStore = defineStore("sessions", () => {
     sourceTabId: string,
     targetTabId: string,
     targetPaneId: string,
-    direction: SplitDirection
+    direction: SplitDirection,
+    placement: SplitPlacement = "after",
   ) {
     const targetTab = tabs.value.find((t) => t.id === targetTabId);
     const sourceTab = tabs.value.find((t) => t.id === sourceTabId);
@@ -199,8 +204,8 @@ export const useSessionsStore = defineStore("sessions", () => {
             type: "split",
             id: generateId(),
             direction,
-            first: node,
-            second: sourceTab!.rootPane,
+            first: placement === "before" ? sourceTab!.rootPane : node,
+            second: placement === "before" ? node : sourceTab!.rootPane,
             ratio: 0.5,
           };
         }
@@ -225,6 +230,26 @@ export const useSessionsStore = defineStore("sessions", () => {
     activeTabId.value = targetTabId;
   }
 
+  function setSplitRatio(tabId: string, splitId: string, ratio: number) {
+    const tab = tabs.value.find((t) => t.id === tabId);
+    if (!tab || !Number.isFinite(ratio)) return;
+    const clamped = Math.min(MAX_SPLIT_RATIO, Math.max(MIN_SPLIT_RATIO, ratio));
+
+    function update(node: PaneNode): PaneNode {
+      if (node.type === "leaf") return node;
+      if (node.id === splitId) {
+        return { ...node, ratio: clamped };
+      }
+      return {
+        ...node,
+        first: update(node.first),
+        second: update(node.second),
+      };
+    }
+
+    tab.rootPane = update(tab.rootPane);
+  }
+
   function closePane(tabId: string, targetPaneId: string) {
     const tab = tabs.value.find((t) => t.id === tabId);
     if (!tab) return;
@@ -234,6 +259,16 @@ export const useSessionsStore = defineStore("sessions", () => {
       return;
     }
 
+    function firstLeafId(node: PaneNode): string {
+      return node.type === "leaf" ? node.id : firstLeafId(node.first);
+    }
+
+    function lastLeafId(node: PaneNode): string {
+      return node.type === "leaf" ? node.id : lastLeafId(node.second);
+    }
+
+    let siblingActiveId: string | null = null;
+
     function removeNode(node: PaneNode): PaneNode | null {
       if (node.type === "leaf") {
         return node.id === targetPaneId ? null : node;
@@ -242,19 +277,33 @@ export const useSessionsStore = defineStore("sessions", () => {
       const firstRes = removeNode(node.first);
       const secondRes = removeNode(node.second);
 
-      if (firstRes === null) return secondRes;
-      if (secondRes === null) return firstRes;
+      if (firstRes === null && secondRes !== null) {
+        siblingActiveId ??= firstLeafId(secondRes);
+        return secondRes;
+      }
+      if (secondRes === null && firstRes !== null) {
+        siblingActiveId ??= lastLeafId(firstRes);
+        return firstRes;
+      }
+      if (firstRes === null && secondRes === null) return null;
 
       return {
         ...node,
-        first: firstRes,
-        second: secondRes,
+        first: firstRes!,
+        second: secondRes!,
       };
     }
 
     const newRoot = removeNode(tab.rootPane);
     if (newRoot) {
       tab.rootPane = newRoot;
+      const remaining = getLeafPanesInTab(tabId);
+      if (!remaining.some((l) => l.id === tab.activePaneId)) {
+        tab.activePaneId =
+          siblingActiveId && remaining.some((l) => l.id === siblingActiveId)
+            ? siblingActiveId
+            : (remaining[0]?.id ?? "");
+      }
     } else {
       closeTab(tabId);
     }
@@ -294,6 +343,7 @@ export const useSessionsStore = defineStore("sessions", () => {
     activateTabByIndex,
     splitPane,
     dockTabIntoPane,
+    setSplitRatio,
     closePane,
     setActivePane,
     focusNeighborPane,

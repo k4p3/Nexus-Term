@@ -2,6 +2,7 @@ import type { HostSummary } from "./inventory";
 
 export type PaneType = "leaf" | "split";
 export type SplitDirection = "horizontal" | "vertical";
+export type SplitPlacement = "before" | "after";
 
 export interface LeafPane {
   type: "leaf";

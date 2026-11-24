@@ -48,11 +48,15 @@ import { findIpLinks, findPathLinks, dirname } from "../../utils/link-detect";
 import { BlockTracker, searchInRange, formatDuration, type CommandBlock, type SearchMatch } from "../../utils/command-blocks";
 import { buildNotificationBody, shouldNotify } from "../../utils/notify";
 import TelemetryBar from "./TelemetryBar.vue";
-import type { LeafPane } from "../../types/session";
+import type { LeafPane, SplitDirection, SplitPlacement } from "../../types/session";
 import type { HostSummary } from "../../types/inventory";
 import {
   Columns,
   Rows,
+  PanelLeft,
+  PanelRight,
+  PanelTop,
+  PanelBottom,
   X,
   Server,
   Terminal as TerminalIcon,
@@ -306,39 +310,46 @@ const isSearchOpen = ref(false);
 
 // Split Menu state
 const isSplitMenuOpen = ref(false);
-const splitDirection = ref<'horizontal' | 'vertical'>('horizontal');
+const splitDirection = ref<SplitDirection>('horizontal');
+const splitPlacement = ref<SplitPlacement>('after');
 const showServerPicker = ref(false);
 
 const otherTabs = computed(() => sessionsStore.tabs.filter((t) => t.id !== props.tabId));
 
-function openSplitMenu(direction: 'horizontal' | 'vertical') {
-  if (isSplitMenuOpen.value && splitDirection.value === direction) {
+function setSplitSide(direction: SplitDirection, placement: SplitPlacement) {
+  splitDirection.value = direction;
+  splitPlacement.value = placement;
+}
+
+function openSplitMenu(direction: SplitDirection, placement: SplitPlacement = 'after') {
+  if (isSplitMenuOpen.value && splitDirection.value === direction && splitPlacement.value === placement) {
     isSplitMenuOpen.value = false;
   } else {
     splitDirection.value = direction;
+    splitPlacement.value = placement;
     isSplitMenuOpen.value = true;
     showServerPicker.value = false;
   }
 }
 
 function splitWithLocal() {
-  sessionsStore.splitPane(props.tabId, props.pane.id, splitDirection.value, undefined);
+  sessionsStore.splitPane(props.tabId, props.pane.id, splitDirection.value, undefined, splitPlacement.value);
   isSplitMenuOpen.value = false;
 }
 
 function splitWithDuplicate() {
-  sessionsStore.splitPane(props.tabId, props.pane.id, splitDirection.value, props.pane.host);
+  sessionsStore.splitPane(props.tabId, props.pane.id, splitDirection.value, props.pane.host, splitPlacement.value);
   isSplitMenuOpen.value = false;
 }
 
 function splitWithHost(host: HostSummary) {
-  sessionsStore.splitPane(props.tabId, props.pane.id, splitDirection.value, host);
+  sessionsStore.splitPane(props.tabId, props.pane.id, splitDirection.value, host, splitPlacement.value);
   isSplitMenuOpen.value = false;
   showServerPicker.value = false;
 }
 
 function dockExistingTab(sourceTabId: string) {
-  sessionsStore.dockTabIntoPane(sourceTabId, props.tabId, props.pane.id, splitDirection.value);
+  sessionsStore.dockTabIntoPane(sourceTabId, props.tabId, props.pane.id, splitDirection.value, splitPlacement.value);
   isSplitMenuOpen.value = false;
 }
 
@@ -1073,22 +1084,38 @@ function handleClose() {
     >
       <div class="flex items-center justify-between pb-1.5 border-b border-line">
         <span class="font-semibold text-fg">{{ t('ui.pane.split') }}</span>
-        <div class="flex items-center gap-1 bg-app p-0.5 rounded-lg border border-line">
+        <div class="flex items-center gap-0.5 bg-app p-0.5 rounded-lg border border-line">
           <button
             type="button"
-            @click.stop="splitDirection = 'horizontal'"
-            :class="['p-1 rounded transition-colors', splitDirection === 'horizontal' ? 'bg-active text-accent font-bold' : 'text-fg-muted']"
-            :title="t('ui.pane.horizontal')"
+            @click.stop="setSplitSide('horizontal', 'before')"
+            :class="['p-1 rounded transition-colors cursor-pointer', splitDirection === 'horizontal' && splitPlacement === 'before' ? 'bg-active text-accent font-bold' : 'text-fg-muted hover:text-fg']"
+            :title="t('terminal.splitLeft')"
           >
-            <Columns class="w-3 h-3" />
+            <PanelLeft class="w-3 h-3" />
           </button>
           <button
             type="button"
-            @click.stop="splitDirection = 'vertical'"
-            :class="['p-1 rounded transition-colors', splitDirection === 'vertical' ? 'bg-active text-accent font-bold' : 'text-fg-muted']"
-            :title="t('ui.pane.vertical')"
+            @click.stop="setSplitSide('horizontal', 'after')"
+            :class="['p-1 rounded transition-colors cursor-pointer', splitDirection === 'horizontal' && splitPlacement === 'after' ? 'bg-active text-accent font-bold' : 'text-fg-muted hover:text-fg']"
+            :title="t('terminal.splitRight')"
           >
-            <Rows class="w-3 h-3" />
+            <PanelRight class="w-3 h-3" />
+          </button>
+          <button
+            type="button"
+            @click.stop="setSplitSide('vertical', 'before')"
+            :class="['p-1 rounded transition-colors cursor-pointer', splitDirection === 'vertical' && splitPlacement === 'before' ? 'bg-active text-accent font-bold' : 'text-fg-muted hover:text-fg']"
+            :title="t('terminal.splitUp')"
+          >
+            <PanelTop class="w-3 h-3" />
+          </button>
+          <button
+            type="button"
+            @click.stop="setSplitSide('vertical', 'after')"
+            :class="['p-1 rounded transition-colors cursor-pointer', splitDirection === 'vertical' && splitPlacement === 'after' ? 'bg-active text-accent font-bold' : 'text-fg-muted hover:text-fg']"
+            :title="t('terminal.splitDown')"
+          >
+            <PanelBottom class="w-3 h-3" />
           </button>
         </div>
       </div>

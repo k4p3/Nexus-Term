@@ -1,10 +1,58 @@
 import { describe, it, expect } from "vitest";
-import { findNeighborPane } from "./pane-navigation";
+import { computePaneLayout, findNeighborPane } from "./pane-navigation";
 import type { PaneNode, SplitDirection } from "../types/session";
 
 const leaf = (id: string): PaneNode => ({ type: "leaf", id, title: id });
-const split = (direction: SplitDirection, first: PaneNode, second: PaneNode, ratio = 0.5): PaneNode => ({
-  type: "split", id: `s-${Math.random()}`, direction, first, second, ratio,
+const split = (direction: SplitDirection, first: PaneNode, second: PaneNode, ratio = 0.5, id = `s-${Math.random()}`): PaneNode => ({
+  type: "split", id, direction, first, second, ratio,
+});
+
+describe("computePaneLayout", () => {
+  it("computes full unit square and zero splitters for a single leaf", () => {
+    const layout = computePaneLayout(leaf("a"));
+    expect(layout.leaves).toHaveLength(1);
+    expect(layout.leaves[0]).toMatchObject({ pane: { id: "a" }, x: 0, y: 0, w: 1, h: 1 });
+    expect(layout.splitters).toHaveLength(0);
+  });
+
+  it("computes normalized leaf rectangles and splitter container bounds for nested splits", () => {
+    // Izquierda (40%): a. Derecha (60%): b arriba (30%) y c abajo (70%).
+    const tree = split("horizontal", leaf("a"), split("vertical", leaf("b"), leaf("c"), 0.3, "s-vert"), 0.4, "s-horiz");
+    const { leaves, splitters } = computePaneLayout(tree);
+
+    expect(leaves.map((l) => l.pane.id)).toEqual(["a", "b", "c"]);
+    expect(leaves[0]).toMatchObject({ x: 0, y: 0, w: 0.4, h: 1 });
+    expect(leaves[1].x).toBeCloseTo(0.4);
+    expect(leaves[1].y).toBeCloseTo(0);
+    expect(leaves[1].w).toBeCloseTo(0.6);
+    expect(leaves[1].h).toBeCloseTo(0.3);
+    expect(leaves[2].x).toBeCloseTo(0.4);
+    expect(leaves[2].y).toBeCloseTo(0.3);
+    expect(leaves[2].w).toBeCloseTo(0.6);
+    expect(leaves[2].h).toBeCloseTo(0.7);
+
+    expect(splitters).toHaveLength(2);
+    expect(splitters[0]).toMatchObject({
+      id: "s-horiz",
+      direction: "horizontal",
+      ratio: 0.4,
+      x: 0.4,
+      y: 0,
+      h: 1,
+      containerX: 0,
+      containerY: 0,
+      containerW: 1,
+      containerH: 1,
+    });
+    expect(splitters[1].id).toBe("s-vert");
+    expect(splitters[1].direction).toBe("vertical");
+    expect(splitters[1].x).toBeCloseTo(0.4);
+    expect(splitters[1].y).toBeCloseTo(0.3);
+    expect(splitters[1].w).toBeCloseTo(0.6);
+    expect(splitters[1].containerX).toBeCloseTo(0.4);
+    expect(splitters[1].containerW).toBeCloseTo(0.6);
+    expect(splitters[1].containerH).toBeCloseTo(1);
+  });
 });
 
 describe("findNeighborPane", () => {
