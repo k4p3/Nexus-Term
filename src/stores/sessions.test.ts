@@ -38,6 +38,85 @@ describe('sessions store multiplexer', () => {
     expect(leaves.length).toBe(2);
   });
 
+  it('supports splitting before (left / up) and after (right / down) preserving existing leaf objects', () => {
+    const store = useSessionsStore();
+    const tabId = store.createTab('Main Tab');
+    const tab = store.tabs[0];
+    const initialLeaf = tab.rootPane;
+    expect(initialLeaf.type).toBe('leaf');
+
+    // Dividir a la izquierda (horizontal + before)
+    store.splitPane(tabId, initialLeaf.id, 'horizontal', undefined, 'before');
+    expect(tab.rootPane.type).toBe('split');
+    if (tab.rootPane.type === 'split') {
+      expect(tab.rootPane.direction).toBe('horizontal');
+      expect(tab.rootPane.second).toBe(initialLeaf);
+      expect(tab.rootPane.first.id).toBe(tab.activePaneId);
+    }
+
+    // Dividir arriba sobre el panel original (vertical + before)
+    store.splitPane(tabId, initialLeaf.id, 'vertical', undefined, 'before');
+    const leaves = store.getLeafPanesInTab(tabId);
+    expect(leaves).toHaveLength(3);
+    expect(leaves[2]).toBe(initialLeaf);
+  });
+
+  it('supports docking another tab before or after a target pane', () => {
+    const store = useSessionsStore();
+    const targetTabId = store.createTab('Target');
+    const targetLeafId = store.tabs[0].activePaneId;
+    const sourceTabId = store.createTab('Source');
+    const sourceLeafId = store.tabs[1].activePaneId;
+
+    store.dockTabIntoPane(sourceTabId, targetTabId, targetLeafId, 'vertical', 'before');
+    expect(store.tabs).toHaveLength(1);
+    expect(store.activeTabId).toBe(targetTabId);
+    const leaves = store.getLeafPanesInTab(targetTabId);
+    expect(leaves.map((l) => l.id)).toEqual([sourceLeafId, targetLeafId]);
+    expect(store.tabs[0].activePaneId).toBe(sourceLeafId);
+  });
+
+  it('clamps split ratio updates to [0.1, 0.9]', () => {
+    const store = useSessionsStore();
+    const tabId = store.createTab('Main Tab');
+    const tab = store.tabs[0];
+    store.splitPane(tabId, tab.activePaneId, 'horizontal');
+    expect(tab.rootPane.type).toBe('split');
+    if (tab.rootPane.type !== 'split') return;
+    const splitId = tab.rootPane.id;
+
+    store.setSplitRatio(tabId, splitId, 0.72);
+    expect(tab.rootPane.type === 'split' && tab.rootPane.ratio).toBeCloseTo(0.72);
+
+    store.setSplitRatio(tabId, splitId, 0.01);
+    expect(tab.rootPane.type === 'split' && tab.rootPane.ratio).toBe(0.1);
+
+    store.setSplitRatio(tabId, splitId, 0.99);
+    expect(tab.rootPane.type === 'split' && tab.rootPane.ratio).toBe(0.9);
+  });
+
+  it('reassigns activePaneId to a surviving neighbor when closing the active pane', () => {
+    const store = useSessionsStore();
+    const tabId = store.createTab('Main Tab');
+    const tab = store.tabs[0];
+    const p1 = tab.activePaneId;
+
+    store.splitPane(tabId, p1, 'horizontal'); // p1 | p2 (activo: p2)
+    const p2 = tab.activePaneId;
+    store.splitPane(tabId, p2, 'vertical'); // p1 | (p2 / p3) (activo: p3)
+    const p3 = tab.activePaneId;
+
+    // Cerrar p3 (activo): debe pasar el foco a p2 (su vecino superior directo)
+    store.closePane(tabId, p3);
+    expect(store.getLeafPanesInTab(tabId).map((l) => l.id)).toEqual([p1, p2]);
+    expect(tab.activePaneId).toBe(p2);
+
+    // Si cerramos un panel inactivo (p1 mientras p2 está activo), p2 sigue activo
+    store.closePane(tabId, p1);
+    expect(store.getLeafPanesInTab(tabId).map((l) => l.id)).toEqual([p2]);
+    expect(tab.activePaneId).toBe(p2);
+  });
+
   it('should toggle broadcast mode state', () => {
     const store = useSessionsStore();
     expect(store.isBroadcastMode).toBe(false);
